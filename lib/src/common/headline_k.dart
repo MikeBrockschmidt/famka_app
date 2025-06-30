@@ -21,7 +21,7 @@ class HeadlineK extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 screenHead,
-                style: Theme.of(context).textTheme.headlineLarge,
+                style: Theme.of(context).textTheme.labelLarge,
               ),
             ),
           ),
