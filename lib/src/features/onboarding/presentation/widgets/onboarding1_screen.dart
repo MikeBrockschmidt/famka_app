@@ -1,0 +1,21 @@
+import 'package:famka_app/src/data/database_repository.dart';
+import 'package:famka_app/src/features/onboarding/presentation/onboarding1.dart';
+import 'package:famka_app/src/theme/font_theme.dart';
+import 'package:flutter/material.dart';
+
+class Onboarding1Screen extends StatelessWidget {
+  // Atribute
+  final DatabaseRepository db;
+
+  // Konstruktor
+  const Onboarding1Screen(this.db, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: appTheme,
+      home: CustomScreen(db),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
