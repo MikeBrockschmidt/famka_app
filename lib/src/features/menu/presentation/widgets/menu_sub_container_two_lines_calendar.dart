@@ -24,11 +24,6 @@ class MenuSubContainer2LinesCalendar extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Divider(
-          thickness: 1,
-          height: 1,
-          color: Colors.grey,
-        ),
         Container(
           color: Colors.white,
           padding: const EdgeInsets.only(
@@ -64,7 +59,9 @@ class MenuSubContainer2LinesCalendar extends StatelessWidget {
                   children: [
                     Text(
                       group.groupName,
-                      style: Theme.of(context).textTheme.labelMedium,
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                            height: 0.9,
+                          ),
                     ),
                     Text(
                       group.groupLocation,

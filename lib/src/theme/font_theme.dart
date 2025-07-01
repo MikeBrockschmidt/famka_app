@@ -5,7 +5,7 @@ final ThemeData appTheme = ThemeData(
     headlineLarge: TextStyle(
       fontFamily: 'SFProDisplayHeavy',
       fontWeight: FontWeight.w300,
-      fontSize: 15,
+      fontSize: 44,
       color: Colors.black,
     ),
     headlineMedium: TextStyle(

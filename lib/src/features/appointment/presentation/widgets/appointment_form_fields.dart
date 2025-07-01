@@ -1,8 +1,5 @@
-// lib/src/features/appointment/presentation/widgets/appointment_form_fields.dart
-
 import 'package:flutter/material.dart';
 
-/// Ein wiederverwendbares Textfeld-Widget mit Icon, Label und Validierung.
 class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
@@ -15,8 +12,7 @@ class AppTextField extends StatelessWidget {
     this.onChanged,
     this.readOnly = false,
     this.onTap,
-    this.maxLines =
-        1, // NEU: Hinzugefügt oder angepasst: Standard ist 1, aber kann überschrieben werden
+    this.maxLines = 1,
   });
 
   final IconData leftIcon;
@@ -28,7 +24,7 @@ class AppTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final bool readOnly;
   final GestureTapCallback? onTap;
-  final int? maxLines; // NEU: maxLines-Parameter HIER DEKLARIEREN
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +64,7 @@ class AppTextField extends StatelessWidget {
               onChanged: onChanged,
               readOnly: readOnly || onTap != null,
               onTap: onTap,
-              maxLines: maxLines, // Hier wird maxLines angewendet
+              maxLines: maxLines,
             ),
           ),
         ],
@@ -77,7 +73,6 @@ class AppTextField extends StatelessWidget {
   }
 }
 
-/// Ein wiederverwendbares Schalter-Widget mit Icon und Label.
 class AppSwitchRow extends StatelessWidget {
   const AppSwitchRow({
     super.key,
@@ -119,7 +114,6 @@ class AppSwitchRow extends StatelessWidget {
   }
 }
 
-/// Ein wiederverwendbares Dropdown-Widget mit Icon, Label und Items.
 class AppDropdownRow extends StatelessWidget {
   const AppDropdownRow({
     super.key,

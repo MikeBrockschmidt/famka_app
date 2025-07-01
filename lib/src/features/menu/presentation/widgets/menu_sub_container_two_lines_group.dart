@@ -65,8 +65,8 @@ class _SingleGroupItem extends StatelessWidget {
                       Text(
                         group.groupName,
                         style:
-                            Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  height: 1.5,
+                            Theme.of(context).textTheme.labelMedium!.copyWith(
+                                  height: 0.9,
                                 ),
                       ),
                       Text(
