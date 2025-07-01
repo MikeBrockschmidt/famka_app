@@ -1,3 +1,4 @@
+import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_list.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/data/app_user.dart';
@@ -251,7 +252,7 @@ class _EventListPageState extends State<EventListPage> {
                             },
                           ),
           ),
-          BottomNavigationThreeList(
+          BottomNavigationThreeCalendar(
             widget.db,
             initialGroup: _displayGroup,
             currentUser: widget.currentUser,
