@@ -1,11 +1,12 @@
-import 'package:famka_app/src/features/appointment/presentation/appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/data/app_user.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_screen.dart';
-import 'package:famka_app/src/features/calendar/presentation/event_list_page.dart';
+import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
+import 'package:famka_app/src/features/appointment/presentation/widgets/appointment1.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:famka_app/src/features/calendar/presentation/event_list_page.dart';
 
 class BottomNavigationThreeList extends StatefulWidget {
   final DatabaseRepository db;
@@ -32,10 +33,11 @@ class BottomNavigationThreeList extends StatefulWidget {
 
   @override
   State<BottomNavigationThreeList> createState() =>
-      _BottomNavigationThreeListState();
+      _BottomNavigationThreeCalendarState();
 }
 
-class _BottomNavigationThreeListState extends State<BottomNavigationThreeList> {
+class _BottomNavigationThreeCalendarState
+    extends State<BottomNavigationThreeList> {
   int _selectedIndex = 0;
   Group? _currentActiveGroup;
   bool _isLoadingGroup = true;
@@ -87,6 +89,7 @@ class _BottomNavigationThreeListState extends State<BottomNavigationThreeList> {
                     orElse: () => userGroups.first,
                   )
                 : userGroups.first;
+
             _currentActiveGroup = foundInitialGroup;
           } else {
             _currentActiveGroup = null;
@@ -173,23 +176,20 @@ class _BottomNavigationThreeListState extends State<BottomNavigationThreeList> {
     );
 
     if (result == true) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       setState(() {
         _selectedIndex = 1;
       });
-      if (!mounted) {
-        return;
-      }
+
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          settings: const RouteSettings(name: '/eventListPage'),
-          builder: (context) => EventListPage(
-            db: widget.db,
+          settings: const RouteSettings(name: '/calendarScreen'),
+          builder: (context) => CalendarScreen(
+            widget.db,
             currentGroup: _currentActiveGroup!,
             currentUser: widget.currentUser!,
           ),
@@ -235,7 +235,7 @@ class _BottomNavigationThreeListState extends State<BottomNavigationThreeList> {
           ),
           _buildNavItem(
             context,
-            icon: Icons.list_alt,
+            icon: Icons.list_outlined,
             label: 'Liste',
             isActive: _selectedIndex == 1,
             onTap: () => _onItemTapped(1),
