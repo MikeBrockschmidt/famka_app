@@ -2,7 +2,7 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/font_theme.dart';
-import 'package:flutter_localizations/flutter_localizations.dart'; // NEU: Import für Lokalisierungen
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class MainApp extends StatelessWidget {
   // Atribute

@@ -1,4 +1,4 @@
-import 'package:famka_app/src/features/appointment/presentation/appointment.dart';
+import 'package:famka_app/src/features/appointment/presentation/widgets/appointment1.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/data/app_user.dart';

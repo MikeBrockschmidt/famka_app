@@ -6,7 +6,6 @@ import 'package:famka_app/src/features/profil_page/presentation/widgets/create_g
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:intl/intl.dart';
 import 'package:famka_app/src/data/app_user.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
@@ -86,7 +85,6 @@ class _ProfilPageState extends State<ProfilPage> {
           });
 
           final dynamic result = await Navigator.push(
-            // ignore: use_build_context_synchronously
             context,
             MaterialPageRoute(
               builder: (context) => GroupPage(
@@ -187,22 +185,6 @@ class _ProfilPageState extends State<ProfilPage> {
                                 widget.currentUser.email.isEmpty
                                     ? 'Nicht angegeben'
                                     : widget.currentUser.email,
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Icon(Icons.cake,
-                                  size: 20, color: Colors.black),
-                              const SizedBox(width: 12),
-                              Text(
-                                widget.currentUser.birthDate ==
-                                        DateTime(2000, 1, 1)
-                                    ? 'Nicht angegeben'
-                                    : DateFormat('dd.MM.yyyy')
-                                        .format(widget.currentUser.birthDate),
                                 style: Theme.of(context).textTheme.labelSmall,
                               ),
                             ],

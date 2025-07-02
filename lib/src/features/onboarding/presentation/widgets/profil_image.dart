@@ -23,32 +23,39 @@ class ProfilImage extends StatelessWidget {
     final String? selectedPath = await showDialog<String>(
       context: context,
       builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Avatar auswählen'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: _mockAvatarPaths.map((path) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.pop(dialogContext, path);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: AppColors.famkaGreen,
-                          backgroundImage: AssetImage(path),
+        return Theme(
+          data: Theme.of(context),
+          child: Builder(
+            builder: (BuildContext innerContext) {
+              return AlertDialog(
+                title: const Text('Avatar auswählen'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: _mockAvatarPaths.map((path) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pop(innerContext, path);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: AppColors.famkaGreen,
+                                backgroundImage: AssetImage(path),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(path.split('/').last.split('.').first),
+                            ],
+                          ),
                         ),
-                        const SizedBox(width: 10),
-                        Text(path.split('/').last.split('.').first),
-                      ],
-                    ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-            ),
+                ),
+              );
+            },
           ),
         );
       },

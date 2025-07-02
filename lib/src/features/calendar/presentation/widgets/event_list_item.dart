@@ -105,9 +105,9 @@ class EventListItem extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(8),
-          topRight: Radius.circular(8),
-          bottomRight: Radius.circular(8),
+          topLeft: Radius.circular(0),
+          topRight: Radius.circular(0),
+          bottomRight: Radius.circular(0),
           bottomLeft: Radius.zero,
         ),
         child: Column(
@@ -117,11 +117,11 @@ class EventListItem extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 5,
+                    width: 18,
                     decoration: const BoxDecoration(
-                      color: AppColors.famkaBlue,
+                      color: AppColors.famkaYellow,
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(8),
+                        topLeft: Radius.circular(0),
                         bottomLeft: Radius.zero,
                       ),
                     ),
@@ -205,12 +205,12 @@ class EventListItem extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 2),
                                   Text('Ort: ${event.singleEventLocation}',
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 2),
                                   Text('Datum: $dateDisplay',
                                       style: Theme.of(context)
                                           .textTheme
@@ -359,12 +359,12 @@ class EventListItem extends StatelessWidget {
               ),
             ),
             Container(
-              height: 5,
+              height: 2,
               decoration: const BoxDecoration(
                 color: AppColors.famkaBlue,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.zero,
-                  bottomRight: Radius.circular(8),
+                  bottomRight: Radius.circular(3),
                 ),
               ),
             ),

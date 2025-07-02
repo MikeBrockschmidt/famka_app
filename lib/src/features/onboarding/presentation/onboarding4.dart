@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/color_row2.dart';
-import 'package:intl/intl.dart';
 import 'package:famka_app/src/data/app_user.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding_process4.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
@@ -31,12 +30,10 @@ class Onboarding4 extends StatefulWidget {
 class _Onboarding4ScreenState extends State<Onboarding4> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _birthDateController = TextEditingController();
   final TextEditingController _miscellaneousController =
       TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  DateTime? _parsedBirthDate;
 
   @override
   void initState() {
@@ -44,13 +41,6 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
     _phoneNumberController.text = widget.user.phoneNumber;
     _emailController.text = widget.user.email;
 
-    if (widget.user.birthDate != DateTime(2000, 1, 1)) {
-      _parsedBirthDate = widget.user.birthDate;
-      _birthDateController.text =
-          DateFormat('yyyy-MM-dd').format(widget.user.birthDate);
-    } else {
-      _birthDateController.text = '';
-    }
     _miscellaneousController.text = widget.user.miscellaneous;
   }
 
@@ -58,7 +48,6 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
   void dispose() {
     _phoneNumberController.dispose();
     _emailController.dispose();
-    _birthDateController.dispose();
     _miscellaneousController.dispose();
     super.dispose();
   }
@@ -85,22 +74,6 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
     return null;
   }
 
-  String? _validateBirthDate(String? input) {
-    if (input == null || input.isEmpty) {
-      _parsedBirthDate = null;
-      return null;
-    }
-    try {
-      _parsedBirthDate = DateFormat('yyyy-MM-dd').parseStrict(input);
-      if (_parsedBirthDate!.isAfter(DateTime.now())) {
-        return 'Geburtsdatum kann nicht in der Zukunft liegen';
-      }
-      return null;
-    } catch (e) {
-      return 'Ungültiges Datum. Format: YYYY-MM-DD';
-    }
-  }
-
   void _saveUserData() async {
     if (_formKey.currentState?.validate() ?? false) {
       final updatedUser = AppUser(
@@ -109,7 +82,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
         lastName: widget.user.lastName,
         email: _emailController.text.trim(),
         phoneNumber: _phoneNumberController.text.trim(),
-        birthDate: _parsedBirthDate ?? DateTime(2000, 1, 1),
+        birthDate: DateTime(2000, 1, 1),
         avatarUrl: widget.user.avatarUrl,
         miscellaneous: _miscellaneousController.text.trim(),
         password: widget.user.password,
@@ -238,27 +211,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                   ),
                                 ],
                               ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.cake, size: 20),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: TextFormField(
-                                      controller: _birthDateController,
-                                      keyboardType: TextInputType.datetime,
-                                      validator: _validateBirthDate,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Geburtsdatum (YYYY-MM-DD)',
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              // Geburtsdatum-Row komplett entfernt
                               Row(
                                 children: [
                                   const Icon(Icons.calendar_today, size: 20),
