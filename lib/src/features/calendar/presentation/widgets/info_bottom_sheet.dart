@@ -242,7 +242,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                             titlePadding: const EdgeInsets.fromLTRB(
                                 24.0, 24.0, 16.0, 0.0),
                             title: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
                                   width: 50,
@@ -294,7 +294,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                           .titleMedium),
                                 if (event.repeatOption != null &&
                                     event.repeatOption!.isNotEmpty)
-                                  Text('Wiederholung: ${event.repeatOption}',
+                                  Text(
+                                      'Wiederholung: ${event.repeatOption}${event.numberOfRepeats != null && event.numberOfRepeats! > 1 ? ' (${event.numberOfRepeats}x)' : ''}',
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium),

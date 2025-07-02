@@ -55,11 +55,7 @@ class _GroupPageState extends State<GroupPage> {
     try {
       _currentUserId = await widget.db.getCurrentUserId();
       setState(() {});
-    } catch (e) {
-      // Ignoriere diesen Fehler bewusst, da ein fehlender Benutzer
-      // in diesem speziellen Kontext kein kritisches Problem darstellt
-      // und an anderer Stelle behandelt wird.
-    }
+    } catch (e) {}
   }
 
   Future<void> _loadGroupData() async {

@@ -10,6 +10,7 @@ class SingleEvent {
   final String groupId;
   final String? repeatOption;
   final String? reminderOption;
+  final int? numberOfRepeats;
 
   SingleEvent({
     required this.singleEventId,
@@ -23,5 +24,6 @@ class SingleEvent {
     required this.groupId,
     this.repeatOption,
     this.reminderOption,
+    this.numberOfRepeats,
   });
 }

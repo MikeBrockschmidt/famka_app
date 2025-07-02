@@ -211,7 +211,6 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                   ),
                                 ],
                               ),
-                              // Geburtsdatum-Row komplett entfernt
                               Row(
                                 children: [
                                   const Icon(Icons.calendar_today, size: 20),

@@ -85,6 +85,7 @@ class _ProfilPageState extends State<ProfilPage> {
           });
 
           final dynamic result = await Navigator.push(
+            // ignore: use_build_context_synchronously
             context,
             MaterialPageRoute(
               builder: (context) => GroupPage(

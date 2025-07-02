@@ -47,7 +47,7 @@ class _AppointmentState extends State<Appointment> {
   bool _repeat = false;
   bool _reminder = false;
 
-  String _selectedRepeat = 'Wöchentlich';
+  String _selectedRepeat = 'Täglich';
   String _selectedReminder = '1 Stunde';
 
   late Future<List<AppUser>> _groupMembersFuture;
@@ -297,6 +297,7 @@ class _AppointmentState extends State<Appointment> {
         groupId: initialEvent.groupId,
         repeatOption: initialEvent.repeatOption,
         reminderOption: initialEvent.reminderOption,
+        numberOfRepeats: initialEvent.numberOfRepeats,
       );
       saveOperations.add(widget.db.createEvent(recurringEvent));
       occurrencesGenerated++;
@@ -322,6 +323,30 @@ class _AppointmentState extends State<Appointment> {
         const SnackBar(
           backgroundColor: AppColors.famkaRed,
           content: Text('Bitte füllen Sie alle Felder korrekt aus.'),
+        ),
+      );
+      return;
+    }
+
+    if (_selectedGalleryItemContent == null ||
+        _selectedGalleryItemContent!.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppColors.famkaRed,
+          content: Text('Bitte geben Sie Ihrem Event ein Gesicht.'),
+        ),
+      );
+      return;
+    }
+
+    if (selectedMembers.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppColors.famkaRed,
+          content: Text(
+              'Für wen ist der Termin? Bitte wählen Sie mindestens einen Teilnehmer aus.'),
         ),
       );
       return;
@@ -376,6 +401,7 @@ class _AppointmentState extends State<Appointment> {
       groupId: widget.currentGroup?.groupId ?? 'personal_events',
       repeatOption: _repeat ? _selectedRepeat : null,
       reminderOption: _reminder ? _selectedReminder : null,
+      numberOfRepeats: _repeat ? _numberOfRepeats : null,
     );
 
     try {
@@ -554,6 +580,7 @@ class _AppointmentState extends State<Appointment> {
                         key: _saveButtonKey,
                         onSave: _createAndSaveAppointment,
                       ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),

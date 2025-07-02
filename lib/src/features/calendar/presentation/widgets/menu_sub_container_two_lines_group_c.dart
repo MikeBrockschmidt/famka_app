@@ -56,7 +56,12 @@ class MenuSubContainer2LinesGroupC extends StatelessWidget {
                         children: [
                           Text(
                             currentGroup.groupName,
-                            style: Theme.of(context).textTheme.labelMedium,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium!
+                                .copyWith(
+                                  height: 0.9,
+                                ),
                           ),
                           const SizedBox(height: 2),
                           Text(

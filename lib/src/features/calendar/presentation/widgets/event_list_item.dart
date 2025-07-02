@@ -171,15 +171,15 @@ class EventListItem extends StatelessWidget {
                               titlePadding: const EdgeInsets.fromLTRB(
                                   24.0, 24.0, 16.0, 0.0),
                               title: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   SizedBox(
-                                    width: 50,
-                                    height: 50,
+                                    width: 40,
+                                    height: 40,
                                     child: _buildEventLeadingIcon(
                                       event.singleEventUrl,
                                       event.singleEventName,
-                                      size: 50.0,
+                                      size: 40.0,
                                     ),
                                   ),
                                   const SizedBox(width: 16),
@@ -224,7 +224,8 @@ class EventListItem extends StatelessWidget {
                                             .titleMedium),
                                   if (event.repeatOption != null &&
                                       event.repeatOption!.isNotEmpty)
-                                    Text('Wiederholung: ${event.repeatOption}',
+                                    Text(
+                                        'Wiederholung: ${event.repeatOption}${event.numberOfRepeats != null && event.numberOfRepeats! > 1 ? ' (${event.numberOfRepeats}x)' : ''}',
                                         style: Theme.of(context)
                                             .textTheme
                                             .titleMedium),

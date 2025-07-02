@@ -62,17 +62,13 @@ class _CalendarGridState extends State<CalendarGrid> {
       currentDate.day,
     );
 
-    // Behebung: Umbenennung von _actualEndDate
     final DateTime actualEndDate = DateTime(
-      // KEIN Unterstrich mehr
       currentDate.year,
       currentDate.month + _monthsForward,
       currentDate.day,
     );
 
-    _totalDisplayDays = actualEndDate
-        .difference(_actualStartDate)
-        .inDays; // Verwende 'actualEndDate'
+    _totalDisplayDays = actualEndDate.difference(_actualStartDate).inDays;
 
     if (_totalDisplayDays < 1) {
       _totalDisplayDays = 1;
@@ -82,22 +78,16 @@ class _CalendarGridState extends State<CalendarGrid> {
     _loadAllEvents();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Behebung: Erfasse MediaQuery-Daten VOR dem Future.delayed
-      // und prüfe 'mounted' direkt vor der Verwendung von 'context'
-      if (!mounted) return; // Sicherstellen, dass das Widget noch da ist
+      if (!mounted) return;
 
-      final double screenHeight =
-          MediaQuery.of(context).size.height; // Capture height
-      final double maxScrollExtentLimit =
-          screenHeight - 94 - 40; // Calculate using captured height
+      final double screenHeight = MediaQuery.of(context).size.height;
+      final double maxScrollExtentLimit = screenHeight - 94 - 40;
 
       Future.delayed(const Duration(milliseconds: 50), () {
         if (_leftColumnVerticalScrollController.hasClients && mounted) {
-          // Zusätzliche mounted-Prüfung
           final initialDayOffset =
               currentDate.difference(_actualStartDate).inDays;
           final initialScrollOffset = initialDayOffset * rowHeight;
-          // Verwende die zuvor erfasste maxScrollExtentLimit
           final maxScrollExtent =
               (_totalDisplayDays * rowHeight) - maxScrollExtentLimit;
           final clampedInitialOffset = initialScrollOffset.clamp(
@@ -171,10 +161,7 @@ class _CalendarGridState extends State<CalendarGrid> {
   void scrollToMonth(DateTime targetDate) {
     final dayOffset = targetDate.difference(_actualStartDate).inDays;
     final scrollOffset = dayOffset * rowHeight;
-    // Behebung: Erfasse MediaQuery-Daten VOR der Berechnung der maxScrollExtent
-    // Da scrollToMonth keine async-Lücke enthält, ist ein einfaches "if (mounted)" hier nicht unbedingt nötig,
-    // aber das Erfassen der Daten VOR der Verwendung von context ist dennoch eine gute Praxis.
-    if (!mounted) return; // Sicherstellen, dass das Widget noch gemountet ist
+    if (!mounted) return;
 
     final double screenHeight = MediaQuery.of(context).size.height;
     final double maxScrollExtentLimit = screenHeight - 94 - 40;
@@ -407,7 +394,6 @@ class _CalendarGridState extends State<CalendarGrid> {
                                                 .contains(userId);
                                       }).toList();
 
-                                      // Capture BuildContext before showModalBottomSheet, which is async.
                                       final BuildContext currentTapContext =
                                           context;
 
@@ -422,8 +408,6 @@ class _CalendarGridState extends State<CalendarGrid> {
                                                 currentGroupMembers,
                                             onEventDeleted:
                                                 (String deletedEventId) {
-                                              // This callback might be called after the widget is disposed.
-                                              // Ensure 'mounted' check before setState.
                                               if (mounted) {
                                                 setState(() {
                                                   _allEvents.removeWhere(
