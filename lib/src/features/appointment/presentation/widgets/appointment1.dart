@@ -1,6 +1,7 @@
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
+import 'package:famka_app/src/features/appointment/presentation/widgets/appointment_validators.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/app_user.dart';
@@ -14,6 +15,8 @@ import 'package:famka_app/src/features/appointment/presentation/widgets/event_pa
 import 'package:famka_app/src/features/appointment/presentation/widgets/gallery_selection_field.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/repeat_reminder_settings.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/save_appointment_button.dart';
+import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart';
+import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
 
 class Appointment extends StatefulWidget {
   final DatabaseRepository db;
@@ -102,36 +105,6 @@ class _AppointmentState extends State<Appointment> {
     return null;
   }
 
-  String? _validateDate(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Bitte Datum auswählen';
-    }
-    return null;
-  }
-
-  String? _validateTime(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Bitte Zeit eingeben';
-    }
-    final parts = value.split(':');
-    if (parts.length != 2) {
-      return 'Zeit muss im Format HH:MM sein';
-    }
-    try {
-      final hour = int.parse(parts[0]);
-      final minute = int.parse(parts[1]);
-      if (hour < 0 || hour > 23) {
-        return 'Stunden müssen zwischen 00 und 23 liegen';
-      }
-      if (minute < 0 || minute > 59) {
-        return 'Minuten müssen zwischen 00 und 59 liegen';
-      }
-    } catch (e) {
-      return 'Zeit muss im Format HH:MM sein';
-    }
-    return null;
-  }
-
   String? _validateLocation(String? value) {
     if (value == null || value.isEmpty) {
       return 'Bitte Standort eingeben';
@@ -165,38 +138,6 @@ class _AppointmentState extends State<Appointment> {
       return 'Max. 365 Wiederholungen';
     }
     return null;
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-      locale: const Locale('de'),
-      builder: (context, child) {
-        final bodySmallStyle = Theme.of(context).textTheme.bodySmall;
-        return Theme(
-          data: Theme.of(context).copyWith(
-            textTheme: TextTheme(
-              bodyLarge: bodySmallStyle,
-              bodyMedium: bodySmallStyle,
-              bodySmall: bodySmallStyle,
-              titleMedium: bodySmallStyle,
-              labelSmall: bodySmallStyle,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() {
-        _dateController.text =
-            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-      });
-    }
   }
 
   bool _isLeapYear(int year) {
@@ -439,7 +380,7 @@ class _AppointmentState extends State<Appointment> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: AppColors.famkaWhite,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,10 +416,21 @@ class _AppointmentState extends State<Appointment> {
                         controller: _dateController,
                         label: 'Datum',
                         hint: 'YYYY-MM-DD',
-                        validator: _validateDate,
+                        validator: validateAppointmentDate,
                         readOnly: true,
-                        onTap: () {
-                          _selectDate(context);
+                        onTap: () async {
+                          final DateTime? picked = await selectAppointmentDate(
+                            context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2101),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _dateController.text =
+                                  "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+                            });
+                          }
                         },
                       ),
                       AppSwitchRow(
@@ -495,16 +447,44 @@ class _AppointmentState extends State<Appointment> {
                               controller: _timeController,
                               label: 'Startzeit',
                               hint: 'HH:MM',
-                              validator: _validateTime,
-                              keyboardType: TextInputType.datetime,
+                              validator: (value) =>
+                                  validateAppointmentTime(value, _allDay),
+                              readOnly: true,
+                              onTap: () async {
+                                final TimeOfDay? pickedTime =
+                                    await selectAppointmentTime(
+                                  context,
+                                  initialTime: TimeOfDay.now(),
+                                );
+                                if (pickedTime != null) {
+                                  setState(() {
+                                    _timeController.text =
+                                        pickedTime.format(context);
+                                  });
+                                }
+                              },
                             ),
                             AppTextField(
                               leftIcon: Icons.access_time_outlined,
                               controller: _endTimeController,
                               label: 'Endzeit',
                               hint: 'HH:MM',
-                              validator: _validateTime,
-                              keyboardType: TextInputType.datetime,
+                              validator: (value) =>
+                                  validateAppointmentTime(value, _allDay),
+                              readOnly: true,
+                              onTap: () async {
+                                final TimeOfDay? pickedTime =
+                                    await selectAppointmentTime(
+                                  context,
+                                  initialTime: TimeOfDay.now(),
+                                );
+                                if (pickedTime != null) {
+                                  setState(() {
+                                    _endTimeController.text =
+                                        pickedTime.format(context);
+                                  });
+                                }
+                              },
                             ),
                           ],
                         ),

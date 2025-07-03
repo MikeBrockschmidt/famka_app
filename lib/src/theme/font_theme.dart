@@ -71,7 +71,7 @@ final ThemeData appTheme = ThemeData(
     displayLarge: TextStyle(
       fontFamily: 'SFProDisplay',
       fontWeight: FontWeight.w300,
-      fontSize: 12,
+      fontSize: 20,
       color: Colors.black,
     ),
     titleLarge: TextStyle(

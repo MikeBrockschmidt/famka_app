@@ -167,6 +167,7 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
             await _saveChanges();
           } else {
             if (mounted) {
+              // ignore: use_build_context_synchronously
               Navigator.pop(context, null);
             }
           }

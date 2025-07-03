@@ -55,7 +55,10 @@ class _GroupPageState extends State<GroupPage> {
     try {
       _currentUserId = await widget.db.getCurrentUserId();
       setState(() {});
-    } catch (e) {}
+    } catch (e) {
+      // Fehler wird hier ignoriert, da _currentUserId null bleibt und die UI dies handhabt.
+      // print('Error getting current user ID: $e'); // Optional: Zum Debuggen auskommentieren
+    }
   }
 
   Future<void> _loadGroupData() async {
