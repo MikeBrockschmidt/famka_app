@@ -1,4 +1,5 @@
 import 'package:famka_app/src/common/headline_k.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_onboarding.dart';
@@ -8,9 +9,11 @@ import 'package:famka_app/src/common/color_row.dart';
 
 class CustomScreen extends StatelessWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
   final Group? currentGroup;
 
-  const CustomScreen(this.db, {super.key, this.currentGroup});
+  const CustomScreen(this.db, this.auth, {super.key, this.currentGroup});
+
   @override
   Widget build(BuildContext context) {
     const double bottomReservedSpace = 120.0;
@@ -30,7 +33,7 @@ class CustomScreen extends StatelessWidget {
             bottom: 70,
             left: 0,
             right: 0,
-            child: OnboardingProgress1(db),
+            child: OnboardingProgress1(db, auth),
           ),
           Positioned.fill(
             bottom: bottomReservedSpace,
@@ -41,7 +44,7 @@ class CustomScreen extends StatelessWidget {
                   const HeadlineK(screenHead: 'Profil'),
                   const SizedBox(height: 40),
                   const SizedBox(height: 10),
-                  ProfilOnboarding(db),
+                  ProfilOnboarding(db: db, auth: auth),
                 ],
               ),
             ),

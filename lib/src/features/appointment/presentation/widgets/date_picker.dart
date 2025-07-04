@@ -20,8 +20,7 @@ Future<DateTime?> selectAppointmentDate(
       return Theme(
         data: theme.copyWith(
           dialogTheme: const DialogThemeData(
-            backgroundColor: AppColors
-                .famkaWhite, // <- ersetzt deprecated dialogBackgroundColor
+            backgroundColor: AppColors.famkaWhite,
           ),
           colorScheme: theme.colorScheme.copyWith(
             primary: AppColors.famkaCyan,
@@ -33,7 +32,7 @@ Future<DateTime?> selectAppointmentDate(
           ),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.famkaBlue, // „Abbrechen“ & „OK“
+              foregroundColor: AppColors.famkaBlue,
               textStyle: textTheme.labelLarge?.copyWith(
                 fontSize: 14.0,
                 color: AppColors.famkaBlue,

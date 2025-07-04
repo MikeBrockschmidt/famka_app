@@ -1,4 +1,6 @@
 import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/src/data/firebase_auth_repository.dart';
 import 'package:famka_app/src/data/user_role.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
@@ -130,7 +132,8 @@ class MockDatabaseRepository implements DatabaseRepository {
   String? _currentLoggedInUserId;
 
   @override
-  Future<void> loginAs(String userIdOrEmailOrPhone, String password) async {
+  Future<void> loginAs(
+      String userIdOrEmailOrPhone, String password, AppUser appUser) async {
     final user = _users.firstWhereOrNull(
       (u) =>
           (u.profilId == userIdOrEmailOrPhone ||
@@ -140,6 +143,7 @@ class MockDatabaseRepository implements DatabaseRepository {
     );
     if (user != null) {
       _currentLoggedInUserId = user.profilId;
+      currentUser = appUser;
     } else {
       throw Exception('Falscher Benutzername oder Passwort');
     }
@@ -339,4 +343,10 @@ class MockDatabaseRepository implements DatabaseRepository {
     }
     await Future.delayed(const Duration(milliseconds: 1));
   }
+
+  @override
+  AppUser? currentUser;
+
+  @override
+  AuthRepository get auth => FirebaseAuthRepository();
 }

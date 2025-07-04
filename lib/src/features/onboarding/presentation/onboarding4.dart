@@ -1,4 +1,5 @@
 import 'package:famka_app/src/common/profil_avatar_row.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/headline_k.dart';
@@ -13,12 +14,14 @@ import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart
 
 class Onboarding4 extends StatefulWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
   final AppUser user;
   final Group group;
 
   const Onboarding4({
     super.key,
     required this.db,
+    required this.auth,
     required this.user,
     required this.group,
   });
@@ -276,7 +279,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
             bottom: 70,
             left: 0,
             right: 0,
-            child: OnboardingProgress4(widget.db),
+            child: OnboardingProgress4(widget.db, widget.auth),
           ),
         ],
       ),

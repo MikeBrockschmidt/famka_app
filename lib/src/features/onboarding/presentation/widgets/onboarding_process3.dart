@@ -1,11 +1,13 @@
+import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
 
 class OnboardingProgress3 extends StatelessWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
 
-  const OnboardingProgress3(this.db, {super.key});
+  const OnboardingProgress3(this.db, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,7 @@ class OnboardingProgress3 extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => LoginScreen(db),
+              builder: (context) => LoginScreen(db, auth),
             ),
           );
         },

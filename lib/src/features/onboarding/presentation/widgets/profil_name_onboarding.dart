@@ -1,3 +1,4 @@
+import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/onboarding3.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +8,13 @@ import 'package:famka_app/src/theme/color_theme.dart';
 
 class ProfilNameOnboarding extends StatefulWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
   final AppUser user;
 
   const ProfilNameOnboarding({
     super.key,
     required this.db,
+    required this.auth,
     required this.user,
   });
 
@@ -85,6 +88,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
           MaterialPageRoute(
             builder: (context) => Onboarding3Screen(
               db: widget.db,
+              auth: widget.auth,
               user: updatedUser,
             ),
           ),

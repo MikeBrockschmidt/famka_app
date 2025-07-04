@@ -1,5 +1,6 @@
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding_process2.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
@@ -9,11 +10,13 @@ import 'package:famka_app/src/common/color_row.dart';
 
 class Onboarding2Screen extends StatelessWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
   final AppUser user;
 
   const Onboarding2Screen({
     super.key,
     required this.db,
+    required this.auth,
     required this.user,
   });
 
@@ -46,7 +49,7 @@ class Onboarding2Screen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  ProfilNameOnboarding(db: db, user: user),
+                  ProfilNameOnboarding(db: db, auth: auth, user: user),
                 ],
               ),
             ),
@@ -55,7 +58,7 @@ class Onboarding2Screen extends StatelessWidget {
             bottom: 70,
             left: 0,
             right: 0,
-            child: OnboardingProgress2(db),
+            child: OnboardingProgress2(db, auth),
           ),
         ],
       ),

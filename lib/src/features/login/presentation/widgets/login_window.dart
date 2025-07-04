@@ -1,3 +1,5 @@
+import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_screen.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +9,9 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 
 class LoginWindow extends StatefulWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
 
-  const LoginWindow(this.db, {super.key});
+  const LoginWindow(this.db, this.auth, {super.key});
 
   @override
   State<LoginWindow> createState() => _LoginWindowState();
@@ -26,7 +29,19 @@ class _LoginWindowState extends State<LoginWindow> {
     final password = _passwordController.text.trim();
 
     try {
-      await widget.db.loginAs(emailOrPhone, password);
+      await widget.db.loginAs(
+          emailOrPhone,
+          password,
+          AppUser(
+              profilId: '',
+              firstName: '',
+              lastName: '',
+              birthDate: DateTime.now(),
+              email: '',
+              phoneNumber: '',
+              avatarUrl: '',
+              miscellaneous: '',
+              password: password));
 
       final currentUserId = await widget.db.getCurrentUserId();
       final currentUser = widget.db.getUser(currentUserId);
@@ -208,7 +223,8 @@ class _LoginWindowState extends State<LoginWindow> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => Onboarding1Screen(widget.db),
+                            builder: (context) =>
+                                Onboarding1Screen(widget.db, widget.auth),
                           ),
                         );
                       },

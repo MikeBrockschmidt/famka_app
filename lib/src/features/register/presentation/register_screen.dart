@@ -3,15 +3,15 @@ import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/color_row.dart';
-import 'package:famka_app/src/features/login/presentation/widgets/login_window.dart';
+import 'package:famka_app/src/features/register/presentation/widgets/register_window.dart';
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
   // Atribute
   final DatabaseRepository db;
   final AuthRepository auth;
 
   // Konstrukter
-  const LoginScreen(this.db, this.auth, {super.key});
+  const RegisterScreen(this.db, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class LoginScreen extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(left: 28, top: 130),
             child: Text(
-              'Login',
+              'Registrieren',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -53,7 +53,7 @@ class LoginScreen extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: LoginWindow(db, auth),
+            child: RegisterWindow(db, auth),
           ),
         ],
       ),

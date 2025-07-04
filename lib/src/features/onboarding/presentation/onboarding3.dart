@@ -1,4 +1,5 @@
 import 'package:famka_app/src/common/headline_k.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding_process3.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +13,11 @@ import 'package:famka_app/src/data/user_role.dart';
 
 class Onboarding3Screen extends StatefulWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
   final AppUser user;
 
-  const Onboarding3Screen({super.key, required this.db, required this.user});
+  const Onboarding3Screen(
+      {super.key, required this.db, required this.auth, required this.user});
 
   @override
   State<Onboarding3Screen> createState() => _Onboarding3ScreenState();
@@ -130,6 +133,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
           MaterialPageRoute(
             builder: (context) => Onboarding4(
               db: widget.db,
+              auth: widget.auth,
               user: widget.user,
               group: newGroup,
             ),
@@ -171,7 +175,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
             bottom: 70,
             left: 0,
             right: 0,
-            child: OnboardingProgress3(widget.db),
+            child: OnboardingProgress3(widget.db, widget.auth),
           ),
           Positioned.fill(
             bottom: bottomReservedSpace,

@@ -1,3 +1,4 @@
+import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/onboarding2.dart';
 import 'package:flutter/material.dart';
@@ -8,22 +9,31 @@ import 'package:famka_app/src/theme/color_theme.dart';
 
 class ProfilOnboarding extends StatefulWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
 
-  const ProfilOnboarding(this.db, {super.key});
+  const ProfilOnboarding({
+    super.key,
+    required this.db,
+    required this.auth,
+  });
 
   @override
   State<ProfilOnboarding> createState() => _ProfilOnboardingState();
 }
 
 class _ProfilOnboardingState extends State<ProfilOnboarding> {
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   String _selectedAvatarUrl = 'assets/fotos/default.jpg';
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -47,14 +57,58 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
     });
   }
 
-  void _saveNewUserAndNavigate() async {
-    final String firstName = _firstNameController.text.trim();
-    final String lastName = _lastNameController.text.trim();
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Bitte Passwort eingeben.';
+    }
+    if (value.length < 6) {
+      return 'Passwort muss mindestens 6 Zeichen lang sein.';
+    }
+    return null;
+  }
 
-    if (firstName.isEmpty) {
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Bitte Passwort wiederholen.';
+    }
+    if (value != _passwordController.text) {
+      return 'Passwörter stimmen nicht überein.';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Bitte E-Mail-Adresse eingeben.';
+    }
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+      return 'Bitte eine gültige E-Mail-Adresse eingeben.';
+    }
+    return null;
+  }
+
+  Future<void> _onSubmit(String email, String pw) async {
+    await widget.auth.signInWithEmailAndPassword(email, pw);
+  }
+
+  void _saveNewUserAndNavigate() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Bitte geben Sie einen Vornamen ein.'),
+          content: const Text('Bitte füllen Sie alle Felder korrekt aus.'),
+          backgroundColor: AppColors.famkaRed,
+        ),
+      );
+      return;
+    }
+
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text;
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Bitte geben Sie eine E-Mail-Adresse ein.'),
           backgroundColor: AppColors.famkaCyan,
         ),
       );
@@ -65,29 +119,44 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
 
     final newUser = AppUser(
       profilId: newProfilId,
-      firstName: firstName,
-      lastName: lastName,
+      firstName: '',
+      lastName: '',
       birthDate: DateTime(2000, 1, 1),
-      email: '',
+      email: email,
       phoneNumber: '',
       avatarUrl: _selectedAvatarUrl,
       miscellaneous: '',
-      password: '',
+      password: password,
     );
 
-    await widget.db.createUser(newUser);
-    widget.db.loginAs(newUser.profilId, newUser.password);
+    try {
+      await widget.db.createUser(newUser);
+      widget.db.loginAs(newUser.profilId, newUser.password, newUser);
+      await widget.auth.createUserWithEmailAndPassword(email, password);
 
-    if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Onboarding2Screen(
-            db: widget.db,
-            user: newUser,
+      await _onSubmit(email, password);
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Onboarding2Screen(
+              db: widget.db,
+              auth: widget.auth,
+              user: newUser,
+            ),
           ),
-        ),
-      );
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Fehler beim Speichern des Profils: $e'),
+            backgroundColor: AppColors.famkaRed,
+          ),
+        );
+      }
     }
   }
 
@@ -105,54 +174,72 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(32, 10, 32, 28),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 180),
-                      Container(
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Gebe deinem Profil ein Gesicht',
-                              style: Theme.of(context).textTheme.labelSmall,
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _firstNameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Vorname',
-                                hintText: 'Gib einen Profilnamen ein',
-                                border: OutlineInputBorder(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 185),
+                        Container(
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Gebe deinem Profil ein Gesicht',
+                                style: Theme.of(context).textTheme.labelSmall,
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            TextFormField(
-                              controller: _lastNameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Nachname',
-                                border: OutlineInputBorder(),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _emailController,
+                                decoration: const InputDecoration(
+                                  labelText: 'E-Mail-Adresse',
+                                  hintText: 'Gib deine E-Mail-Adresse ein',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: _validateEmail,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 38),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: InkWell(
-                          onTap: _saveNewUserAndNavigate,
-                          child: const ButtonLinearGradient(
-                            buttonText: 'Fortfahren',
+                              const SizedBox(height: 6),
+                              TextFormField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                decoration: const InputDecoration(
+                                  labelText: 'Passwort',
+                                  hintText: 'Gib ein sicheres Passwort ein',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: _validatePassword,
+                              ),
+                              const SizedBox(height: 6),
+                              TextFormField(
+                                controller: _confirmPasswordController,
+                                obscureText: true,
+                                decoration: const InputDecoration(
+                                  labelText: 'Passwort bestätigen',
+                                  hintText: 'Passwort wiederholen',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: _validateConfirmPassword,
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 18),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: InkWell(
+                            onTap: _saveNewUserAndNavigate,
+                            child: const ButtonLinearGradient(
+                              buttonText: 'Fortfahren',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
