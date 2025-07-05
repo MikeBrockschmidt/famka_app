@@ -1,7 +1,6 @@
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
-import 'package:famka_app/src/features/menu/presentation/menu.dart';
 import 'package:famka_app/src/features/onboarding/presentation/onboarding1.dart';
 import 'package:famka_app/src/features/onboarding/presentation/onboarding3.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
@@ -11,11 +10,9 @@ import 'package:famka_app/src/theme/font_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:famka_app/src/features/group_page/domain/group.dart'; // Import für die Group-Klasse
-import 'package:famka_app/src/data/app_user.dart'; // Import für AppUser
+import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:famka_app/src/data/app_user.dart';
 
-/// Die Haupt-App-Klasse, die den Startbildschirm basierend auf dem
-/// Authentifizierungs- und Onboarding-Status steuert.
 class MainApp extends StatefulWidget {
   // Attribute
   final DatabaseRepository db;

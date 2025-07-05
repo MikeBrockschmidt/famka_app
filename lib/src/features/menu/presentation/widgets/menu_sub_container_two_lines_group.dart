@@ -3,7 +3,7 @@ import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/data/app_user.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // NEU: Import AuthRepository
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class _SingleGroupItem extends StatelessWidget {
   final DatabaseRepository db;
