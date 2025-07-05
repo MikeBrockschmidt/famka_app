@@ -10,17 +10,20 @@ import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart'; // Import AuthRepository
 
 class GroupPage extends StatefulWidget {
   final DatabaseRepository db;
   final Group group;
   final AppUser currentUser;
+  final AuthRepository auth; // NEU: AuthRepository hinzugefügt
 
   const GroupPage({
     super.key,
     required this.db,
     required this.group,
     required this.currentUser,
+    required this.auth, // NEU: Muss jetzt übergeben werden
   });
 
   @override
@@ -536,6 +539,7 @@ class _GroupPageState extends State<GroupPage> {
                                                   db: widget.db,
                                                   currentUser: updatedUser,
                                                   group: _currentGroup!,
+                                                  auth: widget.auth,
                                                 ),
                                               ),
                                             );
@@ -653,6 +657,7 @@ class _GroupPageState extends State<GroupPage> {
           currentUser: widget.currentUser,
           initialGroup: _currentGroup,
           initialIndex: 0,
+          auth: widget.auth,
         ),
       ),
     );

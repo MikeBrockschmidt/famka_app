@@ -130,6 +130,7 @@ class MockDatabaseRepository implements DatabaseRepository {
   final List<SingleEvent> _events = [];
 
   String? _currentLoggedInUserId;
+  Group? _currentGroup; // <-- Diese Zeile wurde hinzugefügt
 
   @override
   Future<void> loginAs(
@@ -144,6 +145,9 @@ class MockDatabaseRepository implements DatabaseRepository {
     if (user != null) {
       _currentLoggedInUserId = user.profilId;
       currentUser = appUser;
+      // Optional: Setzen Sie hier die Standardgruppe des Benutzers nach dem Login
+      // Dies könnte die erste Gruppe sein, der der Benutzer angehört, oder eine spezifische Logik
+      _currentGroup = (await getGroupsForUser(user.profilId)).firstOrNull;
     } else {
       throw Exception('Falscher Benutzername oder Passwort');
     }
@@ -201,6 +205,8 @@ class MockDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> addGroup(Group group) async {
     _groups.add(group);
+    _currentGroup =
+        group; // <-- Setzt die neu hinzugefügte Gruppe als aktuelle Gruppe
     await Future.delayed(const Duration(milliseconds: 1));
   }
 
@@ -220,6 +226,10 @@ class MockDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> deleteGroup(String groupId) async {
     _groups.removeWhere((group) => group.groupId == groupId);
+    // Wenn die gelöschte Gruppe die aktuelle Gruppe war, setzen Sie currentGroup auf null
+    if (_currentGroup?.groupId == groupId) {
+      _currentGroup = null;
+    }
     await Future.delayed(const Duration(milliseconds: 1));
   }
 
@@ -273,6 +283,10 @@ class MockDatabaseRepository implements DatabaseRepository {
     for (int i = 0; i < _groups.length; i++) {
       if (_groups[i].groupId == group.groupId) {
         _groups[i] = group;
+        // Wenn die aktualisierte Gruppe die aktuelle Gruppe ist, aktualisiere _currentGroup
+        if (_currentGroup?.groupId == group.groupId) {
+          _currentGroup = group;
+        }
         break;
       }
     }
@@ -284,6 +298,10 @@ class MockDatabaseRepository implements DatabaseRepository {
     for (int i = 0; i < _users.length; i++) {
       if (_users[i].profilId == user.profilId) {
         _users[i] = user;
+        // Wenn der aktualisierte Benutzer der aktuelle Benutzer ist, aktualisiere currentUser
+        if (currentUser?.profilId == user.profilId) {
+          currentUser = user;
+        }
         break;
       }
     }
@@ -335,6 +353,10 @@ class MockDatabaseRepository implements DatabaseRepository {
 
       if (group.groupMembers.isEmpty) {
         _groups.removeAt(groupIndex);
+        // Wenn die gelöschte Gruppe die aktuelle Gruppe war, setzen Sie currentGroup auf null
+        if (_currentGroup?.groupId == groupId) {
+          _currentGroup = null;
+        }
       } else {
         _groups[groupIndex] = group;
       }
@@ -349,4 +371,7 @@ class MockDatabaseRepository implements DatabaseRepository {
 
   @override
   AuthRepository get auth => FirebaseAuthRepository();
+
+  @override
+  Group? get currentGroup => _currentGroup;
 }

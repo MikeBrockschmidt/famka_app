@@ -1,120 +1,107 @@
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/data/app_user.dart';
-import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/features/menu/presentation/widgets/menu_screen.dart';
-import 'package:flutter/material.dart';
-
 import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
+import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
+import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_two_lines_calendar.dart';
+import 'package:flutter/material.dart';
+import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart'; // Import AuthRepository
 
-class BottomNavigationThree extends StatefulWidget {
+class MenuSubContainer2LinesCalendar extends StatelessWidget {
   final DatabaseRepository db;
-  final Group? currentGroup;
-  final AppUser? currentUser;
+  final Group group;
+  final bool isIconWhite;
+  final AppUser currentUser;
+  final AuthRepository auth; // AuthRepository hinzugefügt
 
-  const BottomNavigationThree(
+  const MenuSubContainer2LinesCalendar(
     this.db, {
     super.key,
-    this.currentGroup,
+    required this.group,
+    this.isIconWhite = true,
     required this.currentUser,
+    required this.auth, // Muss jetzt übergeben werden
   });
 
   @override
-  State<BottomNavigationThree> createState() => _BottomNavigationThreeState();
-}
-
-class _BottomNavigationThreeState extends State<BottomNavigationThree> {
-  int _selectedIndex = 1;
-
-  late List<Widget> _widgetOptions;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeWidgetOptions();
-  }
-
-  @override
-  void didUpdateWidget(covariant BottomNavigationThree oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.currentUser != oldWidget.currentUser ||
-        widget.currentGroup != oldWidget.currentGroup) {
-      _initializeWidgetOptions();
-    }
-  }
-
-  void _initializeWidgetOptions() {
-    if (widget.currentUser == null) {
-      _widgetOptions = [
-        const Center(child: Text('Fehler: Benutzerdaten fehlen.')),
-        const Center(child: Text('Fehler: Benutzerdaten fehlen.')),
-        const Center(child: Text('Fehler: Benutzerdaten fehlen.')),
-      ];
-      return;
-    }
-
-    _widgetOptions = <Widget>[
-      MenuScreen(
-        widget.db,
-        currentGroup: widget.currentGroup,
-        currentUser: widget.currentUser!,
-      ),
-      CalendarScreen(
-        widget.db,
-        currentGroup: widget.currentGroup,
-        currentUser: widget.currentUser!,
-      ),
-      Container(
-        color: Colors.grey[200],
-        child: Center(
-          child: Text(
-            'Andere Inhalte hier\nBenutzer-ID: ${widget.currentUser!.profilId}',
-            style: Theme.of(context).textTheme.headlineSmall,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    ];
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (_widgetOptions.isEmpty) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.only(
+            top: 12.0,
+            left: 20.0,
+            bottom: 14.0,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GroupPage(
+                        db: db,
+                        group: group,
+                        currentUser: currentUser,
+                        auth: auth, // auth-Parameter übergeben
+                      ),
+                    ),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 28,
+                  backgroundImage: AssetImage(group.groupAvatarUrl),
+                ),
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      group.groupName,
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                            height: 0.9,
+                          ),
+                    ),
+                    Text(
+                      group.groupLocation,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CalendarScreen(
+                            db,
+                            currentGroup: group,
+                            currentUser: currentUser,
+                            auth: auth, // auth-Parameter übergeben
+                          ),
+                        ),
+                      );
+                    },
+                    iconSize: 20,
+                    color: Colors.black,
+                  ),
+                  const SizedBox(width: 12),
+                ],
+              ),
+            ],
+          ),
         ),
-      );
-    }
-
-    return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: 'Menü',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Kalender',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz),
-            label: 'Mehr',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).primaryColor,
-        onTap: _onItemTapped,
-      ),
+      ],
     );
   }
 }

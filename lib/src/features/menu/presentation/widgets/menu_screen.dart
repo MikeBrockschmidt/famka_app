@@ -1,19 +1,21 @@
+import 'package:famka_app/src/common/bottom_navigation_three.dart';
 import 'package:famka_app/src/common/color_row1.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_one_line_invitation.dart';
-import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_two_lines_calendar.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_two_lines_group.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class MenuScreen extends StatefulWidget {
   final DatabaseRepository db;
   final Group? currentGroup;
   final AppUser? currentUser;
   final List<Group>? userGroups;
+  final AuthRepository auth;
 
   const MenuScreen(
     this.db, {
@@ -21,6 +23,7 @@ class MenuScreen extends StatefulWidget {
     this.currentGroup,
     required this.currentUser,
     this.userGroups,
+    required this.auth,
   });
 
   @override
@@ -249,6 +252,7 @@ class _MenuScreenState extends State<MenuScreen> {
                               widget.db,
                               group: _displayedGroup!,
                               currentUser: widget.currentUser!,
+                              auth: widget.auth,
                             );
                           }
                         },
@@ -297,6 +301,7 @@ class _MenuScreenState extends State<MenuScreen> {
                               currentGroup: _displayedGroup!,
                               onGroupUpdated: _handleGroupUpdated,
                               currentUser: widget.currentUser!,
+                              auth: widget.auth,
                             );
                           }
                         },

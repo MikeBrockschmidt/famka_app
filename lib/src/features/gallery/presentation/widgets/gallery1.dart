@@ -3,13 +3,16 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:famka_app/src/data/auth_repository.dart'; // NEU: Import AuthRepository
 
 enum ItemType { emoji, icon, image }
 
 class Gallery extends StatefulWidget {
   final DatabaseRepository db;
+  final AuthRepository auth; // NEU: AuthRepository hinzugefügt
 
-  const Gallery(this.db, {super.key});
+  const Gallery(this.db,
+      {super.key, required this.auth}); // NEU: auth im Konstruktor
 
   @override
   State<Gallery> createState() => _GalleryState();
@@ -225,7 +228,11 @@ class _GalleryState extends State<Gallery> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationThreeCalendar(widget.db),
+      // KORREKTUR: auth-Parameter an BottomNavigationThreeCalendar übergeben
+      bottomNavigationBar: BottomNavigationThreeCalendar(
+        widget.db,
+        auth: widget.auth, // auth-Parameter übergeben
+      ),
     );
   }
 }

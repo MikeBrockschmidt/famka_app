@@ -1,17 +1,20 @@
 import 'package:famka_app/src/features/appointment/presentation/widgets/appointment1.dart';
+import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
+import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_two_lines_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/data/app_user.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_screen.dart';
-import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class BottomNavigationThreeCalendar extends StatefulWidget {
   final DatabaseRepository db;
   final AppUser? currentUser;
   final Group? initialGroup;
   final int initialIndex;
+  final AuthRepository auth;
 
   final Color backgroundColor;
   final Color selectedItemColor;
@@ -28,6 +31,7 @@ class BottomNavigationThreeCalendar extends StatefulWidget {
     this.selectedItemColor = Colors.black,
     this.unselectedItemColor = Colors.black,
     this.showLabel = true,
+    required this.auth, // Muss jetzt übergeben werden
   });
 
   @override
@@ -53,7 +57,9 @@ class _BottomNavigationThreeCalendarState
   void didUpdateWidget(covariant BottomNavigationThreeCalendar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.currentUser != oldWidget.currentUser ||
-        widget.initialGroup != oldWidget.initialGroup) {
+        widget.initialGroup != oldWidget.initialGroup ||
+        widget.auth != oldWidget.auth) {
+      // Auch auth-Änderungen prüfen
       _selectedIndex = widget.initialIndex;
       _currentActiveGroup = widget.initialGroup;
       _loadActiveGroup();
@@ -137,6 +143,7 @@ class _BottomNavigationThreeCalendarState
               widget.db,
               currentGroup: _currentActiveGroup!,
               currentUser: widget.currentUser!,
+              auth: widget.auth, // KORREKTUR: auth-Parameter übergeben
             ),
           ),
         );
@@ -150,6 +157,7 @@ class _BottomNavigationThreeCalendarState
               widget.db,
               currentGroup: _currentActiveGroup!,
               currentUser: widget.currentUser!,
+              auth: widget.auth, // KORREKTUR: auth-Parameter übergeben
             ),
           ),
         );
@@ -169,6 +177,7 @@ class _BottomNavigationThreeCalendarState
           widget.db,
           currentUser: widget.currentUser!,
           currentGroup: _currentActiveGroup!,
+          auth: widget.auth, // NEU: auth-Parameter übergeben
         ),
       ),
     );
@@ -193,6 +202,7 @@ class _BottomNavigationThreeCalendarState
             widget.db,
             currentGroup: _currentActiveGroup!,
             currentUser: widget.currentUser!,
+            auth: widget.auth, // KORREKTUR: auth-Parameter übergeben
           ),
         ),
       );

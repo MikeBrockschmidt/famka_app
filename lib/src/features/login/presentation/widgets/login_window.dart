@@ -61,6 +61,7 @@ class _LoginWindowState extends State<LoginWindow> {
           builder: (context) => MenuScreen(
             widget.db,
             currentUser: currentUser,
+            auth: widget.auth, // KORREKTUR: auth-Parameter übergeben
           ),
         ),
       );

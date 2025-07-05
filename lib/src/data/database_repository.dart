@@ -4,8 +4,9 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 
 abstract class DatabaseRepository {
-  // DatabaseRepository get auth => null;
-  AuthRepository get auth;
+  AuthRepository get auth; // Beibehalten, wie in Ihrem Code
+  AppUser? currentUser; // Beibehalten, wie in Ihrem Code
+  Group? get currentGroup; // <-- Diese Zeile wurde hinzugefügt
 
   Future<String> getCurrentUserId();
   Future<List<Group>> getGroupsForUser(String userId);
@@ -22,7 +23,6 @@ abstract class DatabaseRepository {
   SingleEvent? getEvent(String eventId);
   Group? getGroup(String groupId);
   AppUser? getUser(String userId);
-  AppUser? currentUser;
   Future<void> removeUserFromGroup(String userId, String groupId);
   Future<void> updateEvent(String groupId, SingleEvent event);
   Future<void> updateGroup(Group group);

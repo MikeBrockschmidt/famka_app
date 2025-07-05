@@ -17,17 +17,20 @@ import 'package:famka_app/src/features/appointment/presentation/widgets/repeat_r
 import 'package:famka_app/src/features/appointment/presentation/widgets/save_appointment_button.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
+import 'package:famka_app/src/data/auth_repository.dart'; // NEU: AuthRepository importieren
 
 class Appointment extends StatefulWidget {
   final DatabaseRepository db;
   final AppUser? currentUser;
   final Group? currentGroup;
+  final AuthRepository auth; // NEU: AuthRepository hinzugefügt
 
   const Appointment(
     this.db, {
     super.key,
     this.currentUser,
     this.currentGroup,
+    required this.auth, // NEU: Muss jetzt übergeben werden
   });
 
   @override
@@ -503,6 +506,8 @@ class _AppointmentState extends State<Appointment> {
                             _selectedGalleryItemContent = newContent;
                           });
                         },
+                        auth:
+                            widget.auth, // KORREKTUR: auth-Parameter übergeben
                       ),
                       EventParticipantsSelector(
                         groupMembersFuture: _groupMembersFuture,
@@ -574,6 +579,7 @@ class _AppointmentState extends State<Appointment> {
         currentUser: widget.currentUser,
         initialGroup: widget.currentGroup,
         initialIndex: 2,
+        auth: widget.auth,
       ),
     );
   }

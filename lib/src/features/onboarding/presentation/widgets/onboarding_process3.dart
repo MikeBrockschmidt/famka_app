@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
 
 class OnboardingProgress3 extends StatelessWidget {
+  // Atribute
   final DatabaseRepository db;
   final AuthRepository auth;
 
+  // Konstruktor
   const OnboardingProgress3(this.db, this.auth, {super.key});
 
   @override
@@ -14,10 +16,12 @@ class OnboardingProgress3 extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        // Sicherstellen, dass hier wieder VIER Felder sind
         _buildClickableIconBox(context, Icons.check, Colors.black),
         _buildClickableIconBox(context, Icons.check, Colors.black),
         _buildClickableIconBox(context, Icons.check, Colors.black),
-        _buildIconBox(Icons.check, Colors.white),
+        _buildClickableIconBox(context, Icons.check,
+            Colors.white), // Das vierte Feld ist jetzt weiß
       ],
     );
   }
@@ -27,13 +31,29 @@ class OnboardingProgress3 extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => LoginScreen(db, auth),
-            ),
-          );
+        onTap: () async {
+          // Async machen, da signOut asynchron ist
+          try {
+            await auth.signOut(); // Hier wird der Logout durchgeführt
+            // Nach dem Logout zum LoginScreen navigieren und alle vorherigen Routen entfernen
+            if (context.mounted) {
+              // Sicherstellen, dass der Widget-Baum noch aktiv ist
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginScreen(db, auth),
+                ),
+                (route) => false, // Entfernt alle Routen aus dem Stack
+              );
+            }
+          } catch (e) {
+            // Fehlerbehandlung, falls der Logout fehlschlägt
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Fehler beim Abmelden: $e')),
+              );
+            }
+          }
         },
         child: Container(
           width: 80,
@@ -44,21 +64,6 @@ class OnboardingProgress3 extends StatelessWidget {
           ),
           child: Icon(icon, color: iconColor, size: 26),
         ),
-      ),
-    );
-  }
-
-  Widget _buildIconBox(IconData icon, Color iconColor) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      child: Container(
-        width: 80,
-        height: 35,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, color: iconColor, size: 26),
       ),
     );
   }
