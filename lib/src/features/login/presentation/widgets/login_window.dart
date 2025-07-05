@@ -1,11 +1,13 @@
 import 'package:famka_app/src/data/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_screen.dart';
+import 'package:famka_app/src/features/register/presentation/register_screen.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
+import 'package:famka_app/src/features/login/presentation/login_screen.dart'; // <--- hinzugefügt
 
 class LoginWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -61,7 +63,7 @@ class _LoginWindowState extends State<LoginWindow> {
           builder: (context) => MenuScreen(
             widget.db,
             currentUser: currentUser,
-            auth: widget.auth, // KORREKTUR: auth-Parameter übergeben
+            auth: widget.auth,
           ),
         ),
       );
@@ -231,6 +233,25 @@ class _LoginWindowState extends State<LoginWindow> {
                       },
                       child: const ButtonLinearGradient(
                           buttonText: 'Neu hier? Dann hier entlang'),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              RegisterScreen(widget.db, widget.auth),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Ich bin noch nicht registriert!',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
                     ),
                   ),
                 ],

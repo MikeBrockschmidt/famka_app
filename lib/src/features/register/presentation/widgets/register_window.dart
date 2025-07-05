@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
+import 'package:famka_app/src/features/login/presentation/login_screen.dart'; // <--- NEU
 
 class RegisterWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -265,6 +266,25 @@ class _RegisterWindowState extends State<RegisterWindow> {
                         },
                         child: const ButtonLinearGradient(
                             buttonText: 'Neu hier? Dann hier entlang'),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                LoginScreen(widget.db, widget.auth),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Ich bin schon registriert!',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
                       ),
                     ),
                   ],
