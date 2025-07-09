@@ -2,7 +2,7 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 
 class _SingleGroupItem extends StatelessWidget {
@@ -33,8 +33,6 @@ class _SingleGroupItem extends StatelessWidget {
         ),
         InkWell(
           onTap: () async {
-            // Beim Tippen auf den Gruppen-Container zur GroupPage navigieren.
-            // Die GroupPage wird zur Bearbeitung der Gruppe verwendet.
             final Group? updatedGroup = await Navigator.push<Group>(
               context,
               MaterialPageRoute(
@@ -42,12 +40,10 @@ class _SingleGroupItem extends StatelessWidget {
                   db: db,
                   group: group,
                   currentUser: currentUser,
-                  auth: auth, // KORREKTUR: auth-Parameter übergeben
+                  auth: auth,
                 ),
               ),
             );
-            // Wenn die Gruppe auf der GroupPage aktualisiert wurde,
-            // die onGroupSelected-Callback-Funktion aufrufen.
             if (updatedGroup != null) {
               onGroupSelected(updatedGroup);
             }
@@ -87,7 +83,6 @@ class _SingleGroupItem extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Bearbeiten-Icon, das ebenfalls zur GroupPage navigiert
                 IconButton(
                   icon: const Icon(Icons.edit),
                   onPressed: () async {
@@ -98,7 +93,7 @@ class _SingleGroupItem extends StatelessWidget {
                           db: db,
                           group: group,
                           currentUser: currentUser,
-                          auth: auth, // KORREKTUR: auth-Parameter übergeben
+                          auth: auth,
                         ),
                       ),
                     );
@@ -124,7 +119,7 @@ class MenuSubContainer2LinesGroup extends StatefulWidget {
   final Group currentGroup;
   final ValueChanged<Group> onGroupUpdated;
   final AppUser currentUser;
-  final AuthRepository auth; // NEU: AuthRepository hinzugefügt
+  final AuthRepository auth;
 
   const MenuSubContainer2LinesGroup(
     this.db, {
@@ -132,7 +127,7 @@ class MenuSubContainer2LinesGroup extends StatefulWidget {
     required this.currentGroup,
     required this.onGroupUpdated,
     required this.currentUser,
-    required this.auth, // NEU: Muss jetzt übergeben werden
+    required this.auth,
   });
 
   @override
@@ -187,7 +182,7 @@ class _MenuSubContainer2LinesGroupState
 
   void _handleGroupSelected(Group selectedGroup) {
     widget.onGroupUpdated(selectedGroup);
-    _loadUserGroups(); // Gruppen neu laden, falls sich die Liste geändert hat
+    _loadUserGroups();
   }
 
   @override

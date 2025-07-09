@@ -1,4 +1,4 @@
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_screen.dart';
 import 'package:famka_app/src/features/register/presentation/register_screen.dart';
@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
-import 'package:famka_app/src/features/login/presentation/login_screen.dart'; // <--- hinzugefügt
 
 class LoginWindow extends StatefulWidget {
   final DatabaseRepository db;

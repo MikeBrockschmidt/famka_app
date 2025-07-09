@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/gallery1.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // NEU: Import AuthRepository
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class GallerySelectionField extends StatefulWidget {
   const GallerySelectionField({
@@ -10,13 +10,13 @@ class GallerySelectionField extends StatefulWidget {
     required this.db,
     this.initialSelectedContent,
     required this.onChanged,
-    required this.auth, // NEU: AuthRepository als Parameter hinzugefügt
+    required this.auth,
   });
 
   final DatabaseRepository db;
   final String? initialSelectedContent;
   final ValueChanged<String?> onChanged;
-  final AuthRepository auth; // NEU: AuthRepository als Attribut hinzugefügt
+  final AuthRepository auth;
 
   @override
   State<GallerySelectionField> createState() => _GallerySelectionFieldState();
@@ -89,7 +89,7 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
       MaterialPageRoute(
         builder: (context) => Gallery(
           widget.db,
-          auth: widget.auth, // KORREKTUR: auth-Parameter übergeben
+          auth: widget.auth,
         ),
       ),
     );

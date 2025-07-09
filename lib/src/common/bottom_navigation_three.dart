@@ -3,15 +3,15 @@ import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dar
 import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/data/app_user.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // Import AuthRepository
+import 'package:famka_app/src/features/login/domain/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class MenuSubContainer2LinesCalendar extends StatelessWidget {
   final DatabaseRepository db;
   final Group group;
   final bool isIconWhite;
   final AppUser currentUser;
-  final AuthRepository auth; // AuthRepository hinzugefügt
+  final AuthRepository auth;
 
   const MenuSubContainer2LinesCalendar(
     this.db, {
@@ -19,7 +19,7 @@ class MenuSubContainer2LinesCalendar extends StatelessWidget {
     required this.group,
     this.isIconWhite = true,
     required this.currentUser,
-    required this.auth, // Muss jetzt übergeben werden
+    required this.auth,
   });
 
   @override
@@ -46,7 +46,7 @@ class MenuSubContainer2LinesCalendar extends StatelessWidget {
                         db: db,
                         group: group,
                         currentUser: currentUser,
-                        auth: auth, // auth-Parameter übergeben
+                        auth: auth,
                       ),
                     ),
                   );
@@ -86,7 +86,7 @@ class MenuSubContainer2LinesCalendar extends StatelessWidget {
                             db,
                             currentGroup: group,
                             currentUser: currentUser,
-                            auth: auth, // auth-Parameter übergeben
+                            auth: auth,
                           ),
                         ),
                       );

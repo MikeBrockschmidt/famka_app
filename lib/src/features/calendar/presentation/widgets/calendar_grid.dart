@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:famka_app/src/data/mock_database_repository.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 
 class CalendarGrid extends StatefulWidget {

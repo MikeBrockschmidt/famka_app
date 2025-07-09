@@ -1,4 +1,4 @@
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/firebase_auth_repository.dart';
 import 'package:famka_app/src/data/user_role.dart';
@@ -130,7 +130,7 @@ class MockDatabaseRepository implements DatabaseRepository {
   final List<SingleEvent> _events = [];
 
   String? _currentLoggedInUserId;
-  Group? _currentGroup; // <-- Diese Zeile wurde hinzugefügt
+  Group? _currentGroup;
 
   @override
   Future<void> loginAs(
@@ -145,8 +145,6 @@ class MockDatabaseRepository implements DatabaseRepository {
     if (user != null) {
       _currentLoggedInUserId = user.profilId;
       currentUser = appUser;
-      // Optional: Setzen Sie hier die Standardgruppe des Benutzers nach dem Login
-      // Dies könnte die erste Gruppe sein, der der Benutzer angehört, oder eine spezifische Logik
       _currentGroup = (await getGroupsForUser(user.profilId)).firstOrNull;
     } else {
       throw Exception('Falscher Benutzername oder Passwort');
@@ -205,8 +203,7 @@ class MockDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> addGroup(Group group) async {
     _groups.add(group);
-    _currentGroup =
-        group; // <-- Setzt die neu hinzugefügte Gruppe als aktuelle Gruppe
+    _currentGroup = group;
     await Future.delayed(const Duration(milliseconds: 1));
   }
 
@@ -226,7 +223,6 @@ class MockDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> deleteGroup(String groupId) async {
     _groups.removeWhere((group) => group.groupId == groupId);
-    // Wenn die gelöschte Gruppe die aktuelle Gruppe war, setzen Sie currentGroup auf null
     if (_currentGroup?.groupId == groupId) {
       _currentGroup = null;
     }
@@ -283,7 +279,6 @@ class MockDatabaseRepository implements DatabaseRepository {
     for (int i = 0; i < _groups.length; i++) {
       if (_groups[i].groupId == group.groupId) {
         _groups[i] = group;
-        // Wenn die aktualisierte Gruppe die aktuelle Gruppe ist, aktualisiere _currentGroup
         if (_currentGroup?.groupId == group.groupId) {
           _currentGroup = group;
         }
@@ -298,7 +293,6 @@ class MockDatabaseRepository implements DatabaseRepository {
     for (int i = 0; i < _users.length; i++) {
       if (_users[i].profilId == user.profilId) {
         _users[i] = user;
-        // Wenn der aktualisierte Benutzer der aktuelle Benutzer ist, aktualisiere currentUser
         if (currentUser?.profilId == user.profilId) {
           currentUser = user;
         }
@@ -353,7 +347,6 @@ class MockDatabaseRepository implements DatabaseRepository {
 
       if (group.groupMembers.isEmpty) {
         _groups.removeAt(groupIndex);
-        // Wenn die gelöschte Gruppe die aktuelle Gruppe war, setzen Sie currentGroup auf null
         if (_currentGroup?.groupId == groupId) {
           _currentGroup = null;
         }

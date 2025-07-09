@@ -5,21 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_grid.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/data/app_user.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // NEU: AuthRepository importieren
+import 'package:famka_app/src/features/login/domain/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class CalendarScreen extends StatefulWidget {
   final DatabaseRepository db;
   final Group? currentGroup;
   final AppUser? currentUser;
-  final AuthRepository auth; // NEU: AuthRepository hinzugefügt
+  final AuthRepository auth;
 
   const CalendarScreen(
     this.db, {
     super.key,
     this.currentGroup,
     required this.currentUser,
-    required this.auth, // NEU: Muss jetzt übergeben werden
+    required this.auth,
   });
 
   @override
@@ -49,8 +49,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
       Group? groupToDisplay = widget.currentGroup;
 
-      // Wenn currentGroup null ist, versuchen wir, die Gruppe 'g1' zu laden.
-      // Dies ist ein Fallback, falls keine spezifische Gruppe übergeben wurde.
       groupToDisplay ??= widget.db.getGroup('g1');
 
       if (groupToDisplay == null) {
@@ -119,7 +117,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  // Hier könnte die Navigation zu einem Bildschirm zur Gruppenauswahl/-erstellung erfolgen
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       backgroundColor: Colors.blueAccent,
@@ -138,7 +135,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       );
     }
 
-    // Sicherstellen, dass _displayGroup und widget.currentUser nicht null sind, bevor sie verwendet werden
     assert(_displayGroup != null);
     assert(widget.currentUser != null);
 
@@ -155,7 +151,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             currentGroup: _displayGroup!,
             onGroupUpdated: _handleGroupUpdated,
             currentUser: widget.currentUser!,
-            auth: widget.auth, // KORREKTUR: auth-Parameter übergeben
+            auth: widget.auth,
           ),
           Expanded(
             child: CalendarGrid(
@@ -168,7 +164,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             initialGroup: _displayGroup!,
             currentUser: widget.currentUser!,
             initialIndex: 1,
-            auth: widget.auth, // KORREKTUR: auth-Parameter übergeben
+            auth: widget.auth,
           ),
         ],
       ),

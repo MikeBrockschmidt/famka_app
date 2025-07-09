@@ -1,4 +1,4 @@
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/user_role.dart';
 
 class Group {
@@ -41,6 +41,33 @@ class Group {
       creatorId: creatorId ?? this.creatorId,
       groupMembers: groupMembers ?? this.groupMembers,
       userRoles: userRoles ?? this.userRoles,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'groupId': groupId,
+      'groupName': groupName,
+      'groupLocation': groupLocation,
+      'groupDescription': groupDescription,
+      'groupAvatarUrl': groupAvatarUrl,
+      'creatorId': creatorId,
+      'groupMembers': groupMembers.map((e) => e.toMap()).toList(),
+      'userRoles': userRoles.map((key, role) => MapEntry(key, role.toString())),
+    };
+  }
+
+  factory Group.fromMap(Map<String, dynamic> map) {
+    return Group(
+      groupId: map['groupId'] as String,
+      groupName: map['groupName'] as String,
+      groupLocation: map['groupLocation'] as String,
+      groupDescription: map['groupDescription'] as String,
+      groupAvatarUrl: map['groupAvatarUrl'] as String,
+      creatorId: map['creatorId'] as String,
+      groupMembers:
+          (map['groupMembers'] as List).map((e) => AppUser.fromMap(e)).toList(),
+      userRoles: userRoles.name,
     );
   }
 

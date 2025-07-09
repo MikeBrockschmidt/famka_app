@@ -1,5 +1,5 @@
 import 'package:famka_app/src/common/headline_k.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding_process2.dart';

@@ -1,6 +1,6 @@
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 
 class CalendarCellIcon extends StatelessWidget {
   final DateTime date;

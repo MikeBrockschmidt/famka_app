@@ -2,15 +2,15 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/data/app_user.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // NEU: Import AuthRepository
+import 'package:famka_app/src/features/login/domain/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class MenuSubContainer2LinesGroupC extends StatelessWidget {
   final DatabaseRepository db;
   final Group currentGroup;
   final ValueChanged<Group> onGroupUpdated;
   final AppUser currentUser;
-  final AuthRepository auth; // NEU: AuthRepository hinzugefügt
+  final AuthRepository auth;
 
   const MenuSubContainer2LinesGroupC(
     this.db, {
@@ -18,7 +18,7 @@ class MenuSubContainer2LinesGroupC extends StatelessWidget {
     required this.currentGroup,
     required this.onGroupUpdated,
     required this.currentUser,
-    required this.auth, // NEU: Muss jetzt übergeben werden
+    required this.auth,
   });
 
   @override
@@ -33,8 +33,6 @@ class MenuSubContainer2LinesGroupC extends StatelessWidget {
         ),
         InkWell(
           onTap: () {
-            // Wenn der Benutzer auf den Container tippt, wird die Gruppe aktualisiert.
-            // Dies ist nützlich, um die ausgewählte Gruppe im Kalender zu ändern.
             onGroupUpdated(currentGroup);
           },
           child: Container(
@@ -81,7 +79,6 @@ class MenuSubContainer2LinesGroupC extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.edit),
                   onPressed: () async {
-                    // Beim Tippen auf das Bearbeiten-Symbol zur GroupPage navigieren.
                     final Group? updatedGroup = await Navigator.push<Group>(
                       context,
                       MaterialPageRoute(
@@ -89,12 +86,10 @@ class MenuSubContainer2LinesGroupC extends StatelessWidget {
                           db: db,
                           group: currentGroup,
                           currentUser: currentUser,
-                          auth: auth, // KORREKTUR: auth-Parameter übergeben
+                          auth: auth,
                         ),
                       ),
                     );
-                    // Wenn die Gruppe auf der GroupPage aktualisiert wurde,
-                    // die onGroupUpdated-Callback-Funktion aufrufen.
                     if (updatedGroup != null) {
                       onGroupUpdated(updatedGroup);
                     }

@@ -1,12 +1,12 @@
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 
 abstract class DatabaseRepository {
-  AuthRepository get auth; // Beibehalten, wie in Ihrem Code
-  AppUser? currentUser; // Beibehalten, wie in Ihrem Code
-  Group? get currentGroup; // <-- Diese Zeile wurde hinzugefügt
+  AuthRepository get auth;
+  AppUser? currentUser;
+  Group? get currentGroup;
 
   Future<String> getCurrentUserId();
   Future<List<Group>> getGroupsForUser(String userId);

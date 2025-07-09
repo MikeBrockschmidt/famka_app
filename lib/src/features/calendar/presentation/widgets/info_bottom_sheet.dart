@@ -3,7 +3,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:famka_app/src/data/mock_database_repository.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 

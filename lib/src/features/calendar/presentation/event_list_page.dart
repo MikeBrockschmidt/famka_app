@@ -1,6 +1,6 @@
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
@@ -10,20 +10,20 @@ import 'package:famka_app/src/features/calendar/presentation/widgets/menu_sub_co
 import 'package:sticky_headers/sticky_headers.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/event_list_item.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // NEU: Import AuthRepository
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class EventListPage extends StatefulWidget {
   final DatabaseRepository db;
   final Group currentGroup;
   final AppUser currentUser;
-  final AuthRepository auth; // NEU: AuthRepository hinzugefügt
+  final AuthRepository auth;
 
   const EventListPage({
     super.key,
     required this.db,
     required this.currentGroup,
     required this.currentUser,
-    required this.auth, // NEU: Muss jetzt übergeben werden
+    required this.auth,
   });
 
   @override
@@ -186,7 +186,7 @@ class _EventListPageState extends State<EventListPage> {
             currentGroup: _displayGroup,
             onGroupUpdated: _handleGroupUpdated,
             currentUser: widget.currentUser,
-            auth: widget.auth, // KORREKTUR: auth-Parameter übergeben
+            auth: widget.auth,
           ),
           const Divider(thickness: 0.4, height: 0.4, color: Colors.grey),
           Expanded(

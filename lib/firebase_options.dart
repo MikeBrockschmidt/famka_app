@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'famka-c646f.firebasestorage.app',
     iosBundleId: 'com.example.famkaApp',
   );
+
 }

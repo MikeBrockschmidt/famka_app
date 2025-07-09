@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/color_row2.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
@@ -99,10 +99,6 @@ class _ProfilPageState extends State<ProfilPage> {
             backgroundColor: AppColors.famkaCyan,
           ),
         );
-        // Nach dem Speichern ist keine Navigation erforderlich, da wir auf der Profilseite bleiben.
-        // Wenn Sie möchten, dass die Änderungen sofort in der MainApp reflektiert werden,
-        // müssten Sie eventuell den currentUser in der db aktualisieren und MainApp neu aufbauen.
-        // Die aktuelle Implementierung in MainApp holt currentUser direkt von db.
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -114,23 +110,18 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
-  /// Meldet den Benutzer ab und setzt den Onboarding-Status zurück.
   Future<void> _logout() async {
     try {
-      await widget.auth.signOut(); // Meldet den Benutzer von Firebase ab
+      await widget.auth.signOut();
 
-      // Setzt den Onboarding-Status in SharedPreferences zurück,
-      // damit der Benutzer beim nächsten Start wieder den Login/Onboarding-Flow durchläuft.
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboardingComplete', false);
 
       if (mounted) {
-        // Navigiert zum LoginScreen und entfernt alle vorherigen Routen.
-        // Die MainApp wird dann den LoginScreen anzeigen, da kein Benutzer angemeldet ist.
         Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
           MaterialPageRoute(
               builder: (context) => LoginScreen(widget.db, widget.auth)),
-          (Route<dynamic> route) => false, // Entfernt alle Routen im Stack
+          (Route<dynamic> route) => false,
         );
       }
     } catch (e) {
@@ -267,8 +258,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                 widget.db,
                                 group: group,
                                 currentUser: widget.currentUser,
-                                auth: widget
-                                    .auth, // KORREKTUR: auth-Parameter übergeben
+                                auth: widget.auth,
                               ),
                               const SizedBox(height: 20),
                               Align(
@@ -284,18 +274,15 @@ class _ProfilPageState extends State<ProfilPage> {
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              // NEU: Abmelden-Button
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: InkWell(
-                                  onTap: _logout, // Ruft die Abmelden-Logik auf
+                                  onTap: _logout,
                                   child: SizedBox(
                                     width: 150,
                                     height: 50,
                                     child: ButtonLinearGradient(
                                       buttonText: 'Abmelden',
-                                      // Optional: Andere Farben für den Abmelden-Button
-                                      // colors: [AppColors.famkaRed, AppColors.famkaRed.shade700],
                                     ),
                                   ),
                                 ),
@@ -317,15 +304,6 @@ class _ProfilPageState extends State<ProfilPage> {
             right: 0,
             child: ColorRow2(),
           ),
-          // OnboardingProgress4 sollte nicht auf der Profilseite sein,
-          // da das Onboarding hier bereits abgeschlossen ist.
-          // Ich habe es hier auskommentiert.
-          // Positioned(
-          //   bottom: 70,
-          //   left: 0,
-          //   right: 0,
-          //   child: OnboardingProgress4(widget.db, widget.auth),
-          // ),
         ],
       ),
     );

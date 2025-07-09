@@ -4,7 +4,7 @@ import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/appointment_validators.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:uuid/uuid.dart';
@@ -17,20 +17,20 @@ import 'package:famka_app/src/features/appointment/presentation/widgets/repeat_r
 import 'package:famka_app/src/features/appointment/presentation/widgets/save_appointment_button.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // NEU: AuthRepository importieren
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class Appointment extends StatefulWidget {
   final DatabaseRepository db;
   final AppUser? currentUser;
   final Group? currentGroup;
-  final AuthRepository auth; // NEU: AuthRepository hinzugefügt
+  final AuthRepository auth;
 
   const Appointment(
     this.db, {
     super.key,
     this.currentUser,
     this.currentGroup,
-    required this.auth, // NEU: Muss jetzt übergeben werden
+    required this.auth,
   });
 
   @override
@@ -506,8 +506,7 @@ class _AppointmentState extends State<Appointment> {
                             _selectedGalleryItemContent = newContent;
                           });
                         },
-                        auth:
-                            widget.auth, // KORREKTUR: auth-Parameter übergeben
+                        auth: widget.auth,
                       ),
                       EventParticipantsSelector(
                         groupMembersFuture: _groupMembersFuture,

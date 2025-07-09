@@ -27,7 +27,8 @@ dependencies:
   firebase_core: ^3.14.0
   firebase_auth: ^5.6.0
   shared_preferences: ^2.0.0
-  device_preview: ^1.1.0 # <-- Hinzugefügt für DevicePreview
+  device_preview: ^1.1.0 # 
+  cloud_firestore: ^5.0.0
 
 dev_dependencies:
   flutter_test:

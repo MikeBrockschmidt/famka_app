@@ -2,21 +2,21 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/data/app_user.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // NEU: AuthRepository importieren
+import 'package:famka_app/src/features/login/domain/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class ProfilAvatarRow extends StatelessWidget {
   final DatabaseRepository db;
   final Group? group;
   final AppUser currentUser;
-  final AuthRepository auth; // NEU: AuthRepository als Parameter hinzufügen
+  final AuthRepository auth;
 
   const ProfilAvatarRow(
     this.db, {
     super.key,
     this.group,
     required this.currentUser,
-    required this.auth, // NEU: Muss jetzt übergeben werden
+    required this.auth,
   });
 
   @override
@@ -30,7 +30,6 @@ class ProfilAvatarRow extends StatelessWidget {
         InkWell(
           borderRadius: BorderRadius.circular(40),
           onTap: () {
-            // Navigieren zur GroupPage und alle benötigten Parameter übergeben
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -38,7 +37,7 @@ class ProfilAvatarRow extends StatelessWidget {
                   db: db,
                   group: group!,
                   currentUser: currentUser,
-                  auth: auth, // KORREKTUR: auth-Parameter übergeben
+                  auth: auth,
                 ),
               ),
             );

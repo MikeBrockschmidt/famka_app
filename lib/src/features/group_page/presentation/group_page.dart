@@ -9,21 +9,21 @@ import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_im
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
-import 'package:famka_app/src/data/app_user.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // Import AuthRepository
+import 'package:famka_app/src/features/login/domain/app_user.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class GroupPage extends StatefulWidget {
   final DatabaseRepository db;
   final Group group;
   final AppUser currentUser;
-  final AuthRepository auth; // NEU: AuthRepository hinzugefügt
+  final AuthRepository auth;
 
   const GroupPage({
     super.key,
     required this.db,
     required this.group,
     required this.currentUser,
-    required this.auth, // NEU: Muss jetzt übergeben werden
+    required this.auth,
   });
 
   @override
@@ -58,10 +58,7 @@ class _GroupPageState extends State<GroupPage> {
     try {
       _currentUserId = await widget.db.getCurrentUserId();
       setState(() {});
-    } catch (e) {
-      // Fehler wird hier ignoriert, da _currentUserId null bleibt und die UI dies handhabt.
-      // print('Error getting current user ID: $e'); // Optional: Zum Debuggen auskommentieren
-    }
+    } catch (e) {}
   }
 
   Future<void> _loadGroupData() async {

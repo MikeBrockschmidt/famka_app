@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 
 class Menu extends StatefulWidget {
@@ -23,7 +23,7 @@ class Menu extends StatefulWidget {
     this.currentGroup,
     required this.currentUser,
     this.userGroups,
-    required this.auth, // NEU: Muss jetzt übergeben werden
+    required this.auth,
   });
 
   @override
@@ -249,8 +249,7 @@ class _CustomScreenState extends State<Menu> {
                                   widget.db,
                                   group: _displayGroup!,
                                   currentUser: widget.currentUser!,
-                                  auth: widget
-                                      .auth, // KORREKTUR: auth-Parameter übergeben
+                                  auth: widget.auth,
                                 );
                               }
                             },
@@ -301,8 +300,7 @@ class _CustomScreenState extends State<Menu> {
                                   currentGroup: _displayGroup!,
                                   onGroupUpdated: _handleGroupUpdated,
                                   currentUser: widget.currentUser!,
-                                  auth: widget
-                                      .auth, // KORREKTUR: auth-Parameter übergeben
+                                  auth: widget.auth,
                                 );
                               }
                             },

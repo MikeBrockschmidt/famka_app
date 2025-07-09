@@ -1,11 +1,11 @@
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
-import 'package:famka_app/src/features/login/presentation/login_screen.dart'; // <--- NEU
+import 'package:famka_app/src/features/login/presentation/login_screen.dart';
 
 class RegisterWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -116,10 +116,8 @@ class _RegisterWindowState extends State<RegisterWindow> {
       await widget.db.createUser(newUser);
       widget.db.loginAs(newUser.profilId, newUser.password, newUser);
 
-      // 🔐 Wichtig: Zuerst Registrierung bei Firebase
       await widget.auth.createUserWithEmailAndPassword(email, password);
 
-      // ✅ Danach: Anmeldung
       await widget.auth.signInWithEmailAndPassword(email, password);
 
       if (mounted) {

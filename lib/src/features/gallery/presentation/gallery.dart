@@ -3,24 +3,21 @@ import 'package:famka_app/src/features/gallery/presentation/widgets/gallery1.dar
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/font_theme.dart';
 import 'package:famka_app/src/data/mock_database_repository.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // NEU: Import AuthRepository
-import 'package:famka_app/src/data/firebase_auth_repository.dart'; // NEU: Import FirebaseAuthRepository
+import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/src/data/firebase_auth_repository.dart';
 
 void main() {
   final mockDb = MockDatabaseRepository();
-  // NEU: Eine Instanz von AuthRepository erstellen.
-  // Für eine reale App würden Sie hier FirebaseAuthRepository() verwenden.
-  // Für Mock-Tests könnten Sie eine MockAuthRepository() erstellen, falls vorhanden.
-  final authRepository = FirebaseAuthRepository(); // Oder MockAuthRepository()
+  final authRepository = FirebaseAuthRepository();
 
-  runApp(MainApp(mockDb, authRepository)); // NEU: authRepository übergeben
+  runApp(MainApp(mockDb, authRepository));
 }
 
 class MainApp extends StatelessWidget {
   final DatabaseRepository db;
-  final AuthRepository auth; // NEU: AuthRepository als Attribut hinzugefügt
+  final AuthRepository auth;
 
-  const MainApp(this.db, this.auth, {super.key}); // NEU: auth im Konstruktor
+  const MainApp(this.db, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {

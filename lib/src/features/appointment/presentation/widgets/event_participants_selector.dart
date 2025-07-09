@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:famka_app/src/data/app_user.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/single_event_avatar.dart';
 
 class EventParticipantsSelector extends StatefulWidget {

@@ -30,22 +30,18 @@ class OnboardingProgress4 extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: GestureDetector(
         onTap: () async {
-          // Async machen, da signOut asynchron ist
           try {
-            await auth.signOut(); // Hier wird der Logout durchgeführt
-            // Nach dem Logout zum LoginScreen navigieren und alle vorherigen Routen entfernen
+            await auth.signOut();
             if (context.mounted) {
-              // Sicherstellen, dass der Widget-Baum noch aktiv ist
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
                   builder: (context) => LoginScreen(db, auth),
                 ),
-                (route) => false, // Entfernt alle Routen aus dem Stack
+                (route) => false,
               );
             }
           } catch (e) {
-            // Fehlerbehandlung, falls der Logout fehlschlägt
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Fehler beim Abmelden: $e')),
