@@ -1,5 +1,5 @@
 import 'package:famka_app/src/features/login/domain/app_user.dart';
-import 'package:famka_app/src/data/user_role.dart';
+import 'package:famka_app/src/features/login/domain/user_role.dart';
 
 class Group {
   final String groupId;
@@ -52,12 +52,12 @@ class Group {
       'groupDescription': groupDescription,
       'groupAvatarUrl': groupAvatarUrl,
       'creatorId': creatorId,
-      'groupMembers': groupMembers.map((e) => e.toMap()).toList(),
-      'userRoles': userRoles.map((key, role) => MapEntry(key, role.toString())),
+      'groupMemberIds': groupMembers.map((e) => e.profilId).toList(),
+      'userRoles': userRoles.map((key, role) => MapEntry(key, role.toJson())),
     };
   }
 
-  factory Group.fromMap(Map<String, dynamic> map) {
+  factory Group.fromMap(Map<String, dynamic> map, List<AppUser> members) {
     return Group(
       groupId: map['groupId'] as String,
       groupName: map['groupName'] as String,
@@ -65,18 +65,23 @@ class Group {
       groupDescription: map['groupDescription'] as String,
       groupAvatarUrl: map['groupAvatarUrl'] as String,
       creatorId: map['creatorId'] as String,
-      groupMembers:
-          (map['groupMembers'] as List).map((e) => AppUser.fromMap(e)).toList(),
-      userRoles: userRoles.name,
+      groupMembers: members,
+      userRoles: (map['userRoles'] as Map<String, dynamic>).map(
+        (key, value) => MapEntry(key, UserRoleExtension.fromJson(value)),
+      ),
     );
   }
 
+  factory Group.fromJson(Map<String, dynamic> json) {
+    throw UnimplementedError(
+        'Use Group.fromMap(map, members) with fetched members.');
+  }
+
   AppUser? getCreator() {
-    for (AppUser user in groupMembers) {
-      if (user.profilId == creatorId) {
-        return user;
-      }
+    try {
+      return groupMembers.firstWhere((user) => user.profilId == creatorId);
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 }

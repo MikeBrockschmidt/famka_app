@@ -42,10 +42,9 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
   @override
   void initState() {
     super.initState();
-
-    _phoneNumberController.text = widget.user.phoneNumber;
+    _phoneNumberController.text = widget.user.phoneNumber ?? '';
     _emailController.text = widget.user.email;
-    _miscellaneousController.text = widget.user.miscellaneous;
+    _miscellaneousController.text = widget.user.miscellaneous ?? '';
   }
 
   @override
@@ -85,10 +84,13 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
         firstName: widget.user.firstName,
         lastName: widget.user.lastName,
         email: _emailController.text.trim(),
-        phoneNumber: _phoneNumberController.text.trim(),
-        birthDate: DateTime(2000, 1, 1),
+        phoneNumber: _phoneNumberController.text.trim().isEmpty
+            ? null
+            : _phoneNumberController.text.trim(),
         avatarUrl: widget.user.avatarUrl,
-        miscellaneous: _miscellaneousController.text.trim(),
+        miscellaneous: _miscellaneousController.text.trim().isEmpty
+            ? null
+            : _miscellaneousController.text.trim(),
         password: widget.user.password,
       );
 
@@ -148,7 +150,8 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                   Center(
                     child: ProfilImage3(
                       db: widget.db,
-                      avatarUrl: widget.user.avatarUrl,
+                      avatarUrl:
+                          widget.user.avatarUrl ?? 'assets/fotos/default.jpg',
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -160,7 +163,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '${widget.user.firstName} ${widget.user.lastName}',
+                        '${widget.user.firstName ?? ''} ${widget.user.lastName ?? ''}',
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ),

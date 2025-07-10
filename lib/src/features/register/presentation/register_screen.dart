@@ -6,11 +6,9 @@ import 'package:famka_app/src/common/color_row.dart';
 import 'package:famka_app/src/features/register/presentation/widgets/register_window.dart';
 
 class RegisterScreen extends StatelessWidget {
-  // Atribute
   final DatabaseRepository db;
   final AuthRepository auth;
 
-  // Konstrukter
   const RegisterScreen(this.db, this.auth, {super.key});
 
   @override
@@ -42,8 +40,8 @@ class RegisterScreen extends StatelessWidget {
       ),
       bottomNavigationBar: Stack(
         children: [
-          ColorRow(),
-          Positioned(
+          const ColorRow(),
+          const Positioned(
             bottom: 0,
             left: 0,
             right: 0,
@@ -53,7 +51,7 @@ class RegisterScreen extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: RegisterWindow(db, auth),
+            child: RegisterWindow(db: db, auth: auth),
           ),
         ],
       ),
@@ -66,7 +64,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       mainAxisSize: MainAxisSize.min,
       children: [],
     );

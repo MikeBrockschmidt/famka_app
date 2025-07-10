@@ -6,6 +6,7 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 
 class ProfilOnboarding extends StatefulWidget {
   final DatabaseRepository db;
@@ -29,26 +30,14 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
   String _selectedAvatarUrl = 'assets/fotos/default.jpg';
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  bool _isLoading = false;
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
-  }
-
-  Future<String> _generateNewProfilId() async {
-    final allUsers = await widget.db.getAllUsers();
-    int maxId = 0;
-    for (var user in allUsers) {
-      if (user.profilId.startsWith('u')) {
-        final idNum = int.tryParse(user.profilId.substring(1));
-        if (idNum != null && idNum > maxId) {
-          maxId = idNum;
-        }
-      }
-    }
-    return 'u${maxId + 1}';
   }
 
   void _handleAvatarSelected(String newUrl) {
@@ -87,18 +76,23 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
     return null;
   }
 
-  Future<void> _onSubmit(String email, String pw) async {
-    await widget.auth.signInWithEmailAndPassword(email, pw);
-  }
-
   void _saveNewUserAndNavigate() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     if (!(_formKey.currentState?.validate() ?? false)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Bitte füllen Sie alle Felder korrekt aus.'),
-          backgroundColor: AppColors.famkaRed,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Bitte füllen Sie alle Felder korrekt aus.'),
+            backgroundColor: AppColors.famkaRed,
+          ),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
@@ -106,38 +100,48 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
     final String password = _passwordController.text;
 
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Bitte geben Sie eine E-Mail-Adresse ein.'),
-          backgroundColor: AppColors.famkaCyan,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Bitte geben Sie eine E-Mail-Adresse ein.'),
+            backgroundColor: AppColors.famkaCyan,
+          ),
+        );
+      }
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
-    final newProfilId = await _generateNewProfilId();
-
-    final newUser = AppUser(
-      profilId: newProfilId,
-      firstName: '',
-      lastName: '',
-      birthDate: DateTime(2000, 1, 1),
-      email: email,
-      phoneNumber: '',
-      avatarUrl: _selectedAvatarUrl,
-      miscellaneous: '',
-      password: password,
-    );
-
     try {
-      await widget.db.createUser(newUser);
-      widget.db.loginAs(newUser.profilId, newUser.password, newUser);
-      await widget.auth.createUserWithEmailAndPassword(email, password);
+      print('[_saveNewUserAndNavigate] Starte Registrierung...');
 
-      await _onSubmit(email, password);
+      final fb_auth.UserCredential userCredential =
+          await widget.auth.createUserWithEmailAndPassword(email, password);
+      final String firebaseUid = userCredential.user!.uid;
+      print(
+          '[_saveNewUserAndNavigate] Firebase Auth Benutzer erstellt. UID: $firebaseUid');
+
+      final newUser = AppUser(
+        profilId: firebaseUid,
+        firstName: '',
+        lastName: '',
+        email: email,
+        phoneNumber: '',
+        avatarUrl: _selectedAvatarUrl,
+        miscellaneous: '',
+        password: '',
+      );
+      print('[_saveNewUserAndNavigate] AppUser Objekt erstellt.');
+
+      await widget.db.createUser(newUser);
+      print(
+          '[_saveNewUserAndNavigate] Benutzerdaten in Firestore gespeichert.');
 
       if (mounted) {
-        Navigator.push(
+        print('[_saveNewUserAndNavigate] Navigiere zu Onboarding2Screen...');
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Onboarding2Screen(
@@ -148,14 +152,41 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
           ),
         );
       }
-    } catch (e) {
+    } on fb_auth.FirebaseAuthException catch (e) {
+      print(
+          '[_saveNewUserAndNavigate] FirebaseAuthException: ${e.code} - ${e.message}');
+      String errorMessage;
+      if (e.code == 'email-already-in-use') {
+        errorMessage = 'Diese E-Mail-Adresse wird bereits verwendet.';
+      } else if (e.code == 'weak-password') {
+        errorMessage = 'Das Passwort ist zu schwach.';
+      } else {
+        errorMessage = 'Fehler bei der Registrierung: ${e.message}';
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Fehler beim Speichern des Profils: $e'),
+            content: Text(errorMessage),
             backgroundColor: AppColors.famkaRed,
           ),
         );
+      }
+    } catch (e) {
+      print(
+          '[_saveNewUserAndNavigate] Allgemeiner Fehler beim Speichern des Profils: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ein Fehler ist aufgetreten: $e'),
+            backgroundColor: AppColors.famkaRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -232,9 +263,9 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: InkWell(
-                            onTap: _saveNewUserAndNavigate,
-                            child: const ButtonLinearGradient(
-                              buttonText: 'Fortfahren',
+                            onTap: _isLoading ? null : _saveNewUserAndNavigate,
+                            child: ButtonLinearGradient(
+                              buttonText: _isLoading ? 'Lädt...' : 'Fortfahren',
                             ),
                           ),
                         ),

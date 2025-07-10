@@ -37,7 +37,6 @@ class _LoginWindowState extends State<LoginWindow> {
               profilId: '',
               firstName: '',
               lastName: '',
-              birthDate: DateTime.now(),
               email: '',
               phoneNumber: '',
               avatarUrl: '',
@@ -45,7 +44,7 @@ class _LoginWindowState extends State<LoginWindow> {
               password: password));
 
       final currentUserId = await widget.db.getCurrentUserId();
-      final currentUser = widget.db.getUser(currentUserId);
+      final currentUser = await widget.db.getUserAsync(currentUserId);
 
       if (currentUser == null) {
         // ignore: use_build_context_synchronously

@@ -167,7 +167,6 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
             await _saveChanges();
           } else {
             if (mounted) {
-              // ignore: use_build_context_synchronously
               Navigator.pop(context, null);
             }
           }
@@ -226,7 +225,9 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                               color: AppColors.famkaWhite,
                               child: ListTile(
                                 leading: CircleAvatar(
-                                  backgroundImage: AssetImage(member.avatarUrl),
+                                  backgroundImage: AssetImage(
+                                      member.avatarUrl ??
+                                          'assets/fotos/default.jpg'),
                                   backgroundColor: AppColors.famkaGrey,
                                   radius: 24,
                                   child: Container(
@@ -240,7 +241,7 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                                   ),
                                 ),
                                 title: Text(
-                                  '${member.firstName} ${member.lastName}',
+                                  '${member.firstName ?? ''} ${member.lastName ?? ''}',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                                 subtitle: Text(
@@ -298,7 +299,8 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                                     selected.profilId == user.profilId);
                             return ListTile(
                               leading: CircleAvatar(
-                                backgroundImage: AssetImage(user.avatarUrl),
+                                backgroundImage: AssetImage(user.avatarUrl ??
+                                    'assets/fotos/default.jpg'),
                                 backgroundColor: AppColors.famkaGrey,
                                 radius: 24,
                                 child: Container(
@@ -312,7 +314,7 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                                 ),
                               ),
                               title: Text(
-                                '${user.firstName} ${user.lastName}',
+                                '${user.firstName ?? ''} ${user.lastName ?? ''}',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               subtitle: Text(

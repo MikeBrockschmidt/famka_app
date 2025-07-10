@@ -58,7 +58,9 @@ class _GroupPageState extends State<GroupPage> {
     try {
       _currentUserId = await widget.db.getCurrentUserId();
       setState(() {});
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Fehler beim Abrufen der aktuellen Benutzer-ID: $e');
+    }
   }
 
   Future<void> _loadGroupData() async {
@@ -67,14 +69,15 @@ class _GroupPageState extends State<GroupPage> {
     });
 
     try {
-      final Group? fetchedGroup = widget.db.getGroup(widget.group.groupId);
+      final Group? fetchedGroup =
+          await widget.db.getGroupAsync(widget.group.groupId);
 
       if (fetchedGroup != null) {
         setState(() {
           _currentGroup = fetchedGroup;
           _groupNameController.text = _currentGroup!.groupName;
-          _locationController.text = _currentGroup!.groupLocation;
-          _descriptionController.text = _currentGroup!.groupDescription;
+          _locationController.text = _currentGroup!.groupLocation ?? '';
+          _descriptionController.text = _currentGroup!.groupDescription ?? '';
           _initialGroupAvatarUrl = _currentGroup!.groupAvatarUrl;
           _hasChanges = false;
         });
@@ -90,7 +93,7 @@ class _GroupPageState extends State<GroupPage> {
                 ),
               ),
             );
-            Navigator.of(context).pop(null);
+            Navigator.of(context).pop();
           });
         }
       }
@@ -148,8 +151,9 @@ class _GroupPageState extends State<GroupPage> {
 
     final bool newHasChanges =
         _groupNameController.text != _currentGroup!.groupName ||
-            _locationController.text != _currentGroup!.groupLocation ||
-            _descriptionController.text != _currentGroup!.groupDescription ||
+            _locationController.text != (_currentGroup!.groupLocation ?? '') ||
+            _descriptionController.text !=
+                (_currentGroup!.groupDescription ?? '') ||
             _currentGroup!.groupAvatarUrl != _initialGroupAvatarUrl;
 
     if (_hasChanges != newHasChanges) {
@@ -166,8 +170,12 @@ class _GroupPageState extends State<GroupPage> {
 
     final updatedGroup = _currentGroup!.copyWith(
       groupName: _groupNameController.text,
-      groupLocation: _locationController.text,
-      groupDescription: _descriptionController.text,
+      groupLocation: _locationController.text.trim().isEmpty
+          ? null
+          : _locationController.text.trim(),
+      groupDescription: _descriptionController.text.trim().isEmpty
+          ? null
+          : _descriptionController.text.trim(),
       groupAvatarUrl: currentAvatarUrl,
     );
 
@@ -216,8 +224,8 @@ class _GroupPageState extends State<GroupPage> {
       setState(() {
         _currentGroup = updatedGroup;
         _groupNameController.text = _currentGroup!.groupName;
-        _locationController.text = _currentGroup!.groupLocation;
-        _descriptionController.text = _currentGroup!.groupDescription;
+        _locationController.text = _currentGroup!.groupLocation ?? '';
+        _descriptionController.text = _currentGroup!.groupDescription ?? '';
         _initialGroupAvatarUrl = _currentGroup!.groupAvatarUrl;
         _checkIfHasChanges();
       });
@@ -321,7 +329,7 @@ class _GroupPageState extends State<GroupPage> {
           ),
         );
         _currentGroup = null;
-        Navigator.pop(context, null);
+        Navigator.of(context).pop(null);
       }
     } catch (e) {
       if (mounted) {
@@ -524,8 +532,9 @@ class _GroupPageState extends State<GroupPage> {
                                       InkWell(
                                         borderRadius: BorderRadius.circular(40),
                                         onTap: () async {
-                                          final AppUser? updatedUser = widget.db
-                                              .getUser(member.profilId);
+                                          final AppUser? updatedUser =
+                                              await widget.db.getUserAsync(
+                                                  member.profilId);
 
                                           if (updatedUser != null) {
                                             Navigator.push(
@@ -553,6 +562,8 @@ class _GroupPageState extends State<GroupPage> {
                                                         .textTheme
                                                         .bodySmall,
                                                   ),
+                                                  duration: const Duration(
+                                                      seconds: 2),
                                                 ),
                                               );
                                             }
@@ -588,8 +599,9 @@ class _GroupPageState extends State<GroupPage> {
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
                                                   image: DecorationImage(
-                                                    image: AssetImage(
-                                                        member.avatarUrl),
+                                                    image: AssetImage(member
+                                                            .avatarUrl ??
+                                                        'assets/fotos/default.jpg'),
                                                     fit: BoxFit.cover,
                                                   ),
                                                 ),
@@ -602,7 +614,7 @@ class _GroupPageState extends State<GroupPage> {
                                       SizedBox(
                                         width: 70,
                                         child: Text(
-                                          member.firstName,
+                                          member.firstName ?? '',
                                           style: Theme.of(context)
                                               .textTheme
                                               .displaySmall

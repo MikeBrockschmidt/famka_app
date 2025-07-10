@@ -58,13 +58,24 @@ class _EventListPageState extends State<EventListPage> {
       _errorMessage = null;
     });
     try {
-      final allEvents = widget.db.getAllEvents();
+      final List<SingleEvent> allEvents = await widget.db.getAllEvents();
       _events = allEvents
           .where((event) => event.groupId == _displayGroup.groupId)
           .toList();
       _events.sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
     } catch (e) {
       _errorMessage = 'Fehler beim Laden der Ereignisse: $e';
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text(
+              'Fehler beim Laden der Ereignisse: $e',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -133,15 +144,18 @@ class _EventListPageState extends State<EventListPage> {
     if (confirmDelete == true) {
       await widget.db.deleteEvent(event.groupId, event.singleEventId);
 
+      setState(() {
+        _events.removeWhere((e) => e.singleEventId == event.singleEventId);
+      });
       await _loadEvents();
-    } else {}
+    }
   }
 
   String _getDateHeader(DateTime date, DateTime? previousDate) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = DateTime(now.year, now.month, now.day + 1);
-    final nextWeek = DateTime(now.year, now.month, now.day + 7);
+    final inSevenDays = DateTime(now.year, now.month, now.day + 7);
 
     final eventDate = DateTime(date.year, date.month, date.day);
 
@@ -155,10 +169,12 @@ class _EventListPageState extends State<EventListPage> {
       return 'Heute';
     } else if (eventDate == tomorrow) {
       return 'Morgen';
-    } else if (eventDate.isBefore(nextWeek)) {
+    } else if (eventDate.isBefore(inSevenDays)) {
       return DateFormat('EEEE, dd. MMMM', 'de_DE').format(date);
     } else if (eventDate.year == now.year) {
-      if (previousDate != null && previousDate.month == date.month) {
+      if (previousDate != null &&
+          previousDate.month == date.month &&
+          previousDate.year == date.year) {
         return '';
       }
       return DateFormat('MMMM', 'de_DE').format(date);
@@ -166,7 +182,7 @@ class _EventListPageState extends State<EventListPage> {
       if (previousDate != null && previousDate.year == date.year) {
         return '';
       }
-      return DateFormat('MMMM', 'de_DE').format(date);
+      return DateFormat('MMMM yyyy', 'de_DE').format(date);
     }
   }
 

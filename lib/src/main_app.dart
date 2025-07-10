@@ -96,7 +96,6 @@ class _MainAppState extends State<MainApp> {
         lastName: '',
         email: '',
         phoneNumber: '',
-        birthDate: DateTime(2000, 1, 1),
         avatarUrl: '',
         miscellaneous: '',
         password: '',

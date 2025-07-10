@@ -33,10 +33,10 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
   @override
   void initState() {
     super.initState();
-    _firstNameController.text = widget.user.firstName;
-    _lastNameController.text = widget.user.lastName;
-    _emailController.text = widget.user.email;
-    _phoneNumberController.text = widget.user.phoneNumber;
+    _firstNameController.text = widget.user.firstName!;
+    _lastNameController.text = widget.user.lastName!;
+    _emailController.text = widget.user.email!;
+    _phoneNumberController.text = widget.user.phoneNumber!;
   }
 
   @override
@@ -66,13 +66,12 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
     return null;
   }
 
-  void _saveUserDataAndNavigate() {
+  void _saveUserDataAndNavigate() async {
     if (_formKey.currentState?.validate() ?? false) {
       final updatedUser = AppUser(
         profilId: widget.user.profilId,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        birthDate: widget.user.birthDate,
         email: _emailController.text.trim(),
         phoneNumber: _phoneNumberController.text.trim(),
         avatarUrl: widget.user.avatarUrl,
@@ -80,27 +79,40 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
         password: widget.user.password,
       );
 
-      widget.db.updateUser(updatedUser);
+      try {
+        await widget.db.updateUser(updatedUser);
 
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Onboarding3Screen(
-              db: widget.db,
-              auth: widget.auth,
-              user: updatedUser,
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Onboarding3Screen(
+                db: widget.db,
+                auth: widget.auth,
+                user: updatedUser,
+              ),
             ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Fehler beim Speichern der Benutzerdaten: $e'),
+              backgroundColor: AppColors.famkaRed,
+            ),
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text("Bitte überprüfen Sie Ihre Eingaben."),
+            backgroundColor: AppColors.famkaCyan,
           ),
         );
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Bitte überprüfen Sie Ihre Eingaben."),
-          backgroundColor: AppColors.famkaCyan,
-        ),
-      );
     }
   }
 

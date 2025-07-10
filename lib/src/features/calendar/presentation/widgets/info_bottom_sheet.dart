@@ -75,19 +75,21 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
       }
     } else if (eventUrl.startsWith('image:')) {
       final imageUrl = eventUrl.substring(6);
-      return Image.asset(
-        imageUrl,
-        fit: BoxFit.contain,
-        width: size,
-        height: size,
-        errorBuilder: (context, error, stackTrace) {
-          return Icon(
-            Icons.broken_image,
-            size: size,
-            color: AppColors.famkaRed,
-          );
-        },
-      );
+      if (imageUrl.isNotEmpty) {
+        return Image.asset(
+          imageUrl,
+          fit: BoxFit.contain,
+          width: size,
+          height: size,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              Icons.broken_image,
+              size: size,
+              color: AppColors.famkaRed,
+            );
+          },
+        );
+      }
     }
 
     return CircleAvatar(
@@ -164,7 +166,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         return;
       }
       Navigator.of(context).pop();
-    } else {}
+    }
   }
 
   @override
@@ -190,14 +192,19 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: widget.eventsForPerson.map((event) {
-                  final List<String> names = event.attendingUsers.map((id) {
+                  final Set<String> allParticipantIds = {};
+                  allParticipantIds.addAll(event.acceptedMemberIds);
+                  allParticipantIds.addAll(event.invitedMemberIds);
+                  allParticipantIds.addAll(event.maybeMemberIds);
+
+                  final List<String> participantNames =
+                      allParticipantIds.map((id) {
                     final AppUser user = widget.currentGroupMembers.firstWhere(
                       (u) => u.profilId == id,
                       orElse: () => AppUser(
                         profilId: id,
-                        firstName: id,
+                        firstName: 'Unbekannt ($id)',
                         lastName: '',
-                        birthDate: DateTime.now(),
                         email: '',
                         phoneNumber: '',
                         avatarUrl: '',
@@ -205,23 +212,15 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                         password: '',
                       ),
                     );
-                    return user.firstName;
+                    return user.firstName ?? 'Unbekannt';
                   }).toList();
 
-                  final bool isAllDayEvent = event.singleEventDate.hour == 0 &&
-                      event.singleEventDate.minute == 0 &&
-                      (event.singleEventEndTime == null ||
-                          (event.singleEventEndTime!.hour == 0 &&
-                              event.singleEventEndTime!.minute == 0 &&
-                              event.singleEventEndTime!.day ==
-                                  event.singleEventDate.day));
+                  final bool isAllDayEvent = false;
 
                   String dateDisplay =
                       DateFormat('dd.MM.yyyy').format(event.singleEventDate);
-                  if (!isAllDayEvent) {
-                    dateDisplay +=
-                        ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
-                  }
+                  dateDisplay +=
+                      ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
 
                   return ListTile(
                     leading: _buildEventLeadingIcon(
@@ -231,7 +230,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     subtitle: Text(
-                      'Teilnehmer: ${names.join(', ')}',
+                      'Teilnehmer: ${participantNames.join(', ')}',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     onTap: () {
@@ -285,34 +284,15 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium),
-                                if (event.singleEventEndTime != null &&
-                                    !isAllDayEvent)
-                                  Text(
-                                      'Endzeit: ${DateFormat('HH:mm').format(event.singleEventEndTime!)}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium),
-                                if (event.repeatOption != null &&
-                                    event.repeatOption!.isNotEmpty)
-                                  Text(
-                                      'Wiederholung: ${event.repeatOption}${event.numberOfRepeats != null && event.numberOfRepeats! > 1 ? ' (${event.numberOfRepeats}x)' : ''}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium),
-                                if (event.reminderOption != null &&
-                                    event.reminderOption!.isNotEmpty)
-                                  Text('Erinnerung: ${event.reminderOption}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium),
                                 const SizedBox(height: 4),
-                                Text('Teilnehmer: ${names.join(', ')}',
+                                Text(
+                                    'Teilnehmer: ${participantNames.join(', ')}',
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium),
                                 const SizedBox(height: 4),
                                 Text(
-                                    'Beschreibung: ${event.description ?? "Keine Beschreibung"}',
+                                    'Beschreibung: ${event.singleEventDescription.isNotEmpty ? event.singleEventDescription : "Keine Beschreibung"}',
                                     style: (Theme.of(context)
                                         .textTheme
                                         .titleMedium)),

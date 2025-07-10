@@ -222,10 +222,6 @@ class _BottomNavigationThreeCalendarState
       );
     }
 
-    if (widget.currentUser == null || _currentActiveGroup == null) {
-      return const SizedBox.shrink();
-    }
-
     return Container(
       height: 90,
       color: widget.backgroundColor,

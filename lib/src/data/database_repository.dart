@@ -4,33 +4,48 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 
 abstract class DatabaseRepository {
-  AuthRepository get auth;
   AppUser? currentUser;
-  Group? get currentGroup;
+  Group? currentGroup;
+
+  AuthRepository get auth;
 
   Future<String> getCurrentUserId();
+  Future<List<AppUser>> getAllUsers();
+  Future<void> createUser(AppUser user);
+  Future<void> updateUser(AppUser user);
+  Future<void> deleteUser(String userId);
+
+  Future<AppUser?> getUserAsync(String userId);
+
+  Future<void> loginAs(String userId, String password, AppUser appUser);
+
+  Future<String> getCurrentUserAvatarUrl();
+
+  String generateNewGroupId();
+  Future<void> addGroup(Group group);
+  Future<void> updateGroup(Group group);
+  Future<void> deleteGroup(String groupId);
+
+  Future<Group?> getGroupAsync(String groupId);
+
   Future<List<Group>> getGroupsForUser(String userId);
   Future<List<Group>> getGroupsOfUser();
-  Future<List<AppUser>> getAllUsers();
-  List<SingleEvent> getAllEvents();
-  Future<void> addUserToGroup(AppUser user, String groupId);
-  Future<void> createEvent(SingleEvent event);
-  Future<void> addGroup(Group group);
-  Future<void> createUser(AppUser user);
-  Future<void> deleteEvent(String groupId, String eventId);
-  Future<void> deleteGroup(String groupId);
-  Future<void> deleteUser(String userId);
-  SingleEvent? getEvent(String eventId);
-  Group? getGroup(String groupId);
-  AppUser? getUser(String userId);
-  Future<void> removeUserFromGroup(String userId, String groupId);
-  Future<void> updateEvent(String groupId, SingleEvent event);
-  Future<void> updateGroup(Group group);
-  Future<void> updateUser(AppUser user);
   Future<List<AppUser>> getGroupMembers(String groupId);
-  List<Group> getAllGroups();
-  String generateNewGroupId();
-  Future<void> loginAs(String userId, String password, AppUser appUser);
-  Future<String> getCurrentUserAvatarUrl();
+  Future<void> addUserToGroup(AppUser user, String groupId);
+  Future<void> removeUserFromGroup(String userId, String groupId);
   Future<void> leaveGroup(String groupId, String userId);
+
+  Future<List<Group>> getAllGroups();
+
+  String generateNewEventId();
+
+  Future<SingleEvent?> getEventAsync(String eventId);
+
+  Future<List<SingleEvent>> getAllEvents();
+
+  Future<List<SingleEvent>> getEventsForGroup(String groupId);
+
+  Future<void> createEvent(SingleEvent event);
+  Future<void> updateEvent(String groupId, SingleEvent event);
+  Future<void> deleteEvent(String groupId, String eventId);
 }

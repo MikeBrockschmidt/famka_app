@@ -49,7 +49,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
       Group? groupToDisplay = widget.currentGroup;
 
-      groupToDisplay ??= widget.db.getGroup('g1');
+      if (groupToDisplay == null) {
+        groupToDisplay = await widget.db.getGroupAsync('g1');
+      }
 
       if (groupToDisplay == null) {
         throw Exception(
@@ -134,9 +136,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ),
       );
     }
-
-    assert(_displayGroup != null);
-    assert(widget.currentUser != null);
 
     return Scaffold(
       backgroundColor: Colors.white,

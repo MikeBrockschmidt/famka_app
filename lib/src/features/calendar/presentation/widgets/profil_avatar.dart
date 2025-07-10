@@ -40,7 +40,7 @@ class ProfilAvatar extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
-                image: AssetImage(user.avatarUrl),
+                image: AssetImage(user.avatarUrl ?? 'assets/fotos/default.jpg'),
                 fit: BoxFit.cover,
               ),
             ),

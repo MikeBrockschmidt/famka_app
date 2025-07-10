@@ -226,22 +226,14 @@ class _AppointmentState extends State<Appointment> {
         singleEventName: initialEvent.singleEventName,
         singleEventLocation: initialEvent.singleEventLocation,
         singleEventDate: currentEventDate,
-        singleEventEndTime: initialEvent.singleEventEndTime != null
-            ? DateTime(
-                currentEventDate.year,
-                currentEventDate.month,
-                currentEventDate.day,
-                initialEvent.singleEventEndTime!.hour,
-                initialEvent.singleEventEndTime!.minute,
-              )
-            : null,
-        attendingUsers: initialEvent.attendingUsers,
         singleEventUrl: initialEvent.singleEventUrl,
-        description: initialEvent.description,
+        singleEventDescription: initialEvent.singleEventDescription,
         groupId: initialEvent.groupId,
-        repeatOption: initialEvent.repeatOption,
-        reminderOption: initialEvent.reminderOption,
-        numberOfRepeats: initialEvent.numberOfRepeats,
+        creatorId: initialEvent.creatorId,
+        acceptedMemberIds: initialEvent.acceptedMemberIds,
+        invitedMemberIds: initialEvent.invitedMemberIds,
+        maybeMemberIds: initialEvent.maybeMemberIds,
+        declinedMemberIds: initialEvent.declinedMemberIds,
       );
       saveOperations.add(widget.db.createEvent(recurringEvent));
       occurrencesGenerated++;
@@ -297,7 +289,6 @@ class _AppointmentState extends State<Appointment> {
     }
 
     DateTime eventDate;
-    DateTime? eventEndTime;
 
     try {
       final dateParts = _dateController.text.split('-');
@@ -315,9 +306,6 @@ class _AppointmentState extends State<Appointment> {
 
         if (_endTimeController.text.isNotEmpty) {
           final endTimeParts = _endTimeController.text.split(':');
-          final endHour = int.parse(endTimeParts[0]);
-          final endMinute = int.parse(endTimeParts[1]);
-          eventEndTime = DateTime(year, month, day, endHour, endMinute);
         }
       }
     } catch (e) {
@@ -331,21 +319,37 @@ class _AppointmentState extends State<Appointment> {
       return;
     }
 
+    final String creatorId = widget.currentUser?.profilId ?? '';
+    if (creatorId.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppColors.famkaRed,
+          content: Text(
+              'Fehler: Ersteller des Termins konnte nicht ermittelt werden.'),
+        ),
+      );
+      return;
+    }
+
+    final String descriptionToSave =
+        _descriptionController.text.isEmpty ? '' : _descriptionController.text;
+
+    final String urlToSave = _selectedGalleryItemContent ?? '';
+
     final initialEvent = SingleEvent(
       singleEventId: _uuid.v4(),
       singleEventName: _titleController.text,
       singleEventLocation: _locationController.text,
       singleEventDate: eventDate,
-      singleEventEndTime: eventEndTime,
-      attendingUsers: selectedMembers.toList(),
-      singleEventUrl: _selectedGalleryItemContent ?? '',
-      description: _descriptionController.text.isEmpty
-          ? null
-          : _descriptionController.text,
+      singleEventUrl: urlToSave,
+      singleEventDescription: descriptionToSave,
       groupId: widget.currentGroup?.groupId ?? 'personal_events',
-      repeatOption: _repeat ? _selectedRepeat : null,
-      reminderOption: _reminder ? _selectedReminder : null,
-      numberOfRepeats: _repeat ? _numberOfRepeats : null,
+      creatorId: creatorId,
+      acceptedMemberIds: selectedMembers.toList(),
+      invitedMemberIds: [],
+      maybeMemberIds: [],
+      declinedMemberIds: [],
     );
 
     try {

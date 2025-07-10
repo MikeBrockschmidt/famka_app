@@ -57,19 +57,21 @@ class EventListItem extends StatelessWidget {
       }
     } else if (eventUrl.startsWith('image:')) {
       final imageUrl = eventUrl.substring(6);
-      return Image.asset(
-        imageUrl,
-        fit: BoxFit.contain,
-        width: size,
-        height: size,
-        errorBuilder: (context, error, stackTrace) {
-          return Icon(
-            Icons.broken_image,
-            size: size,
-            color: AppColors.famkaRed,
-          );
-        },
-      );
+      if (imageUrl.isNotEmpty) {
+        return Image.asset(
+          imageUrl,
+          fit: BoxFit.contain,
+          width: size,
+          height: size,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              Icons.broken_image,
+              size: size,
+              color: AppColors.famkaRed,
+            );
+          },
+        );
+      }
     }
     return CircleAvatar(
       radius: size / 2,
@@ -96,7 +98,7 @@ class EventListItem extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: Colors.grey.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 3,
             offset: const Offset(0, 1),
@@ -129,15 +131,19 @@ class EventListItem extends StatelessWidget {
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        final List<String> names =
-                            event.attendingUsers.map((id) {
+                        final Set<String> allParticipantIds = {};
+                        allParticipantIds.addAll(event.acceptedMemberIds);
+                        allParticipantIds.addAll(event.invitedMemberIds);
+                        allParticipantIds.addAll(event.maybeMemberIds);
+
+                        final List<String> participantNames =
+                            allParticipantIds.map((id) {
                           final AppUser user = groupMembers.firstWhere(
                             (u) => u.profilId == id,
                             orElse: () => AppUser(
                               profilId: id,
-                              firstName: id,
+                              firstName: 'Unbekannt ($id)',
                               lastName: '',
-                              birthDate: DateTime.now(),
                               email: '',
                               phoneNumber: '',
                               avatarUrl: '',
@@ -145,24 +151,14 @@ class EventListItem extends StatelessWidget {
                               password: '',
                             ),
                           );
-                          return user.firstName;
+                          return user.firstName ?? 'Unbekannt';
                         }).toList();
 
-                        final bool isAllDayEvent =
-                            event.singleEventDate.hour == 0 &&
-                                event.singleEventDate.minute == 0 &&
-                                (event.singleEventEndTime == null ||
-                                    (event.singleEventEndTime!.hour == 0 &&
-                                        event.singleEventEndTime!.minute == 0 &&
-                                        event.singleEventEndTime!.day ==
-                                            event.singleEventDate.day));
-
+                        final bool isAllDayEvent = false;
                         String dateDisplay = DateFormat('dd.MM.yyyy')
                             .format(event.singleEventDate);
-                        if (!isAllDayEvent) {
-                          dateDisplay +=
-                              ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
-                        }
+                        dateDisplay +=
+                            ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
 
                         showDialog(
                           context: context,
@@ -215,34 +211,15 @@ class EventListItem extends StatelessWidget {
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium),
-                                  if (event.singleEventEndTime != null &&
-                                      !isAllDayEvent)
-                                    Text(
-                                        'Endzeit: ${DateFormat('HH:mm').format(event.singleEventEndTime!)}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium),
-                                  if (event.repeatOption != null &&
-                                      event.repeatOption!.isNotEmpty)
-                                    Text(
-                                        'Wiederholung: ${event.repeatOption}${event.numberOfRepeats != null && event.numberOfRepeats! > 1 ? ' (${event.numberOfRepeats}x)' : ''}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium),
-                                  if (event.reminderOption != null &&
-                                      event.reminderOption!.isNotEmpty)
-                                    Text('Erinnerung: ${event.reminderOption}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium),
                                   const SizedBox(height: 4),
-                                  Text('Teilnehmer: ${names.join(', ')}',
+                                  Text(
+                                      'Teilnehmer: ${participantNames.join(', ')}',
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium),
                                   const SizedBox(height: 4),
                                   Text(
-                                      'Beschreibung: ${event.description ?? "Keine Beschreibung"}',
+                                      'Beschreibung: ${event.singleEventDescription.isNotEmpty ? event.singleEventDescription : "Keine Beschreibung"}',
                                       style: (Theme.of(context)
                                           .textTheme
                                           .titleMedium)),

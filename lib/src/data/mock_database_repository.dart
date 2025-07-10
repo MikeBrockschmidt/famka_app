@@ -1,7 +1,7 @@
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/firebase_auth_repository.dart';
-import 'package:famka_app/src/data/user_role.dart';
+import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
@@ -22,7 +22,6 @@ class MockDatabaseRepository implements DatabaseRepository {
         profilId: 'u1',
         firstName: 'Mike',
         lastName: 'Brockschmidt',
-        birthDate: DateTime(1981, 8, 16),
         email: 'info@mike-brockschmidt.de',
         phoneNumber: '123456789',
         avatarUrl: 'assets/fotos/Mike.jpg',
@@ -33,7 +32,6 @@ class MockDatabaseRepository implements DatabaseRepository {
         profilId: 'u2',
         firstName: 'Melanie',
         lastName: 'Brockschmidt',
-        birthDate: DateTime(1981, 4, 17),
         email: 'melanie@example.com',
         phoneNumber: '987654321',
         avatarUrl: 'assets/fotos/Melanie.jpg',
@@ -44,7 +42,6 @@ class MockDatabaseRepository implements DatabaseRepository {
         profilId: 'u3',
         firstName: 'Max',
         lastName: 'Brockschmidt',
-        birthDate: DateTime(2016, 7, 23),
         email: '',
         phoneNumber: '',
         avatarUrl: 'assets/fotos/Max.jpg',
@@ -55,7 +52,6 @@ class MockDatabaseRepository implements DatabaseRepository {
         profilId: 'u4',
         firstName: 'Martha',
         lastName: 'Brockschmidt',
-        birthDate: DateTime(2017, 9, 26),
         email: '',
         phoneNumber: '',
         avatarUrl: 'assets/fotos/Martha.jpg',
@@ -66,7 +62,6 @@ class MockDatabaseRepository implements DatabaseRepository {
         profilId: 'u5',
         firstName: 'Boyd',
         lastName: '',
-        birthDate: DateTime(2016, 8, 10),
         email: '',
         phoneNumber: '',
         avatarUrl: 'assets/fotos/boyd.jpg',
@@ -122,6 +117,48 @@ class MockDatabaseRepository implements DatabaseRepository {
         },
       ),
     ]);
+
+    _events.addAll([
+      SingleEvent(
+        singleEventId: _uuid.v4(),
+        groupId: 'g1',
+        creatorId: 'u1',
+        singleEventName: 'Familienessen',
+        singleEventDate: DateTime.now().add(const Duration(days: 1)),
+        singleEventLocation: 'Restaurant O.S. Kitchen',
+        singleEventDescription: 'Gemütliches Abendessen mit der Familie.',
+        singleEventUrl: 'image:assets/icons/food.png',
+        acceptedMemberIds: ['u1', 'u2', 'u3'],
+        invitedMemberIds: ['u4'],
+        maybeMemberIds: ['u5'],
+      ),
+      SingleEvent(
+        singleEventId: _uuid.v4(),
+        groupId: 'g1',
+        creatorId: 'u2',
+        singleEventName: 'Fußballtraining Max',
+        singleEventDate: DateTime.now().add(const Duration(days: 2)),
+        singleEventLocation: 'Sportplatz',
+        singleEventDescription: 'Training für Max\'s Fußballmannschaft.',
+        singleEventUrl: 'icon:58137',
+        acceptedMemberIds: ['u2', 'u3'],
+        invitedMemberIds: [],
+        maybeMemberIds: ['u1'],
+      ),
+      SingleEvent(
+        singleEventId: _uuid.v4(),
+        groupId: 'g2',
+        creatorId: 'u5',
+        singleEventName: 'Kölner Dom Besuch',
+        singleEventDate: DateTime.now().add(const Duration(days: 3)),
+        singleEventLocation: 'Kölner Dom',
+        singleEventDescription: 'Besichtigung des Kölner Doms.',
+        singleEventUrl: 'emoji:⛪',
+        acceptedMemberIds: ['u5'],
+        invitedMemberIds: ['u4'],
+        maybeMemberIds: [],
+      ),
+    ]);
   }
 
   final Uuid _uuid = const Uuid();
@@ -130,7 +167,21 @@ class MockDatabaseRepository implements DatabaseRepository {
   final List<SingleEvent> _events = [];
 
   String? _currentLoggedInUserId;
-  Group? _currentGroup;
+  Group? _currentGroupValue;
+
+  @override
+  AppUser? currentUser;
+
+  @override
+  AuthRepository get auth => FirebaseAuthRepository();
+
+  @override
+  Group? get currentGroup => _currentGroupValue;
+
+  @override
+  set currentGroup(Group? group) {
+    _currentGroupValue = group;
+  }
 
   @override
   Future<void> loginAs(
@@ -144,8 +195,8 @@ class MockDatabaseRepository implements DatabaseRepository {
     );
     if (user != null) {
       _currentLoggedInUserId = user.profilId;
-      currentUser = appUser;
-      _currentGroup = (await getGroupsForUser(user.profilId)).firstOrNull;
+      currentUser = user;
+      currentGroup = (await getGroupsForUser(user.profilId)).firstOrNull;
     } else {
       throw Exception('Falscher Benutzername oder Passwort');
     }
@@ -177,8 +228,15 @@ class MockDatabaseRepository implements DatabaseRepository {
   }
 
   @override
-  List<SingleEvent> getAllEvents() {
+  Future<List<SingleEvent>> getAllEvents() async {
+    await Future.delayed(const Duration(milliseconds: 1));
     return _events;
+  }
+
+  @override
+  Future<List<SingleEvent>> getEventsForGroup(String groupId) async {
+    await Future.delayed(const Duration(milliseconds: 1));
+    return _events.where((event) => event.groupId == groupId).toList();
   }
 
   @override
@@ -203,7 +261,7 @@ class MockDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> addGroup(Group group) async {
     _groups.add(group);
-    _currentGroup = group;
+    currentGroup = group;
     await Future.delayed(const Duration(milliseconds: 1));
   }
 
@@ -223,8 +281,8 @@ class MockDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> deleteGroup(String groupId) async {
     _groups.removeWhere((group) => group.groupId == groupId);
-    if (_currentGroup?.groupId == groupId) {
-      _currentGroup = null;
+    if (currentGroup?.groupId == groupId) {
+      currentGroup = null;
     }
     await Future.delayed(const Duration(milliseconds: 1));
   }
@@ -236,18 +294,36 @@ class MockDatabaseRepository implements DatabaseRepository {
   }
 
   @override
-  SingleEvent? getEvent(String eventId) {
+  Future<SingleEvent?> getEvent(String eventId) async {
+    await Future.delayed(const Duration(milliseconds: 1));
     return _events.firstWhereOrNull((event) => event.singleEventId == eventId);
   }
 
   @override
-  Group? getGroup(String groupId) {
+  Future<SingleEvent?> getEventAsync(String eventId) async {
+    return getEvent(eventId);
+  }
+
+  @override
+  Future<Group?> getGroup(String groupId) async {
+    await Future.delayed(const Duration(milliseconds: 1));
     return _groups.firstWhereOrNull((group) => group.groupId == groupId);
   }
 
   @override
-  AppUser? getUser(String userId) {
+  Future<Group?> getGroupAsync(String groupId) async {
+    return getGroup(groupId);
+  }
+
+  @override
+  Future<AppUser?> getUser(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 1));
     return _users.firstWhereOrNull((user) => user.profilId == userId);
+  }
+
+  @override
+  Future<AppUser?> getUserAsync(String userId) async {
+    return getUser(userId);
   }
 
   @override
@@ -279,8 +355,8 @@ class MockDatabaseRepository implements DatabaseRepository {
     for (int i = 0; i < _groups.length; i++) {
       if (_groups[i].groupId == group.groupId) {
         _groups[i] = group;
-        if (_currentGroup?.groupId == group.groupId) {
-          _currentGroup = group;
+        if (currentGroup?.groupId == group.groupId) {
+          currentGroup = group;
         }
         break;
       }
@@ -309,12 +385,18 @@ class MockDatabaseRepository implements DatabaseRepository {
   }
 
   @override
-  List<Group> getAllGroups() {
+  Future<List<Group>> getAllGroups() async {
+    await Future.delayed(const Duration(milliseconds: 1));
     return _groups;
   }
 
   @override
   String generateNewGroupId() {
+    return _uuid.v4();
+  }
+
+  @override
+  String generateNewEventId() {
     return _uuid.v4();
   }
 
@@ -327,9 +409,9 @@ class MockDatabaseRepository implements DatabaseRepository {
   @override
   Future<String> getCurrentUserAvatarUrl() async {
     final userId = await getCurrentUserId();
-    final user = getUser(userId);
+    final user = await getUser(userId);
     if (user != null) {
-      return user.avatarUrl;
+      return user.avatarUrl ?? '';
     } else {
       throw Exception('Kein Benutzer gefunden.');
     }
@@ -347,8 +429,8 @@ class MockDatabaseRepository implements DatabaseRepository {
 
       if (group.groupMembers.isEmpty) {
         _groups.removeAt(groupIndex);
-        if (_currentGroup?.groupId == groupId) {
-          _currentGroup = null;
+        if (currentGroup?.groupId == groupId) {
+          currentGroup = null;
         }
       } else {
         _groups[groupIndex] = group;
@@ -358,13 +440,4 @@ class MockDatabaseRepository implements DatabaseRepository {
     }
     await Future.delayed(const Duration(milliseconds: 1));
   }
-
-  @override
-  AppUser? currentUser;
-
-  @override
-  AuthRepository get auth => FirebaseAuthRepository();
-
-  @override
-  Group? get currentGroup => _currentGroup;
 }

@@ -97,11 +97,12 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                           children: [
                             SingleEventAvatar(
                               isSelected: isSelected,
-                              avatarUrl: member.avatarUrl,
+                              avatarUrl: member.avatarUrl ??
+                                  'assets/fotos/default.jpg',
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              member.firstName,
+                              member.firstName ?? '',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isSelected ? Colors.black : Colors.grey,

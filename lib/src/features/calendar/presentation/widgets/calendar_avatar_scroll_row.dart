@@ -35,7 +35,7 @@ class CalendarAvatarScrollRow extends StatelessWidget {
                 ProfilAvatar(user: user),
                 const SizedBox(height: 0),
                 Text(
-                  user.firstName,
+                  user.firstName ?? 'Unbekannt',
                   style: Theme.of(context).textTheme.bodySmall,
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,

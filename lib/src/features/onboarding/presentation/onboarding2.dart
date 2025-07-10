@@ -45,7 +45,7 @@ class Onboarding2Screen extends StatelessWidget {
                   Center(
                     child: ProfilImage3(
                       db: db,
-                      avatarUrl: user.avatarUrl,
+                      avatarUrl: user.avatarUrl ?? 'assets/fotos/default.jpg',
                     ),
                   ),
                   const SizedBox(height: 20),
