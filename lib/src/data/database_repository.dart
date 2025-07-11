@@ -48,4 +48,6 @@ abstract class DatabaseRepository {
   Future<void> createEvent(SingleEvent event);
   Future<void> updateEvent(String groupId, SingleEvent event);
   Future<void> deleteEvent(String groupId, String eventId);
+
+  Future<void> deleteSingleEvent(String eventId);
 }

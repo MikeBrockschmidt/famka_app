@@ -2,10 +2,11 @@ import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:famka_app/src/data/mock_database_repository.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/data/database_repository.dart';
+import 'package:famka_app/src/theme/font_theme.dart';
+import 'dart:io';
 
 class InfoBottomSheet extends StatefulWidget {
   const InfoBottomSheet({
@@ -15,6 +16,7 @@ class InfoBottomSheet extends StatefulWidget {
     required this.eventsForPerson,
     required this.currentGroupMembers,
     this.onEventDeleted,
+    required this.db,
   });
 
   final DateTime date;
@@ -22,88 +24,59 @@ class InfoBottomSheet extends StatefulWidget {
   final List<SingleEvent> eventsForPerson;
   final List<AppUser> currentGroupMembers;
   final Function(String eventId)? onEventDeleted;
+  final DatabaseRepository db;
 
   @override
   State<InfoBottomSheet> createState() => _InfoBottomSheetState();
 }
 
 class _InfoBottomSheetState extends State<InfoBottomSheet> {
-  final DatabaseRepository _db = MockDatabaseRepository();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Widget _buildEventLeadingIcon(String? eventUrl, String eventName,
+  Widget _buildEventLeadingIcon(String? url, String name,
       {double size = 32.0}) {
-    if (eventUrl == null || eventUrl.isEmpty) {
+    if (url == null || url.isEmpty) {
       return CircleAvatar(
         radius: size / 2,
         backgroundColor: Colors.grey.shade200,
         child: Text(
-          eventName.isNotEmpty ? eventName[0].toUpperCase() : '?',
-          style: TextStyle(
-            fontSize: size * 0.5,
-            color: AppColors.famkaBlack,
-          ),
+          name.isNotEmpty ? name[0].toUpperCase() : '?',
+          style: TextStyle(fontSize: size * 0.5, color: AppColors.famkaBlack),
         ),
       );
     }
 
-    if (eventUrl.startsWith('emoji:')) {
-      final emoji = eventUrl.substring(6);
+    if (url.startsWith('emoji:')) {
       return Text(
-        emoji,
-        style: TextStyle(
-          fontSize: size * 0.9,
-          fontFamilyFallback: const [
-            'Apple Color Emoji',
-            'Noto Color Emoji',
-            'Segoe UI Emoji',
-          ],
-        ),
+        url.substring(6),
+        style: TextStyle(fontSize: size * 0.9),
       );
-    } else if (eventUrl.startsWith('icon:')) {
-      final iconCodePoint = int.tryParse(eventUrl.substring(5));
-      if (iconCodePoint != null) {
-        return Icon(
-          IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
-          size: size,
-          color: Colors.black,
-        );
+    } else if (url.startsWith('icon:')) {
+      final iconCode = int.tryParse(url.substring(5));
+      if (iconCode != null) {
+        return Icon(IconData(iconCode, fontFamily: 'MaterialIcons'),
+            size: size, color: Colors.black);
       }
-    } else if (eventUrl.startsWith('image:')) {
-      final imageUrl = eventUrl.substring(6);
-      if (imageUrl.isNotEmpty) {
-        return Image.asset(
-          imageUrl,
-          fit: BoxFit.contain,
-          width: size,
-          height: size,
-          errorBuilder: (context, error, stackTrace) {
-            return Icon(
-              Icons.broken_image,
-              size: size,
-              color: AppColors.famkaRed,
-            );
-          },
-        );
-      }
+    } else if (url.startsWith('image:')) {
+      final assetPath = url.substring(6);
+      return Image.asset(
+        assetPath,
+        fit: BoxFit.contain,
+        width: size,
+        height: size,
+        errorBuilder: (context, error, stackTrace) =>
+            Icon(Icons.broken_image, color: AppColors.famkaRed),
+      );
     }
 
     return CircleAvatar(
       radius: size / 2,
       backgroundColor: Colors.red.shade100,
-      child: Text(
-        '!',
-        style: TextStyle(fontSize: size * 0.5, color: AppColors.famkaRed),
-      ),
+      child: Text('!',
+          style: TextStyle(fontSize: size * 0.5, color: AppColors.famkaRed)),
     );
   }
 
   void _deleteEvent(SingleEvent event) async {
-    final bool? confirmDelete = await showDialog<bool>(
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -132,18 +105,17 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(true),
-                    child: const ButtonLinearGradient(
-                      buttonText: 'Löschen',
-                    ),
+                    child: const ButtonLinearGradient(buttonText: 'Löschen'),
                   ),
                   const SizedBox(height: 10),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
                     child: Text(
                       'Abbrechen',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.grey.shade600,
-                          ),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Colors.grey.shade600),
                     ),
                   ),
                 ],
@@ -154,18 +126,12 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
       },
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
-    if (confirmDelete == true) {
-      await _db.deleteEvent(event.groupId, event.singleEventId);
+    if (confirm == true) {
+      await widget.db.deleteEvent(event.groupId, event.singleEventId);
       widget.onEventDeleted?.call(event.singleEventId);
-
-      if (!mounted) {
-        return;
-      }
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
     }
   }
 
@@ -183,27 +149,19 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           ),
           const SizedBox(height: 12),
           if (widget.eventsForPerson.isEmpty)
-            Text(
-              'Keine Events für diesen Tag.',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Keine Events für diesen Tag.',
+                style: Theme.of(context).textTheme.titleMedium),
           Flexible(
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: widget.eventsForPerson.map((event) {
-                  final Set<String> allParticipantIds = {};
-                  allParticipantIds.addAll(event.acceptedMemberIds);
-                  allParticipantIds.addAll(event.invitedMemberIds);
-                  allParticipantIds.addAll(event.maybeMemberIds);
-
-                  final List<String> participantNames =
-                      allParticipantIds.map((id) {
+                  final List<String> names = event.acceptedMemberIds.map((id) {
                     final AppUser user = widget.currentGroupMembers.firstWhere(
                       (u) => u.profilId == id,
                       orElse: () => AppUser(
                         profilId: id,
-                        firstName: 'Unbekannt ($id)',
+                        firstName: id,
                         lastName: '',
                         email: '',
                         phoneNumber: '',
@@ -212,36 +170,27 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                         password: '',
                       ),
                     );
-                    return user.firstName ?? 'Unbekannt';
+                    return user.firstName;
                   }).toList();
-
-                  final bool isAllDayEvent = false;
 
                   String dateDisplay =
                       DateFormat('dd.MM.yyyy').format(event.singleEventDate);
-                  dateDisplay +=
-                      ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
 
                   return ListTile(
                     leading: _buildEventLeadingIcon(
                         event.singleEventUrl, event.singleEventName),
-                    title: Text(
-                      event.singleEventName,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    subtitle: Text(
-                      'Teilnehmer: ${participantNames.join(', ')}',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    title: Text(event.singleEventName,
+                        style: Theme.of(context).textTheme.titleLarge),
+                    subtitle: Text('Teilnehmer: ${names.join(', ')}',
+                        style: Theme.of(context).textTheme.titleMedium),
                     onTap: () {
                       showDialog(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            titlePadding: const EdgeInsets.fromLTRB(
-                                24.0, 24.0, 16.0, 0.0),
+                            titlePadding:
+                                const EdgeInsets.fromLTRB(24, 24, 16, 0),
                             title: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
                                   width: 50,
@@ -249,7 +198,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                   child: _buildEventLeadingIcon(
                                     event.singleEventUrl,
                                     event.singleEventName,
-                                    size: 50.0,
+                                    size: 50,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -270,41 +219,40 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                 ),
                               ],
                             ),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 4),
-                                Text('Ort: ${event.singleEventLocation}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium),
-                                const SizedBox(height: 4),
-                                Text('Datum: $dateDisplay',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium),
-                                const SizedBox(height: 4),
-                                Text(
-                                    'Teilnehmer: ${participantNames.join(', ')}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium),
-                                const SizedBox(height: 4),
-                                Text(
-                                    'Beschreibung: ${event.singleEventDescription.isNotEmpty ? event.singleEventDescription : "Keine Beschreibung"}',
-                                    style: (Theme.of(context)
-                                        .textTheme
-                                        .titleMedium)),
-                              ],
+                            content: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('Ort: ${event.singleEventLocation}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium),
+                                  const SizedBox(height: 4),
+                                  Text('Datum: $dateDisplay',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium),
+                                  const SizedBox(height: 4),
+                                  Text('Teilnehmer: ${names.join(', ')}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                      'Beschreibung: ${event.singleEventDescription.isEmpty ? "Keine Beschreibung" : event.singleEventDescription}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium),
+                                ],
+                              ),
                             ),
                             actions: [
                               Center(
                                 child: GestureDetector(
                                   onTap: () => Navigator.of(context).pop(),
                                   child: const ButtonLinearGradient(
-                                    buttonText: 'Schließen',
-                                  ),
+                                      buttonText: 'Schließen'),
                                 ),
                               ),
                             ],
@@ -321,9 +269,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           Center(
             child: GestureDetector(
               onTap: () => Navigator.of(context).pop(),
-              child: const ButtonLinearGradient(
-                buttonText: 'Schließen',
-              ),
+              child: const ButtonLinearGradient(buttonText: 'Schließen'),
             ),
           ),
           SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 16),

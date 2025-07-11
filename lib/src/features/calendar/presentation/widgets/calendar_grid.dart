@@ -13,12 +13,15 @@ class CalendarGrid extends StatefulWidget {
   final DatabaseRepository db;
   final Group? currentGroup;
   final AppUser? currentUser;
-
+  final List<SingleEvent> allEvents;
+  final Function(String eventId)? onEventDeletedConfirmed;
   const CalendarGrid(
     this.db, {
     super.key,
     this.currentGroup,
     this.currentUser,
+    required this.allEvents,
+    this.onEventDeletedConfirmed,
   });
 
   @override
@@ -48,7 +51,6 @@ class _CalendarGridState extends State<CalendarGrid> {
   DateTime currentTopDate = DateTime.now();
 
   late Future<List<AppUser>> _groupMembersFuture;
-  List<SingleEvent> _allEvents = [];
 
   @override
   void initState() {
@@ -74,26 +76,27 @@ class _CalendarGridState extends State<CalendarGrid> {
     }
 
     _loadGroupMembers();
-    _loadAllEvents();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      final double screenHeight = MediaQuery.of(context).size.height;
-      final double maxScrollExtentLimit = screenHeight - 94 - 40;
+      if (widget.currentUser != null) {
+        final double screenHeight = MediaQuery.of(context).size.height;
+        final double maxScrollExtentLimit = screenHeight - 94 - 40;
 
-      Future.delayed(const Duration(milliseconds: 50), () {
-        if (_leftColumnVerticalScrollController.hasClients && mounted) {
-          final initialDayOffset =
-              currentDate.difference(_actualStartDate).inDays;
-          final initialScrollOffset = initialDayOffset * rowHeight;
-          final maxScrollExtent =
-              (_totalDisplayDays * rowHeight) - maxScrollExtentLimit;
-          final clampedInitialOffset = initialScrollOffset.clamp(
-              0.0, maxScrollExtent < 0 ? 0.0 : maxScrollExtent);
-          _leftColumnVerticalScrollController.jumpTo(clampedInitialOffset);
-        }
-      });
+        Future.delayed(const Duration(milliseconds: 50), () {
+          if (_leftColumnVerticalScrollController.hasClients && mounted) {
+            final initialDayOffset =
+                currentDate.difference(_actualStartDate).inDays;
+            final initialScrollOffset = initialDayOffset * rowHeight;
+            final maxScrollExtent =
+                (_totalDisplayDays * rowHeight) - maxScrollExtentLimit;
+            final clampedInitialOffset = initialScrollOffset.clamp(
+                0.0, maxScrollExtent < 0 ? 0.0 : maxScrollExtent);
+            _leftColumnVerticalScrollController.jumpTo(clampedInitialOffset);
+          }
+        });
+      }
     });
 
     _leftColumnVerticalScrollController.addListener(() {
@@ -137,35 +140,8 @@ class _CalendarGridState extends State<CalendarGrid> {
     if (widget.currentGroup != null) {
       _groupMembersFuture = Future.value(widget.currentGroup!.groupMembers);
     } else {
-      _groupMembersFuture = Future.value([]);
-    }
-  }
-
-  Future<void> _loadAllEvents() async {
-    List<SingleEvent> newEvents;
-    try {
-      if (widget.currentGroup != null) {
-        newEvents =
-            await widget.db.getEventsForGroup(widget.currentGroup!.groupId);
-      } else {
-        newEvents = await widget.db.getAllEvents();
-      }
-
-      if (mounted) {
-        setState(() {
-          _allEvents = newEvents;
-        });
-      }
-    } catch (e) {
-      debugPrint('Fehler beim Laden aller Events: $e');
-      if (mounted) {
-        setState(() {
-          _allEvents = [];
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler beim Laden der Termine: $e')),
-        );
-      }
+      _groupMembersFuture =
+          widget.db.getGroupMembers('your_default_group_id_here');
     }
   }
 
@@ -174,7 +150,6 @@ class _CalendarGridState extends State<CalendarGrid> {
     super.didUpdateWidget(oldWidget);
     if (widget.currentGroup?.groupId != oldWidget.currentGroup?.groupId) {
       _loadGroupMembers();
-      _loadAllEvents();
     }
   }
 
@@ -241,18 +216,16 @@ class _CalendarGridState extends State<CalendarGrid> {
       }
     } else if (eventUrl.startsWith('image:')) {
       final imageUrl = eventUrl.substring(6);
-      if (imageUrl.isNotEmpty) {
-        return Image.asset(
-          imageUrl,
-          fit: BoxFit.contain,
-          width: size,
-          height: size,
-          errorBuilder: (context, error, stackTrace) {
-            return const Icon(Icons.broken_image,
-                size: 40 * 0.7, color: Colors.red);
-          },
-        );
-      }
+      return Image.asset(
+        imageUrl,
+        fit: BoxFit.contain,
+        width: size,
+        height: size,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.broken_image,
+              size: 40 * 0.7, color: Colors.red);
+        },
+      );
     }
 
     return Text(
@@ -277,19 +250,7 @@ class _CalendarGridState extends State<CalendarGrid> {
             future: _groupMembersFuture,
             builder: (context, snapshot) {
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Container(
-                  height: 94,
-                  alignment: Alignment.center,
-                  child: snapshot.connectionState == ConnectionState.waiting
-                      ? const CircularProgressIndicator(
-                          color: AppColors.famkaCyan)
-                      : Text(
-                          widget.currentGroup == null
-                              ? 'Wähle eine Gruppe'
-                              : 'Keine Mitglieder gefunden',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                );
+                return const SizedBox(height: 94);
               }
 
               final List<AppUser> currentGroupMembers = snapshot.data!;
@@ -334,7 +295,7 @@ class _CalendarGridState extends State<CalendarGrid> {
               builder: (context, snapshot) {
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(
-                      child: Text('Warte auf Mitgliederdaten...'));
+                      child: Text('Keine Mitglieder gefunden.'));
                 }
 
                 final List<AppUser> currentGroupMembers = snapshot.data!;
@@ -407,15 +368,15 @@ class _CalendarGridState extends State<CalendarGrid> {
                                 children: List.generate(actualNumberOfPersons,
                                     (personIndex) {
                                   return GestureDetector(
-                                    onTap: () {
-                                      final AppUser selectedUser =
-                                          currentGroupMembers[personIndex];
-                                      final userId = selectedUser.profilId;
+                                    onTap: () async {
+                                      final users = currentGroupMembers;
+                                      final userId =
+                                          users[personIndex].profilId;
                                       final userName =
-                                          selectedUser.firstName ?? 'Unbekannt';
+                                          users[personIndex].firstName;
 
                                       final eventsForPerson =
-                                          _allEvents.where((event) {
+                                          widget.allEvents.where((event) {
                                         final sameDay =
                                             event.singleEventDate.year ==
                                                     date.year &&
@@ -423,22 +384,22 @@ class _CalendarGridState extends State<CalendarGrid> {
                                                     date.month &&
                                                 event.singleEventDate.day ==
                                                     date.day;
-                                        final attending = event
-                                                .acceptedMemberIds
-                                                .contains(userId) ||
-                                            event.invitedMemberIds
-                                                .contains(userId) ||
-                                            event.maybeMemberIds
-                                                .contains(userId) ||
-                                            event.creatorId == userId;
-                                        return sameDay && attending;
+                                        return sameDay &&
+                                            (event.acceptedMemberIds
+                                                    .contains(userId) ||
+                                                event.invitedMemberIds
+                                                    .contains(userId) ||
+                                                event.maybeMemberIds
+                                                    .contains(userId));
                                       }).toList();
 
                                       final BuildContext currentTapContext =
                                           context;
 
-                                      showModalBottomSheet(
+                                      final bool? eventWasDeleted =
+                                          await showModalBottomSheet<bool>(
                                         context: currentTapContext,
+                                        isScrollControlled: true,
                                         builder: (context) {
                                           return InfoBottomSheet(
                                             date: date,
@@ -446,21 +407,20 @@ class _CalendarGridState extends State<CalendarGrid> {
                                             eventsForPerson: eventsForPerson,
                                             currentGroupMembers:
                                                 currentGroupMembers,
+                                            db: widget.db,
                                             onEventDeleted:
                                                 (String deletedEventId) {
-                                              if (mounted) {
-                                                setState(() {
-                                                  _allEvents.removeWhere(
-                                                      (event) =>
-                                                          event.singleEventId ==
-                                                          deletedEventId);
-                                                });
-                                                _loadAllEvents();
-                                              }
+                                              widget.onEventDeletedConfirmed
+                                                  ?.call(deletedEventId);
                                             },
                                           );
                                         },
                                       );
+
+                                      if (eventWasDeleted == true) {
+                                        debugPrint(
+                                            'Event was deleted via InfoBottomSheet, CalendarScreen will refresh.');
+                                      }
                                     },
                                     child: Container(
                                       width: personColumnWidth,
@@ -478,9 +438,12 @@ class _CalendarGridState extends State<CalendarGrid> {
                                       ),
                                       child: CalendarCellIcon(
                                         date: date,
-                                        user: currentGroupMembers[personIndex],
+                                        personIndex: personIndex,
+                                        db: widget.db,
+                                        currentGroupMembers:
+                                            currentGroupMembers,
                                         buildEventContent: _buildEventContent,
-                                        allEvents: _allEvents,
+                                        allEvents: widget.allEvents,
                                       ),
                                     ),
                                   );
@@ -504,31 +467,34 @@ class _CalendarGridState extends State<CalendarGrid> {
 
 class CalendarCellIcon extends StatelessWidget {
   final DateTime date;
-  final AppUser user;
+  final int personIndex;
+  final DatabaseRepository db;
+  final List<AppUser> currentGroupMembers;
   final Widget Function(String?, String, double) buildEventContent;
   final List<SingleEvent> allEvents;
 
   const CalendarCellIcon({
     super.key,
     required this.date,
-    required this.user,
+    required this.personIndex,
+    required this.db,
+    required this.currentGroupMembers,
     required this.buildEventContent,
     required this.allEvents,
   });
 
   @override
   Widget build(BuildContext context) {
-    final userId = user.profilId;
+    final userId = currentGroupMembers[personIndex].profilId;
 
     final eventsForPerson = allEvents.where((event) {
       final sameDay = event.singleEventDate.year == date.year &&
           event.singleEventDate.month == date.month &&
           event.singleEventDate.day == date.day;
-      final attending = event.acceptedMemberIds.contains(userId) ||
-          event.invitedMemberIds.contains(userId) ||
-          event.maybeMemberIds.contains(userId) ||
-          event.creatorId == userId;
-      return sameDay && attending;
+      return sameDay &&
+          (event.acceptedMemberIds.contains(userId) ||
+              event.invitedMemberIds.contains(userId) ||
+              event.maybeMemberIds.contains(userId));
     }).toList();
 
     if (eventsForPerson.isEmpty) return const SizedBox.shrink();

@@ -440,4 +440,9 @@ class MockDatabaseRepository implements DatabaseRepository {
     }
     await Future.delayed(const Duration(milliseconds: 1));
   }
+
+  @override
+  Future<void> deleteSingleEvent(String eventId) {
+    throw UnimplementedError();
+  }
 }

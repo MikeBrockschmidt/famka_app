@@ -11,6 +11,9 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/onboarding/presentation/onboarding4.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
 
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 class Onboarding3Screen extends StatefulWidget {
   final DatabaseRepository db;
   final AuthRepository auth;
@@ -28,6 +31,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
   final _formKey = GlobalKey<FormState>();
 
   late String _groupAvatarUrl;
+  bool _isPickingImage = false;
 
   final List<String> _availableGroupImages = [
     'assets/fotos/Familie.jpg',
@@ -50,6 +54,58 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
     });
   }
 
+  Future<void> _pickImageLocally(ImageSource source) async {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+
+    setState(() {
+      _isPickingImage = true;
+    });
+
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedFile = await picker.pickImage(
+        source: source,
+        imageQuality: 75,
+        maxWidth: 200,
+        maxHeight: 200,
+      );
+
+      if (pickedFile != null) {
+        final String localPath = pickedFile.path;
+        _handleGroupAvatarSelected(localPath);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Gruppenbild ausgewählt und lokal angezeigt.')),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Kein Bild ausgewählt.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Fehler bei der Bildauswahl: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPickingImage = false;
+        });
+      }
+    }
+  }
+
   void _showGroupImageSelectionDialog() {
     showModalBottomSheet(
       context: context,
@@ -64,9 +120,26 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Aus Galerie wählen'),
+                onTap: () => _pickImageLocally(ImageSource.gallery),
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Foto aufnehmen'),
+                onTap: () => _pickImageLocally(ImageSource.camera),
+              ),
+              const Divider(),
+              Text(
+                'Oder wähle ein Standardbild:',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 10),
               Flexible(
                 child: GridView.builder(
                   shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     crossAxisSpacing: 10,
@@ -160,6 +233,15 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
   Widget build(BuildContext context) {
     const double bottomReservedSpace = 150.0;
 
+    ImageProvider groupImageProvider;
+    if (_groupAvatarUrl.startsWith('http')) {
+      groupImageProvider = NetworkImage(_groupAvatarUrl);
+    } else if (_groupAvatarUrl.startsWith('assets/')) {
+      groupImageProvider = AssetImage(_groupAvatarUrl);
+    } else {
+      groupImageProvider = FileImage(File(_groupAvatarUrl));
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
@@ -192,7 +274,9 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
                       child: Transform.translate(
                         offset: const Offset(0, -16),
                         child: GestureDetector(
-                          onTap: _showGroupImageSelectionDialog,
+                          onTap: _isPickingImage
+                              ? null
+                              : _showGroupImageSelectionDialog,
                           child: SizedBox(
                             width: 236,
                             height: 236,
@@ -205,22 +289,30 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
                                   decoration: BoxDecoration(
                                     color: Colors.grey[400],
                                     borderRadius: BorderRadius.circular(12),
-                                    image: _groupAvatarUrl.isNotEmpty
-                                        ? DecorationImage(
-                                            image: AssetImage(_groupAvatarUrl),
-                                            fit: BoxFit.cover,
-                                          )
-                                        : null,
+                                    image: DecorationImage(
+                                      image: groupImageProvider,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                  child: _groupAvatarUrl.isEmpty
+                                  child: _isPickingImage
                                       ? const Center(
-                                          child: Icon(
-                                            Icons.image,
-                                            size: 44,
-                                            color: Colors.white,
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.white),
                                           ),
                                         )
-                                      : null,
+                                      : (_groupAvatarUrl.isEmpty ||
+                                              _groupAvatarUrl.startsWith(
+                                                  'assets/fotos/default.jpg'))
+                                          ? const Center(
+                                              child: Icon(
+                                                Icons.image,
+                                                size: 44,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : null,
                                 ),
                                 Image.asset(
                                   'assets/grafiken/rahmen.png',

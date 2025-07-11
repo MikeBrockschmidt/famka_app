@@ -40,9 +40,9 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
     super.dispose();
   }
 
-  void _handleAvatarSelected(String newUrl) {
+  void _handleAvatarSelected(String newPathOrUrl) {
     setState(() {
-      _selectedAvatarUrl = newUrl;
+      _selectedAvatarUrl = newPathOrUrl;
     });
   }
 

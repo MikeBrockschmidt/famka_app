@@ -302,4 +302,14 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<void> deleteSingleEvent(String eventId) async {
+    try {
+      await _firestore.collection('events').doc(eventId).delete();
+    } catch (e) {
+      print('Fehler beim Löschen des SingleEvents $eventId: $e');
+      rethrow;
+    }
+  }
 }
