@@ -544,7 +544,6 @@ class _GroupPageState extends State<GroupPage> {
                                                     ProfilPage(
                                                   db: widget.db,
                                                   currentUser: updatedUser,
-                                                  // group: _currentGroup!, // <-- Diese Zeile wurde entfernt
                                                   auth: widget.auth,
                                                 ),
                                               ),

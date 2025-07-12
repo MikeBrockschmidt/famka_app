@@ -1,10 +1,8 @@
-// lib/src/features/profil_page/presentation/profil_page.dart
-
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/common/profil_avatar_row.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart'; // Nur ProfilImage3, LoginWindow nicht mehr benötigt
+import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -19,14 +17,12 @@ class ProfilPage extends StatefulWidget {
   final DatabaseRepository db;
   final AuthRepository auth;
   final AppUser currentUser;
-  // final Group group; // <-- DIESER PARAMETER WIRD ENTFERNT!
 
   const ProfilPage({
     super.key,
     required this.db,
     required this.auth,
     required this.currentUser,
-    // required this.group, // <-- ENTFERNT!
   });
 
   @override
@@ -41,7 +37,6 @@ class _ProfilPageState extends State<ProfilPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  // Future, das die Gruppen laden wird
   late Future<List<Group>> _userGroupsFuture;
 
   @override
@@ -50,10 +45,9 @@ class _ProfilPageState extends State<ProfilPage> {
     _phoneNumberController.text = widget.currentUser.phoneNumber ?? '';
     _emailController.text = widget.currentUser.email;
     _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
-    _loadUserGroups(); // Gruppen beim Initialisieren laden
+    _loadUserGroups();
   }
 
-  // Methode zum Neuladen der Gruppen
   void _loadUserGroups() {
     setState(() {
       _userGroupsFuture = widget.db.getGroupsOfUser();
@@ -153,9 +147,7 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
-  // Methode zur Navigation zum AddOrJoinGroupScreen
   void _navigateToAddGroupScreen(BuildContext context) async {
-    // Verwende await, um zu warten, bis AddOrJoinGroupScreen geschlossen wird
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -166,15 +158,11 @@ class _ProfilPageState extends State<ProfilPage> {
         ),
       ),
     );
-    // Nachdem AddOrJoinGroupScreen geschlossen wurde, lade die Gruppen neu
     _loadUserGroups();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Die 'group' Variable aus den Widgets-Parametern wird entfernt.
-    // Stattdessen laden wir die Gruppen über _userGroupsFuture.
-
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
@@ -277,7 +265,6 @@ class _ProfilPageState extends State<ProfilPage> {
                         const Divider(
                             thickness: 0.3, height: 1, color: Colors.black),
                         const SizedBox(height: 20),
-                        // Bereich für Gruppen
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
@@ -313,7 +300,6 @@ class _ProfilPageState extends State<ProfilPage> {
                                 ],
                               ),
                               const SizedBox(width: 20),
-                              // FutureBuilder, um die Gruppen des Benutzers zu laden
                               FutureBuilder<List<Group>>(
                                 future: _userGroupsFuture,
                                 builder: (context, snapshot) {
@@ -330,7 +316,6 @@ class _ProfilPageState extends State<ProfilPage> {
                                     return const Center(
                                         child: Text('Keine Gruppen gefunden.'));
                                   } else {
-                                    // Zeigt alle gefundenen Gruppen an
                                     return Row(
                                       children: snapshot.data!
                                           .map(
@@ -339,8 +324,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                                   right: 20),
                                               child: ProfilAvatarRow(
                                                 widget.db,
-                                                group:
-                                                    group, // Jede Gruppe wird einzeln übergeben
+                                                group: group,
                                                 currentUser: widget.currentUser,
                                                 auth: widget.auth,
                                               ),
@@ -394,13 +378,7 @@ class _ProfilPageState extends State<ProfilPage> {
         widget.db,
         auth: widget.auth,
         currentUser: widget.currentUser,
-        // Die 'initialGroup' muss jetzt die aktuell ausgewählte/aktive Gruppe sein,
-        // nicht nur die, die anfangs übergeben wurde.
-        // Wenn du eine globale 'currentGroup' in deinem DatabaseRepository hast, verwende sie.
-        // Andernfalls müsstest du überlegen, wie du die "aktuelle" Gruppe definierst.
-        // Für den Moment setzen wir sie auf null oder die erste Gruppe, falls vorhanden.
-        initialGroup: widget
-            .db.currentGroup, // Annahme: db.currentGroup wird aktualisiert
+        initialGroup: widget.db.currentGroup,
         initialIndex: 0,
       ),
     );

@@ -1,5 +1,3 @@
-// lib/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
@@ -9,8 +7,8 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:uuid/uuid.dart';
-import 'package:image_picker/image_picker.dart'; // Import für ImagePicker
-import 'dart:io'; // Import für FileImage
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class AddOrJoinGroupScreen extends StatefulWidget {
   final DatabaseRepository db;
@@ -75,7 +73,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
   }
 
   Future<void> _pickImageLocally(ImageSource source) async {
-    // Schließe das Bottom Sheet, wenn es geöffnet ist
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     }
@@ -218,14 +215,7 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
     final String groupDescription = _newGroupDescriptionController.text.trim();
     final String groupLocation = _newGroupLocationController.text.trim();
 
-    // finalGroupAvatarUrl wird direkt _groupAvatarUrl sein.
-    // Wenn der Nutzer ein Bild aus der Galerie wählt, ist dies ein lokaler Pfad.
-    // Dieser Pfad wird in Firestore gespeichert, ist aber nur auf dem Gerät des Erstellers gültig.
     final String finalGroupAvatarUrl = _groupAvatarUrl;
-
-    // !!! Der Block zum Hochladen mit uploadGroupAvatar wird hier komplett weggelassen !!!
-    // Es gibt KEINEN Aufruf von widget.db.uploadGroupAvatar,
-    // da wir Firebase Storage vorerst nicht nutzen wollen.
 
     final Map<String, UserRole> userRoles = {
       widget.currentUser.profilId: UserRole.admin,
@@ -240,8 +230,7 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
       groupName: groupName,
       groupLocation: groupLocation,
       groupDescription: groupDescription,
-      groupAvatarUrl:
-          finalGroupAvatarUrl, // Verwendet den lokalen/Asset-Pfad direkt
+      groupAvatarUrl: finalGroupAvatarUrl,
       creatorId: widget.currentUser.profilId,
       groupMembers: groupMembers,
       userRoles: userRoles,
@@ -352,32 +341,22 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Hier ist die angepasste Logik für den ImageProvider
     ImageProvider groupImageProvider;
     if (_groupAvatarUrl.startsWith('http')) {
-      // Dies würde nur passieren, wenn _groupAvatarUrl aus einer Datenbank
-      // bereits eine HTTP-URL wäre (z.B. von einem früheren Firebase Storage Upload)
-      // Aber da wir es nicht hochladen, wird dieser Fall selten erreicht,
-      // es sei denn, es wird manuell eine HTTP-URL zugewiesen.
       groupImageProvider = NetworkImage(_groupAvatarUrl);
     } else if (_groupAvatarUrl.startsWith('assets/')) {
-      // Wenn es ein Asset-Pfad ist, verwende AssetImage
       groupImageProvider = AssetImage(_groupAvatarUrl);
     } else {
-      // Annahme: Es ist ein lokaler Dateipfad. Versuche FileImage.
-      // Füge eine Fehlerbehandlung für FileImage hinzu, falls die Datei nicht existiert.
       try {
         final file = File(_groupAvatarUrl);
         if (file.existsSync()) {
           groupImageProvider = FileImage(file);
         } else {
-          // Falls die lokale Datei nicht gefunden wird, greife auf Default.jpg zurück
           print(
               'Warnung: Lokales Bild konnte nicht geladen werden: ${_groupAvatarUrl}. Verwende Default.jpg');
           groupImageProvider = const AssetImage('assets/fotos/default.jpg');
         }
       } catch (e) {
-        // Falls ein Fehler beim Erstellen von FileImage auftritt (z.B. ungültiger Pfad)
         print('Fehler beim Laden des lokalen Bildes: $e. Verwende Default.jpg');
         groupImageProvider = const AssetImage('assets/fotos/default.jpg');
       }
@@ -404,7 +383,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
         ),
         body: TabBarView(
           children: [
-            // --- Tab 1: Gruppe erstellen ---
             SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Form(
@@ -413,7 +391,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Avatar-Auswahlbereich
                     Center(
                       child: GestureDetector(
                         onTap: _isPickingImage
@@ -432,8 +409,7 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
                                   color: Colors.grey[400],
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
-                                    image:
-                                        groupImageProvider, // Angepasster Provider
+                                    image: groupImageProvider,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -507,8 +483,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
                 ),
               ),
             ),
-
-            // --- Tab 2: Gruppe beitreten ---
             SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Form(
