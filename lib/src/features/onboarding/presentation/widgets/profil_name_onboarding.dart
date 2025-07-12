@@ -175,6 +175,9 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                               border: OutlineInputBorder(),
                             ),
                             readOnly: true,
+                            contextMenuBuilder: (context, editableTextState) {
+                              return SizedBox.shrink();
+                            },
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
