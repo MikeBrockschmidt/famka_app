@@ -17,7 +17,7 @@ class Onboarding4 extends StatefulWidget {
   final DatabaseRepository db;
   final AuthRepository auth;
   final AppUser user;
-  final Group group; // Dieser Parameter ist hier im Konstruktor noch OK
+  final Group group;
 
   const Onboarding4({
     super.key,
@@ -116,7 +116,6 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
             builder: (context) => ProfilPage(
               db: widget.db,
               currentUser: updatedUser,
-              // group: widget.group, // <-- DIESE ZEILE WURDE ENTFERNT
               auth: widget.auth,
             ),
           ),
@@ -134,8 +133,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
 
   @override
   Widget build(BuildContext context) {
-    final group =
-        widget.group; // 'group' wird hier noch für ProfilAvatarRow benötigt
+    final group = widget.group;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -254,8 +252,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                               const SizedBox(height: 20),
                               ProfilAvatarRow(
                                 widget.db,
-                                group:
-                                    group, // Dieser Aufruf ist korrekt, da ProfilAvatarRow den group-Parameter erwartet
+                                group: group,
                                 currentUser: widget.user,
                                 auth: widget.auth,
                               ),

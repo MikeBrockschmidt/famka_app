@@ -34,20 +34,6 @@ class _RegisterWindowState extends State<RegisterWindow> {
     super.dispose();
   }
 
-  Future<String> _generateNewProfilId() async {
-    final allUsers = await widget.db.getAllUsers();
-    int maxId = 0;
-    for (var user in allUsers) {
-      if (user.profilId.startsWith('u')) {
-        final idNum = int.tryParse(user.profilId.substring(1));
-        if (idNum != null && idNum > maxId) {
-          maxId = idNum;
-        }
-      }
-    }
-    return 'u${maxId + 1}';
-  }
-
   String? _validateEmail(String? input) {
     if (input == null || input.trim().isEmpty) {
       return "E-Mail-Adresse darf nicht leer sein";
@@ -98,43 +84,18 @@ class _RegisterWindowState extends State<RegisterWindow> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    try {
-      final newProfilId = await _generateNewProfilId();
-
-      final newUser = AppUser(
-        profilId: newProfilId,
-        firstName: '',
-        lastName: '',
-        email: email,
-        phoneNumber: '',
-        avatarUrl: 'assets/fotos/default.jpg',
-        miscellaneous: '',
-        password: password,
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Onboarding1Screen(
+            widget.db,
+            widget.auth,
+            initialEmail: email,
+            initialPassword: password,
+          ),
+        ),
       );
-
-      await widget.db.createUser(newUser);
-      widget.db.loginAs(newUser.profilId, newUser.password!, newUser);
-
-      await widget.auth.createUserWithEmailAndPassword(email, password);
-      await widget.auth.signInWithEmailAndPassword(email, password);
-
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Onboarding1Screen(widget.db, widget.auth),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Registrierung fehlgeschlagen: $e"),
-            backgroundColor: AppColors.famkaRed,
-          ),
-        );
-      }
     }
   }
 

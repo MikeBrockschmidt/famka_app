@@ -11,11 +11,15 @@ import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 class ProfilOnboarding extends StatefulWidget {
   final DatabaseRepository db;
   final AuthRepository auth;
+  final String? initialEmail;
+  final String? initialPassword;
 
   const ProfilOnboarding({
     super.key,
     required this.db,
     required this.auth,
+    this.initialEmail,
+    this.initialPassword,
   });
 
   @override
@@ -31,6 +35,18 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialEmail != null) {
+      _emailController.text = widget.initialEmail!;
+    }
+    if (widget.initialPassword != null) {
+      _passwordController.text = widget.initialPassword!;
+      _confirmPasswordController.text = widget.initialPassword!;
+    }
+  }
 
   @override
   void dispose() {
@@ -128,9 +144,9 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
         firstName: '',
         lastName: '',
         email: email,
-        phoneNumber: '',
+        phoneNumber: null,
         avatarUrl: _selectedAvatarUrl,
-        miscellaneous: '',
+        miscellaneous: null,
         password: '',
       );
       print('[_saveNewUserAndNavigate] AppUser Objekt erstellt.');
@@ -138,6 +154,8 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
       await widget.db.createUser(newUser);
       print(
           '[_saveNewUserAndNavigate] Benutzerdaten in Firestore gespeichert.');
+
+      widget.db.currentUser = newUser;
 
       if (mounted) {
         print('[_saveNewUserAndNavigate] Navigiere zu Onboarding2Screen...');

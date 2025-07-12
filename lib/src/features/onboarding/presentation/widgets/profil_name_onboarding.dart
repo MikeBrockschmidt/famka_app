@@ -33,10 +33,10 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
   @override
   void initState() {
     super.initState();
-    _firstNameController.text = widget.user.firstName!;
-    _lastNameController.text = widget.user.lastName!;
-    _emailController.text = widget.user.email!;
-    _phoneNumberController.text = widget.user.phoneNumber!;
+    _firstNameController.text = widget.user.firstName ?? '';
+    _lastNameController.text = widget.user.lastName ?? '';
+    _emailController.text = widget.user.email ?? '';
+    _phoneNumberController.text = widget.user.phoneNumber ?? '';
   }
 
   @override
@@ -73,7 +73,9 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         email: _emailController.text.trim(),
-        phoneNumber: _phoneNumberController.text.trim(),
+        phoneNumber: _phoneNumberController.text.trim().isEmpty
+            ? null
+            : _phoneNumberController.text.trim(),
         avatarUrl: widget.user.avatarUrl,
         miscellaneous: widget.user.miscellaneous,
         password: widget.user.password,
@@ -82,8 +84,10 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
       try {
         await widget.db.updateUser(updatedUser);
 
+        widget.db.currentUser = updatedUser;
+
         if (mounted) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => Onboarding3Screen(
@@ -170,6 +174,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                               hintText: "E-Mail Adresse eingeben",
                               border: OutlineInputBorder(),
                             ),
+                            readOnly: true,
                           ),
                           const SizedBox(height: 12),
                           TextFormField(

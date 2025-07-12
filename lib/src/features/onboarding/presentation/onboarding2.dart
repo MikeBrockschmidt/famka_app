@@ -4,9 +4,10 @@ import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding_process2.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_name_onboarding.dart';
-import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/color_row.dart';
+import 'package:flutter/material.dart';
+
+import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_name_onboarding.dart';
 
 class Onboarding2Screen extends StatelessWidget {
   final DatabaseRepository db;

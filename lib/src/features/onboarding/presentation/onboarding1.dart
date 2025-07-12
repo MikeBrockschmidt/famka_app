@@ -11,8 +11,11 @@ class CustomScreen extends StatelessWidget {
   final DatabaseRepository db;
   final AuthRepository auth;
   final Group? currentGroup;
+  final String? initialEmail;
+  final String? initialPassword;
 
-  const CustomScreen(this.db, this.auth, {super.key, this.currentGroup});
+  const CustomScreen(this.db, this.auth,
+      {super.key, this.currentGroup, this.initialEmail, this.initialPassword});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +47,12 @@ class CustomScreen extends StatelessWidget {
                   const HeadlineK(screenHead: 'Profil'),
                   const SizedBox(height: 40),
                   const SizedBox(height: 10),
-                  ProfilOnboarding(db: db, auth: auth),
+                  ProfilOnboarding(
+                    db: db,
+                    auth: auth,
+                    initialEmail: initialEmail,
+                    initialPassword: initialPassword,
+                  ),
                 ],
               ),
             ),
