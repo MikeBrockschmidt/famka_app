@@ -1,12 +1,14 @@
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-import 'package:famka_app/src/features/menu/presentation/widgets/menu_screen.dart';
+import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:famka_app/src/features/register/presentation/register_screen.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
+import 'package:famka_app/src/features/onboarding/presentation/onboarding1.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:famka_app/src/features/group_page/domain/group.dart';
 
 class LoginWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -19,63 +21,119 @@ class LoginWindow extends StatefulWidget {
 }
 
 class _LoginWindowState extends State<LoginWindow> {
-  final _emailOrPhoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _passwordRepeatController = TextEditingController();
-
+  final TextEditingController _emailOrPhoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isObscured = true;
 
+  @override
+  void dispose() {
+    _emailOrPhoneController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleLogin() async {
-    final emailOrPhone = _emailOrPhoneController.text.trim();
+    final email = _emailOrPhoneController.text.trim();
     final password = _passwordController.text.trim();
 
     try {
-      await widget.db.loginAs(
-          emailOrPhone,
-          password,
-          AppUser(
-              profilId: '',
-              firstName: '',
-              lastName: '',
-              email: '',
-              phoneNumber: '',
-              avatarUrl: '',
-              miscellaneous: '',
-              password: password));
+      await widget.auth.signInWithEmailAndPassword(email, password);
 
-      final currentUserId = await widget.db.getCurrentUserId();
-      final currentUser = await widget.db.getUserAsync(currentUserId);
-
-      if (currentUser == null) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Benutzer nicht gefunden.")),
-        );
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text("Benutzer nicht in Firebase gefunden.")),
+          );
+        }
         return;
       }
 
-      Navigator.pushReplacement(
-        // ignore: use_build_context_synchronously
-        context,
-        MaterialPageRoute(
-          builder: (context) => MenuScreen(
-            widget.db,
-            currentUser: currentUser,
-            auth: widget.auth,
+      final currentUser = await widget.db.getUserAsync(firebaseUser.uid);
+      if (currentUser == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text("Benutzerdaten nicht in Firestore gefunden.")),
+          );
+        }
+        await widget.auth.signOut();
+        return;
+      }
+
+      widget.db.currentUser = currentUser;
+
+      Group? currentGroupForUser;
+      try {
+        final userGroups = await widget.db.getGroupsForUser(firebaseUser.uid);
+        if (userGroups.isNotEmpty) {
+          currentGroupForUser = userGroups.first;
+        }
+      } catch (e) {
+        print('Fehler beim Laden der Gruppen für den Benutzer: $e');
+      }
+      widget.db.currentGroup = currentGroupForUser;
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfilPage(
+              db: widget.db,
+              currentUser: currentUser,
+              group: currentGroupForUser ??
+                  Group(
+                    groupId: '',
+                    groupName: 'Standardgruppe',
+                    groupLocation: '',
+                    groupDescription: '',
+                    groupAvatarUrl: '',
+                    creatorId: '',
+                    groupMembers: [],
+                    userRoles: {},
+                  ),
+              auth: widget.auth,
+            ),
           ),
-        ),
-      );
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String message;
+      if (e.code == 'user-not-found') {
+        message = 'Kein Benutzer für diese E-Mail gefunden.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Falsches Passwort für diese E-Mail.';
+      } else {
+        message = 'Login fehlgeschlagen: ${e.message}';
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: AppColors.famkaRed,
+          ),
+        );
+      }
     } catch (e) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login fehlgeschlagen: $e")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Login fehlgeschlagen: $e"),
+            backgroundColor: AppColors.famkaRed,
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.titleSmall;
+    final linkStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Colors.blue,
+          decoration: TextDecoration.underline,
+        );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -86,173 +144,147 @@ class _LoginWindowState extends State<LoginWindow> {
             constraints: const BoxConstraints(maxWidth: 600),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextFormField(
-                      controller: _emailOrPhoneController,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: validateEmailOrPhone,
-                      decoration: InputDecoration(
-                        labelText: "Telefonnummer oder E-Mail Adresse",
-                        hintText: "Benutzername oder E-Mail Adresse eingeben",
-                        border: const OutlineInputBorder(),
-                        hintStyle: textStyle,
-                        labelStyle: textStyle,
+              child: Form(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextFormField(
+                        controller: _emailOrPhoneController,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: validateEmailOrPhone,
+                        decoration: InputDecoration(
+                          labelText: "E-Mail Adresse",
+                          hintText: "E-Mail Adresse eingeben",
+                          border: const OutlineInputBorder(),
+                          hintStyle: textStyle,
+                          labelStyle: textStyle,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _isObscured,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) => validatePassword(
-                            value,
-                            _emailOrPhoneController.text,
-                          ),
-                          decoration: InputDecoration(
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isObscured = !_isObscured;
-                                });
-                              },
-                              icon: Icon(
-                                _isObscured
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _isObscured,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: (value) => validatePassword(value),
+                            decoration: InputDecoration(
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscured = !_isObscured;
+                                  });
+                                },
+                                icon: Icon(
+                                  _isObscured
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
                               ),
+                              labelText: "Passwort",
+                              hintText: "Passwort eingeben",
+                              border: const OutlineInputBorder(),
+                              hintStyle: textStyle,
+                              labelStyle: textStyle,
                             ),
-                            labelText: "Passwort",
-                            hintText: "Passwort eingeben",
-                            border: const OutlineInputBorder(),
-                            hintStyle: textStyle,
-                            labelStyle: textStyle,
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _passwordRepeatController,
-                          obscureText: _isObscured,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) {
-                            if (value != _passwordController.text) {
-                              return "Passwörter stimmen nicht überein";
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            labelText: "Passwort Wiederholen",
-                            hintText: "Passwort Wiederholung",
-                            border: const OutlineInputBorder(),
-                            hintStyle: textStyle,
-                            labelStyle: textStyle,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: InkWell(
-                      onTap: () {
-                        final emailError =
-                            validateEmailOrPhone(_emailOrPhoneController.text);
-                        final passwordError = validatePassword(
-                          _passwordController.text,
-                          _emailOrPhoneController.text,
-                        );
-                        final repeatError = _passwordRepeatController.text !=
-                                _passwordController.text
-                            ? "Passwörter stimmen nicht überein"
-                            : null;
+                    const SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: InkWell(
+                        onTap: () {
+                          final emailError = validateEmailOrPhone(
+                              _emailOrPhoneController.text);
+                          final passwordError =
+                              validatePassword(_passwordController.text);
 
-                        if (emailError == null &&
-                            passwordError == null &&
-                            repeatError == null) {
-                          _handleLogin();
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              duration: const Duration(seconds: 3),
-                              backgroundColor: AppColors.famkaCyan,
-                              content: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text("Bitte überprüfe deine Eingaben"),
-                                  SizedBox(
-                                    height: 16,
-                                    width: 16,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
+                          if (emailError == null && passwordError == null) {
+                            _handleLogin();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                duration: const Duration(seconds: 3),
+                                backgroundColor: AppColors.famkaCyan,
+                                content: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: const [
+                                    Text("Bitte überprüfe deine Eingaben"),
+                                    SizedBox(
+                                      height: 16,
+                                      width: 16,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        child:
+                            const ButtonLinearGradient(buttonText: 'Anmelden'),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CustomScreen(
+                                widget.db,
+                                widget.auth,
                               ),
                             ),
                           );
-                        }
-                      },
-                      child: const ButtonLinearGradient(buttonText: 'Anmelden'),
+                        },
+                        child: const ButtonLinearGradient(
+                          buttonText: 'Neu hier? Dann hier entlang',
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: InkWell(
+                    const SizedBox(height: 12),
+                    GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                Onboarding1Screen(widget.db, widget.auth),
+                                RegisterScreen(widget.db, widget.auth),
                           ),
                         );
                       },
-                      child: const ButtonLinearGradient(
-                          buttonText: 'Neu hier? Dann hier entlang'),
+                      child: Text(
+                        'Ich bin noch nicht registriert!',
+                        style: linkStyle,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              RegisterScreen(widget.db, widget.auth),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Ich bin noch nicht registriert!',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                          ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -262,14 +294,16 @@ class _LoginWindowState extends State<LoginWindow> {
   }
 
   String? validateEmailOrPhone(String? input) {
-    if (input == null || input.isEmpty) return "Eingabe darf nicht leer sein";
-    if (input.contains(" ")) return "Keine Leerzeichen erlaubt";
-    if (input.contains("@") && input.contains(".")) return null;
-    if (RegExp(r'^\+?\d{7,15}$').hasMatch(input)) return null;
-    return "Ungültige E-Mail oder Telefonnummer";
+    if (input == null || input.trim().isEmpty) {
+      return "E-Mail-Adresse darf nicht leer sein";
+    }
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(input)) {
+      return "Bitte eine gültige E-Mail-Adresse eingeben.";
+    }
+    return null;
   }
 
-  String? validatePassword(String? input, String usernameOrEmail) {
+  String? validatePassword(String? input) {
     if (input == null || input.length < 8) return "Mind. 8 Zeichen";
     if (input.length > 50) return "Max. 50 Zeichen";
     if (!RegExp(r'[a-z]').hasMatch(input)) return "Mind. ein Kleinbuchstabe";

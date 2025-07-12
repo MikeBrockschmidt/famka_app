@@ -51,7 +51,7 @@ class RegisterScreen extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: RegisterWindow(db: db, auth: auth),
+            child: RegisterWindow(db, auth),
           ),
         ],
       ),
