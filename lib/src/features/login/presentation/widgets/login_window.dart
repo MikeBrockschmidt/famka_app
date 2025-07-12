@@ -1,3 +1,4 @@
+// lib/src/features/login/presentation/widgets/login_window.dart
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
@@ -5,10 +6,12 @@ import 'package:famka_app/src/features/register/presentation/register_screen.dar
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/onboarding/presentation/onboarding1.dart';
+import 'package:famka_app/src/features/onboarding/presentation/onboarding1.dart'; // CustomScreen
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:famka_app/src/features/group_page/domain/group.dart'; // Import für Group
+// WICHTIG: Korrekter Importpfad für AddOrJoinGroupScreen, da es jetzt in einer eigenen Datei ist
+import 'package:famka_app/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart';
 
 class LoginWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -37,6 +40,7 @@ class _LoginWindowState extends State<LoginWindow> {
     final password = _passwordController.text.trim();
 
     try {
+      // 1. Authentifizierung über Firebase Auth
       await widget.auth.signInWithEmailAndPassword(email, password);
 
       final firebaseUser = FirebaseAuth.instance.currentUser;
@@ -50,6 +54,7 @@ class _LoginWindowState extends State<LoginWindow> {
         return;
       }
 
+      // 2. Benutzerdaten aus Firestore abrufen
       final currentUser = await widget.db.getUserAsync(firebaseUser.uid);
       if (currentUser == null) {
         if (mounted) {
@@ -58,45 +63,51 @@ class _LoginWindowState extends State<LoginWindow> {
                 content: Text("Benutzerdaten nicht in Firestore gefunden.")),
           );
         }
+        // Wenn Firestore-Daten fehlen, Benutzer von Firebase abmelden
         await widget.auth.signOut();
         return;
       }
 
+      // 3. Aktuellen Benutzer im DatabaseRepository setzen
       widget.db.currentUser = currentUser;
 
-      Group? currentGroupForUser;
+      // 4. Gruppen des Benutzers laden
+      List<Group> userGroups = [];
       try {
-        final userGroups = await widget.db.getGroupsForUser(firebaseUser.uid);
-        if (userGroups.isNotEmpty) {
-          currentGroupForUser = userGroups.first;
-        }
+        userGroups = await widget.db.getGroupsForUser(firebaseUser.uid);
       } catch (e) {
         print('Fehler beim Laden der Gruppen für den Benutzer: $e');
+        // userGroups bleibt leer
       }
-      widget.db.currentGroup = currentGroupForUser;
 
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProfilPage(
-              db: widget.db,
-              currentUser: currentUser,
-              group: currentGroupForUser ??
-                  Group(
-                    groupId: '',
-                    groupName: 'Standardgruppe',
-                    groupLocation: '',
-                    groupDescription: '',
-                    groupAvatarUrl: '',
-                    creatorId: '',
-                    groupMembers: [],
-                    userRoles: {},
-                  ),
-              auth: widget.auth,
+        if (userGroups.isEmpty) {
+          // Wenn der Benutzer keiner Gruppe angehört, zu AddOrJoinGroupScreen navigieren
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddOrJoinGroupScreen(
+                db: widget.db,
+                auth: widget.auth,
+                currentUser: currentUser,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          // Wenn der Benutzer Gruppen hat, die erste als aktuelle Gruppe setzen und zur ProfilPage navigieren
+          widget.db.currentGroup = userGroups.first;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfilPage(
+                db: widget.db,
+                currentUser: currentUser,
+                // group: userGroups.first, // <-- DIESE ZEILE WURDE ENTFERNT
+                auth: widget.auth,
+              ),
+            ),
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
       String message;

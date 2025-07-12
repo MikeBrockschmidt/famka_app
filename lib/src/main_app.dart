@@ -1,8 +1,10 @@
+// lib/src/main_app.dart
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
-import 'package:famka_app/src/features/onboarding/presentation/onboarding1.dart';
+import 'package:famka_app/src/features/onboarding/presentation/onboarding1.dart'; // Wird CustomScreen genannt
 import 'package:famka_app/src/features/onboarding/presentation/onboarding3.dart';
+import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,7 @@ import 'package:famka_app/src/theme/font_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:famka_app/src/features/group_page/domain/group.dart'; // Benötigt für Group in _getHomeScreen
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 
 class MainApp extends StatefulWidget {
@@ -90,14 +92,17 @@ class _MainAppState extends State<MainApp> {
 
   Widget _getHomeScreen(User? firebaseUser) {
     if (firebaseUser == null) {
+      // Annahme: CustomScreen ist tatsächlich Onboarding1Screen oder ein ähnlicher Startbildschirm.
+      // Wenn Onboarding3Screen hier wirklich der Start für nicht eingeloggte Nutzer ist,
+      // dann ist der Name 'CustomScreen' vielleicht ein Überbleibsel.
       final AppUser emptyUser = AppUser(
         profilId: '',
         firstName: '',
         lastName: '',
         email: '',
-        phoneNumber: '',
+        phoneNumber: null, // phoneNumber und miscellaneous können null sein
         avatarUrl: '',
-        miscellaneous: '',
+        miscellaneous: null,
         password: '',
       );
       return Onboarding3Screen(
@@ -105,29 +110,22 @@ class _MainAppState extends State<MainApp> {
     } else {
       if (onboardingComplete!) {
         if (widget.db.currentUser == null) {
+          // Dies sollte idealerweise nicht passieren, wenn ein Firebase-Benutzer angemeldet ist,
+          // aber es ist eine Sicherheitsvorkehrung.
           return LoginScreen(widget.db, widget.auth);
         }
 
-        final Group groupToPass = widget.db.currentGroup ??
-            Group(
-              groupId: '',
-              groupName: 'Standardgruppe',
-              groupLocation: '',
-              groupDescription: '',
-              groupAvatarUrl: '',
-              creatorId: '',
-              groupMembers: [],
-              userRoles: {},
-            );
-
+        // Der 'group'-Parameter wird aus dem ProfilPage-Konstruktor entfernt,
+        // da ProfilPage die Gruppen jetzt selbst lädt.
         return ProfilPage(
           db: widget.db,
           currentUser: widget.db.currentUser!,
-          group: groupToPass,
           auth: widget.auth,
         );
       } else {
-        return CustomScreen(widget.db, widget.auth);
+        // Hier sollte 'Onboarding1' oder der tatsächliche erste Onboarding-Screen stehen.
+        // Habe 'CustomScreen' beibehalten, wie in deinem Originalcode.
+        return Onboarding1Screen(widget.db, widget.auth);
       }
     }
   }

@@ -39,35 +39,64 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
   @override
   Future<List<AppUser>> getAllUsers() async {
-    final snapshot = await _firestore.collection('users').get();
-    return snapshot.docs.map((doc) => AppUser.fromMap(doc.data()!)).toList();
+    try {
+      final snapshot = await _firestore.collection('users').get();
+      print('✅ Alle Benutzer erfolgreich abgerufen.');
+      return snapshot.docs.map((doc) => AppUser.fromMap(doc.data()!)).toList();
+    } catch (e) {
+      print('❌ Fehler beim Abrufen aller Benutzer: $e');
+      return [];
+    }
   }
 
   @override
   Future<void> createUser(AppUser user) async {
-    await _firestore.collection('users').doc(user.profilId).set(user.toMap());
+    try {
+      await _firestore.collection('users').doc(user.profilId).set(user.toMap());
+      print('✅ Benutzer ${user.profilId} erfolgreich erstellt.');
+    } catch (e) {
+      print('❌ Fehler beim Erstellen des Benutzers: $e');
+      rethrow;
+    }
   }
 
   @override
   Future<void> updateUser(AppUser user) async {
-    await _firestore
-        .collection('users')
-        .doc(user.profilId)
-        .update(user.toMap());
+    try {
+      await _firestore
+          .collection('users')
+          .doc(user.profilId)
+          .update(user.toMap());
+      print('✅ Benutzer ${user.profilId} erfolgreich aktualisiert.');
+    } catch (e) {
+      print('❌ Fehler beim Aktualisieren des Benutzers: $e');
+      rethrow;
+    }
   }
 
   @override
   Future<void> deleteUser(String userId) async {
-    await _firestore.collection('users').doc(userId).delete();
+    try {
+      await _firestore.collection('users').doc(userId).delete();
+      print('✅ Benutzer $userId erfolgreich gelöscht.');
+    } catch (e) {
+      print('❌ Fehler beim Löschen des Benutzers: $e');
+      rethrow;
+    }
   }
 
   @override
   Future<AppUser?> getUserAsync(String userId) async {
-    final doc = await _firestore.collection('users').doc(userId).get();
-    if (doc.exists) {
-      return AppUser.fromMap(doc.data()!);
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      if (doc.exists) {
+        return AppUser.fromMap(doc.data()!);
+      }
+      return null;
+    } catch (e) {
+      print('❌ Fehler beim Abrufen des Benutzers $userId: $e');
+      return null;
     }
-    return null;
   }
 
   @override
@@ -90,68 +119,101 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
   @override
   Future<void> addGroup(Group group) async {
-    await _firestore.collection('groups').doc(group.groupId).set(group.toMap());
-    currentGroup = group;
+    try {
+      await _firestore
+          .collection('groups')
+          .doc(group.groupId)
+          .set(group.toMap());
+      currentGroup = group;
+      print(
+          '✅ Gruppe "${group.groupName}" mit ID "${group.groupId}" erfolgreich in Firestore gespeichert.');
+    } catch (e) {
+      print('❌ Fehler beim Speichern der Gruppe in Firestore: $e');
+      rethrow;
+    }
   }
 
   @override
   Future<void> updateGroup(Group group) async {
-    await _firestore
-        .collection('groups')
-        .doc(group.groupId)
-        .update(group.toMap());
-    currentGroup = group;
+    try {
+      await _firestore
+          .collection('groups')
+          .doc(group.groupId)
+          .update(group.toMap());
+      currentGroup = group;
+      print('✅ Gruppe ${group.groupName} erfolgreich aktualisiert.');
+    } catch (e) {
+      print('❌ Fehler beim Aktualisieren der Gruppe: $e');
+      rethrow;
+    }
   }
 
   @override
   Future<void> deleteGroup(String groupId) async {
-    await _firestore.collection('groups').doc(groupId).delete();
-    if (currentGroup?.groupId == groupId) {
-      currentGroup = null;
+    try {
+      await _firestore.collection('groups').doc(groupId).delete();
+      if (currentGroup?.groupId == groupId) {
+        currentGroup = null;
+      }
+      print('✅ Gruppe $groupId erfolgreich gelöscht.');
+    } catch (e) {
+      print('❌ Fehler beim Löschen der Gruppe: $e');
+      rethrow;
     }
   }
 
   @override
   Future<Group?> getGroupAsync(String groupId) async {
-    final doc = await _firestore.collection('groups').doc(groupId).get();
-    if (doc.exists) {
-      final groupData = doc.data()!;
-      final List<String> memberIds =
-          List<String>.from(groupData['groupMemberIds'] ?? []);
-      List<AppUser> members = [];
-      for (String memberId in memberIds) {
-        final user = await getUserAsync(memberId);
-        if (user != null) {
-          members.add(user);
+    try {
+      final doc = await _firestore.collection('groups').doc(groupId).get();
+      if (doc.exists) {
+        final groupData = doc.data()!;
+        final List<String> memberIds =
+            List<String>.from(groupData['groupMemberIds'] ?? []);
+        List<AppUser> members = [];
+        for (String memberId in memberIds) {
+          final user = await getUserAsync(memberId);
+          if (user != null) {
+            members.add(user);
+          }
         }
+        return Group.fromMap(groupData, members);
       }
-      return Group.fromMap(groupData, members);
+      return null;
+    } catch (e) {
+      print('❌ Fehler beim Abrufen der Gruppe $groupId: $e');
+      return null;
     }
-    return null;
   }
 
   @override
   Future<List<Group>> getGroupsForUser(String userId) async {
-    final querySnapshot = await _firestore
-        .collection('groups')
-        .where('groupMemberIds', arrayContains: userId)
-        .get();
+    try {
+      final querySnapshot = await _firestore
+          .collection('groups')
+          .where('groupMemberIds', arrayContains: userId)
+          .get();
 
-    List<Group> groups = [];
-    for (var doc in querySnapshot.docs) {
-      final groupData = doc.data();
-      final List<String> memberIds =
-          List<String>.from(groupData['groupMemberIds'] ?? []);
-      List<AppUser> members = [];
-      for (String memberId in memberIds) {
-        final user = await getUserAsync(memberId);
-        if (user != null) {
-          members.add(user);
+      List<Group> groups = [];
+      for (var doc in querySnapshot.docs) {
+        final groupData = doc.data();
+        final List<String> memberIds =
+            List<String>.from(groupData['groupMemberIds'] ?? []);
+        List<AppUser> members = [];
+        for (String memberId in memberIds) {
+          final user = await getUserAsync(memberId);
+          if (user != null) {
+            members.add(user);
+          }
         }
+        groups.add(Group.fromMap(groupData, members));
       }
-      groups.add(Group.fromMap(groupData, members));
+      print('✅ Gruppen für Benutzer $userId erfolgreich abgerufen.');
+      return groups;
+    } catch (e) {
+      print('❌ Fehler beim Abrufen der Gruppen für Benutzer $userId: $e');
+      return [];
     }
-    return groups;
   }
 
   @override
@@ -168,62 +230,86 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
   @override
   Future<void> addUserToGroup(AppUser user, String groupId) async {
-    await _firestore.collection('groups').doc(groupId).update({
-      'groupMemberIds': FieldValue.arrayUnion([user.profilId]),
-    });
-    if (currentGroup?.groupId == groupId) {
-      currentGroup = await getGroupAsync(groupId);
+    try {
+      await _firestore.collection('groups').doc(groupId).update({
+        'groupMemberIds': FieldValue.arrayUnion([user.profilId]),
+      });
+      if (currentGroup?.groupId == groupId) {
+        currentGroup = await getGroupAsync(groupId);
+      }
+      print('✅ Benutzer ${user.profilId} zur Gruppe $groupId hinzugefügt.');
+    } catch (e) {
+      print('❌ Fehler beim Hinzufügen des Benutzers zur Gruppe: $e');
+      rethrow;
     }
   }
 
   @override
   Future<void> removeUserFromGroup(String userId, String groupId) async {
-    await _firestore.collection('groups').doc(groupId).update({
-      'groupMemberIds': FieldValue.arrayRemove([userId]),
-    });
-    if (currentGroup?.groupId == groupId) {
-      currentGroup = await getGroupAsync(groupId);
+    try {
+      await _firestore.collection('groups').doc(groupId).update({
+        'groupMemberIds': FieldValue.arrayRemove([userId]),
+      });
+      if (currentGroup?.groupId == groupId) {
+        currentGroup = await getGroupAsync(groupId);
+      }
+      print('✅ Benutzer $userId aus Gruppe $groupId entfernt.');
+    } catch (e) {
+      print('❌ Fehler beim Entfernen des Benutzers aus der Gruppe: $e');
+      rethrow;
     }
   }
 
   @override
   Future<void> leaveGroup(String groupId, String userId) async {
-    final group = await getGroupAsync(groupId);
-    if (group == null) return;
+    try {
+      final group = await getGroupAsync(groupId);
+      if (group == null) return;
 
-    await _firestore.collection('groups').doc(groupId).update({
-      'groupMemberIds': FieldValue.arrayRemove([userId]),
-      'userRoles.$userId': FieldValue.delete(),
-    });
+      await _firestore.collection('groups').doc(groupId).update({
+        'groupMemberIds': FieldValue.arrayRemove([userId]),
+        'userRoles.$userId': FieldValue.delete(),
+      });
 
-    if (currentGroup?.groupId == groupId) {
-      currentGroup = await getGroupAsync(groupId);
-    }
+      if (currentGroup?.groupId == groupId) {
+        currentGroup = await getGroupAsync(groupId);
+      }
 
-    final updatedGroup = await getGroupAsync(groupId);
-    if (updatedGroup != null && updatedGroup.groupMembers.isEmpty) {
-      await deleteGroup(groupId);
+      final updatedGroup = await getGroupAsync(groupId);
+      if (updatedGroup != null && updatedGroup.groupMembers.isEmpty) {
+        await deleteGroup(groupId);
+      }
+      print('✅ Benutzer $userId hat Gruppe $groupId verlassen.');
+    } catch (e) {
+      print('❌ Fehler beim Verlassen der Gruppe: $e');
+      rethrow;
     }
   }
 
   @override
   Future<List<Group>> getAllGroups() async {
-    final querySnapshot = await _firestore.collection('groups').get();
-    List<Group> groups = [];
-    for (var doc in querySnapshot.docs) {
-      final groupData = doc.data();
-      final List<String> memberIds =
-          List<String>.from(groupData['groupMemberIds'] ?? []);
-      List<AppUser> members = [];
-      for (String memberId in memberIds) {
-        final user = await getUserAsync(memberId);
-        if (user != null) {
-          members.add(user);
+    try {
+      final querySnapshot = await _firestore.collection('groups').get();
+      List<Group> groups = [];
+      for (var doc in querySnapshot.docs) {
+        final groupData = doc.data();
+        final List<String> memberIds =
+            List<String>.from(groupData['groupMemberIds'] ?? []);
+        List<AppUser> members = [];
+        for (String memberId in memberIds) {
+          final user = await getUserAsync(memberId);
+          if (user != null) {
+            members.add(user);
+          }
         }
+        groups.add(Group.fromMap(groupData, members));
       }
-      groups.add(Group.fromMap(groupData, members));
+      print('✅ Alle Gruppen erfolgreich abgerufen.');
+      return groups;
+    } catch (e) {
+      print('❌ Fehler beim Abrufen aller Gruppen: $e');
+      return [];
     }
-    return groups;
   }
 
   @override
@@ -238,17 +324,23 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       }
       return null;
     } catch (e) {
-      print('Fehler beim Abrufen des Events: $e');
+      print('❌ Fehler beim Abrufen des Events $eventId: $e');
       return null;
     }
   }
 
   @override
   Future<List<SingleEvent>> getAllEvents() async {
-    final querySnapshot = await _firestore.collection('events').get();
-    return querySnapshot.docs
-        .map((doc) => SingleEvent.fromMap(doc.data()!))
-        .toList();
+    try {
+      final querySnapshot = await _firestore.collection('events').get();
+      print('✅ Alle Events erfolgreich abgerufen.');
+      return querySnapshot.docs
+          .map((doc) => SingleEvent.fromMap(doc.data()!))
+          .toList();
+    } catch (e) {
+      print('❌ Fehler beim Abrufen aller Events: $e');
+      return [];
+    }
   }
 
   @override
@@ -258,11 +350,12 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           .collection('events')
           .where('groupId', isEqualTo: groupId)
           .get();
+      print('✅ Events für Gruppe $groupId erfolgreich abgerufen.');
       return querySnapshot.docs
           .map((doc) => SingleEvent.fromMap(doc.data()!))
           .toList();
     } catch (e) {
-      print('Fehler beim Abrufen der Events für Gruppe $groupId: $e');
+      print('❌ Fehler beim Abrufen der Events für Gruppe $groupId: $e');
       return [];
     }
   }
@@ -274,8 +367,9 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           .collection('events')
           .doc(event.singleEventId)
           .set(event.toMap());
+      print('✅ Event ${event.singleEventId} erfolgreich erstellt.');
     } catch (e) {
-      print('Fehler beim Hinzufügen des Events: $e');
+      print('❌ Fehler beim Hinzufügen des Events: $e');
       rethrow;
     }
   }
@@ -287,8 +381,9 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           .collection('events')
           .doc(event.singleEventId)
           .update(event.toMap());
+      print('✅ Event ${event.singleEventId} erfolgreich aktualisiert.');
     } catch (e) {
-      print('Fehler beim Aktualisieren des Events: $e');
+      print('❌ Fehler beim Aktualisieren des Events: $e');
       rethrow;
     }
   }
@@ -297,8 +392,9 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
   Future<void> deleteEvent(String groupId, String eventId) async {
     try {
       await _firestore.collection('events').doc(eventId).delete();
+      print('✅ Event $eventId erfolgreich gelöscht.');
     } catch (e) {
-      print('Fehler beim Löschen des Events $eventId: $e');
+      print('❌ Fehler beim Löschen des Events $eventId: $e');
       rethrow;
     }
   }
@@ -307,8 +403,9 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
   Future<void> deleteSingleEvent(String eventId) async {
     try {
       await _firestore.collection('events').doc(eventId).delete();
+      print('✅ SingleEvent $eventId erfolgreich gelöscht.');
     } catch (e) {
-      print('Fehler beim Löschen des SingleEvents $eventId: $e');
+      print('❌ Fehler beim Löschen des SingleEvents $eventId: $e');
       rethrow;
     }
   }

@@ -1,8 +1,10 @@
+// lib/src/features/profil_page/presentation/profil_page.dart
+
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/common/profil_avatar_row.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
+import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart'; // Nur ProfilImage3, LoginWindow nicht mehr benötigt
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -11,19 +13,20 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart';
 
 class ProfilPage extends StatefulWidget {
   final DatabaseRepository db;
   final AuthRepository auth;
   final AppUser currentUser;
-  final Group group;
+  // final Group group; // <-- DIESER PARAMETER WIRD ENTFERNT!
 
   const ProfilPage({
     super.key,
     required this.db,
     required this.auth,
     required this.currentUser,
-    required this.group,
+    // required this.group, // <-- ENTFERNT!
   });
 
   @override
@@ -38,12 +41,23 @@ class _ProfilPageState extends State<ProfilPage> {
 
   final _formKey = GlobalKey<FormState>();
 
+  // Future, das die Gruppen laden wird
+  late Future<List<Group>> _userGroupsFuture;
+
   @override
   void initState() {
     super.initState();
     _phoneNumberController.text = widget.currentUser.phoneNumber ?? '';
     _emailController.text = widget.currentUser.email;
     _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
+    _loadUserGroups(); // Gruppen beim Initialisieren laden
+  }
+
+  // Methode zum Neuladen der Gruppen
+  void _loadUserGroups() {
+    setState(() {
+      _userGroupsFuture = widget.db.getGroupsOfUser();
+    });
   }
 
   @override
@@ -139,9 +153,27 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
+  // Methode zur Navigation zum AddOrJoinGroupScreen
+  void _navigateToAddGroupScreen(BuildContext context) async {
+    // Verwende await, um zu warten, bis AddOrJoinGroupScreen geschlossen wird
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddOrJoinGroupScreen(
+          db: widget.db,
+          auth: widget.auth,
+          currentUser: widget.currentUser,
+        ),
+      ),
+    );
+    // Nachdem AddOrJoinGroupScreen geschlossen wurde, lade die Gruppen neu
+    _loadUserGroups();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final group = widget.group;
+    // Die 'group' Variable aus den Widgets-Parametern wird entfernt.
+    // Stattdessen laden wir die Gruppen über _userGroupsFuture.
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -245,38 +277,108 @@ class _ProfilPageState extends State<ProfilPage> {
                         const Divider(
                             thickness: 0.3, height: 1, color: Colors.black),
                         const SizedBox(height: 20),
-                        ProfilAvatarRow(
-                          widget.db,
-                          group: group,
-                          currentUser: widget.currentUser,
-                          auth: widget.auth,
-                        ),
-                        const SizedBox(height: 20),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: InkWell(
-                            onTap: _saveUserData,
-                            child: const SizedBox(
-                              width: 150,
-                              height: 50,
-                              child:
-                                  ButtonLinearGradient(buttonText: 'Speichern'),
-                            ),
+                        // Bereich für Gruppen
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      _navigateToAddGroupScreen(context);
+                                    },
+                                    child: Container(
+                                      width: 69,
+                                      height: 69,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.famkaGreen,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.group_add,
+                                        color: Colors.white,
+                                        size: 40,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    'Gruppe hinzufügen',
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(width: 20),
+                              // FutureBuilder, um die Gruppen des Benutzers zu laden
+                              FutureBuilder<List<Group>>(
+                                future: _userGroupsFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                        child:
+                                            Text('Fehler: ${snapshot.error}'));
+                                  } else if (!snapshot.hasData ||
+                                      snapshot.data!.isEmpty) {
+                                    return const Center(
+                                        child: Text('Keine Gruppen gefunden.'));
+                                  } else {
+                                    // Zeigt alle gefundenen Gruppen an
+                                    return Row(
+                                      children: snapshot.data!
+                                          .map(
+                                            (group) => Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 20),
+                                              child: ProfilAvatarRow(
+                                                widget.db,
+                                                group:
+                                                    group, // Jede Gruppe wird einzeln übergeben
+                                                currentUser: widget.currentUser,
+                                                auth: widget.auth,
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: InkWell(
-                            onTap: _logout,
-                            child: SizedBox(
-                              width: 150,
-                              height: 50,
-                              child: ButtonLinearGradient(
-                                buttonText: 'Abmelden',
+                        const SizedBox(height: 40),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: _saveUserData,
+                              child: const SizedBox(
+                                width: 150,
+                                height: 50,
+                                child: ButtonLinearGradient(
+                                    buttonText: 'Speichern'),
                               ),
                             ),
-                          ),
+                            const SizedBox(width: 20),
+                            InkWell(
+                              onTap: _logout,
+                              child: SizedBox(
+                                width: 150,
+                                height: 50,
+                                child: ButtonLinearGradient(
+                                  buttonText: 'Ausloggen',
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -292,7 +394,13 @@ class _ProfilPageState extends State<ProfilPage> {
         widget.db,
         auth: widget.auth,
         currentUser: widget.currentUser,
-        initialGroup: widget.group,
+        // Die 'initialGroup' muss jetzt die aktuell ausgewählte/aktive Gruppe sein,
+        // nicht nur die, die anfangs übergeben wurde.
+        // Wenn du eine globale 'currentGroup' in deinem DatabaseRepository hast, verwende sie.
+        // Andernfalls müsstest du überlegen, wie du die "aktuelle" Gruppe definierst.
+        // Für den Moment setzen wir sie auf null oder die erste Gruppe, falls vorhanden.
+        initialGroup: widget
+            .db.currentGroup, // Annahme: db.currentGroup wird aktualisiert
         initialIndex: 0,
       ),
     );
