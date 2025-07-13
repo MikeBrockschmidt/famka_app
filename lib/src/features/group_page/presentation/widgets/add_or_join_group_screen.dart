@@ -362,23 +362,72 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
       }
     }
 
+    const double verticalTitleDividerSpacing = 0.2;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Gruppe hinzufügen oder beitreten'),
-          backgroundColor: AppColors.famkaBlue,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+          backgroundColor: AppColors.famkaWhite,
+          elevation: 0,
+          titleSpacing: 0,
+          automaticallyImplyLeading: false,
+          toolbarHeight: kToolbarHeight + 50 + verticalTitleDividerSpacing,
+          title: Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(14.0),
+                          child: Icon(Icons.arrow_back,
+                              color: AppColors.famkaBlack),
+                        ),
+                      ),
+                      Text(
+                        'Gruppe',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: verticalTitleDividerSpacing),
+                  const Divider(
+                    height: 0.5,
+                    thickness: 0.5,
+                    color: AppColors.famkaBlack,
+                  ),
+                ],
+              ),
+            ),
           ),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Gruppe erstellen'),
-              Tab(text: 'Gruppe beitreten'),
-            ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight / 2),
+            child: TabBar(
+              tabs: const [
+                Tab(text: 'Gruppe erstellen'),
+                Tab(text: 'Gruppe beitreten'),
+              ],
+              indicatorColor: AppColors.famkaCyan,
+              labelColor: AppColors.famkaBlack,
+              unselectedLabelColor: AppColors.famkaBlack.withOpacity(0.6),
+              labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: AppColors.famkaBlack,
+                  ),
+              unselectedLabelStyle:
+                  Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: AppColors.famkaBlack.withOpacity(0.6),
+                        fontWeight: FontWeight.normal,
+                      ),
+            ),
           ),
         ),
         body: TabBarView(

@@ -237,9 +237,9 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       if (currentGroup?.groupId == groupId) {
         currentGroup = await getGroupAsync(groupId);
       }
-      print('✅ Benutzer ${user.profilId} zur Gruppe $groupId hinzugefügt.');
+      print('Benutzer ${user.profilId} zur Gruppe $groupId hinzugefügt.');
     } catch (e) {
-      print('❌ Fehler beim Hinzufügen des Benutzers zur Gruppe: $e');
+      print('Fehler beim Hinzufügen des Benutzers zur Gruppe: $e');
       rethrow;
     }
   }
