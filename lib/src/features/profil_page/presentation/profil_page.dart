@@ -1,10 +1,12 @@
+// lib/src/features/profil_page/presentation/profil_page.dart
+
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/common/profil_avatar_row.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
 import 'package:flutter/material.dart';
-import 'package:famka_app/src/common/headline_k.dart';
+import 'package:famka_app/src/common/headline_P.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
@@ -12,6 +14,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart';
+import 'package:flutter/services.dart'; // Import für Clipboard hinzufügen
 
 class ProfilPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -161,6 +164,79 @@ class _ProfilPageState extends State<ProfilPage> {
     _loadUserGroups();
   }
 
+  // NEU: Methode zum Anzeigen des Dialogs mit der Profil-ID
+  void _showProfileIdDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Deine Profil-ID',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.famkaBlack,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Dies ist deine persönliche ID. Du kannst sie mit anderen teilen, damit sie dich zu Gruppen einladen können.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              SelectableText(
+                widget.currentUser
+                    .profilId, // Die Profil-ID des aktuellen Benutzers
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.famkaCyan,
+                    ),
+              ),
+            ],
+          ),
+          actions: [
+            Center(
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(
+                          ClipboardData(text: widget.currentUser.profilId));
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Profil-ID kopiert!'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: const ButtonLinearGradient(buttonText: 'Kopieren'),
+                  ),
+                  const SizedBox(height: 10),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(
+                      'Schließen',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Colors.grey.shade600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,7 +245,21 @@ class _ProfilPageState extends State<ProfilPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const HeadlineK(screenHead: 'Profil'),
+            HeadlineP(
+              screenHead: 'Profil',
+              rightActionWidget: InkWell(
+                onTap: _showProfileIdDialog, // Aufruf des neuen Dialogs
+                child: const SizedBox(
+                  // Sicherstellen eines tippelbaren Bereichs
+                  width: 24,
+                  height: 24,
+                  child: Icon(
+                    Icons.info_outline,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
             Center(
               child: ProfilImage3(
