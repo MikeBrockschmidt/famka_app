@@ -1,12 +1,10 @@
-// lib/src/features/profil_page/presentation/profil_page.dart
-
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
+import 'package:famka_app/src/common/headline_p.dart';
 import 'package:famka_app/src/common/profil_avatar_row.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
+import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:flutter/material.dart';
-import 'package:famka_app/src/common/headline_P.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
@@ -14,7 +12,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart';
-import 'package:flutter/services.dart'; // Import für Clipboard hinzufügen
+import 'package:flutter/services.dart';
 
 class ProfilPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -42,12 +40,16 @@ class _ProfilPageState extends State<ProfilPage> {
 
   late Future<List<Group>> _userGroupsFuture;
 
+  late String _currentProfileAvatarUrl;
+
   @override
   void initState() {
     super.initState();
     _phoneNumberController.text = widget.currentUser.phoneNumber ?? '';
     _emailController.text = widget.currentUser.email;
     _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
+    _currentProfileAvatarUrl =
+        widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';
     _loadUserGroups();
   }
 
@@ -87,6 +89,37 @@ class _ProfilPageState extends State<ProfilPage> {
     return null;
   }
 
+  void _handleProfileAvatarSelected(String newUrl) async {
+    setState(() {
+      _currentProfileAvatarUrl = newUrl;
+    });
+
+    final updatedUser = widget.currentUser.copyWith(
+      avatarUrl: newUrl.isEmpty ? null : newUrl,
+    );
+
+    try {
+      await widget.db.updateUser(updatedUser);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Profilbild aktualisiert."),
+            backgroundColor: AppColors.famkaCyan,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Fehler beim Aktualisieren des Profilbilds: $e"),
+            backgroundColor: AppColors.famkaRed,
+          ),
+        );
+      }
+    }
+  }
+
   void _saveUserData() async {
     if (_formKey.currentState?.validate() ?? false) {
       final updatedUser = AppUser(
@@ -97,7 +130,7 @@ class _ProfilPageState extends State<ProfilPage> {
         phoneNumber: _phoneNumberController.text.trim().isEmpty
             ? null
             : _phoneNumberController.text.trim(),
-        avatarUrl: widget.currentUser.avatarUrl,
+        avatarUrl: _currentProfileAvatarUrl,
         miscellaneous: _miscellaneousController.text.trim().isEmpty
             ? null
             : _miscellaneousController.text.trim(),
@@ -118,7 +151,7 @@ class _ProfilPageState extends State<ProfilPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text("Bitte überprüfen Sie Ihre Eingaben."),
-          backgroundColor: AppColors.famkaCyan,
+          backgroundColor: AppColors.famkaRed,
         ),
       );
     }
@@ -164,7 +197,6 @@ class _ProfilPageState extends State<ProfilPage> {
     _loadUserGroups();
   }
 
-  // NEU: Methode zum Anzeigen des Dialogs mit der Profil-ID
   void _showProfileIdDialog() {
     showDialog(
       context: context,
@@ -189,8 +221,7 @@ class _ProfilPageState extends State<ProfilPage> {
               ),
               const SizedBox(height: 16),
               SelectableText(
-                widget.currentUser
-                    .profilId, // Die Profil-ID des aktuellen Benutzers
+                widget.currentUser.profilId,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
@@ -248,9 +279,8 @@ class _ProfilPageState extends State<ProfilPage> {
             HeadlineP(
               screenHead: 'Profil',
               rightActionWidget: InkWell(
-                onTap: _showProfileIdDialog, // Aufruf des neuen Dialogs
+                onTap: _showProfileIdDialog,
                 child: const SizedBox(
-                  // Sicherstellen eines tippelbaren Bereichs
                   width: 24,
                   height: 24,
                   child: Icon(
@@ -262,10 +292,10 @@ class _ProfilPageState extends State<ProfilPage> {
             ),
             const SizedBox(height: 20),
             Center(
-              child: ProfilImage3(
-                db: widget.db,
-                avatarUrl:
-                    widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg',
+              child: ProfilImage(
+                widget.db,
+                currentAvatarUrl: _currentProfileAvatarUrl,
+                onAvatarSelected: _handleProfileAvatarSelected,
               ),
             ),
             const SizedBox(height: 20),

@@ -3,19 +3,20 @@ import 'package:famka_app/src/features/group_page/presentation/manage_group_memb
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/common/headline_k.dart'; // Ist importiert, aber nicht direkt verwendet. Falls nicht benötigt, kann es entfernt werden.
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
-
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-import 'package:flutter/services.dart'; // WICHTIG: Für Clipboard
+import 'package:flutter/services.dart';
 
-// Import für UserRole hinzufügen, da es in der Group-Klasse verwendet wird
 import 'package:famka_app/src/features/login/domain/user_role.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/group_id_dialog.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/invite_user_dialog.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/confirm_delete_group_dialog.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_list.dart';
 
 class GroupPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -40,47 +41,55 @@ class _GroupPageState extends State<GroupPage> {
   late TextEditingController _groupNameController;
   late TextEditingController _locationController;
   late TextEditingController _descriptionController;
-  late TextEditingController
-      _inviteeIdController; // NEU: Controller für die Einladungs-ID
 
   String? _initialGroupAvatarUrl;
   bool _hasChanges = false;
   bool _isLoading = true;
   String? _currentUserId;
+  bool _isUserAdmin = false;
 
   _GroupPageState() {
     _groupNameController = TextEditingController();
     _locationController = TextEditingController();
     _descriptionController = TextEditingController();
-    _inviteeIdController = TextEditingController(); // NEU: Initialisierung
   }
 
   @override
   void initState() {
     super.initState();
-    _loadGroupData();
-    _getCurrentUser();
+    _loadGroupAndUserData();
   }
 
-  Future<void> _getCurrentUser() async {
-    try {
-      _currentUserId = await widget.db.getCurrentUserId();
-      setState(() {});
-    } catch (e) {
-      debugPrint('Fehler beim Abrufen der aktuellen Benutzer-ID: $e');
+  @override
+  void didUpdateWidget(covariant GroupPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.group.groupId != oldWidget.group.groupId) {
+      _loadGroupAndUserData();
     }
   }
 
-  Future<void> _loadGroupData() async {
+  @override
+  void dispose() {
+    _groupNameController.removeListener(_checkIfHasChanges);
+    _groupNameController.dispose();
+    _locationController.removeListener(_checkIfHasChanges);
+    _locationController.dispose();
+    _descriptionController.removeListener(_checkIfHasChanges);
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadGroupAndUserData() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
+      _currentUserId = await widget.db.getCurrentUserId();
       final Group? fetchedGroup =
           await widget.db.getGroupAsync(widget.group.groupId);
 
-      if (fetchedGroup != null) {
+      if (fetchedGroup != null && _currentUserId != null) {
         setState(() {
           _currentGroup = fetchedGroup;
           _groupNameController.text = _currentGroup!.groupName;
@@ -88,6 +97,7 @@ class _GroupPageState extends State<GroupPage> {
           _descriptionController.text = _currentGroup!.groupDescription ?? '';
           _initialGroupAvatarUrl = _currentGroup!.groupAvatarUrl;
           _hasChanges = false;
+          _isUserAdmin = _isCurrentUserGroupAdminCheck();
         });
       } else {
         if (mounted) {
@@ -96,7 +106,7 @@ class _GroupPageState extends State<GroupPage> {
               SnackBar(
                 backgroundColor: AppColors.famkaCyan,
                 content: Text(
-                  'Fehler: Gruppe konnte nicht geladen werden. Sie existiert möglicherweise nicht mehr.',
+                  'Fehler: Gruppe konnte nicht geladen werden oder Benutzer-ID fehlt.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
@@ -111,7 +121,7 @@ class _GroupPageState extends State<GroupPage> {
           SnackBar(
             backgroundColor: AppColors.famkaCyan,
             content: Text(
-              'Fehler beim Laden der Gruppendaten: $e',
+              'Fehler beim Laden der Gruppendaten oder Benutzer-ID: $e',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -133,26 +143,6 @@ class _GroupPageState extends State<GroupPage> {
         _checkIfHasChanges();
       }
     }
-  }
-
-  @override
-  void didUpdateWidget(covariant GroupPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.group.groupId != oldWidget.group.groupId) {
-      _loadGroupData();
-    }
-  }
-
-  @override
-  void dispose() {
-    _groupNameController.removeListener(_checkIfHasChanges);
-    _groupNameController.dispose();
-    _locationController.removeListener(_checkIfHasChanges);
-    _locationController.dispose();
-    _descriptionController.removeListener(_checkIfHasChanges);
-    _descriptionController.dispose();
-    _inviteeIdController.dispose(); // NEU: Dispose des inviteeIdControllers
-    super.dispose();
   }
 
   void _checkIfHasChanges() {
@@ -260,190 +250,48 @@ class _GroupPageState extends State<GroupPage> {
     return _currentGroup!.creatorId == _currentUserId;
   }
 
-  // Methode zum Überprüfen, ob der aktuelle Benutzer Admin ist
-  bool _isCurrentUserGroupAdmin() {
+  bool _isCurrentUserGroupAdminCheck() {
     if (_currentGroup == null || _currentUserId == null) {
       return false;
     }
     final bool isAdmin =
         _currentGroup!.userRoles[_currentUserId] == UserRole.admin;
-    print(
-        'Is current user admin for this group: $isAdmin'); // Hinzugefügt für Debugging
+    debugPrint('Is current user admin for this group (inside check): $isAdmin');
     return isAdmin;
   }
 
-  // Methode zum Anzeigen des Dialogs mit der Gruppen-ID im gewünschten Stil
-  void _showGroupIdDialog() {
-    if (_currentGroup == null) return; // Sicherheitscheck
+  bool _isCurrentUserGroupAdmin() {
+    return _isUserAdmin;
+  }
 
+  void _showGroupIdDialog() {
+    if (_currentGroup == null) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _currentGroup!
-                    .groupName, // Zeigt den Gruppennamen im Titelbereich
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.famkaBlack, // Farbe anpassen
-                    ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Teilen Sie diese ID, um andere zur Gruppe einzuladen:',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 16), // Etwas mehr Platz zur ID
-              SelectableText(
-                _currentGroup!.groupId, // Die eigentliche Gruppen-ID
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      // Größerer, auffälligerer Stil
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.famkaCyan, // Hervorhebungsfarbe
-                    ),
-              ),
-            ],
-          ),
-          actions: [
-            Center(
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(
-                          ClipboardData(text: _currentGroup!.groupId));
-                      Navigator.of(context).pop(); // Dialog schließen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Gruppen-ID kopiert!'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    child: const ButtonLinearGradient(buttonText: 'Kopieren'),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () =>
-                        Navigator.of(context).pop(), // Dialog schließen
-                    child: Text(
-                      'Schließen', // Passender Text für Abbrechen/Schließen
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Colors.grey.shade600),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        return GroupIdDialog(
+          groupName: _currentGroup!.groupName,
+          groupId: _currentGroup!.groupId,
         );
       },
     );
   }
 
-  // NEU: Methode zum Anzeigen des Einladungsdialogs
   void _showInviteDialog() {
     if (_currentGroup == null) return;
-
-    _inviteeIdController.clear(); // Sicherstellen, dass das Feld leer ist
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Benutzer zur Gruppe einladen',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.famkaBlack,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Geben Sie die Profil-ID des Benutzers ein, den Sie einladen möchten:',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _inviteeIdController,
-                decoration: InputDecoration(
-                  hintText: 'Profil-ID des Benutzers',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                ),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge, // Angepasster Textstil
-              ),
-            ],
-          ),
-          actions: [
-            Center(
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      final String inviteeProfileId =
-                          _inviteeIdController.text.trim();
-                      if (inviteeProfileId.isNotEmpty) {
-                        await _inviteUserToGroup(inviteeProfileId);
-                        Navigator.of(context).pop(); // Dialog schließen
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: AppColors.famkaRed,
-                            content: Text(
-                              'Bitte geben Sie eine Profil-ID ein.',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    child: const ButtonLinearGradient(buttonText: 'Einladen'),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () =>
-                        Navigator.of(context).pop(), // Dialog schließen
-                    child: Text(
-                      'Abbrechen',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Colors.grey.shade600),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        return InviteUserDialog(
+          onInvite: _inviteUserToGroup,
         );
       },
     );
   }
 
-  // Methode zum Hinzufügen eines Benutzers zur Gruppe (Logik)
   Future<void> _inviteUserToGroup(String inviteeProfileId) async {
     if (_currentGroup == null) return;
 
-    // Prüfen, ob der Benutzer bereits Mitglied ist
     if (_currentGroup!.groupMembers
         .any((member) => member.profilId == inviteeProfileId)) {
       if (mounted) {
@@ -461,16 +309,17 @@ class _GroupPageState extends State<GroupPage> {
     }
 
     try {
-      // Zuerst den Benutzer abrufen, um sicherzustellen, dass er existiert und seine Profil-Info zu bekommen
       final AppUser? inviteeUser =
           await widget.db.getUserAsync(inviteeProfileId);
 
       if (inviteeUser != null) {
-        // KORRIGIERT: Reihenfolge der Parameter und Übergabe des AppUser-Objekts
+        debugPrint('Invited user ID: ${inviteeUser.profilId}');
+        debugPrint('Invited user First Name: ${inviteeUser.firstName}');
+        debugPrint('Invited user Last Name: ${inviteeUser.lastName}');
+
         await widget.db.addUserToGroup(inviteeUser, _currentGroup!.groupId);
 
-        // Aktualisiere die lokale _currentGroup, um die neue Mitgliederliste zu reflektieren
-        await _loadGroupData(); // Am einfachsten ist es, die Daten neu zu laden
+        await _loadGroupAndUserData();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -512,60 +361,19 @@ class _GroupPageState extends State<GroupPage> {
   }
 
   Future<void> _confirmDeleteGroup() async {
+    if (_currentGroup == null) return;
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _currentGroup!.groupName,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.famkaBlack,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Möchtest du diese Gruppe wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
-          actions: [
-            Center(
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(true),
-                    child: const ButtonLinearGradient(
-                      buttonText: 'Löschen',
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(
-                      'Abbrechen',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.grey.shade600,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        return ConfirmDeleteGroupDialog(
+          groupName: _currentGroup!.groupName,
         );
       },
     );
 
     if (confirm == true) {
       await _deleteGroup();
-    } else {}
+    }
   }
 
   Future<void> _deleteGroup() async {
@@ -624,7 +432,7 @@ class _GroupPageState extends State<GroupPage> {
     }
 
     final bool showDeleteButton = _isCurrentUserGroupCreator();
-    final bool isUserAdmin = _isCurrentUserGroupAdmin();
+    final bool isUserAdmin = _isUserAdmin;
 
     return PopScope(
       canPop: true,
@@ -643,7 +451,6 @@ class _GroupPageState extends State<GroupPage> {
         body: SafeArea(
           child: Column(
             children: [
-              // HeadlineG OHNE rightActionWidget - zurück zum ursprünglichen Zustand
               const HeadlineG(
                 screenHead: 'Gruppe',
               ),
@@ -767,49 +574,40 @@ class _GroupPageState extends State<GroupPage> {
                                   style:
                                       Theme.of(context).textTheme.labelMedium,
                                 ),
-                                // NEU: Eine Row für die Icons auf der rechten Seite der Mitglieder-Überschrift
                                 Row(
-                                  mainAxisSize: MainAxisSize.min, // Wichtig!
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    if (isUserAdmin) // Info-Icon nur für Admins
+                                    if (isUserAdmin)
                                       InkWell(
                                         onTap: _showGroupIdDialog,
                                         child: const SizedBox(
-                                          // Hinzugefügt für expliziten Tap-Bereich
-                                          width: 24, // Größe des Icons
-                                          height: 24, // Größe des Icons
+                                          width: 24,
+                                          height: 24,
                                           child: Icon(
                                             Icons.info_outline,
                                             color: AppColors.famkaBlack,
                                           ),
                                         ),
                                       ),
-                                    if (isUserAdmin) // Abstand zwischen Info- und Einladen-Icon, wenn beide sichtbar sind
-                                      const SizedBox(width: 12),
-                                    if (isUserAdmin) // Einladen-Icon nur für Admins
+                                    if (isUserAdmin) const SizedBox(width: 12),
+                                    if (isUserAdmin)
                                       InkWell(
                                         onTap: _showInviteDialog,
                                         child: const SizedBox(
-                                          // Hinzugefügt für expliziten Tap-Bereich
-                                          width: 24, // Größe des Icons
-                                          height: 24, // Größe des Icons
+                                          width: 24,
+                                          height: 24,
                                           child: Icon(
                                             Icons.person_add,
                                             color: AppColors.famkaBlack,
                                           ),
                                         ),
                                       ),
-                                    // Optional: Abstand zwischen Einladen- und Bearbeiten-Icon, wenn beide sichtbar sind
-                                    const SizedBox(
-                                        width:
-                                            12), // Immer Abstand zum Bearbeiten-Icon
+                                    const SizedBox(width: 12),
                                     InkWell(
-                                      onTap:
-                                          _manageGroupMembers, // Das Bearbeiten-Icon war schon da
+                                      onTap: _manageGroupMembers,
                                       child: const SizedBox(
-                                        // Hinzugefügt für expliziten Tap-Bereich
-                                        width: 24, // Größe des Icons
-                                        height: 24, // Größe des Icons
+                                        width: 24,
+                                        height: 24,
                                         child: Icon(
                                           Icons.edit,
                                           color: AppColors.famkaBlack,
@@ -824,120 +622,11 @@ class _GroupPageState extends State<GroupPage> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 120,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                          child: Row(
-                            children: [
-                              ..._currentGroup!.groupMembers.map((member) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: Column(
-                                    children: [
-                                      InkWell(
-                                        borderRadius: BorderRadius.circular(40),
-                                        onTap: () async {
-                                          final AppUser? updatedUser =
-                                              await widget.db.getUserAsync(
-                                                  member.profilId);
-
-                                          if (updatedUser != null) {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ProfilPage(
-                                                  db: widget.db,
-                                                  currentUser: updatedUser,
-                                                  auth: widget.auth,
-                                                ),
-                                              ),
-                                            );
-                                          } else {
-                                            if (mounted) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  backgroundColor:
-                                                      AppColors.famkaCyan,
-                                                  content: Text(
-                                                    'Benutzerdaten können nicht geladen werden!',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall,
-                                                  ),
-                                                  duration: const Duration(
-                                                      seconds: 2),
-                                                ),
-                                              );
-                                            }
-                                          }
-                                        },
-                                        child: Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            const SizedBox(
-                                              width: 70,
-                                              height: 70,
-                                              child: DecoratedBox(
-                                                decoration: BoxDecoration(
-                                                  color: AppColors.famkaBlack,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width: 58,
-                                              height: 58,
-                                              child: DecoratedBox(
-                                                decoration: BoxDecoration(
-                                                  color: AppColors.famkaWhite,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 54,
-                                              height: 54,
-                                              child: DecoratedBox(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  image: DecorationImage(
-                                                    image: AssetImage(member
-                                                            .avatarUrl ??
-                                                        'assets/fotos/default.jpg'),
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      SizedBox(
-                                        width: 70,
-                                        child: Text(
-                                          member.firstName ?? '',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .displaySmall
-                                              ?.copyWith(height: 1.0),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
+                      GroupMembersList(
+                        db: widget.db,
+                        auth: widget.auth,
+                        currentUser: widget.currentUser,
+                        members: _currentGroup!.groupMembers,
                       ),
                       const SizedBox(height: 8),
                       Padding(
