@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/src/common/image_utils.dart';
 
 class ProfilAvatarRow extends StatelessWidget {
   final DatabaseRepository db;
@@ -67,8 +68,13 @@ class ProfilAvatarRow extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
-                    image: AssetImage(group!.groupAvatarUrl),
+                    image: getDynamicImageProvider(group!.groupAvatarUrl) ??
+                        const AssetImage('assets/fotos/default.jpg'),
                     fit: BoxFit.cover,
+                    onError: (exception, stackTrace) {
+                      debugPrint(
+                          'Fehler beim Laden des Gruppen-Avatars in ProfilAvatarRow: $exception');
+                    },
                   ),
                 ),
               ),

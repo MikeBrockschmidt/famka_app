@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/src/common/image_utils.dart';
 
 class MenuSubContainer2LinesGroupC extends StatelessWidget {
   final DatabaseRepository db;
@@ -47,7 +48,8 @@ class MenuSubContainer2LinesGroupC extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundImage: AssetImage(currentGroup.groupAvatarUrl),
+                  backgroundImage:
+                      getDynamicImageProvider(currentGroup.groupAvatarUrl),
                 ),
                 const SizedBox(width: 18),
                 Expanded(

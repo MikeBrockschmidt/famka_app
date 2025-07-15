@@ -313,6 +313,8 @@ class _CustomScreenState extends State<Menu> {
                           thickness: 1, height: 1, color: Colors.grey),
                   ],
                 ),
+                // ExpansionTile 'Einladen'
+                /*
                 Column(
                   children: [
                     ExpansionTile(
@@ -358,6 +360,7 @@ class _CustomScreenState extends State<Menu> {
                           thickness: 1, height: 1, color: Colors.grey),
                   ],
                 ),
+                */
               ],
             ),
           ),

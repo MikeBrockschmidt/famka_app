@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyCdO_krcch2Y3rBCVFxl9uwZWosEkce4lA</string>
+	<string>AIzaSyDwQDlQpHl0AGSwLjx6MtuVbKLFHQmE0-8</string>
 	<key>GCM_SENDER_ID</key>
-	<string>354451956340</string>
+	<string>616611076821</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.famkaApp</string>
 	<key>PROJECT_ID</key>
-	<string>famka-c646f</string>
+	<string>famka-app-free-storage</string>
 	<key>STORAGE_BUCKET</key>
-	<string>famka-c646f.firebasestorage.app</string>
+	<string>famka-app-free-storage.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:354451956340:ios:fb3fc5b8c20aa5f0572721</string>
+	<string>1:616611076821:ios:7426787e05518309cfe05c</string>
 </dict>
 </plist>

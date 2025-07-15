@@ -4,6 +4,7 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:famka_app/src/common/image_utils.dart';
 
 class ManageGroupMembersPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -225,9 +226,8 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                               color: AppColors.famkaWhite,
                               child: ListTile(
                                 leading: CircleAvatar(
-                                  backgroundImage: AssetImage(
-                                      member.avatarUrl ??
-                                          'assets/fotos/default.jpg'),
+                                  backgroundImage:
+                                      getDynamicImageProvider(member.avatarUrl),
                                   backgroundColor: AppColors.famkaGrey,
                                   radius: 24,
                                   child: Container(
@@ -299,8 +299,8 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                                     selected.profilId == user.profilId);
                             return ListTile(
                               leading: CircleAvatar(
-                                backgroundImage: AssetImage(user.avatarUrl ??
-                                    'assets/fotos/default.jpg'),
+                                backgroundImage:
+                                    getDynamicImageProvider(user.avatarUrl),
                                 backgroundColor: AppColors.famkaGrey,
                                 radius: 24,
                                 child: Container(

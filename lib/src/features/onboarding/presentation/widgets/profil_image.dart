@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:image_cropper/image_cropper.dart';
+
 class ProfilImage extends StatefulWidget {
   final DatabaseRepository db;
   final String? currentAvatarUrl;
@@ -20,6 +25,8 @@ class ProfilImage extends StatefulWidget {
 class _ProfilImageState extends State<ProfilImage> {
   String? _displayImageUrl;
   bool _isPickingImage = false;
+
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   @override
   void initState() {
@@ -37,7 +44,9 @@ class _ProfilImageState extends State<ProfilImage> {
     }
   }
 
-  Future<void> _pickImageLocally() async {
+  Future<void> _pickImageAndUpload() async {
+    if (_isPickingImage) return;
+
     setState(() {
       _isPickingImage = true;
     });
@@ -83,25 +92,110 @@ class _ProfilImageState extends State<ProfilImage> {
 
       final XFile? pickedFile = await picker.pickImage(
         source: source,
-        imageQuality: 75,
-        maxWidth: 200,
-        maxHeight: 200,
+        imageQuality: 80,
+        maxWidth: 800,
+        maxHeight: 800,
       );
 
       if (pickedFile != null) {
-        final String localPath = pickedFile.path;
+        CroppedFile? croppedFile = await ImageCropper().cropImage(
+          sourcePath: pickedFile.path,
+          compressFormat: ImageCompressFormat.jpg,
+          compressQuality: 80,
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarTitle: 'Bild zuschneiden',
+              toolbarColor: Theme.of(context).primaryColor,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.square,
+              lockAspectRatio: true,
+            ),
+            IOSUiSettings(
+              title: 'Bild zuschneiden',
+              aspectRatioLockEnabled: true,
+              aspectRatioPresets: [
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio16x9
+              ],
+            ),
+          ],
+        );
 
-        if (widget.onAvatarSelected != null) {
-          widget.onAvatarSelected!(localPath);
+        if (croppedFile == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Zuschneiden abgebrochen.')),
+            );
+          }
+          return;
         }
-        setState(() {
-          _displayImageUrl = localPath;
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Profilbild ausgewählt und lokal angezeigt.')),
-          );
+
+        File imageFile = File(croppedFile.path);
+
+        final User? user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text(
+                      'Fehler: Keine Benutzer-ID verfügbar. Bitte melden Sie sich an.')),
+            );
+          }
+          return;
+        }
+        String userId = user.uid;
+
+        try {
+          String storagePath =
+              'users/$userId/profile_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+          Reference storageRef = _storage.ref().child(storagePath);
+
+          UploadTask uploadTask = storageRef.putFile(imageFile);
+
+          uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+            print(
+                'Upload-Fortschritt: ${snapshot.bytesTransferred}/${snapshot.totalBytes}');
+          });
+
+          TaskSnapshot snapshot = await uploadTask;
+          String downloadUrl = await snapshot.ref.getDownloadURL();
+
+          if (widget.onAvatarSelected != null) {
+            widget.onAvatarSelected!(downloadUrl);
+          }
+          setState(() {
+            _displayImageUrl = downloadUrl;
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text(
+                      'Profilbild erfolgreich hochgeladen und aktualisiert.')),
+            );
+          }
+        } on FirebaseException catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    'Fehler beim Upload zu Firebase Storage: ${e.message}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Unerwarteter Fehler beim Bild-Upload: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       } else {
         if (mounted) {
@@ -114,7 +208,7 @@ class _ProfilImageState extends State<ProfilImage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Fehler bei der Bildauswahl: $e'),
+            content: Text('Fehler bei der Bildauswahl oder Zuschneiden: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -140,14 +234,16 @@ class _ProfilImageState extends State<ProfilImage> {
       imageProvider = NetworkImage(effectiveDisplayUrl);
     } else if (effectiveDisplayUrl.startsWith('assets/')) {
       imageProvider = AssetImage(effectiveDisplayUrl);
-    } else {
+    } else if (File(effectiveDisplayUrl).existsSync()) {
       imageProvider = FileImage(File(effectiveDisplayUrl));
+    } else {
+      imageProvider = const AssetImage('assets/fotos/default.jpg');
     }
 
     return Transform.translate(
       offset: const Offset(0, -20),
       child: GestureDetector(
-        onTap: _isPickingImage ? null : _pickImageLocally,
+        onTap: _isPickingImage ? null : _pickImageAndUpload,
         child: Stack(
           alignment: Alignment.center,
           children: [

@@ -4,7 +4,9 @@ import 'package:famka_app/src/features/onboarding/presentation/onboarding3.dart'
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
+import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilNameOnboarding extends StatefulWidget {
   final DatabaseRepository db;
@@ -27,6 +29,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  String? _currentAvatarUrl;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -37,6 +40,13 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
     _lastNameController.text = widget.user.lastName ?? '';
     _emailController.text = widget.user.email ?? '';
     _phoneNumberController.text = widget.user.phoneNumber ?? '';
+    _currentAvatarUrl = widget.user.avatarUrl;
+
+    print('Initial avatarUrl in ProfilNameOnboarding: $_currentAvatarUrl');
+    print(
+        'Initial AppUser ID in ProfilNameOnboarding: ${widget.user.profilId}');
+    print(
+        'FirebaseAuth currentUser UID in ProfilNameOnboarding initState: ${FirebaseAuth.instance.currentUser?.uid}');
   }
 
   @override
@@ -46,6 +56,18 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
     _emailController.dispose();
     _phoneNumberController.dispose();
     super.dispose();
+  }
+
+  void _handleAvatarSelected(String newUrl) {
+    setState(() {
+      _currentAvatarUrl = newUrl;
+    });
+    print(
+        'Avatar URL nach Auswahl (in _handleAvatarSelected): $_currentAvatarUrl');
+    print(
+        'FirebaseAuth currentUser UID nach Auswahl: ${FirebaseAuth.instance.currentUser?.uid}');
+    print(
+        'DB Current User ID nach Auswahl: ${widget.db.currentUser?.profilId}');
   }
 
   String? _validateEmail(String? input) {
@@ -67,6 +89,11 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
   }
 
   void _saveUserDataAndNavigate() async {
+    print(
+        'FirebaseAuth User UID beim Speichern (vor Validation): ${FirebaseAuth.instance.currentUser?.uid}');
+    print(
+        'DB Current User ID beim Speichern (vor Validation): ${widget.db.currentUser?.profilId}');
+
     if (_formKey.currentState?.validate() ?? false) {
       final updatedUser = AppUser(
         profilId: widget.user.profilId,
@@ -76,17 +103,38 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
         phoneNumber: _phoneNumberController.text.trim().isEmpty
             ? null
             : _phoneNumberController.text.trim(),
-        avatarUrl: widget.user.avatarUrl,
+        avatarUrl: _currentAvatarUrl,
         miscellaneous: widget.user.miscellaneous,
         password: widget.user.password,
       );
 
+      if (updatedUser.profilId == null ||
+          FirebaseAuth.instance.currentUser?.uid == null) {
+        print(
+            'FEHLER: Profil-ID (${updatedUser.profilId}) oder FirebaseAuth UID (${FirebaseAuth.instance.currentUser?.uid}) ist NULL vor dem Speichern!');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                  "Fehler: Keine Benutzer-ID verfügbar. Bitte melden Sie sich an."),
+              backgroundColor: AppColors.famkaRed,
+            ),
+          );
+        }
+        return;
+      }
+
       try {
         await widget.db.updateUser(updatedUser);
-
         widget.db.currentUser = updatedUser;
 
         if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text("Profilinformationen gespeichert."),
+              backgroundColor: AppColors.famkaCyan,
+            ),
+          );
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -99,6 +147,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
           );
         }
       } catch (e) {
+        print('Fehler beim Speichern der Benutzerdaten: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -131,67 +180,83 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
             constraints: const BoxConstraints(maxWidth: 600),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(height: 0),
-                    Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                    Center(
+                      child: ProfilImage(
+                        widget.db,
+                        currentAvatarUrl: _currentAvatarUrl,
+                        onAvatarSelected: _handleAvatarSelected,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                            controller: _firstNameController,
-                            decoration: const InputDecoration(
-                              labelText: "Vorname",
-                              hintText: "Vorname eingeben",
-                              border: OutlineInputBorder(),
-                            ),
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _firstNameController,
+                          decoration: const InputDecoration(
+                            labelText: "Vorname",
+                            hintText: "Vorname eingeben",
+                            border: OutlineInputBorder(),
                           ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _lastNameController,
-                            decoration: const InputDecoration(
-                              labelText: "Nachname",
-                              hintText: "Nachname eingeben",
-                              border: OutlineInputBorder(),
-                            ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Bitte Vorname eingeben.';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _lastNameController,
+                          decoration: const InputDecoration(
+                            labelText: "Nachname",
+                            hintText: "Nachname eingeben",
+                            border: OutlineInputBorder(),
                           ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            validator: _validateEmail,
-                            decoration: const InputDecoration(
-                              labelText: "E-Mail Adresse",
-                              hintText: "E-Mail Adresse eingeben",
-                              border: OutlineInputBorder(),
-                            ),
-                            readOnly: true,
-                            contextMenuBuilder: (context, editableTextState) {
-                              return SizedBox.shrink();
-                            },
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Bitte Nachname eingeben.';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: _validateEmail,
+                          decoration: const InputDecoration(
+                            labelText: "E-Mail Adresse",
+                            hintText: "E-Mail Adresse eingeben",
+                            border: OutlineInputBorder(),
                           ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _phoneNumberController,
-                            keyboardType: TextInputType.phone,
-                            validator: _validatePhoneNumber,
-                            decoration: const InputDecoration(
-                              labelText: "Telefonnummer",
-                              hintText: "Telefonnummer eingeben",
-                              border: OutlineInputBorder(),
-                            ),
+                          readOnly: true,
+                          contextMenuBuilder: (context, editableTextState) {
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _phoneNumberController,
+                          keyboardType: TextInputType.phone,
+                          validator: _validatePhoneNumber,
+                          decoration: const InputDecoration(
+                            labelText: "Telefonnummer (optional)",
+                            hintText: "Telefonnummer eingeben",
+                            border: OutlineInputBorder(),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 14),
                     const SizedBox(height: 6),

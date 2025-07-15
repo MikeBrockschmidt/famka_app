@@ -38,19 +38,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA1TBs371AW0-786caWYGdGrS7kcyFYWdo',
-    appId: '1:354451956340:android:c31d24cc84b5fbba572721',
-    messagingSenderId: '354451956340',
-    projectId: 'famka-c646f',
-    storageBucket: 'famka-c646f.firebasestorage.app',
+    apiKey: 'AIzaSyC37xVX2xNgYw3vg324cDugBIZu3FKF6VE',
+    appId: '1:616611076821:android:f30ae8c12f998e66cfe05c',
+    messagingSenderId: '616611076821',
+    projectId: 'famka-app-free-storage',
+    storageBucket: 'famka-app-free-storage.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCdO_krcch2Y3rBCVFxl9uwZWosEkce4lA',
-    appId: '1:354451956340:ios:fb3fc5b8c20aa5f0572721',
-    messagingSenderId: '354451956340',
-    projectId: 'famka-c646f',
-    storageBucket: 'famka-c646f.firebasestorage.app',
+    apiKey: 'AIzaSyDwQDlQpHl0AGSwLjx6MtuVbKLFHQmE0-8',
+    appId: '1:616611076821:ios:7426787e05518309cfe05c',
+    messagingSenderId: '616611076821',
+    projectId: 'famka-app-free-storage',
+    storageBucket: 'famka-app-free-storage.firebasestorage.app',
     iosBundleId: 'com.example.famkaApp',
   );
 }

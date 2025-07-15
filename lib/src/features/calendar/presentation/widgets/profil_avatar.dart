@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
+import 'package:flutter/material.dart';
+import 'package:famka_app/src/common/image_utils.dart';
 
 class ProfilAvatar extends StatelessWidget {
   final AppUser user;
@@ -11,6 +12,9 @@ class ProfilAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ImageProvider<Object>? userImageProvider =
+        getDynamicImageProvider(user.avatarUrl);
+
     return Container(
       width: 80,
       height: 80,
@@ -40,8 +44,13 @@ class ProfilAvatar extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
-                image: AssetImage(user.avatarUrl ?? 'assets/fotos/default.jpg'),
+                image: userImageProvider ??
+                    const AssetImage('assets/fotos/default.jpg'),
                 fit: BoxFit.cover,
+                onError: (exception, stackTrace) {
+                  debugPrint(
+                      'Fehler beim Laden des Profilbildes für ${user.profilId}: $exception');
+                },
               ),
             ),
           ),

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "354451956340",
-    "project_id": "famka-c646f",
-    "storage_bucket": "famka-c646f.firebasestorage.app"
+    "project_number": "616611076821",
+    "project_id": "famka-app-free-storage",
+    "storage_bucket": "famka-app-free-storage.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:354451956340:android:c31d24cc84b5fbba572721",
+        "mobilesdk_app_id": "1:616611076821:android:f30ae8c12f998e66cfe05c",
         "android_client_info": {
           "package_name": "com.example.famka_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA1TBs371AW0-786caWYGdGrS7kcyFYWdo"
+          "current_key": "AIzaSyC37xVX2xNgYw3vg324cDugBIZu3FKF6VE"
         }
       ],
       "services": {

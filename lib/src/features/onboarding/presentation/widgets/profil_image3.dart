@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
+import 'package:famka_app/src/common/image_utils.dart';
 
 class ProfilImage3 extends StatelessWidget {
   final DatabaseRepository db;
@@ -15,6 +16,15 @@ class ProfilImage3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ImageProvider<Object>? currentImageProvider =
+        getDynamicImageProvider(avatarUrl);
+
+    final Widget defaultAvatarWidget = Icon(
+      Icons.person,
+      size: 80,
+      color: Colors.grey.shade600,
+    );
+
     return InkWell(
       onTap: () {
         if (onAvatarChanged != null) {
@@ -29,24 +39,18 @@ class ProfilImage3 extends StatelessWidget {
           color: Colors.grey.shade300,
         ),
         child: ClipOval(
-          child: Image.asset(
-            avatarUrl,
-            fit: BoxFit.cover,
-            width: 140,
-            height: 140,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                width: 140,
-                height: 140,
-                color: Colors.grey.shade300,
-                child: Icon(
-                  Icons.group,
-                  size: 80,
-                  color: Colors.grey.shade600,
-                ),
-              );
-            },
-          ),
+          child: (currentImageProvider != null)
+              ? Image(
+                  image: currentImageProvider,
+                  fit: BoxFit.cover,
+                  width: 140,
+                  height: 140,
+                  errorBuilder: (context, error, stackTrace) {
+                    print('FEHLER beim Laden des Bildes ($avatarUrl): $error');
+                    return defaultAvatarWidget;
+                  },
+                )
+              : defaultAvatarWidget,
         ),
       ),
     );

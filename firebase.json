@@ -1,1 +1,30 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"famka-c646f","appId":"1:354451956340:android:c31d24cc84b5fbba572721","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"famka-c646f","appId":"1:354451956340:ios:fb3fc5b8c20aa5f0572721","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"famka-c646f","configurations":{"android":"1:354451956340:android:c31d24cc84b5fbba572721","ios":"1:354451956340:ios:fb3fc5b8c20aa5f0572721"}}}}}}
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "famka-app-free-storage",
+                    "appId": "1:354451956340:android:c31d24cc84b5fbba572721",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "famka-app-free-storage",
+                    "appId": "1:354451956340:ios:fb3fc5b8c20aa5f0572721",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "famka-app-free-storage",
+                    "configurations": {
+                        "android": "1:354451956340:android:c31d24cc84b5fbba572721",
+                        "ios": "1:354451956340:ios:fb3fc5b8c20aa5f0572721"
+                    }
+                }
+            }
+        }
+    }
+}

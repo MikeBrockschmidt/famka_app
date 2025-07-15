@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/src/common/image_utils.dart';
 
 class _SingleGroupItem extends StatelessWidget {
   final DatabaseRepository db;
@@ -60,7 +61,13 @@ class _SingleGroupItem extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundImage: AssetImage(group.groupAvatarUrl),
+                  backgroundImage:
+                      getDynamicImageProvider(group.groupAvatarUrl) ??
+                          const AssetImage('assets/fotos/default.jpg'),
+                  onBackgroundImageError: (exception, stackTrace) {
+                    debugPrint(
+                        'Fehler beim Laden des Gruppen-Avatars in MenuSubContainer2LinesGroup: $exception');
+                  },
                 ),
                 const SizedBox(width: 18),
                 Expanded(

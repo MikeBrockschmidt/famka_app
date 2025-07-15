@@ -3,11 +3,9 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding_process2.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
-import 'package:famka_app/src/common/color_row.dart';
-import 'package:flutter/material.dart';
-
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_name_onboarding.dart';
+import 'package:flutter/material.dart';
+import 'package:famka_app/src/common/color_row.dart';
 
 class Onboarding2Screen extends StatelessWidget {
   final DatabaseRepository db;
@@ -41,14 +39,7 @@ class Onboarding2Screen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const HeadlineK(screenHead: 'Profil'),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: ProfilImage3(
-                      db: db,
-                      avatarUrl: user.avatarUrl ?? 'assets/fotos/default.jpg',
-                    ),
-                  ),
+                  const HeadlineK(screenHead: 'Profile'),
                   const SizedBox(height: 20),
                   ProfilNameOnboarding(db: db, auth: auth, user: user),
                 ],

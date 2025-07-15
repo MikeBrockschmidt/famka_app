@@ -141,8 +141,8 @@ class _ProfilPageState extends State<ProfilPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text("Profilinformationen gespeichert."),
+          const SnackBar(
+            content: Text("Profilinformationen gespeichert."),
             backgroundColor: AppColors.famkaCyan,
           ),
         );
@@ -290,7 +290,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             Center(
               child: ProfilImage(
                 widget.db,
@@ -458,31 +458,32 @@ class _ProfilPageState extends State<ProfilPage> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 40),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            InkWell(
-                              onTap: _saveUserData,
-                              child: const SizedBox(
-                                width: 150,
-                                height: 50,
-                                child: ButtonLinearGradient(
-                                    buttonText: 'Speichern'),
-                              ),
+                        const SizedBox(height: 20),
+                        Center(
+                          child: InkWell(
+                            onTap: _saveUserData,
+                            child: const SizedBox(
+                              width: 150,
+                              height: 50,
+                              child:
+                                  ButtonLinearGradient(buttonText: 'Speichern'),
                             ),
-                            const SizedBox(width: 20),
-                            InkWell(
-                              onTap: _logout,
-                              child: SizedBox(
-                                width: 150,
-                                height: 50,
-                                child: ButtonLinearGradient(
-                                  buttonText: 'Ausloggen',
-                                ),
-                              ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Center(
+                          child: InkWell(
+                            onTap: _logout,
+                            child: Text(
+                              'Ausloggen',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(
+                                      color: AppColors.famkaGrey,
+                                      decoration: TextDecoration.none),
                             ),
-                          ],
+                          ),
                         ),
                         const SizedBox(height: 20),
                       ],

@@ -4,7 +4,6 @@ import 'package:famka_app/src/features/onboarding/presentation/onboarding2.dart'
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 
@@ -31,7 +30,6 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-  String _selectedAvatarUrl = 'assets/fotos/default.jpg';
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
@@ -54,12 +52,6 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
-  }
-
-  void _handleAvatarSelected(String newPathOrUrl) {
-    setState(() {
-      _selectedAvatarUrl = newPathOrUrl;
-    });
   }
 
   String? _validatePassword(String? value) {
@@ -145,7 +137,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
         lastName: '',
         email: email,
         phoneNumber: null,
-        avatarUrl: _selectedAvatarUrl,
+        avatarUrl: 'assets/fotos/default.jpg',
         miscellaneous: null,
         password: '',
       );
@@ -300,10 +292,20 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
           left: 0,
           right: 0,
           child: Center(
-            child: ProfilImage(
-              widget.db,
-              currentAvatarUrl: _selectedAvatarUrl,
-              onAvatarSelected: _handleAvatarSelected,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey.shade300,
+                image: const DecorationImage(
+                  image: AssetImage('assets/fotos/default.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: ClipOval(
+                child: Container(),
+              ),
             ),
           ),
         ),

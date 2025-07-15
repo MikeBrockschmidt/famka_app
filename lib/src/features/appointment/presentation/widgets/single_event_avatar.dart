@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:famka_app/src/common/image_utils.dart';
 
 class SingleEventAvatar extends StatelessWidget {
   final bool isSelected;
@@ -26,8 +27,13 @@ class SingleEventAvatar extends StatelessWidget {
         opacity: isSelected ? 1.0 : 0.4,
         child: CircleAvatar(
           radius: 26,
-          backgroundImage: AssetImage(avatarUrl),
+          backgroundImage: getDynamicImageProvider(avatarUrl) ??
+              const AssetImage('assets/fotos/default.jpg'),
           backgroundColor: Colors.transparent,
+          onBackgroundImageError: (exception, stackTrace) {
+            debugPrint(
+                'Fehler beim Laden des Avatars in SingleEventAvatar: $exception');
+          },
         ),
       ),
     );
