@@ -10,7 +10,6 @@ import 'dart:io';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:famka_app/src/theme/font_theme.dart';
 
 enum ItemType { emoji, icon, image, addPhoto }
 

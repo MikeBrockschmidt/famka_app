@@ -8,21 +8,26 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:image_cropper/image_cropper.dart';
+import 'package:image_cropper/image_cropper.dart'; // Korrekter Import für image_cropper
 import 'package:flutter/foundation.dart'; // Für debugPrint
+
+// Importiere die neue Enum-Definition
+import 'package:famka_app/src/common/image_selection_context.dart'; // <--- WICHTIG: PFAD MUSS KORREKT SEIN
 
 class ProfilImage extends StatefulWidget {
   final DatabaseRepository db;
   final String? currentAvatarUrl;
   final ValueChanged<String>? onAvatarSelected;
-  final String dialogTitle; // <--- HIER WIRD 'dialogTitle' HINZUGEFÜGT
+  final ImageSelectionContext
+      contextType; // <--- NEU: Der Kontext-Typ ersetzt dialogTitle
 
   const ProfilImage(
     this.db, {
     super.key,
     this.currentAvatarUrl,
     this.onAvatarSelected,
-    this.dialogTitle = 'Profilbild auswählen', // <--- UND HIER IM KONSTRUKTOR
+    this.contextType =
+        ImageSelectionContext.profile, // <--- Standardwert ist 'profile'
   });
 
   @override
@@ -35,15 +40,31 @@ class _ProfilImageState extends State<ProfilImage> {
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  // NEU: Liste der vordefinierten Profilbilder
-  final List<String> _predefinedProfileAvatars = const [
-    'assets/fotos/default.jpg',
-    'assets/fotos/Melanie.jpg',
-    'assets/fotos/Max.jpg',
-    'assets/fotos/Martha.jpg',
-    'assets/fotos/boyd.jpg',
-    // Füge hier weitere Asset-Pfade hinzu, die du für Profilbilder verwenden möchtest
-  ];
+  // Map für die vordefinierten Bilder nach Kontext
+  // Diese Liste ist jetzt zentral hier definiert und wird je nach Kontext genutzt.
+  final Map<ImageSelectionContext, List<String>> _predefinedAvatarsByContext = {
+    ImageSelectionContext.profile: [
+      'assets/fotos/default.jpg', // Standard-Profilbild
+      'assets/fotos/Melanie.jpg',
+      'assets/fotos/Max.jpg',
+      'assets/fotos/Martha.jpg',
+      'assets/fotos/boyd.jpg',
+    ],
+    ImageSelectionContext.group: [
+      'assets/fotos/Familie.jpg', // Standard-Gruppenbild
+      'assets/fotos/nature.jpg',
+      'assets/fotos/cityscape.jpg',
+      // Füge hier spezifische Gruppenbilder hinzu
+    ],
+    ImageSelectionContext.event: [
+      'assets/fotos/birthday.jpg', // Standard-Eventbilder
+      'assets/fotos/party.jpg',
+      // Füge hier spezifische Eventbilder hinzu
+    ],
+    ImageSelectionContext.other: [
+      'assets/fotos/default.jpg', // Fallback
+    ],
+  };
 
   @override
   void initState() {
@@ -54,11 +75,34 @@ class _ProfilImageState extends State<ProfilImage> {
   @override
   void didUpdateWidget(covariant ProfilImage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.currentAvatarUrl != oldWidget.currentAvatarUrl) {
+    // Wichtig: Auch contextType prüfen, falls sich der Kontext dynamisch ändert
+    if (widget.currentAvatarUrl != oldWidget.currentAvatarUrl ||
+        widget.contextType != oldWidget.contextType) {
       setState(() {
         _displayImageUrl = widget.currentAvatarUrl;
       });
     }
+  }
+
+  // Diese Methode liefert den dynamischen Titel
+  String _getDialogTitle() {
+    switch (widget.contextType) {
+      case ImageSelectionContext.profile:
+        return 'Profilbild auswählen';
+      case ImageSelectionContext.group:
+        return 'Gruppenbild auswählen';
+      case ImageSelectionContext.event:
+        return 'Eventbild auswählen';
+      case ImageSelectionContext.other:
+      default:
+        return 'Bild auswählen';
+    }
+  }
+
+  // Diese Methode liefert die dynamischen Asset-Pfade
+  List<String> _getPredefinedAvatars() {
+    return _predefinedAvatarsByContext[widget.contextType] ??
+        _predefinedAvatarsByContext[ImageSelectionContext.other]!;
   }
 
   Future<void> _pickImageAndUpload() async {
@@ -71,7 +115,6 @@ class _ProfilImageState extends State<ProfilImage> {
     try {
       final picker = ImagePicker();
 
-      // Rückgabetyp des BottomSheets ist jetzt String?, da wir Asset-Pfade oder 'gallery'/'camera' zurückgeben.
       final String? selectedSourceOrAssetPath =
           await showModalBottomSheet<String?>(
         context: context,
@@ -79,15 +122,12 @@ class _ProfilImageState extends State<ProfilImage> {
           return SafeArea(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment
-                  .start, // Für die Ausrichtung der Überschrift
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Padding(
-                  // Titel des Dialogs
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    widget
-                        .dialogTitle, // <--- HIER WIRD DER NEUE PARAMETER VERWENDET
+                    _getDialogTitle(), // <--- HIER WIRD DER DYNAMISCHE TITEL VERWENDET
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
@@ -95,20 +135,18 @@ class _ProfilImageState extends State<ProfilImage> {
                   leading: const Icon(Icons.photo_library),
                   title: const Text('Aus Galerie wählen'),
                   onTap: () {
-                    Navigator.pop(
-                        context, 'gallery'); // Signalisiert Auswahl aus Galerie
+                    Navigator.pop(context, 'gallery');
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.camera_alt),
                   title: const Text('Foto aufnehmen'),
                   onTap: () {
-                    Navigator.pop(
-                        context, 'camera'); // Signalisiert Auswahl per Kamera
+                    Navigator.pop(context, 'camera');
                   },
                 ),
-                // NEU: Standardbilder (Assets)
-                if (_predefinedProfileAvatars.isNotEmpty) ...[
+                if (_getPredefinedAvatars().isNotEmpty) ...[
+                  // <--- HIER WERDEN DIE DYNAMISCHEN BILDER VERWENDET
                   const Divider(),
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -119,17 +157,15 @@ class _ProfilImageState extends State<ProfilImage> {
                     ),
                   ),
                   SizedBox(
-                    height:
-                        80, // Feste Höhe für die horizontale Liste der Bilder
+                    height: 80,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: _predefinedProfileAvatars.length,
+                      itemCount: _getPredefinedAvatars().length,
                       itemBuilder: (context, index) {
-                        final assetPath = _predefinedProfileAvatars[index];
+                        final assetPath = _getPredefinedAvatars()[index];
                         return GestureDetector(
                           onTap: () {
-                            Navigator.pop(context,
-                                assetPath); // Gibt den Asset-Pfad zurück
+                            Navigator.pop(context, assetPath);
                           },
                           child: Padding(
                             padding:
@@ -137,7 +173,6 @@ class _ProfilImageState extends State<ProfilImage> {
                             child: CircleAvatar(
                               radius: 35,
                               backgroundImage: AssetImage(assetPath),
-                              // Optional: Fehler-Debugging für Asset-Bilder
                               onBackgroundImageError: (exception, stackTrace) {
                                 debugPrint(
                                     'Fehler beim Laden des Asset-Bildes $assetPath: $exception');
@@ -151,14 +186,11 @@ class _ProfilImageState extends State<ProfilImage> {
                 ],
                 const SizedBox(height: 8),
                 Align(
-                  // Abbrechen-Button
                   alignment: Alignment.bottomRight,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pop(
-                          context, null); // Dialog schließen ohne Auswahl
+                      Navigator.pop(context, null);
                     },
-                    // Der Text-Stil für "Abbrechen" wurde hier bereits auf famkaGrey und labelSmall angepasst
                     child: Text(
                       'Abbrechen',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -167,10 +199,7 @@ class _ProfilImageState extends State<ProfilImage> {
                     ),
                   ),
                 ),
-                SizedBox(
-                    height: MediaQuery.of(context)
-                        .padding
-                        .bottom), // Platz für Safe Area auf iOS
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
               ],
             ),
           );
@@ -187,21 +216,21 @@ class _ProfilImageState extends State<ProfilImage> {
       }
 
       XFile? pickedFile;
-      // Unterscheidung, ob Kamera/Galerie gewählt oder ein Asset-Pfad zurückgegeben wurde
       if (selectedSourceOrAssetPath == 'gallery') {
+        // ImagePicker begrenzt die initiale Größe, bevor es an den Cropper geht
         pickedFile = await picker.pickImage(
             source: ImageSource.gallery,
             imageQuality: 80,
             maxWidth: 800,
             maxHeight: 800);
       } else if (selectedSourceOrAssetPath == 'camera') {
+        // ImagePicker begrenzt die initiale Größe, bevor es an den Cropper geht
         pickedFile = await picker.pickImage(
             source: ImageSource.camera,
             imageQuality: 80,
             maxWidth: 800,
             maxHeight: 800);
       } else if (selectedSourceOrAssetPath.startsWith('assets/')) {
-        // Ein Asset-Bild wurde ausgewählt – KEIN Upload oder Zuschneiden nötig
         if (widget.onAvatarSelected != null) {
           widget.onAvatarSelected!(selectedSourceOrAssetPath);
         }
@@ -211,37 +240,36 @@ class _ProfilImageState extends State<ProfilImage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-                content:
-                    Text('Profilbild erfolgreich als Standardbild gesetzt.')),
+                content: Text('Bild erfolgreich als Standardbild gesetzt.')),
           );
         }
-        return; // Wichtig: Hier beenden, da keine weitere Verarbeitung für Assets
+        return;
       }
 
-      // **AB HIER STARTET DER VORHANDENE CODE FÜR ZUSCHNEIDEN UND UPLOAD**
-      // Dieser Teil wird nur ausgeführt, wenn pickedFile != null (also von Kamera/Galerie)
       if (pickedFile != null) {
         CroppedFile? croppedFile = await ImageCropper().cropImage(
           sourcePath: pickedFile.path,
           compressFormat: ImageCompressFormat.jpg,
           compressQuality: 80,
+          maxWidth: 400, // <--- NEU: Maximale Breite auf 400 Pixel setzen
+          maxHeight: 400, // <--- NEU: Maximale Höhe auf 400 Pixel setzen
           uiSettings: [
             AndroidUiSettings(
-              toolbarTitle: 'Bild zuschneiden',
+              toolbarTitle:
+                  _getDialogTitle(), // <--- AUCH HIER DYNAMISCHER TITEL
               toolbarColor: Theme.of(context).primaryColor,
               toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.square,
-              lockAspectRatio: true,
+              initAspectRatio: CropAspectRatioPreset
+                  .square, // **WICHTIG: Quadratisch erzwingen**
+              lockAspectRatio: true, // **WICHTIG: Seitenverhältnis sperren**
             ),
             IOSUiSettings(
-              title: 'Bild zuschneiden',
-              aspectRatioLockEnabled: true,
+              title: _getDialogTitle(), // <--- AUCH HIER DYNAMISCHER TITEL
+              aspectRatioLockEnabled:
+                  true, // **WICHTIG: Seitenverhältnis sperren**
               aspectRatioPresets: [
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio16x9
+                CropAspectRatioPreset
+                    .square, // **WICHTIG: NUR quadratisch anbieten**
               ],
             ),
           ],
@@ -272,8 +300,35 @@ class _ProfilImageState extends State<ProfilImage> {
         String userId = user.uid;
 
         try {
-          String storagePath =
-              'users/$userId/profile_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+          String storagePath;
+          switch (widget.contextType) {
+            // <--- HIER WIRD DER KONTEXT FÜR DEN SPEICHERPFAD GENUTZT
+            case ImageSelectionContext.profile:
+              storagePath =
+                  'users/$userId/profile_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+              break;
+            case ImageSelectionContext.group:
+              // Für Gruppenbilder benötigen wir hier die Gruppen-ID.
+              // Da diese nicht direkt im ProfilImage-Widget verfügbar ist,
+              // verwenden wir einen generischen Pfad oder du müsstest die groupId
+              // als weiteren Parameter an ProfilImage übergeben.
+              // Vorerst ein generischer Gruppenpfad:
+              storagePath =
+                  'groups/images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+              break;
+            case ImageSelectionContext.event:
+              // Für Eventbilder benötigen wir hier die Event-ID.
+              // Vorerst ein generischer Eventpfad:
+              storagePath =
+                  'events/images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+              break;
+            case ImageSelectionContext.other:
+            default:
+              storagePath =
+                  'uploads/${DateTime.now().millisecondsSinceEpoch}.jpg';
+              break;
+          }
+
           Reference storageRef = _storage.ref().child(storagePath);
 
           UploadTask uploadTask = storageRef.putFile(imageFile);
@@ -296,8 +351,8 @@ class _ProfilImageState extends State<ProfilImage> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                  content: Text(
-                      'Profilbild erfolgreich hochgeladen und aktualisiert.')),
+                  content:
+                      Text('Bild erfolgreich hochgeladen und aktualisiert.')),
             );
           }
         } on FirebaseException catch (e) {
@@ -321,7 +376,6 @@ class _ProfilImageState extends State<ProfilImage> {
           }
         }
       } else {
-        // Dies wird ausgeführt, wenn ImagePicker kein Bild von Kamera/Galerie zurückgibt
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Kein Bild ausgewählt.')),

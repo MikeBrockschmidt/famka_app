@@ -10,6 +10,7 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
+import 'package:famka_app/src/common/image_selection_context.dart'; // <--- NEUER WICHTIGER IMPORT
 
 class Onboarding3Screen extends StatefulWidget {
   final DatabaseRepository db;
@@ -136,6 +137,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
                                 widget.db,
                                 currentAvatarUrl: _groupAvatarUrl,
                                 onAvatarSelected: _handleGroupAvatarSelected,
+                                contextType: ImageSelectionContext.group,
                               ),
                             ),
                             const SizedBox(height: 20),

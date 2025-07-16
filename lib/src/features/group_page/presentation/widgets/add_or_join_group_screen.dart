@@ -7,8 +7,10 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:uuid/uuid.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'dart:io'; // Beibehalten, falls File-Operationen direkt hier stattfinden
+
+import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
+import 'package:famka_app/src/common/image_selection_context.dart'; // <--- IMPORT WICHTIG
 
 class AddOrJoinGroupScreen extends StatefulWidget {
   final DatabaseRepository db;
@@ -40,16 +42,7 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
   final Uuid _uuid = const Uuid();
 
   late String _groupAvatarUrl;
-  bool _isPickingImage = false;
-
-  final List<String> _availableGroupImages = [
-    'assets/fotos/Familie.jpg',
-    'assets/fotos/Melanie.jpg',
-    'assets/fotos/Max.jpg',
-    'assets/fotos/Martha.jpg',
-    'assets/fotos/boyd.jpg',
-    'assets/fotos/default.jpg',
-  ];
+  // bool _isPickingImage = false; // Diese Variable ist hier nicht mehr notwendig, da ProfilImage das selbst verwaltet
 
   @override
   void initState() {
@@ -72,131 +65,18 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
     });
   }
 
+  // Diese Methoden (_pickImageLocally, _showGroupImageSelectionDialog)
+  // sind jetzt überflüssig, da ProfilImage die gesamte Logik übernimmt.
+  // Sie wurden bereits in früheren Iterationen entfernt, aber hier zur Klarstellung.
+  /*
   Future<void> _pickImageLocally(ImageSource source) async {
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    }
-
-    setState(() {
-      _isPickingImage = true;
-    });
-
-    try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? pickedFile = await picker.pickImage(
-        source: source,
-        imageQuality: 75,
-        maxWidth: 200,
-        maxHeight: 200,
-      );
-
-      if (pickedFile != null) {
-        final String localPath = pickedFile.path;
-        _handleGroupAvatarSelected(localPath);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Gruppenbild ausgewählt und lokal angezeigt.')),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Kein Bild ausgewählt.')),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Fehler bei der Bildauswahl: $e'),
-            backgroundColor: AppColors.famkaRed,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isPickingImage = false;
-        });
-      }
-    }
+    // ... alter Code ...
   }
 
   void _showGroupImageSelectionDialog() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Wähle ein Gruppenbild aus',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Aus Galerie wählen'),
-                onTap: () => _pickImageLocally(ImageSource.gallery),
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Foto aufnehmen'),
-                onTap: () => _pickImageLocally(ImageSource.camera),
-              ),
-              const Divider(),
-              Text(
-                'Oder wähle ein Standardbild:',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 10),
-              Flexible(
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1.0,
-                  ),
-                  itemCount: _availableGroupImages.length,
-                  itemBuilder: (context, index) {
-                    final imageUrl = _availableGroupImages[index];
-                    return GestureDetector(
-                      onTap: () {
-                        _handleGroupAvatarSelected(imageUrl);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: _groupAvatarUrl == imageUrl
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                          image: DecorationImage(
-                            image: AssetImage(imageUrl),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    // ... alter Code ...
   }
+  */
 
   Future<void> _createGroup() async {
     if (!(_createGroupFormKey.currentState?.validate() ?? false)) {
@@ -441,50 +321,13 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Center(
-                      child: GestureDetector(
-                        onTap: _isPickingImage
-                            ? null
-                            : _showGroupImageSelectionDialog,
-                        child: SizedBox(
-                          width: 150,
-                          height: 150,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                width: 120,
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[400],
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: groupImageProvider,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                child: _isPickingImage
-                                    ? const Center(
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                  Colors.white),
-                                        ),
-                                      )
-                                    : (_groupAvatarUrl.isEmpty ||
-                                            _groupAvatarUrl.startsWith(
-                                                'assets/fotos/default.jpg'))
-                                        ? const Center(
-                                            child: Icon(
-                                              Icons.image,
-                                              size: 60,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : null,
-                              ),
-                            ],
-                          ),
-                        ),
+                      child: ProfilImage(
+                        // <--- DIREKTE VERWENDUNG DES WIDGETS
+                        widget.db,
+                        currentAvatarUrl: _groupAvatarUrl,
+                        onAvatarSelected: _handleGroupAvatarSelected,
+                        contextType: ImageSelectionContext
+                            .group, // <--- HIER IST DIE WICHTIGE ANPASSUNG
                       ),
                     ),
                     const SizedBox(height: 24),

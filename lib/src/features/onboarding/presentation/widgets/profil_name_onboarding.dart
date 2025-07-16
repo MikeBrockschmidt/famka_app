@@ -7,6 +7,7 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:famka_app/src/common/image_selection_context.dart'; // <--- IMPORT WICHTIG
 
 class ProfilNameOnboarding extends StatefulWidget {
   final DatabaseRepository db;
@@ -195,6 +196,8 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                         widget.db,
                         currentAvatarUrl: _currentAvatarUrl,
                         onAvatarSelected: _handleAvatarSelected,
+                        contextType: ImageSelectionContext
+                            .profile, // <--- HIER IST DIE WICHTIGE ANPASSUNG
                       ),
                     ),
                     const SizedBox(height: 20),
