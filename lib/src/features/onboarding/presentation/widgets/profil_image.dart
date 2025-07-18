@@ -8,26 +8,23 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:image_cropper/image_cropper.dart'; // Korrekter Import für image_cropper
-import 'package:flutter/foundation.dart'; // Für debugPrint
+import 'package:image_cropper/image_cropper.dart';
+import 'package:flutter/foundation.dart';
 
-// Importiere die neue Enum-Definition
-import 'package:famka_app/src/common/image_selection_context.dart'; // <--- WICHTIG: PFAD MUSS KORREKT SEIN
+import 'package:famka_app/src/common/image_selection_context.dart';
 
 class ProfilImage extends StatefulWidget {
   final DatabaseRepository db;
   final String? currentAvatarUrl;
   final ValueChanged<String>? onAvatarSelected;
-  final ImageSelectionContext
-      contextType; // <--- NEU: Der Kontext-Typ ersetzt dialogTitle
+  final ImageSelectionContext contextType;
 
   const ProfilImage(
     this.db, {
     super.key,
     this.currentAvatarUrl,
     this.onAvatarSelected,
-    this.contextType =
-        ImageSelectionContext.profile, // <--- Standardwert ist 'profile'
+    this.contextType = ImageSelectionContext.profile,
   });
 
   @override
@@ -40,29 +37,25 @@ class _ProfilImageState extends State<ProfilImage> {
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  // Map für die vordefinierten Bilder nach Kontext
-  // Diese Liste ist jetzt zentral hier definiert und wird je nach Kontext genutzt.
   final Map<ImageSelectionContext, List<String>> _predefinedAvatarsByContext = {
     ImageSelectionContext.profile: [
-      'assets/fotos/default.jpg', // Standard-Profilbild
+      'assets/fotos/default.jpg',
       'assets/fotos/Melanie.jpg',
       'assets/fotos/Max.jpg',
       'assets/fotos/Martha.jpg',
       'assets/fotos/boyd.jpg',
     ],
     ImageSelectionContext.group: [
-      'assets/fotos/Familie.jpg', // Standard-Gruppenbild
+      'assets/fotos/Familie.jpg',
       'assets/fotos/nature.jpg',
       'assets/fotos/cityscape.jpg',
-      // Füge hier spezifische Gruppenbilder hinzu
     ],
     ImageSelectionContext.event: [
-      'assets/fotos/birthday.jpg', // Standard-Eventbilder
+      'assets/fotos/birthday.jpg',
       'assets/fotos/party.jpg',
-      // Füge hier spezifische Eventbilder hinzu
     ],
     ImageSelectionContext.other: [
-      'assets/fotos/default.jpg', // Fallback
+      'assets/fotos/default.jpg',
     ],
   };
 
@@ -75,7 +68,6 @@ class _ProfilImageState extends State<ProfilImage> {
   @override
   void didUpdateWidget(covariant ProfilImage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Wichtig: Auch contextType prüfen, falls sich der Kontext dynamisch ändert
     if (widget.currentAvatarUrl != oldWidget.currentAvatarUrl ||
         widget.contextType != oldWidget.contextType) {
       setState(() {
@@ -84,7 +76,6 @@ class _ProfilImageState extends State<ProfilImage> {
     }
   }
 
-  // Diese Methode liefert den dynamischen Titel
   String _getDialogTitle() {
     switch (widget.contextType) {
       case ImageSelectionContext.profile:
@@ -99,7 +90,6 @@ class _ProfilImageState extends State<ProfilImage> {
     }
   }
 
-  // Diese Methode liefert die dynamischen Asset-Pfade
   List<String> _getPredefinedAvatars() {
     return _predefinedAvatarsByContext[widget.contextType] ??
         _predefinedAvatarsByContext[ImageSelectionContext.other]!;
@@ -127,7 +117,7 @@ class _ProfilImageState extends State<ProfilImage> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    _getDialogTitle(), // <--- HIER WIRD DER DYNAMISCHE TITEL VERWENDET
+                    _getDialogTitle(),
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
@@ -146,7 +136,6 @@ class _ProfilImageState extends State<ProfilImage> {
                   },
                 ),
                 if (_getPredefinedAvatars().isNotEmpty) ...[
-                  // <--- HIER WERDEN DIE DYNAMISCHEN BILDER VERWENDET
                   const Divider(),
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -217,14 +206,12 @@ class _ProfilImageState extends State<ProfilImage> {
 
       XFile? pickedFile;
       if (selectedSourceOrAssetPath == 'gallery') {
-        // ImagePicker begrenzt die initiale Größe, bevor es an den Cropper geht
         pickedFile = await picker.pickImage(
             source: ImageSource.gallery,
             imageQuality: 80,
             maxWidth: 800,
             maxHeight: 800);
       } else if (selectedSourceOrAssetPath == 'camera') {
-        // ImagePicker begrenzt die initiale Größe, bevor es an den Cropper geht
         pickedFile = await picker.pickImage(
             source: ImageSource.camera,
             imageQuality: 80,
@@ -251,25 +238,21 @@ class _ProfilImageState extends State<ProfilImage> {
           sourcePath: pickedFile.path,
           compressFormat: ImageCompressFormat.jpg,
           compressQuality: 80,
-          maxWidth: 400, // <--- NEU: Maximale Breite auf 400 Pixel setzen
-          maxHeight: 400, // <--- NEU: Maximale Höhe auf 400 Pixel setzen
+          maxWidth: 400,
+          maxHeight: 400,
           uiSettings: [
             AndroidUiSettings(
-              toolbarTitle:
-                  _getDialogTitle(), // <--- AUCH HIER DYNAMISCHER TITEL
+              toolbarTitle: _getDialogTitle(),
               toolbarColor: Theme.of(context).primaryColor,
               toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset
-                  .square, // **WICHTIG: Quadratisch erzwingen**
-              lockAspectRatio: true, // **WICHTIG: Seitenverhältnis sperren**
+              initAspectRatio: CropAspectRatioPreset.square,
+              lockAspectRatio: true,
             ),
             IOSUiSettings(
-              title: _getDialogTitle(), // <--- AUCH HIER DYNAMISCHER TITEL
-              aspectRatioLockEnabled:
-                  true, // **WICHTIG: Seitenverhältnis sperren**
+              title: _getDialogTitle(),
+              aspectRatioLockEnabled: true,
               aspectRatioPresets: [
-                CropAspectRatioPreset
-                    .square, // **WICHTIG: NUR quadratisch anbieten**
+                CropAspectRatioPreset.square,
               ],
             ),
           ],
@@ -302,23 +285,15 @@ class _ProfilImageState extends State<ProfilImage> {
         try {
           String storagePath;
           switch (widget.contextType) {
-            // <--- HIER WIRD DER KONTEXT FÜR DEN SPEICHERPFAD GENUTZT
             case ImageSelectionContext.profile:
               storagePath =
                   'users/$userId/profile_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
               break;
             case ImageSelectionContext.group:
-              // Für Gruppenbilder benötigen wir hier die Gruppen-ID.
-              // Da diese nicht direkt im ProfilImage-Widget verfügbar ist,
-              // verwenden wir einen generischen Pfad oder du müsstest die groupId
-              // als weiteren Parameter an ProfilImage übergeben.
-              // Vorerst ein generischer Gruppenpfad:
               storagePath =
                   'groups/images/${DateTime.now().millisecondsSinceEpoch}.jpg';
               break;
             case ImageSelectionContext.event:
-              // Für Eventbilder benötigen wir hier die Event-ID.
-              // Vorerst ein generischer Eventpfad:
               storagePath =
                   'events/images/${DateTime.now().millisecondsSinceEpoch}.jpg';
               break;
@@ -415,7 +390,7 @@ class _ProfilImageState extends State<ProfilImage> {
     } else if (File(effectiveDisplayUrl).existsSync()) {
       imageProvider = FileImage(File(effectiveDisplayUrl));
     } else {
-      imageProvider = const AssetImage('assets/fotos/default.jpg');
+      imageProvider = const AssetImage('assets/grafiken/famka-kreis.png');
     }
 
     return Transform.translate(
@@ -436,7 +411,8 @@ class _ProfilImageState extends State<ProfilImage> {
               )
             else if (_displayImageUrl == null ||
                 _displayImageUrl!.isEmpty ||
-                _displayImageUrl!.startsWith('assets/fotos/default.jpg'))
+                _displayImageUrl!
+                    .startsWith('assets/grafiken/famka-kreis.png.jpg'))
               const Icon(
                 Icons.camera_alt,
                 size: 48,

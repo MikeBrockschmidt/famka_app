@@ -7,10 +7,10 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:io'; // Beibehalten, falls File-Operationen direkt hier stattfinden
+import 'dart:io';
 
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
-import 'package:famka_app/src/common/image_selection_context.dart'; // <--- IMPORT WICHTIG
+import 'package:famka_app/src/common/image_selection_context.dart';
 
 class AddOrJoinGroupScreen extends StatefulWidget {
   final DatabaseRepository db;
@@ -42,7 +42,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
   final Uuid _uuid = const Uuid();
 
   late String _groupAvatarUrl;
-  // bool _isPickingImage = false; // Diese Variable ist hier nicht mehr notwendig, da ProfilImage das selbst verwaltet
 
   @override
   void initState() {
@@ -64,19 +63,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
       _groupAvatarUrl = newUrl;
     });
   }
-
-  // Diese Methoden (_pickImageLocally, _showGroupImageSelectionDialog)
-  // sind jetzt überflüssig, da ProfilImage die gesamte Logik übernimmt.
-  // Sie wurden bereits in früheren Iterationen entfernt, aber hier zur Klarstellung.
-  /*
-  Future<void> _pickImageLocally(ImageSource source) async {
-    // ... alter Code ...
-  }
-
-  void _showGroupImageSelectionDialog() {
-    // ... alter Code ...
-  }
-  */
 
   Future<void> _createGroup() async {
     if (!(_createGroupFormKey.currentState?.validate() ?? false)) {
@@ -322,12 +308,10 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
                   children: [
                     Center(
                       child: ProfilImage(
-                        // <--- DIREKTE VERWENDUNG DES WIDGETS
                         widget.db,
                         currentAvatarUrl: _groupAvatarUrl,
                         onAvatarSelected: _handleGroupAvatarSelected,
-                        contextType: ImageSelectionContext
-                            .group, // <--- HIER IST DIE WICHTIGE ANPASSUNG
+                        contextType: ImageSelectionContext.group,
                       ),
                     ),
                     const SizedBox(height: 24),
