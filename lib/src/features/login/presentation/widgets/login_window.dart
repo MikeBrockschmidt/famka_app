@@ -254,19 +254,16 @@ class _LoginWindowState extends State<LoginWindow> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CustomScreen(
-                                widget.db,
-                                widget.auth,
-                              ),
+                              builder: (context) =>
+                                  CustomScreen(widget.db, widget.auth),
                             ),
                           );
                         },
                         child: const ButtonLinearGradient(
-                          buttonText: 'Neu hier? Dann hier entlang',
-                        ),
+                            buttonText: 'Neu hier? Dann hier entlang'),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushReplacement(
@@ -279,8 +276,51 @@ class _LoginWindowState extends State<LoginWindow> {
                       },
                       child: Text(
                         'Ich bin noch nicht registriert!',
-                        style: linkStyle,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.famkaWhite,
+                            ),
                       ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Image.asset(
+                            'assets/grafiken/google.png',
+                            height: 24,
+                            width: 24,
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      "Google Login noch nicht implementiert.")),
+                            );
+                          },
+                          tooltip: 'Mit Google anmelden',
+                        ),
+                        const SizedBox(width: 12),
+                        Image.asset(
+                          'assets/grafiken/strich.png',
+                          height: 24,
+                          width: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        IconButton(
+                          icon: Icon(Icons.apple,
+                              size: 32, color: AppColors.famkaWhite),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    "Apple Login noch nicht implementiert."),
+                              ),
+                            );
+                          },
+                          tooltip: 'Mit Apple anmelden',
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -230,10 +230,10 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Gebe deinem Profil ein Gesicht',
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
+                              // Text(
+                              //   'Gebe deinem Profil ein Gesicht',
+                              //   style: Theme.of(context).textTheme.labelSmall,
+                              // ),
                               const SizedBox(height: 12),
                               TextFormField(
                                 controller: _emailController,
@@ -299,7 +299,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                 shape: BoxShape.circle,
                 color: Colors.grey.shade300,
                 image: const DecorationImage(
-                  image: AssetImage('assets/fotos/default.jpg'),
+                  image: AssetImage('assets/grafiken/mann-pink.png'),
                   fit: BoxFit.cover,
                 ),
               ),

@@ -10,7 +10,7 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
-import 'package:famka_app/src/common/image_selection_context.dart'; // <--- NEUER WICHTIGER IMPORT
+import 'package:famka_app/src/common/image_selection_context.dart';
 
 class Onboarding3Screen extends StatefulWidget {
   final DatabaseRepository db;

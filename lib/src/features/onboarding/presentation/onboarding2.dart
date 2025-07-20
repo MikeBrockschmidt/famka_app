@@ -39,7 +39,7 @@ class Onboarding2Screen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const HeadlineK(screenHead: 'Profile'),
+                  const HeadlineK(screenHead: 'Profil'),
                   const SizedBox(height: 20),
                   ProfilNameOnboarding(db: db, auth: auth, user: user),
                 ],

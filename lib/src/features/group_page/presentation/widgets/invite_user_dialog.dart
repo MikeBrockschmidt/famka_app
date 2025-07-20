@@ -39,7 +39,7 @@ class _InviteUserDialogState extends State<InviteUserDialog> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Geben Sie die Profil-ID des Benutzers ein, den Sie einladen möchten:',
+            'Gebe die Profil-ID des Benutzers ein, den du hinzufügen möchtes:',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16),
           ),
@@ -81,7 +81,7 @@ class _InviteUserDialogState extends State<InviteUserDialog> {
                     );
                   }
                 },
-                child: const ButtonLinearGradient(buttonText: 'Einladen'),
+                child: const ButtonLinearGradient(buttonText: 'Hinzufügen'),
               ),
               const SizedBox(height: 10),
               TextButton(

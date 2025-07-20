@@ -42,12 +42,6 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
     _emailController.text = widget.user.email ?? '';
     _phoneNumberController.text = widget.user.phoneNumber ?? '';
     _currentAvatarUrl = widget.user.avatarUrl;
-
-    print('Initial avatarUrl in ProfilNameOnboarding: $_currentAvatarUrl');
-    print(
-        'Initial AppUser ID in ProfilNameOnboarding: ${widget.user.profilId}');
-    print(
-        'FirebaseAuth currentUser UID in ProfilNameOnboarding initState: ${FirebaseAuth.instance.currentUser?.uid}');
   }
 
   @override
@@ -63,12 +57,6 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
     setState(() {
       _currentAvatarUrl = newUrl;
     });
-    print(
-        'Avatar URL nach Auswahl (in _handleAvatarSelected): $_currentAvatarUrl');
-    print(
-        'FirebaseAuth currentUser UID nach Auswahl: ${FirebaseAuth.instance.currentUser?.uid}');
-    print(
-        'DB Current User ID nach Auswahl: ${widget.db.currentUser?.profilId}');
   }
 
   String? _validateEmail(String? input) {
@@ -90,11 +78,6 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
   }
 
   void _saveUserDataAndNavigate() async {
-    print(
-        'FirebaseAuth User UID beim Speichern (vor Validation): ${FirebaseAuth.instance.currentUser?.uid}');
-    print(
-        'DB Current User ID beim Speichern (vor Validation): ${widget.db.currentUser?.profilId}');
-
     if (_formKey.currentState?.validate() ?? false) {
       final updatedUser = AppUser(
         profilId: widget.user.profilId,
@@ -111,8 +94,6 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
 
       if (updatedUser.profilId == null ||
           FirebaseAuth.instance.currentUser?.uid == null) {
-        print(
-            'FEHLER: Profil-ID (${updatedUser.profilId}) oder FirebaseAuth UID (${FirebaseAuth.instance.currentUser?.uid}) ist NULL vor dem Speichern!');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -148,7 +129,6 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
           );
         }
       } catch (e) {
-        print('Fehler beim Speichern der Benutzerdaten: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -173,36 +153,61 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Form(
-                key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Center(
-                      child: ProfilImage(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 20),
+              Center(
+                child: GestureDetector(
+                  onTap: () => _handleAvatarSelected(""),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ProfilImage(
                         widget.db,
                         currentAvatarUrl: _currentAvatarUrl,
                         onAvatarSelected: _handleAvatarSelected,
                         contextType: ImageSelectionContext.profile,
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      // const Icon(
+                      //   Icons.camera_alt,
+                      //   size: 30,
+                      //   color: Colors.white,
+                      // ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 44),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Text(
+                              'Gebe deinem Profil ein Gesicht',
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                          ),
+                        ),
                         TextFormField(
                           controller: _firstNameController,
                           decoration: const InputDecoration(
@@ -260,20 +265,18 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
-                    const SizedBox(height: 6),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: InkWell(
-                        onTap: _saveUserDataAndNavigate,
-                        child: const ButtonLinearGradient(
-                            buttonText: 'Fortfahren'),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  onTap: _saveUserDataAndNavigate,
+                  child: const ButtonLinearGradient(buttonText: 'Fortfahren'),
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,8 +1,12 @@
-# Uncomment this line to define a global platform for your project
-platform :ios, '13.0'
+platform :ios, '13.0' 
+# ... andere Pods
+
+# Stelle sicher, dass diese Zeile entfernt oder auskommentiert ist:
+#- pod 'GTMSessionFetcher', '3.4.0' # ODER '~> 4.5.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+# ... Rest deiner Podfile
 
 project 'Runner', {
   'Debug' => :debug,

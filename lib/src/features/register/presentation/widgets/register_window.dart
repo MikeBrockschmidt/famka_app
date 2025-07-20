@@ -225,8 +225,51 @@ class _RegisterWindowState extends State<RegisterWindow> {
                       },
                       child: Text(
                         'Ich bin schon registriert!',
-                        style: linkStyle,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: AppColors.famkaWhite),
                       ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Image.asset(
+                            'assets/grafiken/google.png',
+                            height: 24,
+                            width: 24,
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      "Google Login noch nicht implementiert.")),
+                            );
+                          },
+                          tooltip: 'Mit Google registrieren',
+                        ),
+                        const SizedBox(width: 12),
+                        Image.asset(
+                          'assets/grafiken/strich.png',
+                          height: 24,
+                          width: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        IconButton(
+                          icon: Icon(Icons.apple,
+                              size: 32, color: AppColors.famkaWhite),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      "Apple Login noch nicht implementiert.")),
+                            );
+                          },
+                          tooltip: 'Mit Apple registrieren',
+                        ),
+                      ],
                     ),
                   ],
                 ),

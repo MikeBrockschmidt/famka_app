@@ -39,10 +39,10 @@ class _ProfilImageState extends State<ProfilImage> {
 
   final Map<ImageSelectionContext, List<String>> _predefinedAvatarsByContext = {
     ImageSelectionContext.profile: [
-      'assets/fotos/default.jpg',
-      'assets/fotos/Melanie.jpg',
-      'assets/fotos/Max.jpg',
-      'assets/fotos/Martha.jpg',
+      'assets/grafiken/mann-pink.png',
+      'assets/grafiken/mann.png',
+      'assets/grafiken/frau.png',
+      'assets/grafiken/frau-blau.png',
       'assets/fotos/boyd.jpg',
     ],
     ImageSelectionContext.group: [
@@ -55,7 +55,7 @@ class _ProfilImageState extends State<ProfilImage> {
       'assets/fotos/party.jpg',
     ],
     ImageSelectionContext.other: [
-      'assets/fotos/default.jpg',
+      'assets/fotos/boyd.jpg',
     ],
   };
 
