@@ -16,7 +16,6 @@ import 'package:famka_app/src/features/group_page/presentation/widgets/group_id_
 import 'package:famka_app/src/features/group_page/presentation/widgets/invite_user_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/confirm_delete_group_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_list.dart';
-// NEUER IMPORT FÜR PASSIVES MITGLIED
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_passive_member_dialog.dart';
 
 class GroupPage extends StatefulWidget {
@@ -210,9 +209,6 @@ class _GroupPageState extends State<GroupPage> {
   Future<void> _manageGroupMembers() async {
     if (_currentGroup == null) return;
 
-    // Wir navigieren zu einer Seite, die Änderungen an der Gruppe vornehmen kann.
-    // Wir müssen den Rückgabewert nicht direkt verwenden, da wir die Daten
-    // nach der Rückkehr neu laden werden.
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -223,15 +219,13 @@ class _GroupPageState extends State<GroupPage> {
       ),
     );
 
-    // Nach der Rückkehr von ManageGroupMembersPage die Gruppendaten neu laden.
-    // Dies stellt sicher, dass die GroupPage die aktuellsten Mitglieder hat.
     if (mounted) {
       await _loadGroupAndUserData();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.famkaCyan,
           content: Text(
-            'Mitgliederverwaltung abgeschlossen.', // Angepasste Nachricht
+            'Mitgliederverwaltung abgeschlossen.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -285,7 +279,6 @@ class _GroupPageState extends State<GroupPage> {
     );
   }
 
-  // NEUE METHODE FÜR PASSIVE MITGLIEDER
   void _showAddPassiveMemberDialog() {
     if (_currentGroup == null) return;
     showDialog(
@@ -295,7 +288,7 @@ class _GroupPageState extends State<GroupPage> {
           db: widget.db,
           group: _currentGroup!,
           onMemberAdded: () {
-            _loadGroupAndUserData(); // Gruppe neu laden, um das neue passive Mitglied anzuzeigen
+            _loadGroupAndUserData();
           },
         );
       },
@@ -411,7 +404,7 @@ class _GroupPageState extends State<GroupPage> {
           ),
         );
         _currentGroup = null;
-        Navigator.of(context).pop(null);
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
       if (mounted) {

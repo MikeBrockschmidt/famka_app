@@ -29,14 +29,6 @@ class _InviteUserDialogState extends State<InviteUserDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'Benutzer zur Gruppe einladen',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.famkaBlack,
-                ),
-          ),
           const SizedBox(height: 8),
           const Text(
             'Gebe die Profil-ID des Benutzers ein, den du hinzufügen möchtes:',

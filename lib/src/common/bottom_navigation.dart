@@ -8,7 +8,7 @@ import 'package:famka_app/src/features/menu/presentation/widgets/menu_screen.dar
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 
-class BottomNavigationThreeCalendar extends StatefulWidget {
+class BottomNavigation extends StatefulWidget {
   final DatabaseRepository db;
   final AppUser? currentUser;
   final Group? initialGroup;
@@ -20,7 +20,7 @@ class BottomNavigationThreeCalendar extends StatefulWidget {
   final Color unselectedItemColor;
   final bool showLabel;
 
-  const BottomNavigationThreeCalendar(
+  const BottomNavigation(
     this.db, {
     super.key,
     this.currentUser,
@@ -34,12 +34,11 @@ class BottomNavigationThreeCalendar extends StatefulWidget {
   });
 
   @override
-  State<BottomNavigationThreeCalendar> createState() =>
+  State<BottomNavigation> createState() =>
       _BottomNavigationThreeCalendarState();
 }
 
-class _BottomNavigationThreeCalendarState
-    extends State<BottomNavigationThreeCalendar> {
+class _BottomNavigationThreeCalendarState extends State<BottomNavigation> {
   int _selectedIndex = 0;
   Group? _currentActiveGroup;
   bool _isLoadingGroup = true;
@@ -53,7 +52,7 @@ class _BottomNavigationThreeCalendarState
   }
 
   @override
-  void didUpdateWidget(covariant BottomNavigationThreeCalendar oldWidget) {
+  void didUpdateWidget(covariant BottomNavigation oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.currentUser != oldWidget.currentUser ||
         widget.initialGroup != oldWidget.initialGroup) {
@@ -120,7 +119,7 @@ class _BottomNavigationThreeCalendarState
         SnackBar(
           backgroundColor: AppColors.famkaRed,
           content: Text(
-            'Bitte erst eine Gruppe erstellen oder beitreten, um den Kalender oder Termine zu verwalten.',
+            'Bitte erst eine Gruppe erstellen oder beitreten, um diese Funktion zu nutzen.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -153,7 +152,7 @@ class _BottomNavigationThreeCalendarState
             settings: const RouteSettings(name: '/menuScreen'),
             builder: (context) => MenuScreen(
               widget.db,
-              currentGroup: _currentActiveGroup!,
+              currentGroup: _currentActiveGroup,
               currentUser: widget.currentUser!,
               auth: widget.auth,
             ),
@@ -238,8 +237,8 @@ class _BottomNavigationThreeCalendarState
       );
     }
 
-    final bool enableNavigation = _currentActiveGroup != null;
-    final Color disabledColor = widget.unselectedItemColor.withOpacity(0.4);
+    final bool enableAllNavigation = _currentActiveGroup != null;
+    final Color disabledColor = AppColors.famkaGrey;
 
     return Container(
       height: 90,
@@ -251,32 +250,36 @@ class _BottomNavigationThreeCalendarState
             context,
             icon: Icons.menu,
             label: 'Menü',
-            isActive: _selectedIndex == 0,
-            onTap: () => _onItemTapped(0),
+            isActive: _selectedIndex == 0 && enableAllNavigation,
+            onTap: enableAllNavigation ? () => _onItemTapped(0) : null,
             selectedItemColor: widget.selectedItemColor,
-            unselectedItemColor: widget.unselectedItemColor,
+            unselectedItemColor: enableAllNavigation
+                ? widget.unselectedItemColor
+                : disabledColor,
             showLabel: widget.showLabel,
           ),
           _buildNavItem(
             context,
             icon: Icons.calendar_month,
             label: 'Kalender',
-            isActive: _selectedIndex == 1 && enableNavigation,
-            onTap: enableNavigation ? () => _onItemTapped(1) : null,
+            isActive: _selectedIndex == 1 && enableAllNavigation,
+            onTap: enableAllNavigation ? () => _onItemTapped(1) : null,
             selectedItemColor: widget.selectedItemColor,
-            unselectedItemColor:
-                enableNavigation ? widget.unselectedItemColor : disabledColor,
+            unselectedItemColor: enableAllNavigation
+                ? widget.unselectedItemColor
+                : disabledColor,
             showLabel: widget.showLabel,
           ),
           _buildNavItem(
             context,
             icon: Icons.add_box_outlined,
             label: 'Termin',
-            isActive: _selectedIndex == 2 && enableNavigation,
-            onTap: enableNavigation ? () => _onItemTapped(2) : null,
+            isActive: _selectedIndex == 2 && enableAllNavigation,
+            onTap: enableAllNavigation ? () => _onItemTapped(2) : null,
             selectedItemColor: widget.selectedItemColor,
-            unselectedItemColor:
-                enableNavigation ? widget.unselectedItemColor : disabledColor,
+            unselectedItemColor: enableAllNavigation
+                ? widget.unselectedItemColor
+                : disabledColor,
             showLabel: widget.showLabel,
           ),
         ],

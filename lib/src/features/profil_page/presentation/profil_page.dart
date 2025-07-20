@@ -1,4 +1,5 @@
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
+import 'package:famka_app/src/common/bottom_navigation.dart'; // NEU: Importieren Sie BottomNavigation
 import 'package:famka_app/src/common/headline_p.dart';
 import 'package:famka_app/src/common/profil_avatar_row.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
@@ -39,7 +40,6 @@ class _ProfilPageState extends State<ProfilPage> {
   final _formKey = GlobalKey<FormState>();
 
   late Future<List<Group>> _userGroupsFuture;
-
   late String _currentProfileAvatarUrl;
 
   @override
@@ -50,7 +50,7 @@ class _ProfilPageState extends State<ProfilPage> {
     _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
     _currentProfileAvatarUrl =
         widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';
-    _loadUserGroups();
+    _loadUserGroups(); // Initial lädt die Gruppen
   }
 
   void _loadUserGroups() {
@@ -194,7 +194,7 @@ class _ProfilPageState extends State<ProfilPage> {
         ),
       ),
     );
-    _loadUserGroups();
+    _loadUserGroups(); // Gruppenliste nach Rückkehr neu laden
   }
 
   void _showProfileIdDialog() {
@@ -436,6 +436,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                     return const Center(
                                         child: Text('Keine Gruppen gefunden.'));
                                   } else {
+                                    // Zeigen Sie die Gruppen-Avatare nur an, wenn Gruppen vorhanden sind
                                     return Row(
                                       children: snapshot.data!
                                           .map(
@@ -447,6 +448,8 @@ class _ProfilPageState extends State<ProfilPage> {
                                                 group: group,
                                                 currentUser: widget.currentUser,
                                                 auth: widget.auth,
+                                                onGroupModified:
+                                                    _loadUserGroups,
                                               ),
                                             ),
                                           )
@@ -495,12 +498,45 @@ class _ProfilPageState extends State<ProfilPage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationThreeCalendar(
-        widget.db,
-        auth: widget.auth,
-        currentUser: widget.currentUser,
-        initialGroup: widget.db.currentGroup,
-        initialIndex: 0,
+      // Der BottomNavigationBar hängt jetzt vom FutureBuilder ab
+      bottomNavigationBar: FutureBuilder<List<Group>>(
+        future: _userGroupsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Zeigen Sie einen Ladeindikator oder eine Standard-Navigationsleiste
+            // während die Gruppen geladen werden.
+            return Container(
+              height: 90,
+              color: AppColors.famkaYellow,
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.famkaCyan,
+                  strokeWidth: 2,
+                ),
+              ),
+            );
+          } else if (snapshot.hasError ||
+              !snapshot.hasData ||
+              snapshot.data!.isEmpty) {
+            // Wenn keine Gruppen vorhanden sind oder ein Fehler auftritt,
+            // verwenden Sie BottomNavigation (nur Menü).
+            return BottomNavigation(
+              widget.db,
+              auth: widget.auth,
+              currentUser: widget.currentUser,
+              initialGroup: null, // Keine Gruppe, da keine vorhanden
+              initialIndex: 0,
+            );
+          } else {
+            return BottomNavigationThreeCalendar(
+              widget.db,
+              auth: widget.auth,
+              currentUser: widget.currentUser,
+              initialGroup: widget.db.currentGroup ?? snapshot.data!.first,
+              initialIndex: 0,
+            );
+          }
+        },
       ),
     );
   }

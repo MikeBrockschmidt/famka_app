@@ -11,6 +11,7 @@ class ProfilAvatarRow extends StatelessWidget {
   final Group? group;
   final AppUser currentUser;
   final AuthRepository auth;
+  final VoidCallback? onGroupModified;
 
   const ProfilAvatarRow(
     this.db, {
@@ -18,6 +19,7 @@ class ProfilAvatarRow extends StatelessWidget {
     this.group,
     required this.currentUser,
     required this.auth,
+    this.onGroupModified,
   });
 
   @override
@@ -30,8 +32,8 @@ class ProfilAvatarRow extends StatelessWidget {
       children: [
         InkWell(
           borderRadius: BorderRadius.circular(40),
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            final bool? groupWasDeleted = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => GroupPage(
@@ -42,6 +44,9 @@ class ProfilAvatarRow extends StatelessWidget {
                 ),
               ),
             );
+            if (groupWasDeleted == true) {
+              onGroupModified?.call();
+            }
           },
           child: Stack(
             alignment: Alignment.center,

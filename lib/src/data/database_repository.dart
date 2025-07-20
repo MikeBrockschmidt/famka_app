@@ -2,7 +2,7 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
-import 'package:famka_app/src/features/login/domain/user_role.dart'; // Neu hinzugefügt
+import 'package:famka_app/src/features/login/domain/user_role.dart';
 
 abstract class DatabaseRepository {
   AppUser? currentUser;
@@ -32,7 +32,6 @@ abstract class DatabaseRepository {
   Future<List<Group>> getGroupsForUser(String userId);
   Future<List<Group>> getGroupsOfUser();
   Future<List<AppUser>> getGroupMembers(String groupId);
-  // ANPASSUNG: addUserToGroup akzeptiert jetzt eine UserRole
   Future<void> addUserToGroup(AppUser user, String groupId, UserRole role);
   Future<void> removeUserFromGroup(String userId, String groupId);
   Future<void> leaveGroup(String groupId, String userId);

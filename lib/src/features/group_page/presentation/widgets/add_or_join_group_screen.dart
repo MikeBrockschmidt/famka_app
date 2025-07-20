@@ -11,6 +11,7 @@ import 'dart:io';
 
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/common/image_selection_context.dart';
+import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 
 class AddOrJoinGroupScreen extends StatefulWidget {
   final DatabaseRepository db;
@@ -36,9 +37,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
       TextEditingController();
   final GlobalKey<FormState> _createGroupFormKey = GlobalKey<FormState>();
 
-  final TextEditingController _joinGroupIdController = TextEditingController();
-  final GlobalKey<FormState> _joinGroupFormKey = GlobalKey<FormState>();
-
   final Uuid _uuid = const Uuid();
 
   late String _groupAvatarUrl;
@@ -54,7 +52,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
     _newGroupNameController.dispose();
     _newGroupDescriptionController.dispose();
     _newGroupLocationController.dispose();
-    _joinGroupIdController.dispose();
     super.dispose();
   }
 
@@ -127,85 +124,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
     }
   }
 
-  Future<void> _joinGroup() async {
-    if (!(_joinGroupFormKey.currentState?.validate() ?? false)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Bitte geben Sie eine Gruppen-ID ein."),
-          backgroundColor: AppColors.famkaRed,
-        ),
-      );
-      return;
-    }
-
-    final String groupIdToJoin = _joinGroupIdController.text.trim();
-
-    try {
-      final Group? existingGroup = await widget.db.getGroupAsync(groupIdToJoin);
-
-      if (existingGroup == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Gruppe mit dieser ID nicht gefunden."),
-              backgroundColor: AppColors.famkaRed,
-            ),
-          );
-        }
-        return;
-      }
-
-      if (existingGroup.groupMembers
-          .any((member) => member.profilId == widget.currentUser.profilId)) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Sie sind bereits Mitglied dieser Gruppe."),
-              backgroundColor: AppColors.famkaCyan,
-            ),
-          );
-          widget.db.currentGroup = existingGroup;
-          Navigator.pop(context);
-        }
-        return;
-      }
-
-      await widget.db
-          .addUserToGroup(widget.currentUser, groupIdToJoin, UserRole.member);
-
-      final Map<String, UserRole> updatedUserRoles =
-          Map.from(existingGroup.userRoles);
-      updatedUserRoles[widget.currentUser.profilId] = UserRole.member;
-
-      final Group updatedGroup = existingGroup.copyWith(
-        userRoles: updatedUserRoles,
-      );
-      await widget.db.updateGroup(updatedGroup);
-
-      widget.db.currentGroup = updatedGroup;
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                "Sie sind der Gruppe '${existingGroup.groupName}' beigetreten!"),
-            backgroundColor: AppColors.famkaCyan,
-          ),
-        );
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Fehler beim Beitreten der Gruppe: $e"),
-            backgroundColor: AppColors.famkaRed,
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     ImageProvider groupImageProvider;
@@ -219,187 +137,133 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
         if (file.existsSync()) {
           groupImageProvider = FileImage(file);
         } else {
-          print(
+          debugPrint(
               'Warnung: Lokales Bild konnte nicht geladen werden: ${_groupAvatarUrl}. Verwende Default.jpg');
           groupImageProvider = const AssetImage('assets/fotos/default.jpg');
         }
       } catch (e) {
-        print('Fehler beim Laden des lokalen Bildes: $e. Verwende Default.jpg');
+        debugPrint(
+            'Fehler beim Laden des lokalen Bildes: $e. Verwende Default.jpg');
         groupImageProvider = const AssetImage('assets/fotos/default.jpg');
       }
     }
 
     const double verticalTitleDividerSpacing = 0.2;
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.famkaWhite,
-          elevation: 0,
-          titleSpacing: 0,
-          automaticallyImplyLeading: false,
-          toolbarHeight: kToolbarHeight + 50 + verticalTitleDividerSpacing,
-          title: Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(14.0),
-                          child: Icon(Icons.arrow_back,
-                              color: AppColors.famkaBlack),
-                        ),
+    return Scaffold(
+      backgroundColor: AppColors.famkaWhite,
+      appBar: AppBar(
+        backgroundColor: AppColors.famkaWhite,
+        elevation: 0,
+        titleSpacing: 0,
+        automaticallyImplyLeading: false,
+        toolbarHeight: kToolbarHeight + 50 + verticalTitleDividerSpacing,
+        title: Align(
+          alignment: Alignment.bottomLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfilPage(
+                              db: widget.db,
+                              auth: widget.auth,
+                              currentUser: widget.currentUser,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(14.0),
+                        child:
+                            Icon(Icons.arrow_back, color: AppColors.famkaBlack),
                       ),
-                      Text(
-                        'Gruppe',
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: verticalTitleDividerSpacing),
-                  const Divider(
-                    height: 0.5,
-                    thickness: 0.5,
-                    color: AppColors.famkaBlack,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(kToolbarHeight / 2),
-            child: TabBar(
-              tabs: const [
-                Tab(text: 'Gruppe erstellen'),
-                Tab(text: 'Gruppe beitreten'),
+                    ),
+                    Text(
+                      'Gruppe',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ],
+                ),
+                SizedBox(height: verticalTitleDividerSpacing),
+                const Divider(
+                  height: 0.5,
+                  thickness: 0.5,
+                  color: AppColors.famkaBlack,
+                ),
               ],
-              indicatorColor: AppColors.famkaCyan,
-              labelColor: AppColors.famkaBlack,
-              unselectedLabelColor: AppColors.famkaBlack.withOpacity(0.6),
-              labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: AppColors.famkaBlack,
-                  ),
-              unselectedLabelStyle:
-                  Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppColors.famkaBlack.withOpacity(0.6),
-                        fontWeight: FontWeight.normal,
-                      ),
             ),
           ),
         ),
-        body: TabBarView(
-          children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _createGroupFormKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: ProfilImage(
-                        widget.db,
-                        currentAvatarUrl: _groupAvatarUrl,
-                        onAvatarSelected: _handleGroupAvatarSelected,
-                        contextType: ImageSelectionContext.group,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    TextFormField(
-                      controller: _newGroupNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Gruppenname',
-                        hintText: 'Zuhause, Freunde, Arbeit...',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Gruppenname darf nicht leer sein.';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _newGroupDescriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Beschreibung (optional)',
-                        hintText: 'Eine kurze Beschreibung der Gruppe',
-                        border: OutlineInputBorder(),
-                      ),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _newGroupLocationController,
-                      decoration: const InputDecoration(
-                        labelText: 'Standort (optional)',
-                        hintText: 'Ort der Gruppe, z.B. Stadt oder Adresse',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    InkWell(
-                      onTap: _createGroup,
-                      child: const ButtonLinearGradient(
-                        buttonText: 'Gruppe erstellen',
-                      ),
-                    ),
-                  ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _createGroupFormKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 20),
+              Center(
+                child: ProfilImage(
+                  widget.db,
+                  currentAvatarUrl: _groupAvatarUrl,
+                  onAvatarSelected: _handleGroupAvatarSelected,
+                  contextType: ImageSelectionContext.group,
                 ),
               ),
-            ),
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _joinGroupFormKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextFormField(
-                      controller: _joinGroupIdController,
-                      decoration: const InputDecoration(
-                        labelText: 'Gruppen-ID / Einladungscode',
-                        hintText: 'Geben Sie den Code der Gruppe ein',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Gruppen-ID darf nicht leer sein.';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 32),
-                    InkWell(
-                      onTap: _joinGroup,
-                      child: const ButtonLinearGradient(
-                        buttonText: 'Gruppe beitreten',
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Die Gruppen-ID finden Sie in den Einstellungen der Gruppe, wenn Sie bereits Mitglied sind.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _newGroupNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Gruppenname',
+                  hintText: 'Zuhause, Freunde, Arbeit...',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Gruppenname darf nicht leer sein.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _newGroupDescriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Beschreibung (optional)',
+                  hintText: 'Eine kurze Beschreibung der Gruppe',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _newGroupLocationController,
+                decoration: const InputDecoration(
+                  labelText: 'Standort (optional)',
+                  hintText: 'Ort der Gruppe, z.B. Stadt oder Adresse',
+                  border: OutlineInputBorder(),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 32),
+              InkWell(
+                onTap: _createGroup,
+                child: const ButtonLinearGradient(
+                  buttonText: 'Gruppe erstellen',
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

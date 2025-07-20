@@ -12,6 +12,9 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:famka_app/src/common/image_selection_context.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 class ProfilImage extends StatefulWidget {
   final DatabaseRepository db;
@@ -46,9 +49,11 @@ class _ProfilImageState extends State<ProfilImage> {
       'assets/fotos/boyd.jpg',
     ],
     ImageSelectionContext.group: [
-      'assets/fotos/Familie.jpg',
-      'assets/fotos/nature.jpg',
-      'assets/fotos/cityscape.jpg',
+      'assets/grafiken/Familie.jpg',
+      'assets/grafiken/gruppe-blau.png',
+      'assets/grafiken/gruppe-pink.png',
+      'assets/grafiken/gruppe-gruen.png',
+      'assets/grafiken/gruppe-rot.png',
     ],
     ImageSelectionContext.event: [
       'assets/fotos/birthday.jpg',
@@ -204,19 +209,13 @@ class _ProfilImageState extends State<ProfilImage> {
         return;
       }
 
-      XFile? pickedFile;
+      XFile? pickedXFile;
       if (selectedSourceOrAssetPath == 'gallery') {
-        pickedFile = await picker.pickImage(
-            source: ImageSource.gallery,
-            imageQuality: 80,
-            maxWidth: 800,
-            maxHeight: 800);
+        pickedXFile = await picker.pickImage(
+            source: ImageSource.gallery, imageQuality: 90);
       } else if (selectedSourceOrAssetPath == 'camera') {
-        pickedFile = await picker.pickImage(
-            source: ImageSource.camera,
-            imageQuality: 80,
-            maxWidth: 800,
-            maxHeight: 800);
+        pickedXFile = await picker.pickImage(
+            source: ImageSource.camera, imageQuality: 90);
       } else if (selectedSourceOrAssetPath.startsWith('assets/')) {
         if (widget.onAvatarSelected != null) {
           widget.onAvatarSelected!(selectedSourceOrAssetPath);
@@ -233,27 +232,26 @@ class _ProfilImageState extends State<ProfilImage> {
         return;
       }
 
-      if (pickedFile != null) {
+      if (pickedXFile != null) {
+        File initialImageFile = File(pickedXFile.path);
+
         CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: pickedFile.path,
+          sourcePath: initialImageFile.path,
           compressFormat: ImageCompressFormat.jpg,
           compressQuality: 80,
-          maxWidth: 400,
-          maxHeight: 400,
+          maxWidth: 800,
+          maxHeight: 800,
+          aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
           uiSettings: [
             AndroidUiSettings(
               toolbarTitle: _getDialogTitle(),
               toolbarColor: Theme.of(context).primaryColor,
               toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.square,
               lockAspectRatio: true,
             ),
             IOSUiSettings(
               title: _getDialogTitle(),
               aspectRatioLockEnabled: true,
-              aspectRatioPresets: [
-                CropAspectRatioPreset.square,
-              ],
             ),
           ],
         );
@@ -267,7 +265,44 @@ class _ProfilImageState extends State<ProfilImage> {
           return;
         }
 
-        File imageFile = File(croppedFile.path);
+        XFile? compressedXFile;
+
+        if (!kIsWeb) {
+          final Directory tempDir = await getTemporaryDirectory();
+          final String targetPath = p.join(
+            tempDir.path,
+            "${DateTime.now().millisecondsSinceEpoch}_compressed.jpg",
+          );
+
+          compressedXFile = await FlutterImageCompress.compressAndGetFile(
+            croppedFile.path,
+            targetPath,
+            quality: 70,
+            minWidth: 400,
+            minHeight: 400,
+            format: CompressFormat.jpeg,
+          );
+        }
+
+        File? finalImageToUpload;
+        if (kIsWeb) {
+          finalImageToUpload = File(croppedFile.path);
+        } else if (compressedXFile != null) {
+          finalImageToUpload = File(compressedXFile.path);
+        } else {
+          finalImageToUpload = File(croppedFile.path);
+        }
+
+        if (finalImageToUpload == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content:
+                      Text('Fehler bei der Bildverarbeitung für den Upload.')),
+            );
+          }
+          return;
+        }
 
         final User? user = FirebaseAuth.instance.currentUser;
         if (user == null) {
@@ -306,10 +341,10 @@ class _ProfilImageState extends State<ProfilImage> {
 
           Reference storageRef = _storage.ref().child(storagePath);
 
-          UploadTask uploadTask = storageRef.putFile(imageFile);
+          UploadTask uploadTask = storageRef.putFile(finalImageToUpload);
 
           uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-            print(
+            debugPrint(
                 'Upload-Fortschritt: ${snapshot.bytesTransferred}/${snapshot.totalBytes}');
           });
 
@@ -411,8 +446,7 @@ class _ProfilImageState extends State<ProfilImage> {
               )
             else if (_displayImageUrl == null ||
                 _displayImageUrl!.isEmpty ||
-                _displayImageUrl!
-                    .startsWith('assets/grafiken/famka-kreis.png.jpg'))
+                _displayImageUrl!.startsWith('assets/grafiken/famka-kreis.png'))
               const Icon(
                 Icons.camera_alt,
                 size: 48,

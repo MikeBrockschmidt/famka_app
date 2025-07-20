@@ -54,17 +54,15 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
         profilId: profilId,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        email: '', // Passive Mitglieder haben keine E-Mail
-        phoneNumber: '', // Passive Mitglieder haben keine Telefonnummer
+        email: '',
+        phoneNumber: '',
         avatarUrl: _avatarUrl,
-        password: '', // Passive Mitglieder haben kein Passwort
+        password: '',
         miscellaneous: null,
       );
 
-      // Erstelle den Benutzer in der Datenbank
       await widget.db.createUser(newPassiveMember);
 
-      // Füge den Benutzer der Gruppe als passives Mitglied hinzu
       await widget.db.addUserToGroup(
           newPassiveMember, widget.group.groupId, UserRole.passiveMember);
 
@@ -78,8 +76,7 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
             ),
           ),
         );
-        widget
-            .onMemberAdded(); // Callback, um die Gruppe in GroupPage zu aktualisieren
+        widget.onMemberAdded();
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -158,8 +155,7 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
                     _avatarUrl = url;
                   });
                 },
-                contextType: ImageSelectionContext
-                    .passiveMember, // Spezieller Kontext für passive Mitglieder
+                contextType: ImageSelectionContext.passiveMember,
               ),
               const SizedBox(height: 32),
               TextFormField(

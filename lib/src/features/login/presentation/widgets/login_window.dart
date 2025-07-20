@@ -8,7 +8,6 @@ import 'package:famka_app/src/features/onboarding/presentation/onboarding1.dart'
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart';
 
 class LoginWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -63,39 +62,31 @@ class _LoginWindowState extends State<LoginWindow> {
       }
 
       widget.db.currentUser = currentUser;
-
-      List<Group> userGroups = [];
       try {
-        userGroups = await widget.db.getGroupsForUser(firebaseUser.uid);
+        List<Group> userGroups =
+            await widget.db.getGroupsForUser(firebaseUser.uid);
+        if (userGroups.isNotEmpty) {
+          widget.db.currentGroup = userGroups.first;
+        } else {
+          widget.db.currentGroup = null;
+        }
       } catch (e) {
-        print('Fehler beim Laden der Gruppen für den Benutzer: $e');
+        debugPrint(
+            'Fehler beim Laden der Gruppen für den Benutzer (nicht kritisch für Login-Flow): $e');
+        widget.db.currentGroup = null;
       }
 
       if (mounted) {
-        if (userGroups.isEmpty) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddOrJoinGroupScreen(
-                db: widget.db,
-                auth: widget.auth,
-                currentUser: currentUser,
-              ),
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfilPage(
+              db: widget.db,
+              currentUser: currentUser,
+              auth: widget.auth,
             ),
-          );
-        } else {
-          widget.db.currentGroup = userGroups.first;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProfilPage(
-                db: widget.db,
-                currentUser: currentUser,
-                auth: widget.auth,
-              ),
-            ),
-          );
-        }
+          ),
+        );
       }
     } on FirebaseAuthException catch (e) {
       String message;
@@ -129,10 +120,6 @@ class _LoginWindowState extends State<LoginWindow> {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.titleSmall;
-    final linkStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
-        );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),

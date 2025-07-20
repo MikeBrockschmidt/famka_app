@@ -173,11 +173,6 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                         onAvatarSelected: _handleAvatarSelected,
                         contextType: ImageSelectionContext.profile,
                       ),
-                      // const Icon(
-                      //   Icons.camera_alt,
-                      //   size: 30,
-                      //   color: Colors.white,
-                      // ),
                     ],
                   ),
                 ),

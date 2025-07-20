@@ -6,7 +6,7 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:uuid/uuid.dart';
-import 'package:famka_app/src/features/login/domain/user_role.dart'; // Neu hinzugefügt
+import 'package:famka_app/src/features/login/domain/user_role.dart';
 
 class FirestoreDatabaseRepository implements DatabaseRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -104,11 +104,6 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
   @override
   Future<void> loginAs(String userId, String password, AppUser appUser) async {
-    // Diese Methode hängt stark von Ihrer Authentifizierungslogik ab.
-    // Falls Sie Firebase Authentication nutzen, müsste hier ein signIn erfolgen.
-    // Beispiel:
-    // await auth.signInWithEmailAndPassword(appUser.email!, password);
-    // Danach den currentUser setzen
     currentUser = appUser;
     print('✅ Erfolgreich als Benutzer ${appUser.firstName} eingeloggt.');
   }
@@ -247,12 +242,10 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
     }
   }
 
-  // ANPASSUNG: addUserToGroup Implementierung
   @override
   Future<void> addUserToGroup(
       AppUser user, String groupId, UserRole role) async {
     try {
-      // Zuerst die aktuelle Gruppe abrufen
       final groupRef = _firestore.collection('groups').doc(groupId);
       final groupDoc = await groupRef.get();
 
@@ -263,12 +256,10 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
         Map<String, dynamic> currentUserRoles =
             Map<String, dynamic>.from(groupData['userRoles'] ?? {});
 
-        // Füge den Benutzer nur hinzu, wenn er noch nicht Mitglied ist
         if (!currentMemberIds.contains(user.profilId)) {
           currentMemberIds.add(user.profilId);
         }
 
-        // Setze oder aktualisiere die Rolle des Benutzers
         currentUserRoles[user.profilId] = role.toJson();
 
         await groupRef.update({
@@ -276,8 +267,6 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           'userRoles': currentUserRoles,
         });
 
-        // Optional: Benutzer in Firestore erstellen, falls noch nicht vorhanden
-        // Dies ist wichtig, wenn passive Benutzer hier erst angelegt werden
         final existingUser = await getUserAsync(user.profilId);
         if (existingUser == null) {
           await createUser(user);
@@ -328,7 +317,6 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
   @override
   Future<void> leaveGroup(String groupId, String userId) async {
-    // Diese Methode ruft intern removeUserFromGroup auf.
     await removeUserFromGroup(userId, groupId);
     print('✅ Benutzer $userId hat Gruppe $groupId verlassen.');
   }
@@ -462,12 +450,6 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
   @override
   Future<void> removeEventFromGroup(String groupId, String eventId) {
-    // Diese Methode scheint eine Duplizierung von deleteEvent zu sein,
-    // es sei denn, es gibt eine spezifische Logik zum Entfernen, ohne zu löschen.
-    // In Firestore würde das Event gelöscht, da es direkt unter 'events' liegt.
-    // Wenn Events nur aus einer Gruppe "entfernt" und nicht gelöscht werden sollen,
-    // müsste die Event-Struktur angepasst werden (z.B. Events pro Gruppe).
-    // Für jetzt rufe ich deleteSingleEvent auf.
     return deleteSingleEvent(eventId);
   }
 }
