@@ -43,7 +43,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
   void initState() {
     super.initState();
     _phoneNumberController.text = widget.user.phoneNumber ?? '';
-    _emailController.text = widget.user.email;
+    _emailController.text = widget.user.email ?? '';
     _miscellaneousController.text = widget.user.miscellaneous ?? '';
   }
 

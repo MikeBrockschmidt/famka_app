@@ -5,6 +5,7 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/common/image_utils.dart';
+import 'package:famka_app/src/features/login/domain/user_role.dart'; // Importieren der UserRole
 
 class ManageGroupMembersPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -43,20 +44,13 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
 
       setState(() {
         _allAvailableUsers = allUsersInDatabase
-            .where((user) => !_currentGroupMembersEditable
+            .where((user) => !widget.group.groupMembers
                 .any((member) => member.profilId == user.profilId))
             .toList();
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Fehler beim Laden der Benutzer: $e');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: AppColors.famkaCyan,
-          content: Text('Fehler beim Laden der Benutzer: $e'),
-        ),
-      );
+      print('Fehler beim Laden der Benutzer: $e');
       setState(() {
         _isLoading = false;
       });
@@ -65,10 +59,8 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
 
   void _toggleNewUserSelection(AppUser user) {
     setState(() {
-      if (_selectedNewUsers
-          .any((selected) => selected.profilId == user.profilId)) {
-        _selectedNewUsers
-            .removeWhere((selected) => selected.profilId == user.profilId);
+      if (_selectedNewUsers.contains(user)) {
+        _selectedNewUsers.remove(user);
       } else {
         _selectedNewUsers.add(user);
       }
@@ -78,283 +70,323 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
 
   void _removeMember(AppUser member) {
     setState(() {
-      _currentGroupMembersEditable
-          .removeWhere((m) => m.profilId == member.profilId);
-      if (!_allAvailableUsers.any((user) => user.profilId == member.profilId) &&
-          !_selectedNewUsers.any((user) => user.profilId == member.profilId)) {
-        _allAvailableUsers.add(member);
-      }
+      _currentGroupMembersEditable.remove(member);
       _hasChanges = true;
     });
   }
 
   Future<void> _saveChanges() async {
-    if (!mounted) return;
+    if (!_hasChanges || _isLoading) return;
+
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final List<AppUser> updatedMemberList =
+      // Entferne Mitglieder
+      final membersToRemove = widget.group.groupMembers.where(
+          (originalMember) => !_currentGroupMembersEditable.any(
+              (editedMember) =>
+                  editedMember.profilId == originalMember.profilId));
+      for (var member in membersToRemove) {
+        await widget.db
+            .removeUserFromGroup(member.profilId, widget.group.groupId);
+      }
+
+      // Füge neue Mitglieder hinzu
+      for (var user in _selectedNewUsers) {
+        // Bestimmen der Rolle für den neuen Benutzer
+        UserRole assignedRole;
+        if ((user.email == null || user.email!.isEmpty) &&
+            (user.phoneNumber == null || user.phoneNumber!.isEmpty)) {
+          assignedRole = UserRole.passiveMember;
+        } else {
+          assignedRole = UserRole.member;
+        }
+        await widget.db.addUserToGroup(
+            user, widget.group.groupId, assignedRole); // Rolle übergeben
+      }
+
+      // Aktualisiere die Gruppenmitglieder in der lokalen Gruppe
+      final updatedGroupMembers =
           List<AppUser>.from(_currentGroupMembersEditable)
             ..addAll(_selectedNewUsers);
 
-      final updatedGroup = widget.group.copyWith(
-        groupMembers: updatedMemberList,
-      );
+      // Erstelle eine neue userRoles Map für das updateGroup auf Basis der aktuellen Rollen
+      final Map<String, UserRole> updatedUserRoles =
+          Map.from(widget.group.userRoles);
 
+      // Aktualisiere oder füge Rollen für die neuen Mitglieder hinzu
+      for (var user in _selectedNewUsers) {
+        final UserRole assignedRole;
+        if ((user.email == null || user.email!.isEmpty) &&
+            (user.phoneNumber == null || user.phoneNumber!.isEmpty)) {
+          assignedRole = UserRole.passiveMember;
+        } else {
+          assignedRole = UserRole.member;
+        }
+        updatedUserRoles[user.profilId] = assignedRole;
+      }
+
+      // Entferne Rollen von entfernten Mitgliedern
+      for (var member in membersToRemove) {
+        updatedUserRoles.remove(member.profilId);
+      }
+
+      final updatedGroup = widget.group.copyWith(
+        groupMembers: updatedGroupMembers,
+        userRoles: updatedUserRoles, // Aktualisierte Rollen übergeben
+      );
       await widget.db.updateGroup(updatedGroup);
 
       if (!mounted) return;
-      setState(() {
-        _hasChanges = false;
-        _isLoading = false;
-      });
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: AppColors.famkaCyan,
-          content: Text(
-            'Änderungen gespeichert!',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+        const SnackBar(
+          content: Text('Gruppenmitglieder erfolgreich aktualisiert!'),
+          backgroundColor: AppColors.famkaGreen,
         ),
       );
-
-      Navigator.pop(context, updatedGroup);
+      Navigator.of(context).pop(); // Zurück zur Gruppen-Detailseite
     } catch (e) {
-      debugPrint('Fehler beim Speichern der Mitglieder: $e');
+      print('Fehler beim Speichern der Änderungen: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: AppColors.famkaCyan,
           content: Text('Fehler beim Speichern: $e'),
+          backgroundColor: AppColors.famkaRed,
         ),
       );
+    } finally {
       setState(() {
         _isLoading = false;
+        _hasChanges = false;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (bool didPop, dynamic result) async {
-        if (!didPop && _hasChanges) {
-          final bool? shouldSave = await showDialog<bool>(
-            context: context,
-            builder: (dialogContext) => AlertDialog(
-              title: const Text('Ungespeicherte Änderungen'),
-              content: const Text(
-                  'Möchten Sie die Änderungen speichern, bevor Sie zurückgehen?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: const Text('Verwerfen'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: const Text('Speichern'),
-                ),
-              ],
-            ),
-          );
-
-          if (!mounted) return;
-
-          if (shouldSave == true) {
-            await _saveChanges();
-          } else {
-            if (mounted) {
-              Navigator.pop(context, null);
-            }
-          }
-        }
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.famkaWhite,
-        appBar: AppBar(
-          title: Text(
-            'Mitglieder verwalten',
-            style: Theme.of(context).textTheme.labelMedium,
-          ),
-          backgroundColor: AppColors.famkaYellow,
-          foregroundColor: AppColors.famkaBlack,
-          elevation: 0.5,
-        ),
-        body: Column(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gruppenmitglieder verwalten'),
+        backgroundColor:
+            AppColors.famkaBlue, // KORRIGIERT: famkaDarkBlue wurde zu famkaBlue
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Aktuelle Mitglieder',
-                    style: Theme.of(context).textTheme.titleMedium),
+            if (_isLoading)
+              const LinearProgressIndicator(
+                color: AppColors.famkaBlue,
+              )
+            else ...[
+              // KORRIGIERT: Bedingte Struktur für _isLoading optimiert
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Aktuelle Mitglieder:',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppColors.famkaBlack,
+                      ),
+                ),
               ),
-            ),
-            Expanded(
-              flex: 3,
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _currentGroupMembersEditable.isEmpty
-                      ? const Center(
-                          child:
-                              Text('Diese Gruppe hat noch keine Mitglieder.'))
-                      : ReorderableListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          itemCount: _currentGroupMembersEditable.length,
-                          onReorder: (int oldIndex, int newIndex) {
-                            setState(() {
-                              if (newIndex > oldIndex) {
-                                newIndex -= 1;
-                              }
-                              final AppUser item = _currentGroupMembersEditable
-                                  .removeAt(oldIndex);
-                              _currentGroupMembersEditable.insert(
-                                  newIndex, item);
-                              _hasChanges = true;
-                            });
-                          },
-                          itemBuilder: (BuildContext context, int index) {
-                            final member = _currentGroupMembersEditable[index];
-                            return Card(
-                              key: ValueKey(member.profilId),
-                              margin: const EdgeInsets.symmetric(vertical: 4.0),
-                              color: AppColors.famkaWhite,
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage:
-                                      getDynamicImageProvider(member.avatarUrl),
-                                  backgroundColor: AppColors.famkaGrey,
-                                  radius: 24,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.famkaCyan,
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                title: Text(
-                                  '${member.firstName ?? ''} ${member.lastName ?? ''}',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                subtitle: Text(
-                                  member.email.isNotEmpty
-                                      ? member.email
-                                      : 'Keine E-Mail',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.drag_handle,
-                                      color: AppColors.famkaGrey,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    IconButton(
-                                      icon: Icon(Icons.remove_circle_outline,
-                                          color: AppColors.famkaRed),
-                                      onPressed: () => _removeMember(member),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+              ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _currentGroupMembersEditable.length,
+                onReorder: (int oldIndex, int newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) {
+                      newIndex -= 1;
+                    }
+                    final AppUser member =
+                        _currentGroupMembersEditable.removeAt(oldIndex);
+                    _currentGroupMembersEditable.insert(newIndex, member);
+                    _hasChanges = true;
+                  });
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  final member = _currentGroupMembersEditable[index];
+
+                  // Ermitteln der Rolle
+                  final UserRole? memberRole =
+                      widget.group.userRoles[member.profilId];
+                  String roleText = '';
+                  if (memberRole != null) {
+                    switch (memberRole) {
+                      case UserRole.admin:
+                        roleText = '(Admin)';
+                        break;
+                      case UserRole.member:
+                        roleText = '(Mitglied)';
+                        break;
+                      case UserRole.passiveMember:
+                        roleText = '(Passiv)';
+                        break;
+                    }
+                  }
+
+                  // Prüfen, ob wirklich passiv (ohne E-Mail UND ohne Telefonnummer)
+                  final bool isTrulyPassive =
+                      (member.email == null || member.email!.isEmpty) &&
+                          (member.phoneNumber == null ||
+                              member.phoneNumber!.isEmpty);
+
+                  return Card(
+                    key: ValueKey(member.profilId),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 4.0, horizontal: 16.0),
+                    color: AppColors.famkaWhite,
+                    child: ListTile(
+                      leading: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: ClipOval(
+                          child: Image(
+                            image: getDynamicImageProvider(member.avatarUrl) ??
+                                const AssetImage(
+                                    'assets/grafiken/famka-kreis.png'), // KORRIGIERT: Null-Safety für ImageProvider
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.person,
+                                    size: 40, color: AppColors.famkaGrey),
+                          ),
                         ),
-            ),
-            const Divider(height: 30, thickness: 1),
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Weitere Mitglieder hinzufügen',
-                    style: Theme.of(context).textTheme.titleMedium),
+                      ),
+                      title: Text(
+                        '${member.firstName ?? ''} ${member.lastName ?? ''} $roleText',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      subtitle: Text(
+                        isTrulyPassive
+                            ? 'Keine E-Mail / Telefonnummer'
+                            : (member.email?.isNotEmpty ?? false
+                                ? member.email!
+                                : (member.phoneNumber?.isNotEmpty ?? false
+                                    ? member.phoneNumber!
+                                    : 'Keine E-Mail / Telefonnummer')),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.drag_handle,
+                            color: AppColors.famkaGrey,
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(Icons.remove_circle_outline,
+                                color: AppColors.famkaRed),
+                            onPressed: () => _removeMember(member),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _allAvailableUsers.isEmpty
-                      ? const Center(
-                          child: Text(
-                              'Keine weiteren Benutzer zum Hinzufügen gefunden.'))
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          itemCount: _allAvailableUsers.length,
-                          itemBuilder: (context, index) {
-                            final user = _allAvailableUsers[index];
-                            final isSelected = _selectedNewUsers.any(
-                                (selected) =>
-                                    selected.profilId == user.profilId);
-                            return ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage:
-                                    getDynamicImageProvider(user.avatarUrl),
-                                backgroundColor: AppColors.famkaGrey,
-                                radius: 24,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppColors.famkaCyan,
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Neue Benutzer hinzufügen:',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppColors.famkaBlack,
+                      ),
+                ),
+              ),
+              // Dies ist eine separate Bedingung, die sich auf _isLoading bezieht.
+              // Dieser Teil wird nur angezeigt, wenn _isLoading false ist.
+              _allAvailableUsers.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Keine weiteren Benutzer zum Hinzufügen verfügbar.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.famkaGrey,
+                            ),
+                      ),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _allAvailableUsers.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final user = _allAvailableUsers[index];
+                        final bool isSelected =
+                            _selectedNewUsers.contains(user);
+
+                        // Prüfen, ob wirklich passiv
+                        final bool isTrulyPassive =
+                            (user.email == null || user.email!.isEmpty) &&
+                                (user.phoneNumber == null ||
+                                    user.phoneNumber!.isEmpty);
+
+                        return ListTile(
+                          leading: SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: ClipOval(
+                              child: Image(
+                                image: getDynamicImageProvider(
+                                        user.avatarUrl) ??
+                                    const AssetImage(
+                                        'assets/grafiken/famka-kreis.png'), // KORRIGIERT: Null-Safety für ImageProvider
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.person,
+                                        size: 40, color: AppColors.famkaGrey),
                               ),
-                              title: Text(
-                                '${user.firstName ?? ''} ${user.lastName ?? ''}',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              subtitle: Text(
-                                user.email.isNotEmpty
-                                    ? user.email
-                                    : 'Keine E-Mail',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              trailing: Checkbox(
-                                value: isSelected,
-                                onChanged: (bool? value) {
-                                  _toggleNewUserSelection(user);
-                                },
-                                activeColor: AppColors.famkaBlue,
-                              ),
-                              onTap: () {
-                                _toggleNewUserSelection(user);
-                              },
-                            );
+                            ),
+                          ),
+                          title: Text(
+                            '${user.firstName ?? ''} ${user.lastName ?? ''}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          subtitle: Text(
+                            isTrulyPassive
+                                ? 'Keine E-Mail / Telefonnummer'
+                                : (user.email?.isNotEmpty ?? false
+                                    ? user.email!
+                                    : (user.phoneNumber?.isNotEmpty ?? false
+                                        ? user.phoneNumber!
+                                        : 'Keine E-Mail / Telefonnummer')),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          trailing: Checkbox(
+                            value: isSelected,
+                            onChanged: (bool? value) {
+                              _toggleNewUserSelection(user);
+                            },
+                            activeColor: AppColors.famkaBlue,
+                          ),
+                          onTap: () {
+                            _toggleNewUserSelection(user);
                           },
+                        );
+                      },
+                    ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 40.0, top: 20.0),
+                child: Center(
+                  child: Opacity(
+                    opacity: _hasChanges && !_isLoading ? 1.0 : 0.5,
+                    child: InkWell(
+                      onTap: _hasChanges && !_isLoading ? _saveChanges : null,
+                      child: SizedBox(
+                        width: 200,
+                        height: 50,
+                        child: ButtonLinearGradient(
+                          buttonText: _isLoading ? 'Speichern...' : 'Speichern',
                         ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40.0, top: 20.0),
-              child: Center(
-                child: Opacity(
-                  opacity: _hasChanges && !_isLoading ? 1.0 : 0.5,
-                  child: InkWell(
-                    onTap: _hasChanges && !_isLoading ? _saveChanges : null,
-                    child: SizedBox(
-                      width: 200,
-                      height: 50,
-                      child: ButtonLinearGradient(
-                        buttonText: _isLoading ? 'Speichern...' : 'Speichern',
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

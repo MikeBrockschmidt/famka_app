@@ -46,7 +46,7 @@ class _ProfilPageState extends State<ProfilPage> {
   void initState() {
     super.initState();
     _phoneNumberController.text = widget.currentUser.phoneNumber ?? '';
-    _emailController.text = widget.currentUser.email;
+    _emailController.text = widget.currentUser.email ?? '';
     _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
     _currentProfileAvatarUrl =
         widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';

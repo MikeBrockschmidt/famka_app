@@ -6,6 +6,7 @@ import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:uuid/uuid.dart';
 
 class CreateGroupDialog extends StatefulWidget {
   final DatabaseRepository db;
@@ -38,82 +39,85 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
     super.dispose();
   }
 
-  void _handleCreate() async {
-    final name = _nameController.text.trim();
-    final location = _locationController.text.trim();
-    final description = _descriptionController.text.trim();
+  InputDecoration _inputDecoration(String label, TextTheme theme) {
+    return InputDecoration(
+      labelText: label,
+      hintText: label,
+      border: const OutlineInputBorder(),
+      labelStyle: theme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+    );
+  }
 
-    if (name.isEmpty) {
+  Future<void> _handleCreate() async {
+    if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Gruppenname darf nicht leer sein.'),
           backgroundColor: AppColors.famkaRed,
+          content: Text(
+            'Bitte geben Sie einen Gruppennamen ein.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ),
       );
       return;
     }
 
+    final newGroupId = const Uuid().v4();
     final newGroup = Group(
-      groupId: widget.db.generateNewGroupId(),
-      groupName: name,
-      groupLocation: location,
-      groupDescription: description,
+      groupId: newGroupId,
+      groupName: _nameController.text.trim(),
+      groupLocation: _locationController.text.trim(),
+      groupDescription: _descriptionController.text.trim(),
       groupAvatarUrl: _avatarUrl,
       creatorId: widget.currentUser.profilId,
       groupMembers: [widget.currentUser],
-      userRoles: {widget.currentUser.profilId: UserRole.admin},
+      userRoles: {
+        widget.currentUser.profilId: UserRole.admin
+      }, // Creator is admin
     );
 
     try {
       await widget.db.addGroup(newGroup);
-
-      if (!mounted) return;
+      // ANPASSUNG: addUserToGroup mit UserRole.admin für den Ersteller aufrufen
+      await widget.db
+          .addUserToGroup(widget.currentUser, newGroup.groupId, UserRole.admin);
 
       widget.onGroupCreated(newGroup);
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.famkaGreen,
+            content: Text(
+              'Gruppe "${newGroup.groupName}" erfolgreich erstellt!',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        );
+      }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Fehler beim Erstellen der Gruppe: $e'),
-          backgroundColor: AppColors.famkaRed,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.famkaRed,
+            content: Text(
+              'Fehler beim Erstellen der Gruppe: $e',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        );
+      }
     }
-  }
-
-  InputDecoration _inputDecoration(String label, TextTheme theme) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: theme.bodySmall,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.famkaGrey, width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.famkaGrey, width: 1),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
-
     return AlertDialog(
       backgroundColor: AppColors.famkaWhite,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      titlePadding: EdgeInsets.zero,
-      title: Container(
-        decoration: BoxDecoration(
-          color: AppColors.famkaYellow,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      surfaceTintColor: Colors.transparent,
+      title: Padding(
+        padding: const EdgeInsets.only(top: 10.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

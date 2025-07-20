@@ -170,7 +170,8 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
         return;
       }
 
-      await widget.db.addUserToGroup(widget.currentUser, groupIdToJoin);
+      await widget.db
+          .addUserToGroup(widget.currentUser, groupIdToJoin, UserRole.member);
 
       final Map<String, UserRole> updatedUserRoles =
           Map.from(existingGroup.userRoles);

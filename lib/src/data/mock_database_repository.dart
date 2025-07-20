@@ -240,11 +240,14 @@ class MockDatabaseRepository implements DatabaseRepository {
   }
 
   @override
-  Future<void> addUserToGroup(AppUser user, String groupId) async {
+  Future<void> addUserToGroup(
+      AppUser user, String groupId, UserRole role) async {
+    // KORRIGIERT: UserRole hinzugefügt
     for (Group group in _groups) {
       if (group.groupId == groupId) {
         if (!group.groupMembers.any((m) => m.profilId == user.profilId)) {
           group.groupMembers.add(user);
+          group.userRoles[user.profilId] = role; // KORRIGIERT: Rolle speichern
         }
         break;
       }
@@ -442,7 +445,19 @@ class MockDatabaseRepository implements DatabaseRepository {
   }
 
   @override
-  Future<void> deleteSingleEvent(String eventId) {
-    throw UnimplementedError();
+  Future<void> deleteSingleEvent(String eventId) async {
+    _events.removeWhere((event) => event.singleEventId == eventId);
+    await Future.delayed(const Duration(milliseconds: 1));
+  }
+
+  @override
+  Future<void> removeEventFromGroup(String groupId, String eventId) async {
+    // HINZUGEFÜGT
+    final group = _groups.firstWhereOrNull((g) => g.groupId == groupId);
+    if (group != null) {
+      _events.removeWhere((event) =>
+          event.singleEventId == eventId && event.groupId == groupId);
+    }
+    await Future.delayed(const Duration(milliseconds: 1));
   }
 }

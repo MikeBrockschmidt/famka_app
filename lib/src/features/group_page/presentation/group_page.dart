@@ -16,6 +16,8 @@ import 'package:famka_app/src/features/group_page/presentation/widgets/group_id_
 import 'package:famka_app/src/features/group_page/presentation/widgets/invite_user_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/confirm_delete_group_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_list.dart';
+// NEUER IMPORT FÜR PASSIVES MITGLIED
+import 'package:famka_app/src/features/group_page/presentation/widgets/add_passive_member_dialog.dart';
 
 class GroupPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -208,7 +210,10 @@ class _GroupPageState extends State<GroupPage> {
   Future<void> _manageGroupMembers() async {
     if (_currentGroup == null) return;
 
-    final Group? updatedGroup = await Navigator.push<Group>(
+    // Wir navigieren zu einer Seite, die Änderungen an der Gruppe vornehmen kann.
+    // Wir müssen den Rückgabewert nicht direkt verwenden, da wir die Daten
+    // nach der Rückkehr neu laden werden.
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (context) => ManageGroupMembersPage(
@@ -218,27 +223,19 @@ class _GroupPageState extends State<GroupPage> {
       ),
     );
 
-    if (updatedGroup != null) {
-      setState(() {
-        _currentGroup = updatedGroup;
-        _groupNameController.text = _currentGroup!.groupName;
-        _locationController.text = _currentGroup!.groupLocation ?? '';
-        _descriptionController.text = _currentGroup!.groupDescription ?? '';
-        _initialGroupAvatarUrl = _currentGroup!.groupAvatarUrl;
-        _checkIfHasChanges();
-      });
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.famkaCyan,
-            content: Text(
-              'Mitgliederverwaltung abgebrochen oder Änderungen verworfen.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+    // Nach der Rückkehr von ManageGroupMembersPage die Gruppendaten neu laden.
+    // Dies stellt sicher, dass die GroupPage die aktuellsten Mitglieder hat.
+    if (mounted) {
+      await _loadGroupAndUserData();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.famkaCyan,
+          content: Text(
+            'Mitgliederverwaltung abgeschlossen.', // Angepasste Nachricht
+            style: Theme.of(context).textTheme.bodySmall,
           ),
-        );
-      }
+        ),
+      );
     }
   }
 
@@ -288,6 +285,23 @@ class _GroupPageState extends State<GroupPage> {
     );
   }
 
+  // NEUE METHODE FÜR PASSIVE MITGLIEDER
+  void _showAddPassiveMemberDialog() {
+    if (_currentGroup == null) return;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AddPassiveMemberDialog(
+          db: widget.db,
+          group: _currentGroup!,
+          onMemberAdded: () {
+            _loadGroupAndUserData(); // Gruppe neu laden, um das neue passive Mitglied anzuzeigen
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _inviteUserToGroup(String inviteeProfileId) async {
     if (_currentGroup == null) return;
 
@@ -316,7 +330,8 @@ class _GroupPageState extends State<GroupPage> {
         debugPrint('Invited user First Name: ${inviteeUser.firstName}');
         debugPrint('Invited user Last Name: ${inviteeUser.lastName}');
 
-        await widget.db.addUserToGroup(inviteeUser, _currentGroup!.groupId);
+        await widget.db.addUserToGroup(
+            inviteeUser, _currentGroup!.groupId, UserRole.member);
 
         await _loadGroupAndUserData();
 
@@ -591,12 +606,25 @@ class _GroupPageState extends State<GroupPage> {
                                     if (isUserAdmin) const SizedBox(width: 12),
                                     if (isUserAdmin)
                                       InkWell(
+                                        onTap: _showAddPassiveMemberDialog,
+                                        child: const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: Icon(
+                                            Icons.person_add_alt_1,
+                                            color: AppColors.famkaBlack,
+                                          ),
+                                        ),
+                                      ),
+                                    if (isUserAdmin) const SizedBox(width: 12),
+                                    if (isUserAdmin)
+                                      InkWell(
                                         onTap: _showInviteDialog,
                                         child: const SizedBox(
                                           width: 24,
                                           height: 24,
                                           child: Icon(
-                                            Icons.person_add,
+                                            Icons.event_available,
                                             color: AppColors.famkaBlack,
                                           ),
                                         ),

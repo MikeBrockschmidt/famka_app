@@ -3,4 +3,5 @@ enum ImageSelectionContext {
   group,
   event,
   other,
+  passiveMember,
 }
