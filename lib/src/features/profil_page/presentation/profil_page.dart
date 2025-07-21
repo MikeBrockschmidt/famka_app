@@ -1,5 +1,5 @@
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
-import 'package:famka_app/src/common/bottom_navigation.dart'; // NEU: Importieren Sie BottomNavigation
+import 'package:famka_app/src/common/bottom_navigation.dart';
 import 'package:famka_app/src/common/headline_p.dart';
 import 'package:famka_app/src/common/profil_avatar_row.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
@@ -50,7 +50,7 @@ class _ProfilPageState extends State<ProfilPage> {
     _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
     _currentProfileAvatarUrl =
         widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';
-    _loadUserGroups(); // Initial lädt die Gruppen
+    _loadUserGroups();
   }
 
   void _loadUserGroups() {
@@ -194,7 +194,7 @@ class _ProfilPageState extends State<ProfilPage> {
         ),
       ),
     );
-    _loadUserGroups(); // Gruppenliste nach Rückkehr neu laden
+    _loadUserGroups();
   }
 
   void _showProfileIdDialog() {
@@ -436,7 +436,6 @@ class _ProfilPageState extends State<ProfilPage> {
                                     return const Center(
                                         child: Text('Keine Gruppen gefunden.'));
                                   } else {
-                                    // Zeigen Sie die Gruppen-Avatare nur an, wenn Gruppen vorhanden sind
                                     return Row(
                                       children: snapshot.data!
                                           .map(
@@ -498,13 +497,10 @@ class _ProfilPageState extends State<ProfilPage> {
           ],
         ),
       ),
-      // Der BottomNavigationBar hängt jetzt vom FutureBuilder ab
       bottomNavigationBar: FutureBuilder<List<Group>>(
         future: _userGroupsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // Zeigen Sie einen Ladeindikator oder eine Standard-Navigationsleiste
-            // während die Gruppen geladen werden.
             return Container(
               height: 90,
               color: AppColors.famkaYellow,
@@ -518,13 +514,11 @@ class _ProfilPageState extends State<ProfilPage> {
           } else if (snapshot.hasError ||
               !snapshot.hasData ||
               snapshot.data!.isEmpty) {
-            // Wenn keine Gruppen vorhanden sind oder ein Fehler auftritt,
-            // verwenden Sie BottomNavigation (nur Menü).
             return BottomNavigation(
               widget.db,
               auth: widget.auth,
               currentUser: widget.currentUser,
-              initialGroup: null, // Keine Gruppe, da keine vorhanden
+              initialGroup: null,
               initialIndex: 0,
             );
           } else {

@@ -1,22 +1,18 @@
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/font_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 
 class MainApp extends StatefulWidget {
-  // Attribute
   final DatabaseRepository db;
   final AuthRepository auth;
 
-  // Konstruktor
   const MainApp(this.db, this.auth, {super.key});
 
   @override
@@ -24,36 +20,31 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  bool? onboardingComplete;
   AppUser? _currentUserData;
+  bool _isLoadingUserData = true;
 
   @override
   void initState() {
     super.initState();
-    _loadOnboardingStatus();
     widget.auth.authStateChanges().listen((firebaseUser) async {
+      setState(() {
+        _isLoadingUserData = true;
+      });
       if (firebaseUser != null) {
         final userFromFirestore =
             await widget.db.getUserAsync(firebaseUser.uid);
         setState(() {
           _currentUserData = userFromFirestore;
           widget.db.currentUser = _currentUserData;
+          _isLoadingUserData = false;
         });
       } else {
         setState(() {
           _currentUserData = null;
           widget.db.currentUser = null;
+          _isLoadingUserData = false;
         });
       }
-    });
-  }
-
-  Future<void> _loadOnboardingStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final status = prefs.getBool('onboardingComplete') ?? false;
-
-    setState(() {
-      onboardingComplete = status;
     });
   }
 
@@ -62,8 +53,8 @@ class _MainAppState extends State<MainApp> {
     return StreamBuilder<User?>(
       stream: widget.auth.authStateChanges(),
       builder: (context, snapshot) {
-        if (onboardingComplete == null ||
-            snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            _isLoadingUserData) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: const Scaffold(
@@ -109,16 +100,11 @@ class _MainAppState extends State<MainApp> {
       if (_currentUserData == null) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
-
-      if (onboardingComplete == true) {
-        return ProfilPage(
-          db: widget.db,
-          currentUser: _currentUserData!,
-          auth: widget.auth,
-        );
-      } else {
-        return Onboarding1Screen(widget.db, widget.auth);
-      }
+      return ProfilPage(
+        db: widget.db,
+        currentUser: _currentUserData!,
+        auth: widget.auth,
+      );
     }
   }
 }

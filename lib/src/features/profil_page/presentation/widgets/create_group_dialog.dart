@@ -71,14 +71,11 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
       groupAvatarUrl: _avatarUrl,
       creatorId: widget.currentUser.profilId,
       groupMembers: [widget.currentUser],
-      userRoles: {
-        widget.currentUser.profilId: UserRole.admin
-      }, // Creator is admin
+      userRoles: {widget.currentUser.profilId: UserRole.admin},
     );
 
     try {
       await widget.db.addGroup(newGroup);
-      // ANPASSUNG: addUserToGroup mit UserRole.admin für den Ersteller aufrufen
       await widget.db
           .addUserToGroup(widget.currentUser, newGroup.groupId, UserRole.admin);
 

@@ -2,25 +2,24 @@ class AppUser {
   final String profilId;
   final String firstName;
   final String lastName;
-  final String? email; // Kann für passive Mitglieder null sein
+  final String? email;
   final String? avatarUrl;
 
-  final String? phoneNumber; // Kann für passive Mitglieder null sein
+  final String? phoneNumber;
   final String? miscellaneous;
-  final String? password; // Sollte für passive Mitglieder null sein
-  final String?
-      managedById; // Neu: ID des aktiven Mitglieds, das dieses passive Profil verwaltet
+  final String? password;
+  final String? managedById;
 
   AppUser({
     required this.profilId,
     required this.firstName,
     required this.lastName,
-    this.email, // Muss nicht mehr required sein
+    this.email,
     this.avatarUrl,
     this.phoneNumber,
     this.miscellaneous,
     this.password,
-    this.managedById, // Initialisierung des neuen Feldes
+    this.managedById,
   });
 
   Map<String, dynamic> toMap() {
@@ -33,7 +32,7 @@ class AppUser {
       'phoneNumber': phoneNumber,
       'miscellaneous': miscellaneous,
       'password': password,
-      'managedById': managedById, // Hinzufügen zum Map
+      'managedById': managedById,
     };
   }
 
@@ -42,12 +41,12 @@ class AppUser {
       profilId: map['profilId'] as String,
       firstName: map['firstName'] as String,
       lastName: map['lastName'] as String,
-      email: map['email'] as String?, // Kann null sein
+      email: map['email'] as String?,
       avatarUrl: map['avatarUrl'] as String?,
       phoneNumber: map['phoneNumber'] as String?,
       miscellaneous: map['miscellaneous'] as String?,
       password: map['password'] as String?,
-      managedById: map['managedById'] as String?, // Lesen des neuen Feldes
+      managedById: map['managedById'] as String?,
     );
   }
 
@@ -63,7 +62,7 @@ class AppUser {
     String? avatarUrl,
     String? miscellaneous,
     String? password,
-    String? managedById, // Hinzufügen zum copyWith
+    String? managedById,
   }) {
     return AppUser(
       profilId: profilId ?? this.profilId,
@@ -74,7 +73,7 @@ class AppUser {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       miscellaneous: miscellaneous ?? this.miscellaneous,
       password: password ?? this.password,
-      managedById: managedById ?? this.managedById, // Zuweisung im copyWith
+      managedById: managedById ?? this.managedById,
     );
   }
 }

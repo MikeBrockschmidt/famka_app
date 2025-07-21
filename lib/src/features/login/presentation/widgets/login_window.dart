@@ -1,16 +1,14 @@
-// lib/src/features/login/presentation/widgets/login_window.dart
-
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:famka_app/src/features/register/presentation/register_screen.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart'; // Korrekter Import für Onboarding1Screen
+import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Benötigt für FirebaseAuthException
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/features/login/domain/app_user.dart'; // Importieren Sie AppUser
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 
 class LoginWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -39,8 +37,6 @@ class _LoginWindowState extends State<LoginWindow> {
     final password = _passwordController.text.trim();
 
     try {
-      // Stellen Sie sicher, dass signInWithEmailAndPassword ein UserCredential zurückgibt,
-      // auch wenn es hier nicht direkt verwendet wird. Es wird von FirebaseAuth.instance.currentUser abgeleitet.
       await widget.auth.signInWithEmailAndPassword(email, password);
 
       final firebaseUser = FirebaseAuth.instance.currentUser;
@@ -87,8 +83,7 @@ class _LoginWindowState extends State<LoginWindow> {
           MaterialPageRoute(
             builder: (context) => ProfilPage(
               db: widget.db,
-              currentUser:
-                  currentUser!, // Behebung: Null-Safety Operator hinzugefügt
+              currentUser: currentUser!,
               auth: widget.auth,
             ),
           ),
@@ -208,10 +203,6 @@ class _LoginWindowState extends State<LoginWindow> {
                               _emailOrPhoneController.text);
                           final passwordError =
                               validatePassword(_passwordController.text);
-
-                          // Der erste Void-Fehler in Zeile 295 kommt NICHT von dieser if-Bedingung,
-                          // sondern von dem, was validateEmailOrPhone/validatePassword zurückgeben.
-                          // Diese Deklarationen sind korrekt.
                           if (emailError == null && passwordError == null) {
                             _handleLogin();
                           } else {
@@ -289,9 +280,6 @@ class _LoginWindowState extends State<LoginWindow> {
                           ),
                           onPressed: () async {
                             try {
-                              // Behebung des Void-Fehlers:
-                              // Stellen Sie sicher, dass widget.auth.signInWithGoogle()
-                              // ein Future<UserCredential> zurückgibt.
                               UserCredential userCredential =
                                   await widget.auth.signInWithGoogle();
 
@@ -306,13 +294,9 @@ class _LoginWindowState extends State<LoginWindow> {
                                 }
                                 return;
                               }
-
-                              // Laden der AppUser-Daten aus Firestore
                               AppUser? currentUser = await widget.db
                                   .getUserAsync(firebaseUser.uid);
 
-                              // Wenn keine AppUser-Daten gefunden wurden, ist es ein NEUER Google-Nutzer.
-                              // Erstelle die Daten in Firestore.
                               if (currentUser == null) {
                                 debugPrint(
                                     'Neuer Google-Nutzer: Erstelle Firestore-Eintrag für UID: ${firebaseUser.uid}');
@@ -322,12 +306,10 @@ class _LoginWindowState extends State<LoginWindow> {
                                   displayName: firebaseUser.displayName,
                                   photoUrl: firebaseUser.photoURL,
                                 );
-                                // Lade die Daten nach dem Erstellen erneut, damit 'currentUser' befüllt ist.
                                 currentUser = await widget.db
                                     .getUserAsync(firebaseUser.uid);
 
                                 if (currentUser == null) {
-                                  // Fallback, falls nach dem Erstellen immer noch keine Daten geladen werden können
                                   if (mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -378,8 +360,7 @@ class _LoginWindowState extends State<LoginWindow> {
                                   MaterialPageRoute(
                                     builder: (context) => ProfilPage(
                                       db: widget.db,
-                                      currentUser:
-                                          currentUser!, // Behebung: Null-Safety Operator hinzugefügt
+                                      currentUser: currentUser!,
                                       auth: widget.auth,
                                     ),
                                   ),
