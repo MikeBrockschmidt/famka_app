@@ -452,4 +452,32 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
   Future<void> removeEventFromGroup(String groupId, String eventId) {
     return deleteSingleEvent(eventId);
   }
+
+  @override
+  Future<void> createUserFromGoogleSignIn({
+    required String uid,
+    String? email,
+    String? displayName,
+    String? photoUrl,
+  }) async {
+    final user = AppUser(
+      profilId: uid,
+      email: email ?? '',
+      firstName: displayName?.split(' ').first ?? '',
+      lastName: displayName?.split(' ').length == 2
+          ? displayName!.split(' ').last
+          : '',
+      avatarUrl: photoUrl ?? 'assets/grafiken/famka-kreis.png',
+    );
+
+    final existingUser = await getUserAsync(uid);
+    if (existingUser == null) {
+      await createUser(user);
+      print('✅ Google-Nutzer $uid erfolgreich erstellt.');
+    } else {
+      print('ℹ️ Google-Nutzer $uid existiert bereits.');
+    }
+
+    currentUser = user;
+  }
 }

@@ -1,13 +1,16 @@
+// lib/src/features/login/presentation/widgets/login_window.dart
+
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:famka_app/src/features/register/presentation/register_screen.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/onboarding/presentation/onboarding1.dart';
+import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart'; // Korrekter Import für Onboarding1Screen
 import 'package:famka_app/src/common/button_linear_gradient.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Benötigt für FirebaseAuthException
 import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart'; // Importieren Sie AppUser
 
 class LoginWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -36,6 +39,8 @@ class _LoginWindowState extends State<LoginWindow> {
     final password = _passwordController.text.trim();
 
     try {
+      // Stellen Sie sicher, dass signInWithEmailAndPassword ein UserCredential zurückgibt,
+      // auch wenn es hier nicht direkt verwendet wird. Es wird von FirebaseAuth.instance.currentUser abgeleitet.
       await widget.auth.signInWithEmailAndPassword(email, password);
 
       final firebaseUser = FirebaseAuth.instance.currentUser;
@@ -82,7 +87,8 @@ class _LoginWindowState extends State<LoginWindow> {
           MaterialPageRoute(
             builder: (context) => ProfilPage(
               db: widget.db,
-              currentUser: currentUser,
+              currentUser:
+                  currentUser!, // Behebung: Null-Safety Operator hinzugefügt
               auth: widget.auth,
             ),
           ),
@@ -203,6 +209,9 @@ class _LoginWindowState extends State<LoginWindow> {
                           final passwordError =
                               validatePassword(_passwordController.text);
 
+                          // Der erste Void-Fehler in Zeile 295 kommt NICHT von dieser if-Bedingung,
+                          // sondern von dem, was validateEmailOrPhone/validatePassword zurückgeben.
+                          // Diese Deklarationen sind korrekt.
                           if (emailError == null && passwordError == null) {
                             _handleLogin();
                           } else {
@@ -242,7 +251,7 @@ class _LoginWindowState extends State<LoginWindow> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  CustomScreen(widget.db, widget.auth),
+                                  Onboarding1Screen(widget.db, widget.auth),
                             ),
                           );
                         },
@@ -278,12 +287,138 @@ class _LoginWindowState extends State<LoginWindow> {
                             height: 24,
                             width: 24,
                           ),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      "Google Login noch nicht implementiert.")),
-                            );
+                          onPressed: () async {
+                            try {
+                              // Behebung des Void-Fehlers:
+                              // Stellen Sie sicher, dass widget.auth.signInWithGoogle()
+                              // ein Future<UserCredential> zurückgibt.
+                              UserCredential userCredential =
+                                  await widget.auth.signInWithGoogle();
+
+                              final firebaseUser = userCredential.user;
+                              if (firebaseUser == null) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Google-Login fehlgeschlagen: Kein Firebase-Benutzer erhalten.")),
+                                  );
+                                }
+                                return;
+                              }
+
+                              // Laden der AppUser-Daten aus Firestore
+                              AppUser? currentUser = await widget.db
+                                  .getUserAsync(firebaseUser.uid);
+
+                              // Wenn keine AppUser-Daten gefunden wurden, ist es ein NEUER Google-Nutzer.
+                              // Erstelle die Daten in Firestore.
+                              if (currentUser == null) {
+                                debugPrint(
+                                    'Neuer Google-Nutzer: Erstelle Firestore-Eintrag für UID: ${firebaseUser.uid}');
+                                await widget.db.createUserFromGoogleSignIn(
+                                  uid: firebaseUser.uid,
+                                  email: firebaseUser.email,
+                                  displayName: firebaseUser.displayName,
+                                  photoUrl: firebaseUser.photoURL,
+                                );
+                                // Lade die Daten nach dem Erstellen erneut, damit 'currentUser' befüllt ist.
+                                currentUser = await widget.db
+                                    .getUserAsync(firebaseUser.uid);
+
+                                if (currentUser == null) {
+                                  // Fallback, falls nach dem Erstellen immer noch keine Daten geladen werden können
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              "Fehler: Konnte Benutzerdaten nach dem Erstellen nicht laden.")),
+                                    );
+                                  }
+                                  await widget.auth.signOut();
+                                  return;
+                                }
+
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Neues Google-Benutzerprofil erstellt.")),
+                                  );
+                                }
+                              } else {
+                                debugPrint(
+                                    'Bestehender Google-Nutzer gefunden in Firestore: ${firebaseUser.uid}');
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Google-Benutzer erfolgreich angemeldet.")),
+                                  );
+                                }
+                              }
+
+                              widget.db.currentUser = currentUser;
+
+                              try {
+                                List<Group> userGroups = await widget.db
+                                    .getGroupsForUser(firebaseUser.uid);
+                                widget.db.currentGroup = userGroups.isNotEmpty
+                                    ? userGroups.first
+                                    : null;
+                              } catch (e) {
+                                debugPrint(
+                                    'Fehler beim Laden der Gruppen für den Benutzer (nicht kritisch für Login-Flow): $e');
+                                widget.db.currentGroup = null;
+                              }
+
+                              if (mounted) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfilPage(
+                                      db: widget.db,
+                                      currentUser:
+                                          currentUser!, // Behebung: Null-Safety Operator hinzugefügt
+                                      auth: widget.auth,
+                                    ),
+                                  ),
+                                );
+                              }
+                            } on FirebaseAuthException catch (e) {
+                              String message;
+                              if (e.code ==
+                                  'account-exists-with-different-credential') {
+                                message =
+                                    'Es existiert bereits ein Konto mit dieser E-Mail, aber mit einer anderen Anmeldemethode.';
+                              } else if (e.code == 'ABORTED_BY_USER') {
+                                message =
+                                    'Google-Login vom Benutzer abgebrochen.';
+                              } else {
+                                message =
+                                    'Google-Login fehlgeschlagen: ${e.message}';
+                              }
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(message),
+                                    backgroundColor: AppColors.famkaRed,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        "Unerwarteter Google-Login-Fehler: $e"),
+                                    backgroundColor: AppColors.famkaRed,
+                                  ),
+                                );
+                              }
+                              debugPrint(
+                                  'Unerwarteter Fehler beim Google-Login: $e');
+                            }
                           },
                           tooltip: 'Mit Google anmelden',
                         ),

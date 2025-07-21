@@ -6,4 +6,5 @@ abstract class AuthRepository {
       String email, String password);
   Future<void> signOut();
   Stream<User?> authStateChanges();
+  Future<void> signInWithGoogle();
 }

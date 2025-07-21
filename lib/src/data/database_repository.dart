@@ -18,6 +18,13 @@ abstract class DatabaseRepository {
 
   Future<AppUser?> getUserAsync(String userId);
 
+  Future<void> createUserFromGoogleSignIn({
+    required String uid,
+    String? email,
+    String? displayName,
+    String? photoUrl,
+  });
+
   Future<void> loginAs(String userId, String password, AppUser appUser);
 
   Future<String> getCurrentUserAvatarUrl();

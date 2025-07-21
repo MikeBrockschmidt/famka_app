@@ -1,8 +1,6 @@
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
-
-import 'package:famka_app/src/features/onboarding/presentation/onboarding3.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,11 +25,27 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   bool? onboardingComplete;
+  AppUser? _currentUserData;
 
   @override
   void initState() {
     super.initState();
     _loadOnboardingStatus();
+    widget.auth.authStateChanges().listen((firebaseUser) async {
+      if (firebaseUser != null) {
+        final userFromFirestore =
+            await widget.db.getUserAsync(firebaseUser.uid);
+        setState(() {
+          _currentUserData = userFromFirestore;
+          widget.db.currentUser = _currentUserData;
+        });
+      } else {
+        setState(() {
+          _currentUserData = null;
+          widget.db.currentUser = null;
+        });
+      }
+    });
   }
 
   Future<void> _loadOnboardingStatus() async {
@@ -90,27 +104,16 @@ class _MainAppState extends State<MainApp> {
 
   Widget _getHomeScreen(User? firebaseUser) {
     if (firebaseUser == null) {
-      final AppUser emptyUser = AppUser(
-        profilId: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        phoneNumber: null,
-        avatarUrl: '',
-        miscellaneous: null,
-        password: '',
-      );
-      return Onboarding3Screen(
-          db: widget.db, auth: widget.auth, user: emptyUser);
+      return LoginScreen(widget.db, widget.auth);
     } else {
-      if (onboardingComplete!) {
-        if (widget.db.currentUser == null) {
-          return LoginScreen(widget.db, widget.auth);
-        }
+      if (_currentUserData == null) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
 
+      if (onboardingComplete == true) {
         return ProfilPage(
           db: widget.db,
-          currentUser: widget.db.currentUser!,
+          currentUser: _currentUserData!,
           auth: widget.auth,
         );
       } else {
