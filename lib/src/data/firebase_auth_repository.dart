@@ -33,7 +33,7 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signInWithGoogle() async {
+  Future<UserCredential> signInWithGoogle() async {
     await GoogleSignIn.instance.initialize();
     final GoogleSignInAccount googleUser =
         await GoogleSignIn.instance.authenticate();
@@ -41,6 +41,6 @@ class FirebaseAuthRepository implements AuthRepository {
     final GoogleSignInAuthentication googleAuth = googleUser.authentication;
     final credential =
         GoogleAuthProvider.credential(idToken: googleAuth.idToken);
-    await FirebaseAuth.instance.signInWithCredential(credential);
+    return FirebaseAuth.instance.signInWithCredential(credential);
   }
 }
