@@ -62,8 +62,8 @@ class _ProfilImageState extends State<EventImage> {
       'assets/grafiken/gruppe-rot.png',
     ],
     ImageSelectionContext.event: [
-      'assets/fotos/birthday.jpg',
-      'assets/fotos/party.jpg',
+      // 'assets/fotos/birthday.jpg',
+      // 'assets/fotos/party.jpg',
     ],
     ImageSelectionContext.other: [
       'assets/fotos/boyd.jpg',
@@ -432,10 +432,10 @@ class _ProfilImageState extends State<EventImage> {
       child: Container(
         width: effectiveSideLength,
         height: effectiveSideLength,
-        decoration: BoxDecoration(
-          color: AppColors.famkaGreen, // Hintergrundfarbe des Bildbereichs
-          borderRadius: BorderRadius.circular(effectiveBorderRadius),
-        ),
+        // decoration: BoxDecoration(
+        //   color: AppColors.famkaGreen, // Hintergrundfarbe des Bildbereichs
+        //   borderRadius: BorderRadius.circular(effectiveBorderRadius),
+        // ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(effectiveBorderRadius),
           child: Stack(

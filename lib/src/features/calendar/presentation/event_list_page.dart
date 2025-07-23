@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
@@ -8,9 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/menu_sub_container_two_lines_group_c.dart';
 import 'package:sticky_headers/sticky_headers.dart';
-import 'package:famka_app/src/features/calendar/presentation/widgets/event_list_item.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+
+import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
+import 'package:famka_app/src/common/image_selection_context.dart';
 
 class EventListPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -43,39 +47,53 @@ class _EventListPageState extends State<EventListPage> {
     _loadEvents();
   }
 
+  @override
+  void didUpdateWidget(covariant EventListPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentGroup != oldWidget.currentGroup) {
+      _displayGroup = widget.currentGroup;
+      _loadEvents();
+    }
+  }
+
   void _handleGroupUpdated(Group updatedGroup) {
     if (mounted) {
       setState(() {
         _displayGroup = updatedGroup;
-        _loadEvents();
+        _loadEvents(); // Events neu laden, wenn die Gruppe aktualisiert wird
       });
     }
   }
 
   Future<void> _loadEvents() async {
+    print('EventListPage: Starte Laden der Events...');
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
+
     try {
+      print('EventListPage: Lade Events für Gruppe ${_displayGroup.groupId}');
       final List<SingleEvent> allEvents = await widget.db.getAllEvents();
-      _events = allEvents
-          .where((event) => event.groupId == _displayGroup.groupId)
-          .toList();
-      _events.sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
+
+      setState(() {
+        _events = allEvents;
+        // NEUE HINZUFÜGUNG: Sortieren der Events nach Datum
+        _events.sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
+
+        print('EventListPage: ${_events.length} Events geladen und sortiert');
+
+        // Debug: Erste 3 Events anzeigen
+        for (var i = 0; i < math.min(3, _events.length); i++) {
+          print(
+              'Event $i: ${_events[i].singleEventName} (${_events[i].singleEventDate})');
+        }
+      });
     } catch (e) {
-      _errorMessage = 'Fehler beim Laden der Ereignisse: $e';
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: Text(
-              'Fehler beim Laden der Ereignisse: $e',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-        );
-      }
+      print('EventListPage: Fehler beim Laden - $e');
+      setState(() {
+        _errorMessage = 'Fehler beim Laden der Events: $e';
+      });
     } finally {
       if (mounted) {
         setState(() {
@@ -144,9 +162,7 @@ class _EventListPageState extends State<EventListPage> {
     if (confirmDelete == true) {
       await widget.db.deleteEvent(event.groupId, event.singleEventId);
 
-      setState(() {
-        _events.removeWhere((e) => e.singleEventId == event.singleEventId);
-      });
+      // Nach dem Löschen die Events neu laden, um den aktuellen Zustand widerzuspiegeln
       await _loadEvents();
     }
   }
@@ -186,8 +202,93 @@ class _EventListPageState extends State<EventListPage> {
     }
   }
 
+  Widget _buildEventLeadingIcon(String? eventUrl, String eventName) {
+    const double iconSize = 36.0;
+
+    if (eventUrl == null || eventUrl.isEmpty) {
+      return CircleAvatar(
+        radius: iconSize / 2,
+        backgroundColor: Colors.grey.shade200,
+        child: Text(
+          eventName.isNotEmpty ? eventName[0].toUpperCase() : '?',
+          style: TextStyle(
+            fontSize: iconSize * 0.5,
+            color: AppColors.famkaBlack,
+          ),
+        ),
+      );
+    }
+
+    if (eventUrl.startsWith('emoji:')) {
+      final emoji = eventUrl.substring(6);
+      return Text(
+        emoji,
+        style: TextStyle(
+          fontSize: iconSize * 0.9,
+          fontFamilyFallback: const [
+            'Apple Color Emoji',
+            'Segoe UI Emoji',
+            'Segoe UI Symbol'
+          ],
+        ),
+      );
+    } else if (eventUrl.startsWith('icon:')) {
+      final iconCodePoint = int.tryParse(eventUrl.substring(5));
+      if (iconCodePoint != null) {
+        return Icon(
+          IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
+          size: iconSize * 0.9,
+          color: AppColors.famkaBlack,
+        );
+      }
+    } else if (eventUrl.startsWith('image:')) {
+      final imageUrl = eventUrl.substring(6);
+      return Image.asset(
+        imageUrl,
+        fit: BoxFit.contain,
+        width: iconSize,
+        height: iconSize,
+        errorBuilder: (context, error, stackTrace) {
+          debugPrint('Fehler beim Laden des lokalen Asset-Bildes: $error');
+          return Icon(Icons.broken_image,
+              size: iconSize * 0.7, color: Colors.red);
+        },
+      );
+    } else if (eventUrl.startsWith('http')) {
+      return EventImage(
+        widget.db,
+        currentAvatarUrl: eventUrl,
+        displayRadius: iconSize / 2,
+        applyTransformOffset: false,
+        contextType: ImageSelectionContext.event,
+      );
+    } else {
+      debugPrint(
+          'Debug: eventUrl "$eventUrl" stimmte mit keinem bekannten Typ überein. Zeige generischen Fallback.');
+      return CircleAvatar(
+        radius: iconSize / 2,
+        backgroundColor: Colors.grey.shade200,
+        child: Icon(Icons.help_outline,
+            size: iconSize * 0.7, color: Colors.grey.shade700),
+      );
+    }
+
+    // Fallback return to satisfy non-nullable return type
+    return CircleAvatar(
+      radius: iconSize / 2,
+      backgroundColor: Colors.grey.shade200,
+      child: Icon(Icons.help_outline,
+          size: iconSize * 0.7, color: Colors.grey.shade700),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    debugPrint('EventListPage: Starte Laden der Events...');
+    final List<SingleEvent> eventsToDisplay = _events;
+
+    debugPrint('EventListPage: ${eventsToDisplay.length} Events geladen');
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -222,7 +323,7 @@ class _EventListPageState extends State<EventListPage> {
                           ),
                         ),
                       )
-                    : _events.isEmpty
+                    : eventsToDisplay.isEmpty
                         ? Center(
                             child: Text(
                               'Keine Ereignisse für diese Gruppe gefunden.',
@@ -230,11 +331,11 @@ class _EventListPageState extends State<EventListPage> {
                             ),
                           )
                         : ListView.builder(
-                            itemCount: _events.length,
+                            itemCount: eventsToDisplay.length,
                             itemBuilder: (context, index) {
-                              final event = _events[index];
+                              final event = eventsToDisplay[index];
                               final DateTime? previousEventDate = index > 0
-                                  ? _events[index - 1].singleEventDate
+                                  ? eventsToDisplay[index - 1].singleEventDate
                                   : null;
                               final String headerText = _getDateHeader(
                                   event.singleEventDate, previousEventDate);
@@ -262,10 +363,31 @@ class _EventListPageState extends State<EventListPage> {
                                     ),
                                   );
                                 },
-                                content: EventListItem(
-                                  event: event,
-                                  groupMembers: _displayGroup.groupMembers,
-                                  onDeleteEvent: _deleteEvent,
+                                content: Card(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8.0),
+                                  child: ListTile(
+                                    leading: SizedBox(
+                                      width: 40,
+                                      height: 40,
+                                      child: _buildEventLeadingIcon(
+                                          event.singleEventUrl,
+                                          event.singleEventName),
+                                    ),
+                                    title: Text(event.singleEventName),
+                                    subtitle: Text(
+                                      'Datum: ${DateFormat('dd.MM.yyyy HH:mm', 'de_DE').format(event.singleEventDate)}', // Geändertes Datumsformat
+                                    ),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () => _deleteEvent(event),
+                                    ),
+                                    onTap: () {
+                                      debugPrint(
+                                          'Event "${event.singleEventName}" angetippt');
+                                    },
+                                  ),
                                 ),
                               );
                             },

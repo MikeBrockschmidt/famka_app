@@ -56,8 +56,8 @@ class _ProfilImageState extends State<ProfilImage> {
       'assets/grafiken/gruppe-rot.png',
     ],
     ImageSelectionContext.event: [
-      'assets/fotos/birthday.jpg',
-      'assets/fotos/party.jpg',
+      // 'assets/fotos/birthday.jpg',
+      // 'assets/fotos/party.jpg',
     ],
     ImageSelectionContext.other: [
       'assets/fotos/boyd.jpg',

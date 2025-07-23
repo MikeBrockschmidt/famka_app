@@ -1,7 +1,7 @@
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/info_bottom_sheet.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_avatar_scroll_row.dart';
-import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart'; // HINZUGEFÜGT: Import für EventImage
+import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +9,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/event_service.dart';
 
 class CalendarGrid extends StatefulWidget {
   final DatabaseRepository db;

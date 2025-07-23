@@ -16,7 +16,7 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart';
 import 'package:flutter/services.dart';
-import 'package:famka_app/src/common/legal_info_page.dart'; // NEU: Import der neuen Seite
+import 'package:famka_app/src/common/legal_info_page.dart';
 
 class ProfilPage extends StatefulWidget {
   final DatabaseRepository db;

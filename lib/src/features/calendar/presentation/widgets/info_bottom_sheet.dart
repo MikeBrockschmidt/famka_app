@@ -15,7 +15,7 @@ class InfoBottomSheet extends StatefulWidget {
     required this.userName,
     required this.eventsForPerson,
     required this.currentGroupMembers,
-    this.onEventDeleted, // Dieser Callback ist nur für tatsächliche Löschungen gedacht
+    this.onEventDeleted,
     required this.db,
   });
 

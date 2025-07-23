@@ -1,20 +1,15 @@
+// lib/src/features/calendar/presentation/widgets/event_list_item.dart
 import 'package:flutter/material.dart';
-
 import 'package:intl/intl.dart';
-
 import 'package:famka_app/src/theme/color_theme.dart';
-
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
-
 import 'package:famka_app/src/features/login/domain/app_user.dart';
-
 import 'package:famka_app/src/common/button_linear_gradient.dart';
+import 'dart:io'; // Import für File.existsSync
 
 class EventListItem extends StatelessWidget {
   final SingleEvent event;
-
   final List<AppUser> groupMembers;
-
   final ValueChanged<SingleEvent>? onDeleteEvent;
 
   const EventListItem({
@@ -26,7 +21,14 @@ class EventListItem extends StatelessWidget {
 
   Widget _buildEventLeadingIcon(String? eventUrl, String eventName,
       {double size = 32.0}) {
+    // --- HIER STARTEN DIE DEBUG-PRINTS UND ERWEITERTE FEHLERBEHANDLUNG ---
+    debugPrint(
+        'Debug: _buildEventLeadingIcon aufgerufen mit eventUrl: $eventUrl, eventName: $eventName');
+
+    // Standard-Fallback (wenn eventUrl null oder leer ist)
     if (eventUrl == null || eventUrl.isEmpty) {
+      debugPrint(
+          'Debug: eventUrl ist null oder leer. Zeige Standard-CircleAvatar.');
       return CircleAvatar(
         radius: size / 2,
         backgroundColor: Colors.grey.shade200,
@@ -42,7 +44,7 @@ class EventListItem extends StatelessWidget {
 
     if (eventUrl.startsWith('emoji:')) {
       final emoji = eventUrl.substring(6);
-
+      debugPrint('Debug: eventUrl ist emoji: $emoji');
       return Text(
         emoji,
         style: TextStyle(
@@ -55,35 +57,110 @@ class EventListItem extends StatelessWidget {
         ),
       );
     } else if (eventUrl.startsWith('icon:')) {
-      final iconCodePoint = int.tryParse(eventUrl.substring(5));
-
+      final iconCodePointString = eventUrl.substring(5);
+      final iconCodePoint = int.tryParse(iconCodePointString);
+      debugPrint(
+          'Debug: eventUrl ist icon:. Code-Punkt-String: "$iconCodePointString", geparsed: $iconCodePoint');
       if (iconCodePoint != null) {
         return Icon(
           IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
           size: size,
           color: Colors.black,
         );
+      } else {
+        debugPrint(
+            'Fehler: Konnte Icon-Code-Punkt nicht von "$iconCodePointString" parsen. Zeige Fehler-Icon.');
+        return Icon(
+          Icons.error_outline, // Zeigt ein Fehler-Icon
+          size: size,
+          color: AppColors.famkaRed,
+        );
       }
     } else if (eventUrl.startsWith('image:')) {
       final imageUrl = eventUrl.substring(6);
-
+      debugPrint('Debug: eventUrl ist image:. Bild-URL: "$imageUrl"');
       if (imageUrl.isNotEmpty) {
-        return Image.asset(
-          imageUrl,
-          fit: BoxFit.contain,
-          width: size,
-          height: size,
-          errorBuilder: (context, error, stackTrace) {
-            return Icon(
-              Icons.broken_image,
-              size: size,
-              color: AppColors.famkaRed,
-            );
-          },
+        Widget imageWidget;
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+          imageWidget = Image.network(
+            imageUrl,
+            fit: BoxFit.contain,
+            width: size,
+            height: size,
+            errorBuilder: (context, error, stackTrace) {
+              debugPrint(
+                  'Fehler: Laden des Netzwerkbildes fehlgeschlagen: $imageUrl, Fehler: $error');
+              return Icon(
+                Icons.broken_image, // Zeigt ein defektes Bild-Icon
+                size: size,
+                color: AppColors.famkaRed,
+              );
+            },
+          );
+        } else if (imageUrl.startsWith('assets/')) {
+          imageWidget = Image.asset(
+            imageUrl,
+            fit: BoxFit.contain,
+            width: size,
+            height: size,
+            errorBuilder: (context, error, stackTrace) {
+              debugPrint(
+                  'Fehler: Laden des Asset-Bildes fehlgeschlagen: $imageUrl, Fehler: $error');
+              return Icon(
+                Icons.broken_image,
+                size: size,
+                color: AppColors.famkaRed,
+              );
+            },
+          );
+        } else if (File(imageUrl).existsSync()) {
+          imageWidget = Image.file(
+            File(imageUrl),
+            fit: BoxFit.contain,
+            width: size,
+            height: size,
+            errorBuilder: (context, error, stackTrace) {
+              debugPrint(
+                  'Fehler: Laden des Datei-Bildes fehlgeschlagen: $imageUrl, Fehler: $error');
+              return Icon(
+                Icons.broken_image,
+                size: size,
+                color: AppColors.famkaRed,
+              );
+            },
+          );
+        } else {
+          debugPrint(
+              'Fehler: Bild-URL "$imageUrl" ist kein gültiger Netzwerk-, Asset- oder Dateipfad. Zeige Fehler-Icon.');
+          return Icon(
+            Icons.broken_image,
+            size: size,
+            color: AppColors.famkaRed,
+          );
+        }
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(0.0),
+          child: SizedBox(
+            width: size,
+            height: size,
+            child: imageWidget,
+          ),
+        );
+      } else {
+        debugPrint(
+            'Fehler: Bild-URL ist nach dem "image:" Präfix leer. Zeige Fehler-Icon.');
+        return Icon(
+          Icons.broken_image,
+          size: size,
+          color: AppColors.famkaRed,
         );
       }
     }
 
+    // Endgültiger Fallback für nicht behandelte URL-Typen oder Fehler
+    debugPrint(
+        'Debug: eventUrl "$eventUrl" stimmte mit keinem bekannten Typ überein. Zeige generischen Fallback.');
     return CircleAvatar(
       radius: size / 2,
       backgroundColor: Colors.red.shade100,
@@ -143,11 +220,8 @@ class EventListItem extends StatelessWidget {
                     child: InkWell(
                       onTap: () {
                         final Set<String> allParticipantIds = {};
-
                         allParticipantIds.addAll(event.acceptedMemberIds);
-
                         allParticipantIds.addAll(event.invitedMemberIds);
-
                         allParticipantIds.addAll(event.maybeMemberIds);
 
                         final List<String> participantNames =
@@ -165,15 +239,12 @@ class EventListItem extends StatelessWidget {
                               password: '',
                             ),
                           );
-
                           return user.firstName ?? 'Unbekannt';
                         }).toList();
 
                         final bool isAllDayEvent = false;
-
                         String dateDisplay = DateFormat('dd.MM.yyyy')
                             .format(event.singleEventDate);
-
                         dateDisplay +=
                             ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
 
@@ -209,7 +280,6 @@ class EventListItem extends StatelessWidget {
                                         color: AppColors.famkaBlack),
                                     onPressed: () {
                                       Navigator.of(context).pop();
-
                                       onDeleteEvent?.call(event);
                                     },
                                   ),
