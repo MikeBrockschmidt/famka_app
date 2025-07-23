@@ -45,6 +45,14 @@ class _ProfilPageState extends State<ProfilPage> {
   late Future<List<Group>> _userGroupsFuture;
   late String _currentProfileAvatarUrl;
 
+  // NEU: Variablen für den Zustand des "Speichern"-Buttons
+  bool _hasChanges = false;
+  String? _initialPhoneNumber;
+  String? _initialEmail;
+  String? _initialMiscellaneous;
+  String?
+      _initialAvatarUrl; // _currentProfileAvatarUrl ist ja schon vorhanden, aber für den Initialwert
+
   @override
   void initState() {
     super.initState();
@@ -53,21 +61,52 @@ class _ProfilPageState extends State<ProfilPage> {
     _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
     _currentProfileAvatarUrl =
         widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';
-    _loadUserGroups();
-  }
 
-  void _loadUserGroups() {
-    setState(() {
-      _userGroupsFuture = widget.db.getGroupsOfUser();
-    });
+    // NEU: Initialwerte speichern
+    _initialPhoneNumber = widget.currentUser.phoneNumber;
+    _initialEmail = widget.currentUser.email;
+    _initialMiscellaneous = widget.currentUser.miscellaneous;
+    _initialAvatarUrl = widget.currentUser.avatarUrl;
+
+    _loadUserGroups();
+
+    // NEU: Listener für die Textfelder hinzufügen
+    _phoneNumberController.addListener(_checkIfHasChanges);
+    _emailController.addListener(_checkIfHasChanges);
+    _miscellaneousController.addListener(_checkIfHasChanges);
+
+    // Initialen Zustand des Buttons prüfen (falls z.B. avatarUrl sofort geändert wurde)
+    _checkIfHasChanges();
   }
 
   @override
   void dispose() {
+    // NEU: Listener entfernen
+    _phoneNumberController.removeListener(_checkIfHasChanges);
+    _emailController.removeListener(_checkIfHasChanges);
+    _miscellaneousController.removeListener(_checkIfHasChanges);
+
     _phoneNumberController.dispose();
     _emailController.dispose();
     _miscellaneousController.dispose();
     super.dispose();
+  }
+
+  // NEU: Methode zur Überprüfung von Änderungen
+  void _checkIfHasChanges() {
+    final bool newHasChanges =
+        _phoneNumberController.text != (_initialPhoneNumber ?? '') ||
+            _emailController.text != (_initialEmail ?? '') ||
+            _miscellaneousController.text != (_initialMiscellaneous ?? '') ||
+            _currentProfileAvatarUrl !=
+                (_initialAvatarUrl ??
+                    'assets/fotos/default.jpg'); // Vergleicht auch das Avatar
+
+    if (_hasChanges != newHasChanges) {
+      setState(() {
+        _hasChanges = newHasChanges;
+      });
+    }
   }
 
   String? _validateEmail(String? input) {
@@ -92,17 +131,34 @@ class _ProfilPageState extends State<ProfilPage> {
     return null;
   }
 
+  void _loadUserGroups() {
+    setState(() {
+      _userGroupsFuture = widget.db.getGroupsOfUser();
+    });
+  }
+
   void _handleProfileAvatarSelected(String newUrl) async {
     setState(() {
       _currentProfileAvatarUrl = newUrl;
+      // NEU: _hasChanges aktualisieren, da das Avatar geändert wurde
+      _checkIfHasChanges();
     });
 
+    // Das Speichern des Avatars hier direkt auszulösen ist eine Design-Entscheidung.
+    // Wenn Sie möchten, dass das Avatar auch erst mit dem "Speichern"-Button gespeichert wird,
+    // dann entfernen Sie den folgenden try-catch Block und fügen Sie updatedUser.avatarUrl
+    // zum _saveUserData hinzu.
     final updatedUser = widget.currentUser.copyWith(
       avatarUrl: newUrl.isEmpty ? null : newUrl,
     );
 
     try {
       await widget.db.updateUser(updatedUser);
+      // NEU: initialAvatarUrl aktualisieren, da es jetzt gespeichert ist
+      _initialAvatarUrl = updatedUser.avatarUrl;
+      // NEU: Status der Änderungen erneut prüfen, da Avatar gespeichert wurde
+      _checkIfHasChanges();
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -133,22 +189,46 @@ class _ProfilPageState extends State<ProfilPage> {
         phoneNumber: _phoneNumberController.text.trim().isEmpty
             ? null
             : _phoneNumberController.text.trim(),
-        avatarUrl: _currentProfileAvatarUrl,
+        avatarUrl:
+            _currentProfileAvatarUrl, // Verwendet den aktuellen Avatar-URL
         miscellaneous: _miscellaneousController.text.trim().isEmpty
             ? null
             : _miscellaneousController.text.trim(),
         password: widget.currentUser.password,
       );
 
-      await widget.db.updateUser(updatedUser);
+      try {
+        await widget.db.updateUser(updatedUser);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Profilinformationen gespeichert."),
-            backgroundColor: AppColors.famkaCyan,
-          ),
-        );
+        // NEU: Initialwerte nach dem Speichern aktualisieren
+        setState(() {
+          _initialPhoneNumber = updatedUser.phoneNumber;
+          _initialEmail = updatedUser.email;
+          _initialMiscellaneous = updatedUser.miscellaneous;
+          // _initialAvatarUrl wurde bereits in _handleProfileAvatarSelected aktualisiert,
+          // aber zur Sicherheit hier nochmal, falls die Logik geändert wird
+          _initialAvatarUrl = updatedUser.avatarUrl;
+        });
+        _checkIfHasChanges(); // Prüfen, ob nach dem Speichern wirklich keine Änderungen mehr vorliegen
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Profilinformationen gespeichert."),
+              backgroundColor: AppColors.famkaCyan,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Fehler beim Speichern der Profilinformationen: $e'),
+              backgroundColor: AppColors.famkaRed,
+            ),
+          );
+        }
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -271,7 +351,6 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
-  // NEU: Funktion zum Navigieren zur Impressum/Datenschutz-Seite
   void _navigateToLegalInfoPage() {
     Navigator.push(
       context,
@@ -281,283 +360,300 @@ class _ProfilPageState extends State<ProfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: Column(
-          children: [
-            HeadlineP(
-              screenHead: 'Profil',
-              rightActionWidgets: [
-                // Jetzt eine Liste von Widgets
-                InkWell(
-                  onTap:
-                      _navigateToLegalInfoPage, // NEU: Link zur Impressum/Datenschutz-Seite
-                  child: const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Icon(
-                      Icons.gavel_outlined, // Beispiel-Icon für Rechtliches
-                      color: Colors.black,
+    return PopScope(
+      // Added PopScope for handling changes on back navigation
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) {
+          if (_hasChanges) {
+            await Future.sync(_saveUserData); // Save changes if any
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          child: Column(
+            children: [
+              HeadlineP(
+                screenHead: 'Profil',
+                rightActionWidgets: [
+                  InkWell(
+                    onTap: _navigateToLegalInfoPage,
+                    child: const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Icon(
+                        Icons.gavel_outlined,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 16), // Abstand zwischen den Icons
-                InkWell(
-                  onTap: _showProfileIdDialog,
-                  child: const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Icon(
-                      Icons.info_outline,
-                      color: Colors.black,
+                  const SizedBox(width: 16),
+                  InkWell(
+                    onTap: _showProfileIdDialog,
+                    child: const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Icon(
+                        Icons.info_outline,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            Center(
-              child: ProfilImage(
-                widget.db,
-                currentAvatarUrl: _currentProfileAvatarUrl,
-                onAvatarSelected: _handleProfileAvatarSelected,
+                ],
               ),
-            ),
-            const SizedBox(height: 20),
-            const Divider(thickness: 0.3, height: 0.1, color: Colors.black),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.only(left: 30),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '${widget.currentUser.firstName ?? ''} ${widget.currentUser.lastName ?? ''}',
-                  style: Theme.of(context).textTheme.labelMedium,
+              const SizedBox(height: 40),
+              Center(
+                child: ProfilImage(
+                  widget.db,
+                  currentAvatarUrl: _currentProfileAvatarUrl,
+                  onAvatarSelected: _handleProfileAvatarSelected,
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const Divider(thickness: 0.3, height: 0.1, color: Colors.black),
-            const SizedBox(height: 10),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 100),
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.phone, size: 20),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _phoneNumberController,
-                                keyboardType: TextInputType.phone,
-                                validator: _validatePhoneNumber,
-                                decoration: const InputDecoration(
-                                  hintText: 'Telefonnummer eingeben',
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            const Icon(Icons.email, size: 20),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                validator: _validateEmail,
-                                decoration: const InputDecoration(
-                                  hintText: 'E-Mail Adresse eingeben',
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            const Icon(Icons.calendar_today, size: 20),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _miscellaneousController,
-                                maxLines: null,
-                                decoration: const InputDecoration(
-                                  hintText: 'Zusätzliche Infos',
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        const Divider(
-                            thickness: 0.3, height: 1, color: Colors.black),
-                        const SizedBox(height: 20),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+              const SizedBox(height: 20),
+              const Divider(thickness: 0.3, height: 0.1, color: Colors.black),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.only(left: 30),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${widget.currentUser.firstName ?? ''} ${widget.currentUser.lastName ?? ''}',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Divider(thickness: 0.3, height: 0.1, color: Colors.black),
+              const SizedBox(height: 10),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 100),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Column(
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      _navigateToAddGroupScreen(context);
-                                    },
-                                    child: Container(
-                                      width: 69,
-                                      height: 69,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.famkaGreen,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.group_add,
-                                        color: Colors.white,
-                                        size: 40,
-                                      ),
-                                    ),
+                              const Icon(Icons.phone, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _phoneNumberController,
+                                  keyboardType: TextInputType.phone,
+                                  validator: _validatePhoneNumber,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Telefonnummer eingeben',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
                                   ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    'Gruppe hinzufügen',
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 20),
-                              FutureBuilder<List<Group>>(
-                                future: _userGroupsFuture,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                        child:
-                                            Text('Fehler: ${snapshot.error}'));
-                                  } else if (!snapshot.hasData ||
-                                      snapshot.data!.isEmpty) {
-                                    return const Center(
-                                        child: Text('Keine Gruppen gefunden.'));
-                                  } else {
-                                    return Row(
-                                      children: snapshot.data!
-                                          .map(
-                                            (group) => Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 20),
-                                              child: ProfilAvatarRow(
-                                                widget.db,
-                                                group: group,
-                                                currentUser: widget.currentUser,
-                                                auth: widget.auth,
-                                                onGroupModified:
-                                                    _loadUserGroups,
-                                              ),
-                                            ),
-                                          )
-                                          .toList(),
-                                    );
-                                  }
-                                },
+                                  style: Theme.of(context).textTheme.labelSmall,
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        Center(
-                          child: InkWell(
-                            onTap: _saveUserData,
-                            child: const SizedBox(
-                              width: 150,
-                              height: 50,
-                              child:
-                                  ButtonLinearGradient(buttonText: 'Speichern'),
+                          Row(
+                            children: [
+                              const Icon(Icons.email, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: _validateEmail,
+                                  decoration: const InputDecoration(
+                                    hintText: 'E-Mail Adresse eingeben',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  style: Theme.of(context).textTheme.labelSmall,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              const Icon(Icons.calendar_today, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _miscellaneousController,
+                                  maxLines: null,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Zusätzliche Infos',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  style: Theme.of(context).textTheme.labelSmall,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          const Divider(
+                              thickness: 0.3, height: 1, color: Colors.black),
+                          const SizedBox(height: 20),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Column(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        _navigateToAddGroupScreen(context);
+                                      },
+                                      child: Container(
+                                        width: 69,
+                                        height: 69,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.famkaGreen,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.group_add,
+                                          color: Colors.white,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      'Gruppe hinzufügen',
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 20),
+                                FutureBuilder<List<Group>>(
+                                  future: _userGroupsFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                          child: Text(
+                                              'Fehler: ${snapshot.error}'));
+                                    } else if (!snapshot.hasData ||
+                                        snapshot.data!.isEmpty) {
+                                      return const Center(
+                                          child:
+                                              Text('Keine Gruppen gefunden.'));
+                                    } else {
+                                      return Row(
+                                        children: snapshot.data!
+                                            .map(
+                                              (group) => Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 20),
+                                                child: ProfilAvatarRow(
+                                                  widget.db,
+                                                  group: group,
+                                                  currentUser:
+                                                      widget.currentUser,
+                                                  auth: widget.auth,
+                                                  onGroupModified:
+                                                      _loadUserGroups,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        Center(
-                          child: InkWell(
-                            onTap: _logout,
-                            child: Text(
-                              'Ausloggen',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
-                                  ?.copyWith(
-                                      color: AppColors.famkaGrey,
-                                      decoration: TextDecoration.none),
+                          const SizedBox(height: 20),
+                          Center(
+                            child: Opacity(
+                              // <--- HIER DIE OPACITY-LOGIK FÜR DEN BUTTON
+                              opacity: _hasChanges ? 1.0 : 0.5,
+                              child: InkWell(
+                                onTap: _hasChanges
+                                    ? _saveUserData
+                                    : null, // <--- HIER DER ONTAP-CHECK
+                                child: const SizedBox(
+                                  width: 150,
+                                  height: 50,
+                                  child: ButtonLinearGradient(
+                                      buttonText: 'Speichern'),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+                          const SizedBox(height: 10),
+                          Center(
+                            child: InkWell(
+                              onTap: _logout,
+                              child: Text(
+                                'Ausloggen',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                        color: AppColors.famkaGrey,
+                                        decoration: TextDecoration.none),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      bottomNavigationBar: FutureBuilder<List<Group>>(
-        future: _userGroupsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container(
-              height: 90,
-              color: AppColors.famkaYellow,
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.famkaCyan,
-                  strokeWidth: 2,
+        bottomNavigationBar: FutureBuilder<List<Group>>(
+          future: _userGroupsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
+                height: 90,
+                color: AppColors.famkaYellow,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.famkaCyan,
+                    strokeWidth: 2,
+                  ),
                 ),
-              ),
-            );
-          } else if (snapshot.hasError ||
-              !snapshot.hasData ||
-              snapshot.data!.isEmpty) {
-            return BottomNavigation(
-              widget.db,
-              auth: widget.auth,
-              currentUser: widget.currentUser,
-              initialGroup: null,
-              initialIndex: 0,
-            );
-          } else {
-            return BottomNavigationThreeCalendar(
-              widget.db,
-              auth: widget.auth,
-              currentUser: widget.currentUser,
-              initialGroup: widget.db.currentGroup ?? snapshot.data!.first,
-              initialIndex: 0,
-            );
-          }
-        },
+              );
+            } else if (snapshot.hasError ||
+                !snapshot.hasData ||
+                snapshot.data!.isEmpty) {
+              return BottomNavigation(
+                widget.db,
+                auth: widget.auth,
+                currentUser: widget.currentUser,
+                initialGroup: null,
+                initialIndex: 0,
+              );
+            } else {
+              return BottomNavigationThreeCalendar(
+                widget.db,
+                auth: widget.auth,
+                currentUser: widget.currentUser,
+                initialGroup: widget.db.currentGroup ?? snapshot.data!.first,
+                initialIndex: 0,
+              );
+            }
+          },
+        ),
       ),
     );
   }
