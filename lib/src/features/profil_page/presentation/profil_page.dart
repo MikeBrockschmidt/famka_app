@@ -1,3 +1,5 @@
+// lib/src/features/profil_page/presentation/profil_page.dart
+
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/common/bottom_navigation.dart';
 import 'package:famka_app/src/common/headline_p.dart';
@@ -14,6 +16,7 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart';
 import 'package:flutter/services.dart';
+import 'package:famka_app/src/common/legal_info_page.dart'; // NEU: Import der neuen Seite
 
 class ProfilPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -268,6 +271,14 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
+  // NEU: Funktion zum Navigieren zur Impressum/Datenschutz-Seite
+  void _navigateToLegalInfoPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LegalInfoPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -278,17 +289,33 @@ class _ProfilPageState extends State<ProfilPage> {
           children: [
             HeadlineP(
               screenHead: 'Profil',
-              rightActionWidget: InkWell(
-                onTap: _showProfileIdDialog,
-                child: const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: Icon(
-                    Icons.info_outline,
-                    color: Colors.black,
+              rightActionWidgets: [
+                // Jetzt eine Liste von Widgets
+                InkWell(
+                  onTap:
+                      _navigateToLegalInfoPage, // NEU: Link zur Impressum/Datenschutz-Seite
+                  child: const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Icon(
+                      Icons.gavel_outlined, // Beispiel-Icon für Rechtliches
+                      color: Colors.black,
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(width: 16), // Abstand zwischen den Icons
+                InkWell(
+                  onTap: _showProfileIdDialog,
+                  child: const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Icon(
+                      Icons.info_outline,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 40),
             Center(

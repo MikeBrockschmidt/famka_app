@@ -15,7 +15,7 @@ class InfoBottomSheet extends StatefulWidget {
     required this.userName,
     required this.eventsForPerson,
     required this.currentGroupMembers,
-    this.onEventDeleted,
+    this.onEventDeleted, // Dieser Callback ist nur für tatsächliche Löschungen gedacht
     required this.db,
   });
 
@@ -129,9 +129,18 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
     if (!mounted) return;
 
     if (confirm == true) {
-      await widget.db.deleteEvent(event.groupId, event.singleEventId);
-      widget.onEventDeleted?.call(event.singleEventId);
-      if (mounted) Navigator.of(context).pop();
+      print('Attempting to delete event: ${event.singleEventId}');
+      try {
+        await widget.db.deleteEvent(event.groupId, event.singleEventId);
+        print('Event deleted successfully: ${event.singleEventId}');
+        widget.onEventDeleted?.call(event
+            .singleEventId); // Hier ist der Callback für Löschungen korrekt
+      } catch (e) {
+        print('Error deleting event: $e');
+      }
+      if (mounted)
+        Navigator.of(context)
+            .pop(true); // Signalisiere, dass etwas geändert wurde
     }
   }
 
@@ -184,6 +193,10 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                     subtitle: Text('Teilnehmer: ${names.join(', ')}',
                         style: Theme.of(context).textTheme.titleMedium),
                     onTap: () {
+                      final TextEditingController descriptionController =
+                          TextEditingController(
+                              text: event.singleEventDescription);
+
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -239,20 +252,74 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                           .textTheme
                                           .titleMedium),
                                   const SizedBox(height: 4),
-                                  Text(
-                                      'Beschreibung: ${event.singleEventDescription.isEmpty ? "Keine Beschreibung" : event.singleEventDescription}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium),
+                                  // Das TextField ohne sichtbaren Rahmen
+                                  TextField(
+                                    controller: descriptionController,
+                                    maxLines: null,
+                                    keyboardType: TextInputType.multiline,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Beschreibung',
+                                      border: InputBorder.none, // Kein Rahmen
+                                      focusedBorder: InputBorder
+                                          .none, // Kein Rahmen im Fokus
+                                      enabledBorder: InputBorder
+                                          .none, // Kein Rahmen im enabled Zustand
+                                      errorBorder: InputBorder
+                                          .none, // Kein Rahmen bei Fehlern
+                                      disabledBorder: InputBorder
+                                          .none, // Kein Rahmen bei Deaktivierung
+                                      hintText: 'Keine Beschreibung',
+                                      contentPadding:
+                                          EdgeInsets.zero, // Padding anpassen
+                                      isDense: true, // Macht das Feld kompakter
+                                    ),
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ),
                                 ],
                               ),
                             ),
                             actions: [
                               Center(
                                 child: GestureDetector(
-                                  onTap: () => Navigator.of(context).pop(),
+                                  onTap: () async {
+                                    print('Speichern Button geklickt!');
+                                    final updatedDescription =
+                                        descriptionController.text.trim();
+                                    print(
+                                        'Neue Beschreibung: "$updatedDescription"');
+                                    final updatedEvent = event.copyWith(
+                                        singleEventDescription:
+                                            updatedDescription);
+
+                                    try {
+                                      await widget.db.updateEvent(
+                                          event.groupId, updatedEvent);
+                                      print(
+                                          'Event erfolgreich aktualisiert in DB.');
+                                      if (mounted) {
+                                        // Dialog schließen und "true" zurückgeben, um dem aufrufenden Widget zu signalisieren, dass sich etwas geändert hat
+                                        Navigator.of(context).pop(true);
+                                        print(
+                                            'Dialog geschlossen mit Ergebnis: true');
+                                      }
+                                    } catch (e) {
+                                      print(
+                                          'Fehler beim Aktualisieren des Events: $e');
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'Fehler beim Speichern der Beschreibung: $e')),
+                                      );
+                                      if (mounted) {
+                                        Navigator.of(context).pop(
+                                            false); // Bei Fehler "false" zurückgeben
+                                      }
+                                    }
+                                  },
                                   child: const ButtonLinearGradient(
-                                      buttonText: 'Schließen'),
+                                      buttonText: 'Speichern & Schließen'),
                                 ),
                               ),
                             ],
@@ -268,7 +335,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           const SizedBox(height: 24),
           Center(
             child: GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () => Navigator.of(context)
+                  .pop(false), // Signalisiere, dass nichts geändert wurde
               child: const ButtonLinearGradient(buttonText: 'Schließen'),
             ),
           ),

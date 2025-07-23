@@ -653,7 +653,8 @@ class _GroupPageState extends State<GroupPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 30.0, vertical: 10.0),
                         child: Align(
-                          alignment: Alignment.centerRight,
+                          alignment: Alignment
+                              .center, // Hier wurde die Änderung vorgenommen
                           child: Opacity(
                             opacity: _hasChanges ? 1.0 : 0.5,
                             child: InkWell(

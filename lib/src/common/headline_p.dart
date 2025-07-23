@@ -1,13 +1,15 @@
+// lib/src/common/headline_p.dart
+
 import 'package:flutter/material.dart';
 
 class HeadlineP extends StatelessWidget {
   final String screenHead;
-  final Widget? rightActionWidget;
+  final List<Widget>? rightActionWidgets; // Geändert zu einer Liste von Widgets
 
   const HeadlineP({
     super.key,
     required this.screenHead,
-    this.rightActionWidget,
+    this.rightActionWidgets, // Jetzt eine Liste
   });
 
   @override
@@ -29,10 +31,14 @@ class HeadlineP extends StatelessWidget {
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),
-                  if (rightActionWidget != null)
+                  if (rightActionWidgets != null &&
+                      rightActionWidgets!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(right: 16.0),
-                      child: rightActionWidget!,
+                      child: Row(
+                        // NEU: Row, um mehrere Widgets nebeneinander zu platzieren
+                        children: rightActionWidgets!,
+                      ),
                     ),
                 ],
               ),

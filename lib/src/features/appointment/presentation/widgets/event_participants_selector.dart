@@ -50,7 +50,7 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 6),
+      padding: const EdgeInsets.only(left: 30, right: 0, top: 6, bottom: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

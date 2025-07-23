@@ -1,3 +1,4 @@
+// lib/src/features/gallery/presentation/widgets/gallery1.dart
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
@@ -7,27 +8,15 @@ import 'package:famka_app/src/data/auth_repository.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Für Firebase Storage Löschung
 
-enum ItemType { emoji, icon, image, addPhoto }
+// IMPORT für den ImageUploadService
+import 'package:famka_app/src/common/image_upload_service.dart';
+// IMPORT für die ausgelagerten GalleryData
+import 'package:famka_app/src/features/gallery/presentation/widgets/item_data.dart';
 
-class GalleryItem {
-  final ItemType type;
-  final String? imageUrl;
-  final IconData? iconData;
-  final String? emoji;
-  final String content;
-
-  const GalleryItem({
-    required this.type,
-    this.imageUrl,
-    this.iconData,
-    this.emoji,
-    required this.content,
-  });
-}
+// ItemType und GalleryItem Klasse werden von item_data.dart importiert
 
 class Gallery extends StatefulWidget {
   final DatabaseRepository db;
@@ -40,25 +29,12 @@ class Gallery extends StatefulWidget {
 }
 
 class _GalleryState extends State<Gallery> {
-  final List<GalleryItem> fixedThumbnails = const [
-    GalleryItem(
-      type: ItemType.image,
-      imageUrl: 'assets/hintergruende/thumbnail1.jpg',
-      content: 'image:assets/hintergruende/thumbnail1.jpg',
-    ),
-    GalleryItem(
-      type: ItemType.image,
-      imageUrl: 'assets/hintergruende/thumbnail2.jpg',
-      content: 'image:assets/hintergruende/thumbnail2.jpg',
-    ),
-  ];
-
   final List<GalleryItem> _uploadedImages = [];
   bool _isPickingImage = false;
 
   static const String _imagePathsKey = 'uploadedImagePaths';
 
-  late List<GalleryItem> galleryData;
+  List<GalleryItem> galleryData = [];
 
   @override
   void initState() {
@@ -75,12 +51,20 @@ class _GalleryState extends State<Gallery> {
     if (storedPaths != null) {
       final List<GalleryItem> loadedItems = [];
       for (String path in storedPaths) {
-        final file = File(path);
-        if (await file.exists()) {
-          loadedItems.add(GalleryItem(
-              type: ItemType.image, imageUrl: path, content: 'image:$path'));
+        if (path.startsWith('http://') || path.startsWith('https://')) {
+          // Firebase URL, content ist die URL selbst
+          loadedItems.add(
+              GalleryItem(type: ItemType.image, imageUrl: path, content: path));
         } else {
-          print('Warnung: Gespeicherte Bilddatei nicht gefunden: $path');
+          // Lokaler Dateipfad, content behält das 'image:' Präfix
+          final file = File(path);
+          if (await file.exists()) {
+            loadedItems.add(GalleryItem(
+                type: ItemType.image, imageUrl: path, content: 'image:$path'));
+          } else {
+            print(
+                'Warnung: Gespeicherte Bilddatei nicht gefunden (lokal): $path');
+          }
         }
       }
       if (mounted) {
@@ -147,10 +131,24 @@ class _GalleryState extends State<Gallery> {
 
     if (confirmDelete) {
       try {
-        final file = File(itemToDelete.imageUrl!);
-        if (await file.exists()) {
-          await file.delete();
+        if (itemToDelete.imageUrl!.startsWith('http://') ||
+            itemToDelete.imageUrl!.startsWith('https://')) {
+          try {
+            final ref =
+                FirebaseStorage.instance.refFromURL(itemToDelete.imageUrl!);
+            await ref.delete();
+            print(
+                '✅ Bild erfolgreich aus Firebase Storage gelöscht: ${itemToDelete.imageUrl}');
+          } on FirebaseException catch (e) {
+            print('❌ Fehler beim Löschen aus Firebase Storage: $e');
+          }
+        } else {
+          final file = File(itemToDelete.imageUrl!);
+          if (await file.exists()) {
+            await file.delete();
+          }
         }
+
         if (mounted) {
           setState(() {
             _uploadedImages
@@ -182,378 +180,18 @@ class _GalleryState extends State<Gallery> {
   }
 
   void _updateGalleryData() {
-    final List<GalleryItem> dynamicImages = List.generate(
-      5,
-      (index) {
-        final imagePaths = [
-          'assets/fotos/Mike.jpg',
-          'assets/fotos/Martha.jpg',
-          'assets/fotos/Max.jpg',
-          'assets/fotos/boyd.jpg',
-          'assets/grafiken/famka-kreis.png',
-        ];
-        return GalleryItem(
-          type: ItemType.image,
-          imageUrl: imagePaths[index % imagePaths.length],
-          content: 'image:${imagePaths[index % imagePaths.length]}',
-        );
-      },
-    );
-
-    final List<GalleryItem> dynamicIcons = List.generate(
-      100,
-      (index) {
-        final icons = [
-          Icons.sports_basketball,
-          Icons.sports_tennis,
-          Icons.directions_bike,
-          Icons.snowboarding,
-          Icons.directions_run,
-          Icons.pool,
-          Icons.fitness_center,
-          Icons.sports_soccer,
-          Icons.sports_handball,
-          Icons.kitesurfing,
-          Icons.paragliding,
-          Icons.sports_mma,
-          Icons.account_balance,
-          Icons.alarm,
-          Icons.attach_money,
-          Icons.beach_access,
-          Icons.bed,
-          Icons.book,
-          Icons.build,
-          Icons.business,
-          Icons.camera_alt,
-          Icons.car_rental,
-          Icons.celebration,
-          Icons.child_friendly,
-          Icons.cloud,
-          Icons.computer,
-          Icons.cookie,
-          Icons.coronavirus,
-          Icons.credit_card,
-          Icons.deck,
-          Icons.directions_bus,
-          Icons.dinner_dining,
-          Icons.diversity_3,
-          Icons.drive_eta,
-          Icons.edit,
-          Icons.emoji_events,
-          Icons.escalator_warning,
-          Icons.favorite,
-          Icons.feedback,
-          Icons.flight,
-          Icons.folder,
-          Icons.forest,
-          Icons.group,
-          Icons.gavel,
-          Icons.handyman,
-          Icons.healing,
-          Icons.headphones,
-          Icons.help,
-          Icons.home_work,
-          Icons.hot_tub,
-          Icons.icecream,
-          Icons.keyboard,
-          Icons.local_cafe,
-          Icons.local_dining,
-          Icons.local_florist,
-          Icons.local_hospital,
-          Icons.local_laundry_service,
-          Icons.local_library,
-          Icons.local_mall,
-          Icons.local_movies,
-          Icons.local_parking,
-          Icons.local_pharmacy,
-          Icons.local_pizza,
-          Icons.local_post_office,
-          Icons.local_shipping,
-          Icons.location_on,
-          Icons.lock,
-          Icons.mail,
-          Icons.map,
-          Icons.medical_services,
-          Icons.menu_book,
-          Icons.mic,
-          Icons.military_tech,
-          Icons.monetization_on,
-          Icons.money,
-          Icons.more_horiz,
-          Icons.motorcycle,
-          Icons.movie,
-          Icons.museum,
-          Icons.music_note,
-          Icons.nature,
-          Icons.nightlight_round,
-          Icons.no_food,
-          Icons.park,
-          Icons.pets,
-          Icons.phone,
-          Icons.photo_camera,
-          Icons.pie_chart,
-          Icons.place,
-          Icons.play_arrow,
-          Icons.psychology,
-          Icons.public,
-          Icons.qr_code,
-          Icons.receipt,
-          Icons.restaurant,
-          Icons.school,
-          Icons.science,
-          Icons.security,
-          Icons.self_improvement,
-          Icons.send,
-          Icons.settings,
-          Icons.shopping_bag,
-          Icons.show_chart,
-          Icons.spa,
-          Icons.stars,
-          Icons.store,
-          Icons.subway,
-          Icons.supervised_user_circle,
-          Icons.support,
-          Icons.tag,
-          Icons.taxi_alert,
-          Icons.thumb_up,
-          Icons.timeline,
-          Icons.toys,
-          Icons.traffic,
-          Icons.train,
-          Icons.tram,
-          Icons.translate,
-          Icons.trending_up,
-          Icons.umbrella,
-          Icons.vaccines,
-          Icons.verified,
-          Icons.video_call,
-          Icons.volume_up,
-          Icons.wallet,
-          Icons.water,
-          Icons.weekend,
-          Icons.wifi,
-          Icons.work,
-          Icons.wine_bar,
-          Icons.yard,
-          Icons.zoom_in,
-          Icons.zoom_out,
-        ];
-        return GalleryItem(
-          type: ItemType.icon,
-          iconData: icons[index % icons.length],
-          content: 'icon:${icons[index % icons.length].codePoint.toString()}',
-        );
-      },
-    );
-
-    final List<GalleryItem> dynamicEmojis = List.generate(
-      100,
-      (index) {
-        final emojis = [
-          '⚽️',
-          '🏀',
-          '🎾',
-          '🏸',
-          '🥎',
-          '🏐',
-          '🏓',
-          '⛷️',
-          '🚴',
-          '🏃‍♂️',
-          '🤾‍♀️',
-          '🏇',
-          '🏂',
-          '🏌️‍♂️',
-          '🤸‍♂️',
-          '🧘‍♀️',
-          '🛹',
-          '🛼',
-          '🎿',
-          '🤼‍♂️',
-          '🤽‍♂️',
-          '🪂',
-          '🤺',
-          '🧗‍♀️',
-          '🏄‍♂️',
-          '🚣‍♀️',
-          '🚵‍♂️',
-          '🏊‍♂️',
-          '🏹',
-          '🛷',
-          '🧊',
-          '🚤',
-          '🪁',
-          '🥋',
-          '⛳️',
-          '🛶',
-          '🪃',
-          '🏋️‍♂️',
-          '🏉',
-          '🥌',
-          '🎉',
-          '🎂',
-          '🎁',
-          '🎈',
-          '🎊',
-          '🎀',
-          '🪄',
-          '💖',
-          '⭐',
-          '✨',
-          '🍎',
-          '🍊',
-          '🍋',
-          '🍉',
-          '🍇',
-          '🍓',
-          '🍒',
-          '🍑',
-          '🍍',
-          '🥝',
-          '🍕',
-          '🍔',
-          '🍟',
-          '🍣',
-          '🍜',
-          '🍝',
-          '🌮',
-          '🍳',
-          '🍩',
-          '🍪',
-          '☕',
-          '🍵',
-          '🥂',
-          '🍻',
-          '🥛',
-          '🥤',
-          '🍦',
-          '🍫',
-          '🍬',
-          '🍭',
-          '🏠',
-          '🏢',
-          '🏫',
-          '🏥',
-          '🏦',
-          '🏪',
-          '🏭',
-          '🏛️',
-          '🏰',
-          '💒',
-          '🚗',
-          '🚕',
-          '🚌',
-          '🚃',
-          '🚄',
-          '🚂',
-          '🚀',
-          '✈️',
-          '🚢',
-          '⚓',
-          '🐶',
-          '🐱',
-          '🐭',
-          '🐹',
-          '🐰',
-          '🐻',
-          '🐼',
-          '🐨',
-          '🐯',
-          '🦁',
-          '🌻',
-          '🌹',
-          '🌷',
-          '🌸',
-          '🌼',
-          '🌳',
-          '🌲',
-          '🌴',
-          '🌵',
-          '🌾',
-          '☀️',
-          '☁️',
-          '🌧️',
-          '⛈️',
-          '❄️',
-          '🌈',
-          '⚡',
-          '🌬️',
-          '🍂',
-          '🍁',
-          '📚',
-          '📝',
-          '📊',
-          '📈',
-          '📉',
-          '⏰',
-          '📆',
-          '🗓️',
-          '📍',
-          '💡',
-          '🎵',
-          '🎶',
-          '🎤',
-          '🎧',
-          '🎸',
-          '🥁',
-          '🎹',
-          '🎷',
-          '🎺',
-          '🎻',
-          '💻',
-          '📱',
-          '⌨️',
-          '🖱️',
-          '🖨️',
-          '💾',
-          '💿',
-          '📞',
-          '🔋',
-          '🔌',
-          '❤️',
-          '🧡',
-          '💛',
-          '💚',
-          '💙',
-          '💜',
-          '🤎',
-          '🖤',
-          '🤍',
-          '💔',
-          '😀',
-          '😂',
-          '😅',
-          '😊',
-          '😇',
-          '🥰',
-          '😍',
-          '🤩',
-          '😘',
-          '😗',
-          '🤫',
-          '🤔',
-          '🤗',
-          '😬',
-          '😮',
-          '😴',
-          '😷',
-          '🤒',
-          '🤕',
-          '🤮',
-        ];
-        return GalleryItem(
-          type: ItemType.emoji,
-          emoji: emojis[index % emojis.length],
-          content: 'emoji:${emojis[index % emojis.length]}',
-        );
-      },
-    );
+    final List<GalleryItem> dynamicImages =
+        GalleryData.getDynamicImagesGalleryItems();
+    final List<GalleryItem> dynamicIcons =
+        GalleryData.getDynamicIconsGalleryItems();
+    final List<GalleryItem> dynamicEmojis =
+        GalleryData.getDynamicEmojisGalleryItems();
 
     if (mounted) {
       setState(() {
         galleryData = [
           const GalleryItem(type: ItemType.addPhoto, content: 'addPhoto'),
-          ...fixedThumbnails,
+          ...GalleryData.fixedThumbnails,
           ..._uploadedImages,
           ...dynamicImages,
           ...dynamicIcons,
@@ -573,49 +211,64 @@ class _GalleryState extends State<Gallery> {
     }
 
     try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? pickedFile = await picker.pickImage(source: source);
+      final String userId = await widget.db.getCurrentUserId();
 
-      if (pickedFile != null) {
-        CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: pickedFile.path,
-          uiSettings: [
-            AndroidUiSettings(
-                toolbarTitle: 'Bild zuschneiden',
-                toolbarColor: AppColors.famkaBlue,
-                toolbarWidgetColor: Colors.white,
-                initAspectRatio: CropAspectRatioPreset.original,
-                lockAspectRatio: false),
-            IOSUiSettings(
-              title: 'Bild zuschneiden',
-            ),
-          ],
-        );
+      final ImageUploadService uploadService = ImageUploadService();
+      final String? uploadedImageUrl = await uploadService.pickAndUploadImage(
+        source: source,
+        userId: userId,
+        uploadPathPrefix: 'event_gallery_images',
+      );
 
-        if (croppedFile != null) {
-          final directory = await getApplicationDocumentsDirectory();
-          final String newPath =
-              '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-          final File newImage = await File(croppedFile.path).copy(newPath);
-
-          if (mounted) {
-            setState(() {
+      if (uploadedImageUrl != null) {
+        if (mounted) {
+          setState(() {
+            // Wenn es eine URL ist, speichere sie direkt als content
+            // Andernfalls (falls lokale Dateipfade hier noch vorkommen sollten), mit 'image:' Präfix
+            if (uploadedImageUrl.startsWith('http://') ||
+                uploadedImageUrl.startsWith('https://')) {
               _uploadedImages.add(GalleryItem(
                   type: ItemType.image,
-                  imageUrl: newImage.path,
-                  content: 'image:${newImage.path}'));
-              _updateGalleryData();
-            });
-          }
-          await _saveUploadedImages();
+                  imageUrl: uploadedImageUrl,
+                  content: uploadedImageUrl)); // Content ist die URL selbst
+            } else {
+              _uploadedImages.add(GalleryItem(
+                  type: ItemType.image,
+                  imageUrl: uploadedImageUrl,
+                  content:
+                      'image:$uploadedImageUrl')); // Content mit 'image:' Präfix
+            }
+            _updateGalleryData();
+          });
+        }
+        await _saveUploadedImages();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: AppColors.famkaCyan,
+              content: Text('Bild erfolgreich hochgeladen. Bitte auswählen.'),
+            ),
+          );
+        }
+      } else {
+        print('Bild-Upload abgebrochen oder fehlgeschlagen.');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: AppColors.famkaRed,
+              content: Text('Bild-Upload abgebrochen oder fehlgeschlagen.'),
+            ),
+          );
         }
       }
     } catch (e) {
+      print('Fehler beim Bild-Upload oder Benutzer-ID-Abruf: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppColors.famkaRed,
-            content: Text('Fehler beim Auswählen/Zuschneiden des Bildes: $e'),
+            content: Text('Fehler beim Bild-Upload: $e'),
           ),
         );
       }
@@ -665,6 +318,7 @@ class _GalleryState extends State<Gallery> {
         if (item.type == ItemType.addPhoto) {
           _showImageSourceDialog();
         } else {
+          // Navigator.pop hier aufrufen, wenn ein Element explizit ausgewählt wird
           Navigator.pop(context, item.content);
         }
       },
@@ -701,14 +355,42 @@ class _GalleryState extends State<Gallery> {
                 size: 40,
                 color: AppColors.famkaRed),
           );
-        } else if (item.imageUrl != null) {
-          return Image.file(
-            File(item.imageUrl!),
+        } else if (item.imageUrl != null &&
+            (item.imageUrl!.startsWith('http://') ||
+                item.imageUrl!.startsWith('https://'))) {
+          return Image.network(
+            item.imageUrl!,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => const Icon(
                 Icons.broken_image,
                 size: 40,
                 color: AppColors.famkaRed),
+          );
+        } else if (item.imageUrl != null) {
+          // Für lokale, nicht-Asset-Dateien (z.B. aus dem Cache/temporär)
+          // Überprüfen, ob die Datei existiert, bevor versucht wird, sie zu laden
+          return FutureBuilder<bool>(
+            future: File(item.imageUrl!).exists(),
+            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done &&
+                  snapshot.data == true) {
+                return Image.file(
+                  File(item.imageUrl!),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.broken_image,
+                      size: 40,
+                      color: AppColors.famkaRed),
+                );
+              } else if (snapshot.connectionState == ConnectionState.done &&
+                  snapshot.data == false) {
+                // Datei existiert nicht mehr, zeige Fehlersymbol
+                return const Icon(Icons.broken_image,
+                    size: 40, color: AppColors.famkaRed);
+              }
+              // Während des Ladens oder wenn noch kein Ergebnis vorliegt, Platzhalter zeigen
+              return const CircularProgressIndicator(); // Oder ein anderes Ladesymbol
+            },
           );
         }
         return const Icon(Icons.broken_image,

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+
 import 'package:intl/intl.dart';
+
 import 'package:famka_app/src/theme/color_theme.dart';
+
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
+
 import 'package:famka_app/src/features/login/domain/app_user.dart';
+
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 
 class EventListItem extends StatelessWidget {
   final SingleEvent event;
+
   final List<AppUser> groupMembers;
+
   final ValueChanged<SingleEvent>? onDeleteEvent;
 
   const EventListItem({
@@ -35,6 +42,7 @@ class EventListItem extends StatelessWidget {
 
     if (eventUrl.startsWith('emoji:')) {
       final emoji = eventUrl.substring(6);
+
       return Text(
         emoji,
         style: TextStyle(
@@ -48,6 +56,7 @@ class EventListItem extends StatelessWidget {
       );
     } else if (eventUrl.startsWith('icon:')) {
       final iconCodePoint = int.tryParse(eventUrl.substring(5));
+
       if (iconCodePoint != null) {
         return Icon(
           IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
@@ -57,6 +66,7 @@ class EventListItem extends StatelessWidget {
       }
     } else if (eventUrl.startsWith('image:')) {
       final imageUrl = eventUrl.substring(6);
+
       if (imageUrl.isNotEmpty) {
         return Image.asset(
           imageUrl,
@@ -73,6 +83,7 @@ class EventListItem extends StatelessWidget {
         );
       }
     }
+
     return CircleAvatar(
       radius: size / 2,
       backgroundColor: Colors.red.shade100,
@@ -132,8 +143,11 @@ class EventListItem extends StatelessWidget {
                     child: InkWell(
                       onTap: () {
                         final Set<String> allParticipantIds = {};
+
                         allParticipantIds.addAll(event.acceptedMemberIds);
+
                         allParticipantIds.addAll(event.invitedMemberIds);
+
                         allParticipantIds.addAll(event.maybeMemberIds);
 
                         final List<String> participantNames =
@@ -151,12 +165,15 @@ class EventListItem extends StatelessWidget {
                               password: '',
                             ),
                           );
+
                           return user.firstName ?? 'Unbekannt';
                         }).toList();
 
                         final bool isAllDayEvent = false;
+
                         String dateDisplay = DateFormat('dd.MM.yyyy')
                             .format(event.singleEventDate);
+
                         dateDisplay +=
                             ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
 
@@ -192,6 +209,7 @@ class EventListItem extends StatelessWidget {
                                         color: AppColors.famkaBlack),
                                     onPressed: () {
                                       Navigator.of(context).pop();
+
                                       onDeleteEvent?.call(event);
                                     },
                                   ),

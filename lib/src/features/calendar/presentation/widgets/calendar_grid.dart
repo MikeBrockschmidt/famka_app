@@ -1,6 +1,7 @@
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/info_bottom_sheet.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_avatar_scroll_row.dart';
+import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart'; // HINZUGEFÜGT: Import für EventImage
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -182,13 +183,19 @@ class _CalendarGridState extends State<CalendarGrid> {
     super.dispose();
   }
 
-  Widget _buildEventContent(String? eventUrl, String eventTitle, double size) {
+  Widget _buildEventContent(String? eventUrl, String eventName, double size) {
     if (eventUrl == null || eventUrl.isEmpty) {
-      return Text(
-        eventTitle,
-        textAlign: TextAlign.center,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(fontSize: size * 0.5, color: Colors.black),
+      // Fallback für leere/null URLs
+      return CircleAvatar(
+        radius: size / 2,
+        backgroundColor: Colors.grey.shade200,
+        child: Text(
+          eventName.isNotEmpty ? eventName[0].toUpperCase() : '?',
+          style: TextStyle(
+            fontSize: size * 0.5,
+            color: AppColors.famkaBlack,
+          ),
+        ),
       );
     }
 
@@ -197,11 +204,11 @@ class _CalendarGridState extends State<CalendarGrid> {
       return Text(
         emoji,
         style: TextStyle(
-          fontSize: size * 0.6,
+          fontSize: size * 0.9,
           fontFamilyFallback: const [
             'Apple Color Emoji',
-            'Noto Color Emoji',
             'Segoe UI Emoji',
+            'Segoe UI Symbol'
           ],
         ),
       );
@@ -210,11 +217,12 @@ class _CalendarGridState extends State<CalendarGrid> {
       if (iconCodePoint != null) {
         return Icon(
           IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
-          size: size,
-          color: Colors.black,
+          size: size * 0.9,
+          color: AppColors.famkaBlack,
         );
       }
     } else if (eventUrl.startsWith('image:')) {
+      // Dies ist der Fall für lokale Asset-Bilder, die mit 'image:' beginnen
       final imageUrl = eventUrl.substring(6);
       return Image.asset(
         imageUrl,
@@ -222,17 +230,19 @@ class _CalendarGridState extends State<CalendarGrid> {
         width: size,
         height: size,
         errorBuilder: (context, error, stackTrace) {
-          return const Icon(Icons.broken_image,
-              size: 40 * 0.7, color: Colors.red);
+          return Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
         },
       );
     }
 
-    return Text(
-      eventTitle,
-      textAlign: TextAlign.center,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(fontSize: size * 0.5, color: Colors.black),
+    // Für alle anderen URLs (angenommen HTTP/Firebase Storage URLs), verwenden wir EventImage.
+    return EventImage(
+      widget.db,
+      currentAvatarUrl: eventUrl,
+      displayRadius: size /
+          2, // Hier geben wir den korrekten Radius für die Zelle an (halbe iconSize)
+      applyTransformOffset:
+          false, // Wichtig: keine Verschiebung für Kalenderzellen
     );
   }
 
@@ -501,8 +511,8 @@ class CalendarCellIcon extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        const iconSize = 40.0;
-        const spacing = 0.5;
+        const iconSize = 36.0;
+        const spacing = 3.0;
 
         final maxIconsPerRow =
             (constraints.maxWidth / (iconSize + spacing)).floor();

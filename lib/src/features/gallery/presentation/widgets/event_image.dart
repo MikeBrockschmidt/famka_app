@@ -1,3 +1,4 @@
+// lib/src/features/gallery/presentation/widgets/event_image.dart
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
@@ -16,25 +17,30 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
-class ProfilImage extends StatefulWidget {
+class EventImage extends StatefulWidget {
   final DatabaseRepository db;
   final String? currentAvatarUrl;
   final ValueChanged<String>? onAvatarSelected;
   final ImageSelectionContext contextType;
+  final double?
+      displayRadius; // Optionaler Radius, der jetzt als halbe Seitenlänge interpretiert wird
+  final bool applyTransformOffset; // Steuert die Anwendung des Offsets
 
-  const ProfilImage(
+  const EventImage(
     this.db, {
     super.key,
     this.currentAvatarUrl,
     this.onAvatarSelected,
     this.contextType = ImageSelectionContext.profile,
+    this.displayRadius,
+    this.applyTransformOffset = true,
   });
 
   @override
-  State<ProfilImage> createState() => _ProfilImageState();
+  State<EventImage> createState() => _ProfilImageState();
 }
 
-class _ProfilImageState extends State<ProfilImage> {
+class _ProfilImageState extends State<EventImage> {
   String? _displayImageUrl;
   bool _isPickingImage = false;
 
@@ -49,7 +55,7 @@ class _ProfilImageState extends State<ProfilImage> {
       'assets/fotos/boyd.jpg',
     ],
     ImageSelectionContext.group: [
-      // 'assets/grafiken/Familie.jpg',
+      'assets/grafiken/Familie.jpg',
       'assets/grafiken/gruppe-blau.png',
       'assets/grafiken/gruppe-pink.png',
       'assets/grafiken/gruppe-gruen.png',
@@ -71,7 +77,7 @@ class _ProfilImageState extends State<ProfilImage> {
   }
 
   @override
-  void didUpdateWidget(covariant ProfilImage oldWidget) {
+  void didUpdateWidget(covariant EventImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.currentAvatarUrl != oldWidget.currentAvatarUrl ||
         widget.contextType != oldWidget.contextType) {
@@ -410,51 +416,83 @@ class _ProfilImageState extends State<ProfilImage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  // Ersetzt _buildImageContent
+  Widget _buildImageContent() {
     final String effectiveDisplayUrl =
         (_displayImageUrl == null || _displayImageUrl!.isEmpty)
             ? 'assets/fotos/default.jpg'
             : _displayImageUrl!;
 
-    ImageProvider imageProvider;
-    if (effectiveDisplayUrl.startsWith('http')) {
-      imageProvider = NetworkImage(effectiveDisplayUrl);
-    } else if (effectiveDisplayUrl.startsWith('assets/')) {
-      imageProvider = AssetImage(effectiveDisplayUrl);
-    } else if (File(effectiveDisplayUrl).existsSync()) {
-      imageProvider = FileImage(File(effectiveDisplayUrl));
-    } else {
-      imageProvider = const AssetImage('assets/grafiken/famka-kreis.png');
-    }
+    final double effectiveSideLength = (widget.displayRadius ?? 70) * 2;
+    // Setze effectiveBorderRadius immer auf 0.0, um keine abgerundeten Ecken zu haben.
+    final double effectiveBorderRadius = 0.0;
 
-    return Transform.translate(
-      offset: const Offset(0, -20),
-      child: GestureDetector(
-        onTap: _isPickingImage ? null : _pickImageAndUpload,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CircleAvatar(
-              radius: 70,
-              backgroundColor: AppColors.famkaGreen,
-              backgroundImage: imageProvider,
-            ),
-            if (_isPickingImage)
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              )
-            else if (_displayImageUrl == null ||
-                _displayImageUrl!.isEmpty ||
-                _displayImageUrl!.startsWith('assets/grafiken/famka-kreis.png'))
-              const Icon(
-                Icons.camera_alt,
-                size: 48,
-                color: Colors.white70,
-              ),
-          ],
+    return GestureDetector(
+      onTap: _isPickingImage ? null : _pickImageAndUpload,
+      child: Container(
+        width: effectiveSideLength,
+        height: effectiveSideLength,
+        decoration: BoxDecoration(
+          color: AppColors.famkaGreen, // Hintergrundfarbe des Bildbereichs
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Anzeige des Bildes basierend auf dem URL-Typ
+              effectiveDisplayUrl.startsWith('http')
+                  ? Image.network(effectiveDisplayUrl,
+                      fit: BoxFit.cover,
+                      width: effectiveSideLength,
+                      height: effectiveSideLength)
+                  : effectiveDisplayUrl.startsWith('assets/')
+                      ? Image.asset(effectiveDisplayUrl,
+                          fit: BoxFit.cover,
+                          width: effectiveSideLength,
+                          height: effectiveSideLength)
+                      : File(effectiveDisplayUrl).existsSync()
+                          ? Image.file(File(effectiveDisplayUrl),
+                              fit: BoxFit.cover,
+                              width: effectiveSideLength,
+                              height: effectiveSideLength)
+                          : Image.asset('assets/grafiken/famka-kreis.png',
+                              fit: BoxFit.contain,
+                              width: effectiveSideLength,
+                              height:
+                                  effectiveSideLength), // Fallback Bild (famka-kreis.png) wird 'contain' verwendet
+
+              // Lade-Indikator oder Kamera-Icon
+              if (_isPickingImage)
+                const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+              else if (_displayImageUrl == null ||
+                  _displayImageUrl!.isEmpty ||
+                  _displayImageUrl!
+                      .startsWith('assets/grafiken/famka-kreis.png'))
+                Icon(
+                  Icons.camera_alt,
+                  size: effectiveSideLength *
+                      0.75, // Größe des Icons relativ zur Seitenlänge des Quadrats
+                  color: Colors.white70,
+                ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Wende Transform.translate nur an, wenn applyTransformOffset true ist
+    return widget.applyTransformOffset
+        ? Transform.translate(
+            offset: const Offset(0, -20),
+            child: _buildImageContent(),
+          )
+        : _buildImageContent();
   }
 }
