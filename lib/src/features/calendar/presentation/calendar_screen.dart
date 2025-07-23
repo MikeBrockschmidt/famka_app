@@ -1,5 +1,6 @@
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_list.dart';
+// import 'package:famka_app/src/common/bottom_navigation_three_list.dart'; // <-- Diesen Import entfernen, wenn nicht benötigt
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
@@ -9,6 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_grid.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/menu_sub_container_two_lines_group_c.dart';
+import 'package:famka_app/src/features/calendar/presentation/event_list_page.dart'; // HINZUGEFÜGT
+
+// Hinzufügen einer Extension, wenn firstWhereOrNull noch nicht verfügbar ist (Flutter 2.x)
+// Siehe https://stackoverflow.com/questions/59483321/list-firstwhereorufnull-method-in-flutter-dart
+extension IterableExtension<E> on Iterable<E> {
+  /// The first element satisfying [test], or `null` if there is none.
+  E? firstWhereOrNull(bool Function(E element) test) {
+    for (var element in this) {
+      if (test(element)) return element;
+    }
+    return null;
+  }
+}
 
 class CalendarScreen extends StatefulWidget {
   final DatabaseRepository db;
@@ -33,6 +47,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   List<SingleEvent> _allEvents = [];
   bool _isLoadingEvents = true;
   String? _eventsErrorMessage;
+  int _selectedIndex = 0; // Für die BottomNavigation (wenn Sie diese verwenden)
 
   @override
   void initState() {
@@ -46,7 +61,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
     super.didUpdateWidget(oldWidget);
     if (widget.currentGroup.groupId != oldWidget.currentGroup.groupId ||
         widget.currentUser.profilId != oldWidget.currentUser.profilId) {
-      _displayGroup = widget.currentGroup;
+      // Wenn die Gruppe oder der Benutzer wechselt, DisplayGroup aktualisieren und Events neu laden
+      setState(() {
+        _displayGroup = widget.currentGroup;
+      });
       _loadEvents();
     }
   }
@@ -57,14 +75,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
       _eventsErrorMessage = null;
     });
     try {
-      final List<SingleEvent> fetchedEvents = await widget.db.getAllEvents();
+      // *** Wichtige Änderung hier: Verwenden Sie getEventsForGroup! ***
+      final List<SingleEvent> fetchedEvents =
+          await widget.db.getEventsForGroup(_displayGroup.groupId);
+
       setState(() {
-        _allEvents = fetchedEvents
-            .where((event) => event.groupId == _displayGroup.groupId)
-            .toList();
+        _allEvents =
+            fetchedEvents; // Keine weitere clientseitige Filterung notwendig!
         _allEvents
             .sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
       });
+      print(
+          'CalendarScreen: Events für Gruppe ${_displayGroup.groupId} geladen: ${_allEvents.length} Events');
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -88,12 +110,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Future<void> _onEventDeletedConfirmed(String eventId) async {
     try {
-      final SingleEvent? deletedEvent = _allEvents.firstWhere(
+      // Stellen Sie sicher, dass Sie die korrekte groupId des Events haben
+      final SingleEvent? deletedEvent = _allEvents.firstWhereOrNull(
         (event) => event.singleEventId == eventId,
-        orElse: () => null!,
       );
 
       if (deletedEvent != null) {
+        // Die deleteEvent Methode in Ihrer FirestoreRepository benötigt groupId
         await widget.db
             .deleteEvent(deletedEvent.groupId, deletedEvent.singleEventId);
         if (mounted) {
@@ -123,8 +146,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
         );
       }
+      // Nach einem Fehler beim Löschen, Events neu laden, um den Zustand abzugleichen
       await _loadEvents();
     }
+    // Nach erfolgreichem Löschen, die Liste im Grid neu laden (falls die Liste direkt aktualisiert wird)
+    // Wenn _allEvents.removeWhere verwendet wird, ist dies nicht zwingend notwendig, aber sicher.
+    // Ein erneutes Laden ist besser, wenn andere Events sich geändert haben könnten.
     await _loadEvents();
   }
 
@@ -132,13 +159,54 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (mounted) {
       setState(() {
         _displayGroup = updatedGroup;
-        _loadEvents();
+        _loadEvents(); // Events neu laden, wenn die Gruppe aktualisiert wird
       });
     }
   }
 
+  // Dies ist die Methode, die aufgerufen wird, wenn ein Tab in der Bottom Navigation Bar getippt wird.
+  // Sie muss in dem Widget definiert werden, das die Bottom Navigation Bar steuert.
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Definieren Sie die Widgets, die in den Tabs der BottomNavigation angezeigt werden
+    final List<Widget> _widgetOptions = <Widget>[
+      // Index 0: CalendarGrid
+      _isLoadingEvents
+          ? const Center(child: CircularProgressIndicator())
+          : _eventsErrorMessage != null
+              ? Center(
+                  child: Text(_eventsErrorMessage!,
+                      style: TextStyle(color: AppColors.famkaRed)),
+                )
+              : CalendarGrid(
+                  widget.db,
+                  currentGroup: _displayGroup,
+                  currentUser: widget.currentUser,
+                  allEvents: _allEvents, // <-- Filtered events
+                  onEventDeletedConfirmed: _onEventDeletedConfirmed,
+                ),
+      // Index 1: EventListPage
+      EventListPage(
+        db: widget.db,
+        currentGroup: _displayGroup,
+        currentUser: widget.currentUser,
+        auth: widget.auth,
+      ),
+      // Index 2: Optional, z.B. eine andere Ansicht
+      const Center(
+        child: Text(
+          'Hier könnte eine weitere Ansicht sein.',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+    ];
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -148,6 +216,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body: Column(
         children: [
+          // MenuSubContainer muss nicht zwingend im CalendarScreen sein, wenn es in EventListPage auch ist.
+          // Aber wenn es global für beide Ansichten sein soll, ist es hier richtig.
           MenuSubContainer2LinesGroupC(
             widget.db,
             currentGroup: _displayGroup,
@@ -157,27 +227,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
           const Divider(thickness: 0.4, height: 0.4, color: Colors.grey),
           Expanded(
-            child: _isLoadingEvents
-                ? const Center(child: CircularProgressIndicator())
-                : _eventsErrorMessage != null
-                    ? Center(
-                        child: Text(_eventsErrorMessage!,
-                            style: TextStyle(color: AppColors.famkaRed)),
-                      )
-                    : CalendarGrid(
-                        widget.db,
-                        currentGroup: _displayGroup,
-                        currentUser: widget.currentUser,
-                        allEvents: _allEvents,
-                        onEventDeletedConfirmed: _onEventDeletedConfirmed,
-                      ),
+            child: _widgetOptions.elementAt(
+                _selectedIndex), // Zeigt das aktuell ausgewählte Widget
           ),
+          // Nutzen Sie BottomNavigationThreeCalendar, wenn das der Name Ihrer Komponente ist
           BottomNavigationThreeList(
+            // <--- Achten Sie auf den korrekten Klassennamen
             widget.db,
             initialGroup: _displayGroup,
             currentUser: widget.currentUser,
-            initialIndex: 1,
+            initialIndex: _selectedIndex, // Setzen Sie den initialen Index
             auth: widget.auth,
+            // onTabSelected: _onItemTapped, // <--- DIESE ZEILE ENTFERNEN!
           ),
         ],
       ),

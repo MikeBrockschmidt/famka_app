@@ -1,20 +1,19 @@
-import 'dart:math' as math;
-
+// lib/src/features/calendar/presentation/event_list_page.dart
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
+import 'package:famka_app/src/common/bottom_navigation_three_list.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/login/domain/app_user.dart';
-import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
+import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:famka_app/src/features/calendar/presentation/widgets/menu_sub_container_two_lines_group_c.dart';
 import 'package:sticky_headers/sticky_headers.dart';
-import 'package:famka_app/src/common/button_linear_gradient.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/menu_sub_container_two_lines_group_c.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/info_bottom_sheet.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-
-import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
-import 'package:famka_app/src/common/image_selection_context.dart';
+import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart'; // Sicherstellen, dass dies importiert ist
 
 class EventListPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -35,14 +34,15 @@ class EventListPage extends StatefulWidget {
 }
 
 class _EventListPageState extends State<EventListPage> {
+  late Group _displayGroup;
   List<SingleEvent> _events = [];
   bool _isLoading = true;
   String? _errorMessage;
-  late Group _displayGroup;
 
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting('de_DE', null);
     _displayGroup = widget.currentGroup;
     _loadEvents();
   }
@@ -50,18 +50,12 @@ class _EventListPageState extends State<EventListPage> {
   @override
   void didUpdateWidget(covariant EventListPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.currentGroup != oldWidget.currentGroup) {
-      _displayGroup = widget.currentGroup;
-      _loadEvents();
-    }
-  }
-
-  void _handleGroupUpdated(Group updatedGroup) {
-    if (mounted) {
+    if (widget.currentGroup.groupId != oldWidget.currentGroup.groupId ||
+        widget.currentUser.profilId != oldWidget.currentUser.profilId) {
       setState(() {
-        _displayGroup = updatedGroup;
-        _loadEvents(); // Events neu laden, wenn die Gruppe aktualisiert wird
+        _displayGroup = widget.currentGroup;
       });
+      _loadEvents();
     }
   }
 
@@ -74,20 +68,14 @@ class _EventListPageState extends State<EventListPage> {
 
     try {
       print('EventListPage: Lade Events für Gruppe ${_displayGroup.groupId}');
-      final List<SingleEvent> allEvents = await widget.db.getAllEvents();
+      // *** HIER IST DIE EINZIGE WICHTIGE ÄNDERUNG! ***
+      final List<SingleEvent> allEvents =
+          await widget.db.getEventsForGroup(_displayGroup.groupId);
 
       setState(() {
         _events = allEvents;
-        // NEUE HINZUFÜGUNG: Sortieren der Events nach Datum
         _events.sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
-
-        print('EventListPage: ${_events.length} Events geladen und sortiert');
-
-        // Debug: Erste 3 Events anzeigen
-        for (var i = 0; i < math.min(3, _events.length); i++) {
-          print(
-              'Event $i: ${_events[i].singleEventName} (${_events[i].singleEventDate})');
-        }
+        print('EventListPage: ${_events.length} Events geladen');
       });
     } catch (e) {
       print('EventListPage: Fehler beim Laden - $e');
@@ -103,116 +91,58 @@ class _EventListPageState extends State<EventListPage> {
     }
   }
 
-  void _deleteEvent(SingleEvent event) async {
-    final bool? confirmDelete = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                event.singleEventName,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Möchtest du diesen Termin wirklich löschen?',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
-          actions: [
-            Center(
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(true),
-                    child: const ButtonLinearGradient(
-                      buttonText: 'Löschen',
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(
-                      'Abbrechen',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.grey.shade600,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
+  Future<void> _onEventDeleted(String eventId) async {
+    try {
+      final SingleEvent? deletedEvent = _events.firstWhere(
+        (event) => event.singleEventId == eventId,
+        orElse: () => null!,
+      );
+
+      if (deletedEvent != null) {
+        await widget.db
+            .deleteEvent(deletedEvent.groupId, deletedEvent.singleEventId);
+        if (mounted) {
+          setState(() {
+            _events.removeWhere((e) => e.singleEventId == eventId);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Termin erfolgreich gelöscht.')),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: AppColors.famkaRed,
+              content: Text('Fehler: Zu löschender Termin nicht gefunden.'),
             ),
-          ],
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.famkaRed,
+            content: Text('Fehler beim Löschen des Termins: $e'),
+          ),
         );
-      },
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    if (confirmDelete == true) {
-      await widget.db.deleteEvent(event.groupId, event.singleEventId);
-
-      // Nach dem Löschen die Events neu laden, um den aktuellen Zustand widerzuspiegeln
+      }
+      // Nach einem Fehler Events neu laden, um den Zustand zu synchronisieren
       await _loadEvents();
     }
   }
 
-  String _getDateHeader(DateTime date, DateTime? previousDate) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final tomorrow = DateTime(now.year, now.month, now.day + 1);
-    final inSevenDays = DateTime(now.year, now.month, now.day + 7);
-
-    final eventDate = DateTime(date.year, date.month, date.day);
-
-    if (previousDate != null &&
-        DateTime(previousDate.year, previousDate.month, previousDate.day) ==
-            eventDate) {
-      return '';
-    }
-
-    if (eventDate == today) {
-      return 'Heute';
-    } else if (eventDate == tomorrow) {
-      return 'Morgen';
-    } else if (eventDate.isBefore(inSevenDays)) {
-      return DateFormat('EEEE, dd. MMMM', 'de_DE').format(date);
-    } else if (eventDate.year == now.year) {
-      if (previousDate != null &&
-          previousDate.month == date.month &&
-          previousDate.year == date.year) {
-        return '';
-      }
-      return DateFormat('MMMM', 'de_DE').format(date);
-    } else {
-      if (previousDate != null && previousDate.year == date.year) {
-        return '';
-      }
-      return DateFormat('MMMM yyyy', 'de_DE').format(date);
-    }
-  }
-
-  Widget _buildEventLeadingIcon(String? eventUrl, String eventName) {
-    const double iconSize = 36.0;
-
+  Widget _buildEventLeadingIcon(
+      String? eventUrl, String eventName, double size) {
     if (eventUrl == null || eventUrl.isEmpty) {
       return CircleAvatar(
-        radius: iconSize / 2,
+        radius: size / 2,
         backgroundColor: Colors.grey.shade200,
         child: Text(
           eventName.isNotEmpty ? eventName[0].toUpperCase() : '?',
           style: TextStyle(
-            fontSize: iconSize * 0.5,
+            fontSize: size * 0.5,
             color: AppColors.famkaBlack,
           ),
         ),
@@ -224,7 +154,7 @@ class _EventListPageState extends State<EventListPage> {
       return Text(
         emoji,
         style: TextStyle(
-          fontSize: iconSize * 0.9,
+          fontSize: size * 0.9,
           fontFamilyFallback: const [
             'Apple Color Emoji',
             'Segoe UI Emoji',
@@ -237,7 +167,7 @@ class _EventListPageState extends State<EventListPage> {
       if (iconCodePoint != null) {
         return Icon(
           IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
-          size: iconSize * 0.9,
+          size: size * 0.9,
           color: AppColors.famkaBlack,
         );
       }
@@ -246,48 +176,58 @@ class _EventListPageState extends State<EventListPage> {
       return Image.asset(
         imageUrl,
         fit: BoxFit.contain,
-        width: iconSize,
-        height: iconSize,
+        width: size,
+        height: size,
         errorBuilder: (context, error, stackTrace) {
-          debugPrint('Fehler beim Laden des lokalen Asset-Bildes: $error');
-          return Icon(Icons.broken_image,
-              size: iconSize * 0.7, color: Colors.red);
+          return Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
         },
-      );
-    } else if (eventUrl.startsWith('http')) {
-      return EventImage(
-        widget.db,
-        currentAvatarUrl: eventUrl,
-        displayRadius: iconSize / 2,
-        applyTransformOffset: false,
-        contextType: ImageSelectionContext.event,
-      );
-    } else {
-      debugPrint(
-          'Debug: eventUrl "$eventUrl" stimmte mit keinem bekannten Typ überein. Zeige generischen Fallback.');
-      return CircleAvatar(
-        radius: iconSize / 2,
-        backgroundColor: Colors.grey.shade200,
-        child: Icon(Icons.help_outline,
-            size: iconSize * 0.7, color: Colors.grey.shade700),
       );
     }
 
-    // Fallback return to satisfy non-nullable return type
-    return CircleAvatar(
-      radius: iconSize / 2,
-      backgroundColor: Colors.grey.shade200,
-      child: Icon(Icons.help_outline,
-          size: iconSize * 0.7, color: Colors.grey.shade700),
+    return EventImage(
+      widget.db,
+      currentAvatarUrl: eventUrl,
+      displayRadius: size / 2,
+      applyTransformOffset: false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('EventListPage: Starte Laden der Events...');
-    final List<SingleEvent> eventsToDisplay = _events;
+    Map<String, List<SingleEvent>> groupedEvents = {};
+    for (var event in _events) {
+      final date = event.singleEventDate;
+      String header;
+      final today = DateTime.now();
+      final tomorrow = DateTime.now().add(const Duration(days: 1));
 
-    debugPrint('EventListPage: ${eventsToDisplay.length} Events geladen');
+      if (date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day) {
+        header = 'HEUTE';
+      } else if (date.year == tomorrow.year &&
+          date.month == tomorrow.month &&
+          date.day == tomorrow.day) {
+        header = 'MORGEN';
+      } else {
+        header =
+            DateFormat('EEEE, d. MMMM y', 'de_DE').format(date).toUpperCase();
+      }
+
+      if (!groupedEvents.containsKey(header)) {
+        groupedEvents[header] = [];
+      }
+      groupedEvents[header]!.add(event);
+    }
+
+    void _handleGroupUpdated(Group updatedGroup) {
+      if (mounted) {
+        setState(() {
+          _displayGroup = updatedGroup;
+          _loadEvents();
+        });
+      }
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -311,83 +251,127 @@ class _EventListPageState extends State<EventListPage> {
                 ? const Center(child: CircularProgressIndicator())
                 : _errorMessage != null
                     ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            _errorMessage!,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(color: AppColors.famkaRed),
-                          ),
-                        ),
+                        child: Text(_errorMessage!,
+                            style: TextStyle(color: AppColors.famkaRed)),
                       )
-                    : eventsToDisplay.isEmpty
-                        ? Center(
+                    : groupedEvents.isEmpty
+                        ? const Center(
                             child: Text(
-                              'Keine Ereignisse für diese Gruppe gefunden.',
-                              style: Theme.of(context).textTheme.titleMedium,
+                              'Keine Termine für diese Gruppe gefunden.',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey),
                             ),
                           )
                         : ListView.builder(
-                            itemCount: eventsToDisplay.length,
+                            itemCount: groupedEvents.keys.length,
                             itemBuilder: (context, index) {
-                              final event = eventsToDisplay[index];
-                              final DateTime? previousEventDate = index > 0
-                                  ? eventsToDisplay[index - 1].singleEventDate
-                                  : null;
-                              final String headerText = _getDateHeader(
-                                  event.singleEventDate, previousEventDate);
+                              String header =
+                                  groupedEvents.keys.elementAt(index);
+                              List<SingleEvent> events = groupedEvents[header]!;
 
                               return StickyHeaderBuilder(
-                                builder: (context, stuckAmount) {
-                                  if (headerText.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
+                                builder:
+                                    (BuildContext context, double stuckAmount) {
+                                  stuckAmount =
+                                      1.0 - stuckAmount.clamp(0.0, 1.0);
                                   return Container(
-                                    height: 40.0,
-                                    color: AppColors.famkaCyan,
+                                    height: 50.0,
+                                    color: AppColors.famkaBlue,
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 16.0),
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      headerText,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall
-                                          ?.copyWith(
-                                            color: AppColors.famkaBlack,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                      header,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   );
                                 },
-                                content: Card(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 16.0, vertical: 8.0),
-                                  child: ListTile(
-                                    leading: SizedBox(
-                                      width: 40,
-                                      height: 40,
-                                      child: _buildEventLeadingIcon(
-                                          event.singleEventUrl,
-                                          event.singleEventName),
-                                    ),
-                                    title: Text(event.singleEventName),
-                                    subtitle: Text(
-                                      'Datum: ${DateFormat('dd.MM.yyyy HH:mm', 'de_DE').format(event.singleEventDate)}', // Geändertes Datumsformat
-                                    ),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.delete,
-                                          color: Colors.red),
-                                      onPressed: () => _deleteEvent(event),
-                                    ),
-                                    onTap: () {
-                                      debugPrint(
-                                          'Event "${event.singleEventName}" angetippt');
-                                    },
-                                  ),
+                                content: Column(
+                                  children: events.map((event) {
+                                    return GestureDetector(
+                                      onTap: () async {
+                                        final bool? eventWasDeleted =
+                                            await showModalBottomSheet<bool>(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          builder: (context) {
+                                            return InfoBottomSheet(
+                                              date: event.singleEventDate,
+                                              userName:
+                                                  widget.currentUser.firstName,
+                                              eventsForPerson: [
+                                                event
+                                              ], // Nur dieses Event
+                                              currentGroupMembers:
+                                                  _displayGroup.groupMembers,
+                                              db: widget.db,
+                                              onEventDeleted: _onEventDeleted,
+                                            );
+                                          },
+                                        );
+                                        if (eventWasDeleted == true) {
+                                          debugPrint(
+                                              'Event was deleted via InfoBottomSheet, EventListPage will refresh.');
+                                          await _loadEvents(); // Events neu laden nach Löschung
+                                        }
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                              bottom: BorderSide(
+                                                  color: Colors.grey.shade200)),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 12.0, horizontal: 16.0),
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 40,
+                                                height: 40,
+                                                child: _buildEventLeadingIcon(
+                                                  event.singleEventUrl,
+                                                  event.singleEventName,
+                                                  40,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 16.0),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      event.singleEventName,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleMedium,
+                                                    ),
+                                                    Text(
+                                                      '${DateFormat('HH:mm', 'de_DE').format(event.singleEventDate)} Uhr',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodySmall,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(Icons.delete),
+                                                onPressed: () {
+                                                  _onEventDeleted(
+                                                      event.singleEventId);
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                                 ),
                               );
                             },
