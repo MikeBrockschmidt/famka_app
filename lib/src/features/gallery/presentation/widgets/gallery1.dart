@@ -1,4 +1,3 @@
-// lib/src/features/gallery/presentation/widgets/gallery1.dart
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
@@ -9,14 +8,9 @@ import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_storage/firebase_storage.dart'; // Für Firebase Storage Löschung
-
-// IMPORT für den ImageUploadService
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:famka_app/src/common/image_upload_service.dart';
-// IMPORT für die ausgelagerten GalleryData
 import 'package:famka_app/src/features/gallery/presentation/widgets/item_data.dart';
-
-// ItemType und GalleryItem Klasse werden von item_data.dart importiert
 
 class Gallery extends StatefulWidget {
   final DatabaseRepository db;
@@ -52,11 +46,9 @@ class _GalleryState extends State<Gallery> {
       final List<GalleryItem> loadedItems = [];
       for (String path in storedPaths) {
         if (path.startsWith('http://') || path.startsWith('https://')) {
-          // Firebase URL, content ist die URL selbst
           loadedItems.add(
               GalleryItem(type: ItemType.image, imageUrl: path, content: path));
         } else {
-          // Lokaler Dateipfad, content behält das 'image:' Präfix
           final file = File(path);
           if (await file.exists()) {
             loadedItems.add(GalleryItem(
@@ -223,20 +215,17 @@ class _GalleryState extends State<Gallery> {
       if (uploadedImageUrl != null) {
         if (mounted) {
           setState(() {
-            // Wenn es eine URL ist, speichere sie direkt als content
-            // Andernfalls (falls lokale Dateipfade hier noch vorkommen sollten), mit 'image:' Präfix
             if (uploadedImageUrl.startsWith('http://') ||
                 uploadedImageUrl.startsWith('https://')) {
               _uploadedImages.add(GalleryItem(
                   type: ItemType.image,
                   imageUrl: uploadedImageUrl,
-                  content: uploadedImageUrl)); // Content ist die URL selbst
+                  content: uploadedImageUrl));
             } else {
               _uploadedImages.add(GalleryItem(
                   type: ItemType.image,
                   imageUrl: uploadedImageUrl,
-                  content:
-                      'image:$uploadedImageUrl')); // Content mit 'image:' Präfix
+                  content: 'image:$uploadedImageUrl'));
             }
             _updateGalleryData();
           });
@@ -318,7 +307,6 @@ class _GalleryState extends State<Gallery> {
         if (item.type == ItemType.addPhoto) {
           _showImageSourceDialog();
         } else {
-          // Navigator.pop hier aufrufen, wenn ein Element explizit ausgewählt wird
           Navigator.pop(context, item.content);
         }
       },
@@ -367,8 +355,6 @@ class _GalleryState extends State<Gallery> {
                 color: AppColors.famkaRed),
           );
         } else if (item.imageUrl != null) {
-          // Für lokale, nicht-Asset-Dateien (z.B. aus dem Cache/temporär)
-          // Überprüfen, ob die Datei existiert, bevor versucht wird, sie zu laden
           return FutureBuilder<bool>(
             future: File(item.imageUrl!).exists(),
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
@@ -384,12 +370,10 @@ class _GalleryState extends State<Gallery> {
                 );
               } else if (snapshot.connectionState == ConnectionState.done &&
                   snapshot.data == false) {
-                // Datei existiert nicht mehr, zeige Fehlersymbol
                 return const Icon(Icons.broken_image,
                     size: 40, color: AppColors.famkaRed);
               }
-              // Während des Ladens oder wenn noch kein Ergebnis vorliegt, Platzhalter zeigen
-              return const CircularProgressIndicator(); // Oder ein anderes Ladesymbol
+              return const CircularProgressIndicator();
             },
           );
         }

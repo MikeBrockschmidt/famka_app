@@ -1,11 +1,10 @@
-// lib/src/features/calendar/presentation/widgets/event_list_item.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
-import 'dart:io'; // Import für File.existsSync
+import 'dart:io';
 
 class EventListItem extends StatelessWidget {
   final SingleEvent event;
@@ -21,11 +20,9 @@ class EventListItem extends StatelessWidget {
 
   Widget _buildEventLeadingIcon(String? eventUrl, String eventName,
       {double size = 32.0}) {
-    // --- HIER STARTEN DIE DEBUG-PRINTS UND ERWEITERTE FEHLERBEHANDLUNG ---
     debugPrint(
         'Debug: _buildEventLeadingIcon aufgerufen mit eventUrl: $eventUrl, eventName: $eventName');
 
-    // Standard-Fallback (wenn eventUrl null oder leer ist)
     if (eventUrl == null || eventUrl.isEmpty) {
       debugPrint(
           'Debug: eventUrl ist null oder leer. Zeige Standard-CircleAvatar.');
@@ -71,7 +68,7 @@ class EventListItem extends StatelessWidget {
         debugPrint(
             'Fehler: Konnte Icon-Code-Punkt nicht von "$iconCodePointString" parsen. Zeige Fehler-Icon.');
         return Icon(
-          Icons.error_outline, // Zeigt ein Fehler-Icon
+          Icons.error_outline,
           size: size,
           color: AppColors.famkaRed,
         );
@@ -91,7 +88,7 @@ class EventListItem extends StatelessWidget {
               debugPrint(
                   'Fehler: Laden des Netzwerkbildes fehlgeschlagen: $imageUrl, Fehler: $error');
               return Icon(
-                Icons.broken_image, // Zeigt ein defektes Bild-Icon
+                Icons.broken_image,
                 size: size,
                 color: AppColors.famkaRed,
               );
@@ -158,7 +155,6 @@ class EventListItem extends StatelessWidget {
       }
     }
 
-    // Endgültiger Fallback für nicht behandelte URL-Typen oder Fehler
     debugPrint(
         'Debug: eventUrl "$eventUrl" stimmte mit keinem bekannten Typ überein. Zeige generischen Fallback.');
     return CircleAvatar(

@@ -1,9 +1,7 @@
 import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 
-/// Universelle Methode zum Erzeugen eines Event-Icons (Emoji, Icon, Asset, Firebase-Bild)
 Widget buildEventIcon({
   required DatabaseRepository db,
   required String? eventUrl,

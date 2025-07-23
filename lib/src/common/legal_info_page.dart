@@ -1,5 +1,3 @@
-// lib/src/common/legal_info_page.dart
-
 import 'package:flutter/material.dart';
 
 class LegalInfoPage extends StatelessWidget {

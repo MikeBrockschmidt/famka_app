@@ -1,4 +1,3 @@
-// lib/src/features/gallery/presentation/widgets/event_image.dart
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
@@ -22,9 +21,8 @@ class EventImage extends StatefulWidget {
   final String? currentAvatarUrl;
   final ValueChanged<String>? onAvatarSelected;
   final ImageSelectionContext contextType;
-  final double?
-      displayRadius; // Optionaler Radius, der jetzt als halbe Seitenlänge interpretiert wird
-  final bool applyTransformOffset; // Steuert die Anwendung des Offsets
+  final double? displayRadius;
+  final bool applyTransformOffset;
 
   const EventImage(
     this.db, {
@@ -416,7 +414,6 @@ class _ProfilImageState extends State<EventImage> {
     }
   }
 
-  // Ersetzt _buildImageContent
   Widget _buildImageContent() {
     final String effectiveDisplayUrl =
         (_displayImageUrl == null || _displayImageUrl!.isEmpty)
@@ -424,7 +421,6 @@ class _ProfilImageState extends State<EventImage> {
             : _displayImageUrl!;
 
     final double effectiveSideLength = (widget.displayRadius ?? 70) * 2;
-    // Setze effectiveBorderRadius immer auf 0.0, um keine abgerundeten Ecken zu haben.
     final double effectiveBorderRadius = 0.0;
 
     return GestureDetector(
@@ -432,16 +428,11 @@ class _ProfilImageState extends State<EventImage> {
       child: Container(
         width: effectiveSideLength,
         height: effectiveSideLength,
-        // decoration: BoxDecoration(
-        //   color: AppColors.famkaGreen, // Hintergrundfarbe des Bildbereichs
-        //   borderRadius: BorderRadius.circular(effectiveBorderRadius),
-        // ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(effectiveBorderRadius),
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Anzeige des Bildes basierend auf dem URL-Typ
               effectiveDisplayUrl.startsWith('http')
                   ? Image.network(effectiveDisplayUrl,
                       fit: BoxFit.cover,
@@ -460,10 +451,7 @@ class _ProfilImageState extends State<EventImage> {
                           : Image.asset('assets/grafiken/famka-kreis.png',
                               fit: BoxFit.contain,
                               width: effectiveSideLength,
-                              height:
-                                  effectiveSideLength), // Fallback Bild (famka-kreis.png) wird 'contain' verwendet
-
-              // Lade-Indikator oder Kamera-Icon
+                              height: effectiveSideLength),
               if (_isPickingImage)
                 const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -474,8 +462,7 @@ class _ProfilImageState extends State<EventImage> {
                       .startsWith('assets/grafiken/famka-kreis.png'))
                 Icon(
                   Icons.camera_alt,
-                  size: effectiveSideLength *
-                      0.75, // Größe des Icons relativ zur Seitenlänge des Quadrats
+                  size: effectiveSideLength * 0.75,
                   color: Colors.white70,
                 ),
             ],
@@ -487,7 +474,6 @@ class _ProfilImageState extends State<EventImage> {
 
   @override
   Widget build(BuildContext context) {
-    // Wende Transform.translate nur an, wenn applyTransformOffset true ist
     return widget.applyTransformOffset
         ? Transform.translate(
             offset: const Offset(0, -20),

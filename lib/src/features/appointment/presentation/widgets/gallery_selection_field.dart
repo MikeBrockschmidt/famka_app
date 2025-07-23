@@ -45,22 +45,16 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
       return const SizedBox.shrink();
     }
 
-    // NEUE LOGIK (Hinzugefügt/Angepasst): Prüfen, ob es sich um eine Internet-URL handelt.
-    // Dies sollte VOR den anderen 'image:' Prüfungen stehen,
-    // da 'image:https://...' auch eine URL enthält.
     if (_selectedGalleryItemContent!.startsWith('http://') ||
         _selectedGalleryItemContent!.startsWith('https://')) {
       return Image.network(
         _selectedGalleryItemContent!,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          // Zeigt ein "gebrochenes Bild"-Icon, wenn die URL nicht geladen werden kann.
           return const Icon(Icons.broken_image, color: Colors.red);
         },
       );
-    }
-    // VORHANDENE LOGIK: Für Emojis
-    else if (_selectedGalleryItemContent!.startsWith('emoji:')) {
+    } else if (_selectedGalleryItemContent!.startsWith('emoji:')) {
       final emoji = _selectedGalleryItemContent!.substring(6);
       return Center(
         child: Text(
@@ -76,9 +70,7 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
           ),
         ),
       );
-    }
-    // VORHANDENE LOGIK: Für Icons
-    else if (_selectedGalleryItemContent!.startsWith('icon:')) {
+    } else if (_selectedGalleryItemContent!.startsWith('icon:')) {
       final iconCodePoint =
           int.tryParse(_selectedGalleryItemContent!.substring(5));
       if (iconCodePoint != null) {
@@ -90,20 +82,16 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
           ),
         );
       }
-    }
-    // VORHANDENE LOGIK: Für lokale Asset-Bilder (die mit 'image:' beginnen, aber keine http/https URL sind)
-    else if (_selectedGalleryItemContent!.startsWith('image:')) {
+    } else if (_selectedGalleryItemContent!.startsWith('image:')) {
       final imageUrl = _selectedGalleryItemContent!.substring(6);
       return Image.asset(
         imageUrl,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          // Zeigt ein "gebrochenes Bild"-Icon, wenn das lokale Asset nicht gefunden wird.
           return const Icon(Icons.broken_image, color: Colors.red);
         },
       );
     }
-    // Fallback für alle anderen unbekannten oder fehlerhaften Inhalte
     return const SizedBox.shrink();
   }
 
@@ -160,8 +148,7 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
                             Border.all(color: AppColors.famkaYellow, width: 2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child:
-                          _buildSelectedGalleryItem(), // Hier wird unser Widget aufgerufen
+                      child: _buildSelectedGalleryItem(),
                     ),
                   ),
               ],

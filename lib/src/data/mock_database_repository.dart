@@ -452,19 +452,16 @@ class MockDatabaseRepository implements DatabaseRepository {
       String? email,
       String? displayName,
       String? photoUrl}) {
-    // TODO: implement createUserFromGoogleSignIn
     throw UnimplementedError();
   }
 
   @override
   Future<void> removeEventFromGroup(String groupId, String eventId) {
-    // TODO: implement removeEventFromGroup
     throw UnimplementedError();
   }
 
   @override
   Future<void> addUserToGroup(AppUser user, String groupId, UserRole role) {
-    // TODO: implement addUserToGroup
     throw UnimplementedError();
   }
 }

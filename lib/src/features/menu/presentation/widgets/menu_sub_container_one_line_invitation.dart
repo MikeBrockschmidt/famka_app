@@ -1,6 +1,7 @@
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:famka_app/src/common/legal_info_page.dart';
 
 class MenuSubContainer1LinesInvitation extends StatelessWidget {
   // Atribute
@@ -48,14 +49,23 @@ class MenuSubContainer1LinesInvitation extends StatelessWidget {
               ),
               const SizedBox(width: 18),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Einladen',
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                  ],
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LegalInfoPage()),
+                    );
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Impressum',
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               IconButton(

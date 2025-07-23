@@ -1,5 +1,4 @@
-// lib/src/features/gallery/presentation/widgets/item_data.dart
-import 'package:flutter/material.dart'; // Für IconData und Icons
+import 'package:flutter/material.dart';
 
 enum ItemType { emoji, icon, image, addPhoto }
 
@@ -20,7 +19,6 @@ class GalleryItem {
 }
 
 class GalleryData {
-  // Feste Thumbnails (wie in gallery1.dart definiert)
   static const List<GalleryItem> fixedThumbnails = [
     GalleryItem(
       type: ItemType.image,
@@ -34,7 +32,6 @@ class GalleryData {
     ),
   ];
 
-  /// Erstellt eine Liste von GalleryItems für dynamische Bilder (Piktogramm PNGs).
   static List<GalleryItem> getDynamicImagesGalleryItems() {
     final imagePaths = [
       'assets/fotos/Mike.jpg',
@@ -56,7 +53,6 @@ class GalleryData {
     );
   }
 
-  /// Erstellt eine Liste von GalleryItems für dynamische Icons.
   static List<GalleryItem> getDynamicIconsGalleryItems() {
     final icons = [
       Icons.sports_basketball,
@@ -205,7 +201,6 @@ class GalleryData {
     );
   }
 
-  /// Erstellt eine Liste von GalleryItems für dynamische Emojis.
   static List<GalleryItem> getDynamicEmojisGalleryItems() {
     final emojis = [
       '⚽️',

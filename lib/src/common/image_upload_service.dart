@@ -1,4 +1,3 @@
-// lib/src/common/image_upload_service.dart
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,53 +5,44 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:firebase_auth/firebase_auth.dart'; // Für User ID
-import 'package:flutter/material.dart'; // Für Colors.deepOrange etc.
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class ImageUploadService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final ImagePicker _picker = ImagePicker();
   final ImageCropper _cropper = ImageCropper();
 
-  /// Wählt ein Bild aus, schneidet es zu, komprimiert es und lädt es zu Firebase Storage hoch.
-  /// Gibt die Download-URL zurück oder null bei Fehler/Abbruch.
   Future<String?> pickAndUploadImage({
     required ImageSource source,
     required String userId,
-    required String
-        uploadPathPrefix, // z.B. 'event_images' oder 'profile_images'
+    required String uploadPathPrefix,
   }) async {
     try {
       final pickedFile = await _picker.pickImage(source: source);
-      if (pickedFile == null) return null; // Abgebrochen
+      if (pickedFile == null) return null;
 
-      // Bild zuschneiden
       final croppedFile = await _cropper.cropImage(
         sourcePath: pickedFile.path,
-        // Nur quadratischen Zuschnitt als Option anbieten
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Bild zuschneiden',
-            toolbarColor: Colors
-                .deepOrange, // Hier können Sie Ihre gewünschte Farbe einstellen
+            toolbarColor: Colors.deepOrange,
             toolbarWidgetColor: Colors.white,
-            initAspectRatio:
-                CropAspectRatioPreset.square, // Standardmäßig auf Quadrat
-            lockAspectRatio: true, // Seitenverhältnis auf Quadrat erzwingen
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
           ),
           IOSUiSettings(
             title: 'Bild zuschneiden',
-            aspectRatioPickerButtonHidden:
-                true, // Seitenverhältnis-Auswahl auf iOS ausblenden
-            resetButtonHidden: true, // Reset-Button auf iOS ausblenden
+            aspectRatioPickerButtonHidden: true,
+            resetButtonHidden: true,
           ),
         ],
       );
 
-      if (croppedFile == null) return null; // Zuschneiden abgebrochen
+      if (croppedFile == null) return null;
 
-      // Bild komprimieren auf 400x400px
       final Directory tempDir = await getTemporaryDirectory();
       final String targetPath = p.join(
         tempDir.path,
@@ -63,8 +53,8 @@ class ImageUploadService {
           await FlutterImageCompress.compressAndGetFile(
         croppedFile.path,
         targetPath,
-        minWidth: 400, // NEU: Komprimierung auf 400px Breite
-        minHeight: 400, // NEU: Komprimierung auf 400px Höhe
+        minWidth: 400,
+        minHeight: 400,
         quality: 85,
       );
 
@@ -77,10 +67,8 @@ class ImageUploadService {
       final String fileName = p.basename(file.path);
       final String uploadPath = '$uploadPathPrefix/$userId/$fileName';
 
-      // Referenz für Firebase Storage erstellen
       final ref = _storage.ref().child(uploadPath);
 
-      // Datei hochladen
       final uploadTask = ref.putFile(file);
       final snapshot = await uploadTask.whenComplete(() {});
 
@@ -88,7 +76,6 @@ class ImageUploadService {
         final downloadUrl = await snapshot.ref.getDownloadURL();
         print(
             '✅ Bild erfolgreich zu Firebase Storage hochgeladen: $downloadUrl');
-        // Temporäre komprimierte Datei löschen
         if (await file.exists()) {
           await file.delete();
         }

@@ -313,7 +313,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   key: Key('tile_3_${expandedIndex == 3}'),
                   backgroundColor: AppColors.famkaYellow,
                   initiallyExpanded: expandedIndex == 3,
-                  title: _buildTileTitle(context, 'Einladen'),
+                  title: _buildTileTitle(context, 'Einstellungen'),
                   onExpansionChanged: (isExpanded) =>
                       _handleExpansion(3, isExpanded),
                   children: [

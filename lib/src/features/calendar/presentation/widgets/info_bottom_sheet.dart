@@ -133,14 +133,11 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
       try {
         await widget.db.deleteEvent(event.groupId, event.singleEventId);
         print('Event deleted successfully: ${event.singleEventId}');
-        widget.onEventDeleted?.call(event
-            .singleEventId); // Hier ist der Callback für Löschungen korrekt
+        widget.onEventDeleted?.call(event.singleEventId);
       } catch (e) {
         print('Error deleting event: $e');
       }
-      if (mounted)
-        Navigator.of(context)
-            .pop(true); // Signalisiere, dass etwas geändert wurde
+      if (mounted) Navigator.of(context).pop(true);
     }
   }
 
@@ -252,26 +249,20 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                           .textTheme
                                           .titleMedium),
                                   const SizedBox(height: 4),
-                                  // Das TextField ohne sichtbaren Rahmen
                                   TextField(
                                     controller: descriptionController,
                                     maxLines: null,
                                     keyboardType: TextInputType.multiline,
                                     decoration: const InputDecoration(
                                       labelText: 'Beschreibung',
-                                      border: InputBorder.none, // Kein Rahmen
-                                      focusedBorder: InputBorder
-                                          .none, // Kein Rahmen im Fokus
-                                      enabledBorder: InputBorder
-                                          .none, // Kein Rahmen im enabled Zustand
-                                      errorBorder: InputBorder
-                                          .none, // Kein Rahmen bei Fehlern
-                                      disabledBorder: InputBorder
-                                          .none, // Kein Rahmen bei Deaktivierung
+                                      border: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      errorBorder: InputBorder.none,
+                                      disabledBorder: InputBorder.none,
                                       hintText: 'Keine Beschreibung',
-                                      contentPadding:
-                                          EdgeInsets.zero, // Padding anpassen
-                                      isDense: true, // Macht das Feld kompakter
+                                      contentPadding: EdgeInsets.zero,
+                                      isDense: true,
                                     ),
                                     style:
                                         Theme.of(context).textTheme.titleMedium,
@@ -298,7 +289,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                       print(
                                           'Event erfolgreich aktualisiert in DB.');
                                       if (mounted) {
-                                        // Dialog schließen und "true" zurückgeben, um dem aufrufenden Widget zu signalisieren, dass sich etwas geändert hat
                                         Navigator.of(context).pop(true);
                                         print(
                                             'Dialog geschlossen mit Ergebnis: true');
@@ -313,8 +303,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                                 'Fehler beim Speichern der Beschreibung: $e')),
                                       );
                                       if (mounted) {
-                                        Navigator.of(context).pop(
-                                            false); // Bei Fehler "false" zurückgeben
+                                        Navigator.of(context).pop(false);
                                       }
                                     }
                                   },
@@ -335,8 +324,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           const SizedBox(height: 24),
           Center(
             child: GestureDetector(
-              onTap: () => Navigator.of(context)
-                  .pop(false), // Signalisiere, dass nichts geändert wurde
+              onTap: () => Navigator.of(context).pop(false),
               child: const ButtonLinearGradient(buttonText: 'Schließen'),
             ),
           ),

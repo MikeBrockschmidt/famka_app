@@ -36,18 +36,16 @@ class _CalendarListState extends State<CalendarList> {
     super.initState();
     print('CalendarList: initState aufgerufen');
     print(
-        'CalendarList: allEvents Count im initState: ${widget.allEvents.length}'); // Debug-Print
-    _startDate =
-        DateTime.now().subtract(const Duration(days: 180)); // 6 Monate zurück
-    _endDate = DateTime.now().add(const Duration(days: 180)); // 6 Monate vor
+        'CalendarList: allEvents Count im initState: ${widget.allEvents.length}');
+    _startDate = DateTime.now().subtract(const Duration(days: 180));
+    _endDate = DateTime.now().add(const Duration(days: 180));
     _groupEvents();
     print(
-        'CalendarList: _groupedEvents Count nach Gruppierung: ${_groupedEvents.length}'); // Debug-Print
+        'CalendarList: _groupedEvents Count nach Gruppierung: ${_groupedEvents.length}');
   }
 
   void _groupEvents() {
-    print('CalendarList: _groupEvents Methode gestartet'); // Debug-Print
-    // Events nach Datum gruppieren
+    print('CalendarList: _groupEvents Methode gestartet');
     final Map<DateTime, List<SingleEvent>> eventsByDate = {};
 
     for (var event in widget.allEvents) {
@@ -63,16 +61,15 @@ class _CalendarListState extends State<CalendarList> {
       eventsByDate[date]?.add(event);
     }
 
-    // Sortierte Liste erstellen
     _groupedEvents = eventsByDate.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
     print(
-        'CalendarList: _groupEvents Methode beendet. Gruppierte Events: ${_groupedEvents.length}'); // Debug-Print
+        'CalendarList: _groupEvents Methode beendet. Gruppierte Events: ${_groupedEvents.length}');
   }
 
   @override
   Widget build(BuildContext context) {
-    print('CalendarList: build aufgerufen'); // Debug-Print
+    print('CalendarList: build aufgerufen');
     if (_groupedEvents.isEmpty) {
       print('CalendarList: _groupedEvents ist leer, zeige leere Nachricht an.');
       return const Center(child: Text('Keine Ereignisse zum Anzeigen.'));
@@ -122,9 +119,7 @@ class _CalendarListState extends State<CalendarList> {
                   subtitle: Text(
                     'Teilnehmer: ${event.acceptedMemberIds.length}',
                   ),
-                  onTap: () {
-                    // Hier können Sie die Event-Details anzeigen
-                  },
+                  onTap: () {},
                 );
               },
             ),
@@ -136,7 +131,6 @@ class _CalendarListState extends State<CalendarList> {
   }
 
   Widget _buildEventIcon(SingleEvent event) {
-    // Sicherstellen, dass event.singleEventName nicht leer ist, bevor [0] aufgerufen wird
     final String initial = event.singleEventName.isNotEmpty
         ? event.singleEventName[0].toUpperCase()
         : '?';
@@ -145,7 +139,7 @@ class _CalendarListState extends State<CalendarList> {
       return CircleAvatar(
         backgroundColor: Colors.grey[200],
         child: Text(
-          initial, // Verwenden des sicheren Initial-Werts
+          initial,
           style: TextStyle(color: AppColors.famkaBlack),
         ),
       );
@@ -158,12 +152,10 @@ class _CalendarListState extends State<CalendarList> {
       );
     }
 
-    // Weitere Icon-Typen hier hinzufügen...
-
     return CircleAvatar(
       backgroundColor: Colors.grey[200],
       child: Text(
-        initial, // Verwenden des sicheren Initial-Werts
+        initial,
         style: TextStyle(color: AppColors.famkaBlack),
       ),
     );

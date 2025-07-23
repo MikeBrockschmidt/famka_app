@@ -186,7 +186,6 @@ class _CalendarGridState extends State<CalendarGrid> {
 
   Widget _buildEventContent(String? eventUrl, String eventName, double size) {
     if (eventUrl == null || eventUrl.isEmpty) {
-      // Fallback für leere/null URLs
       return CircleAvatar(
         radius: size / 2,
         backgroundColor: Colors.grey.shade200,
@@ -223,7 +222,6 @@ class _CalendarGridState extends State<CalendarGrid> {
         );
       }
     } else if (eventUrl.startsWith('image:')) {
-      // Dies ist der Fall für lokale Asset-Bilder, die mit 'image:' beginnen
       final imageUrl = eventUrl.substring(6);
       return Image.asset(
         imageUrl,
@@ -236,14 +234,11 @@ class _CalendarGridState extends State<CalendarGrid> {
       );
     }
 
-    // Für alle anderen URLs (angenommen HTTP/Firebase Storage URLs), verwenden wir EventImage.
     return EventImage(
       widget.db,
       currentAvatarUrl: eventUrl,
-      displayRadius: size /
-          2, // Hier geben wir den korrekten Radius für die Zelle an (halbe iconSize)
-      applyTransformOffset:
-          false, // Wichtig: keine Verschiebung für Kalenderzellen
+      displayRadius: size / 2,
+      applyTransformOffset: false,
     );
   }
 

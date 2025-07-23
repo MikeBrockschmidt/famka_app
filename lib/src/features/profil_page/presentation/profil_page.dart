@@ -1,5 +1,3 @@
-// lib/src/features/profil_page/presentation/profil_page.dart
-
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/common/bottom_navigation.dart';
 import 'package:famka_app/src/common/headline_p.dart';
@@ -45,13 +43,11 @@ class _ProfilPageState extends State<ProfilPage> {
   late Future<List<Group>> _userGroupsFuture;
   late String _currentProfileAvatarUrl;
 
-  // NEU: Variablen für den Zustand des "Speichern"-Buttons
   bool _hasChanges = false;
   String? _initialPhoneNumber;
   String? _initialEmail;
   String? _initialMiscellaneous;
-  String?
-      _initialAvatarUrl; // _currentProfileAvatarUrl ist ja schon vorhanden, aber für den Initialwert
+  String? _initialAvatarUrl;
 
   @override
   void initState() {
@@ -62,7 +58,6 @@ class _ProfilPageState extends State<ProfilPage> {
     _currentProfileAvatarUrl =
         widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';
 
-    // NEU: Initialwerte speichern
     _initialPhoneNumber = widget.currentUser.phoneNumber;
     _initialEmail = widget.currentUser.email;
     _initialMiscellaneous = widget.currentUser.miscellaneous;
@@ -70,18 +65,15 @@ class _ProfilPageState extends State<ProfilPage> {
 
     _loadUserGroups();
 
-    // NEU: Listener für die Textfelder hinzufügen
     _phoneNumberController.addListener(_checkIfHasChanges);
     _emailController.addListener(_checkIfHasChanges);
     _miscellaneousController.addListener(_checkIfHasChanges);
 
-    // Initialen Zustand des Buttons prüfen (falls z.B. avatarUrl sofort geändert wurde)
     _checkIfHasChanges();
   }
 
   @override
   void dispose() {
-    // NEU: Listener entfernen
     _phoneNumberController.removeListener(_checkIfHasChanges);
     _emailController.removeListener(_checkIfHasChanges);
     _miscellaneousController.removeListener(_checkIfHasChanges);
@@ -92,15 +84,13 @@ class _ProfilPageState extends State<ProfilPage> {
     super.dispose();
   }
 
-  // NEU: Methode zur Überprüfung von Änderungen
   void _checkIfHasChanges() {
     final bool newHasChanges =
         _phoneNumberController.text != (_initialPhoneNumber ?? '') ||
             _emailController.text != (_initialEmail ?? '') ||
             _miscellaneousController.text != (_initialMiscellaneous ?? '') ||
             _currentProfileAvatarUrl !=
-                (_initialAvatarUrl ??
-                    'assets/fotos/default.jpg'); // Vergleicht auch das Avatar
+                (_initialAvatarUrl ?? 'assets/fotos/default.jpg');
 
     if (_hasChanges != newHasChanges) {
       setState(() {
@@ -140,23 +130,16 @@ class _ProfilPageState extends State<ProfilPage> {
   void _handleProfileAvatarSelected(String newUrl) async {
     setState(() {
       _currentProfileAvatarUrl = newUrl;
-      // NEU: _hasChanges aktualisieren, da das Avatar geändert wurde
       _checkIfHasChanges();
     });
 
-    // Das Speichern des Avatars hier direkt auszulösen ist eine Design-Entscheidung.
-    // Wenn Sie möchten, dass das Avatar auch erst mit dem "Speichern"-Button gespeichert wird,
-    // dann entfernen Sie den folgenden try-catch Block und fügen Sie updatedUser.avatarUrl
-    // zum _saveUserData hinzu.
     final updatedUser = widget.currentUser.copyWith(
       avatarUrl: newUrl.isEmpty ? null : newUrl,
     );
 
     try {
       await widget.db.updateUser(updatedUser);
-      // NEU: initialAvatarUrl aktualisieren, da es jetzt gespeichert ist
       _initialAvatarUrl = updatedUser.avatarUrl;
-      // NEU: Status der Änderungen erneut prüfen, da Avatar gespeichert wurde
       _checkIfHasChanges();
 
       if (mounted) {
@@ -189,8 +172,7 @@ class _ProfilPageState extends State<ProfilPage> {
         phoneNumber: _phoneNumberController.text.trim().isEmpty
             ? null
             : _phoneNumberController.text.trim(),
-        avatarUrl:
-            _currentProfileAvatarUrl, // Verwendet den aktuellen Avatar-URL
+        avatarUrl: _currentProfileAvatarUrl,
         miscellaneous: _miscellaneousController.text.trim().isEmpty
             ? null
             : _miscellaneousController.text.trim(),
@@ -200,16 +182,13 @@ class _ProfilPageState extends State<ProfilPage> {
       try {
         await widget.db.updateUser(updatedUser);
 
-        // NEU: Initialwerte nach dem Speichern aktualisieren
         setState(() {
           _initialPhoneNumber = updatedUser.phoneNumber;
           _initialEmail = updatedUser.email;
           _initialMiscellaneous = updatedUser.miscellaneous;
-          // _initialAvatarUrl wurde bereits in _handleProfileAvatarSelected aktualisiert,
-          // aber zur Sicherheit hier nochmal, falls die Logik geändert wird
           _initialAvatarUrl = updatedUser.avatarUrl;
         });
-        _checkIfHasChanges(); // Prüfen, ob nach dem Speichern wirklich keine Änderungen mehr vorliegen
+        _checkIfHasChanges();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -361,12 +340,11 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      // Added PopScope for handling changes on back navigation
       canPop: true,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
           if (_hasChanges) {
-            await Future.sync(_saveUserData); // Save changes if any
+            await Future.sync(_saveUserData);
           }
         }
       },
@@ -579,12 +557,9 @@ class _ProfilPageState extends State<ProfilPage> {
                           const SizedBox(height: 20),
                           Center(
                             child: Opacity(
-                              // <--- HIER DIE OPACITY-LOGIK FÜR DEN BUTTON
                               opacity: _hasChanges ? 1.0 : 0.5,
                               child: InkWell(
-                                onTap: _hasChanges
-                                    ? _saveUserData
-                                    : null, // <--- HIER DER ONTAP-CHECK
+                                onTap: _hasChanges ? _saveUserData : null,
                                 child: const SizedBox(
                                   width: 150,
                                   height: 50,

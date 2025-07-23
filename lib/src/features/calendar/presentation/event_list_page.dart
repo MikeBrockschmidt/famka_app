@@ -1,6 +1,4 @@
-// lib/src/features/calendar/presentation/event_list_page.dart
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
-import 'package:famka_app/src/common/bottom_navigation_three_list.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
@@ -13,7 +11,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/menu_sub_container_two_lines_group_c.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/info_bottom_sheet.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart'; // Sicherstellen, dass dies importiert ist
+import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
 
 class EventListPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -68,7 +66,6 @@ class _EventListPageState extends State<EventListPage> {
 
     try {
       print('EventListPage: Lade Events für Gruppe ${_displayGroup.groupId}');
-      // *** HIER IST DIE EINZIGE WICHTIGE ÄNDERUNG! ***
       final List<SingleEvent> allEvents =
           await widget.db.getEventsForGroup(_displayGroup.groupId);
 
@@ -128,7 +125,6 @@ class _EventListPageState extends State<EventListPage> {
           ),
         );
       }
-      // Nach einem Fehler Events neu laden, um den Zustand zu synchronisieren
       await _loadEvents();
     }
   }
@@ -302,9 +298,7 @@ class _EventListPageState extends State<EventListPage> {
                                               date: event.singleEventDate,
                                               userName:
                                                   widget.currentUser.firstName,
-                                              eventsForPerson: [
-                                                event
-                                              ], // Nur dieses Event
+                                              eventsForPerson: [event],
                                               currentGroupMembers:
                                                   _displayGroup.groupMembers,
                                               db: widget.db,
@@ -315,7 +309,7 @@ class _EventListPageState extends State<EventListPage> {
                                         if (eventWasDeleted == true) {
                                           debugPrint(
                                               'Event was deleted via InfoBottomSheet, EventListPage will refresh.');
-                                          await _loadEvents(); // Events neu laden nach Löschung
+                                          await _loadEvents();
                                         }
                                       },
                                       child: Container(
