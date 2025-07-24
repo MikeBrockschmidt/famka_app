@@ -1,5 +1,6 @@
 // lib/src/features/calendar/presentation/event_list_page.dart
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
+import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
@@ -383,9 +384,84 @@ class _EventListPageState extends State<EventListPage> {
                                               ),
                                               IconButton(
                                                 icon: const Icon(Icons.delete),
-                                                onPressed: () {
-                                                  _onEventDeleted(
-                                                      event.singleEventId);
+                                                onPressed: () async {
+                                                  final bool? confirm =
+                                                      await showDialog<bool>(
+                                                    context: context,
+                                                    builder: (BuildContext
+                                                        dialogContext) {
+                                                      return AlertDialog(
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                        ),
+                                                        title: const Text(
+                                                          'Termin löschen',
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        content: Text(
+                                                          'Möchtest du "${event.singleEventName}" wirklich löschen?',
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .black87),
+                                                        ),
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .fromLTRB(
+                                                                24, 20, 24, 0),
+                                                        actionsPadding:
+                                                            const EdgeInsets
+                                                                .fromLTRB(
+                                                                16, 8, 16, 16),
+                                                        actions: <Widget>[
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .stretch,
+                                                            children: [
+                                                              GestureDetector(
+                                                                onTap: () =>
+                                                                    Navigator.of(
+                                                                            dialogContext)
+                                                                        .pop(
+                                                                            false),
+                                                                child:
+                                                                    const ButtonLinearGradient(
+                                                                  buttonText:
+                                                                      'Abbrechen',
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 12),
+                                                              GestureDetector(
+                                                                onTap: () =>
+                                                                    Navigator.of(
+                                                                            dialogContext)
+                                                                        .pop(
+                                                                            true),
+                                                                child:
+                                                                    const ButtonLinearGradient(
+                                                                  buttonText:
+                                                                      'Löschen',
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+
+                                                  if (confirm == true) {
+                                                    await _onEventDeleted(
+                                                        event.singleEventId);
+                                                  }
                                                 },
                                               ),
                                             ],
