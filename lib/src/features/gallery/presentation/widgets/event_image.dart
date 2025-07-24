@@ -1,3 +1,4 @@
+// lib/src/features/gallery/presentation/widgets/event_image.dart
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class EventImage extends StatefulWidget {
   final ImageSelectionContext contextType;
   final double? displayRadius;
   final bool applyTransformOffset;
+  final bool isInteractive;
 
   const EventImage(
     this.db, {
@@ -32,13 +34,14 @@ class EventImage extends StatefulWidget {
     this.contextType = ImageSelectionContext.profile,
     this.displayRadius,
     this.applyTransformOffset = true,
+    this.isInteractive = false,
   });
 
   @override
-  State<EventImage> createState() => _ProfilImageState();
+  State<EventImage> createState() => _EventImageState();
 }
 
-class _ProfilImageState extends State<EventImage> {
+class _EventImageState extends State<EventImage> {
   String? _displayImageUrl;
   bool _isPickingImage = false;
 
@@ -424,7 +427,10 @@ class _ProfilImageState extends State<EventImage> {
     final double effectiveBorderRadius = 0.0;
 
     return GestureDetector(
-      onTap: _isPickingImage ? null : _pickImageAndUpload,
+      // WICHTIG: onTap nur ausführen, wenn isInteractive true ist
+      onTap: widget.isInteractive
+          ? (_isPickingImage ? null : _pickImageAndUpload)
+          : null,
       child: Container(
         width: effectiveSideLength,
         height: effectiveSideLength,

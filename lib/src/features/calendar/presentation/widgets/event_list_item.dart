@@ -1,3 +1,4 @@
+// lib/src/features/calendar/presentation/widgets/event_list_item.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
@@ -23,6 +24,7 @@ class EventListItem extends StatelessWidget {
     debugPrint(
         'Debug: _buildEventLeadingIcon aufgerufen mit eventUrl: $eventUrl, eventName: $eventName');
 
+    // Standard-Fallback (wenn eventUrl null oder leer ist)
     if (eventUrl == null || eventUrl.isEmpty) {
       debugPrint(
           'Debug: eventUrl ist null oder leer. Zeige Standard-CircleAvatar.');
@@ -79,8 +81,16 @@ class EventListItem extends StatelessWidget {
       if (imageUrl.isNotEmpty) {
         Widget imageWidget;
         if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+          // *** HIER: Cache-Busting durch Hinzufügen eines Zeitstempels ***
+          final Uri uri = Uri.parse(imageUrl);
+          final Map<String, String> params = Map.from(uri.queryParameters);
+          params['_t'] = DateTime.now().millisecondsSinceEpoch.toString();
+          final String newImageUrl =
+              uri.replace(queryParameters: params).toString();
+          debugPrint('Debug: Cache-busted URL: $newImageUrl'); // Für Debugging
+
           imageWidget = Image.network(
-            imageUrl,
+            newImageUrl, // Verwende die neue URL mit Zeitstempel
             fit: BoxFit.contain,
             width: size,
             height: size,
@@ -155,6 +165,7 @@ class EventListItem extends StatelessWidget {
       }
     }
 
+    // Endgültiger Fallback für nicht behandelte URL-Typen oder Fehler
     debugPrint(
         'Debug: eventUrl "$eventUrl" stimmte mit keinem bekannten Typ überein. Zeige generischen Fallback.');
     return CircleAvatar(

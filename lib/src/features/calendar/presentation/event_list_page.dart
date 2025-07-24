@@ -1,3 +1,4 @@
+// lib/src/features/calendar/presentation/event_list_page.dart
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
@@ -18,6 +19,8 @@ class EventListPage extends StatefulWidget {
   final Group currentGroup;
   final AppUser currentUser;
   final AuthRepository auth;
+  final Function()?
+      onEventsRefreshed; // HINZUGEFÜGT: Callback, wenn Events neu geladen werden sollen
 
   const EventListPage({
     super.key,
@@ -25,6 +28,7 @@ class EventListPage extends StatefulWidget {
     required this.currentGroup,
     required this.currentUser,
     required this.auth,
+    this.onEventsRefreshed, // HINZUGEFÜGT
   });
 
   @override
@@ -105,6 +109,7 @@ class _EventListPageState extends State<EventListPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Termin erfolgreich gelöscht.')),
           );
+          widget.onEventsRefreshed?.call(); // HINZUGEFÜGT: Refresh nach Löschen
         }
       } else {
         if (mounted) {
@@ -132,6 +137,7 @@ class _EventListPageState extends State<EventListPage> {
   Widget _buildEventLeadingIcon(
       String? eventUrl, String eventName, double size) {
     if (eventUrl == null || eventUrl.isEmpty) {
+      // Fallback für leere/null URLs
       return CircleAvatar(
         radius: size / 2,
         backgroundColor: Colors.grey.shade200,
@@ -168,23 +174,40 @@ class _EventListPageState extends State<EventListPage> {
         );
       }
     } else if (eventUrl.startsWith('image:')) {
-      final imageUrl = eventUrl.substring(6);
-      return Image.asset(
-        imageUrl,
-        fit: BoxFit.contain,
-        width: size,
-        height: size,
-        errorBuilder: (context, error, stackTrace) {
-          return Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
-        },
-      );
+      final actualImageUrl = eventUrl.substring(6); // Entferne 'image:' Präfix
+
+      if (actualImageUrl.startsWith('http://') ||
+          actualImageUrl.startsWith('https://')) {
+        return EventImage(
+          widget.db,
+          currentAvatarUrl: actualImageUrl,
+          displayRadius: size / 2,
+          applyTransformOffset: false,
+          isInteractive: false, // <-- Wichtige Änderung
+        );
+      } else {
+        // Fallback für lokale Asset-Bilder mit 'image:' Präfix
+        return Image.asset(
+          actualImageUrl,
+          fit: BoxFit.contain,
+          width: size,
+          height: size,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(Icons.broken_image,
+                size: size * 0.7, color: Colors.red);
+          },
+        );
+      }
     }
 
+    // Dieser Fall sollte greifen, wenn eventUrl direkt eine HTTP/HTTPS-URL ist
+    // ohne das 'image:' Präfix, oder als letzter Fallback.
     return EventImage(
       widget.db,
       currentAvatarUrl: eventUrl,
       displayRadius: size / 2,
       applyTransformOffset: false,
+      isInteractive: false, // <-- Wichtige Änderung
     );
   }
 
@@ -303,14 +326,19 @@ class _EventListPageState extends State<EventListPage> {
                                                   _displayGroup.groupMembers,
                                               db: widget.db,
                                               onEventDeleted: _onEventDeleted,
+                                              // HIER IST DIE KORREKTUR/ERGÄNZUNG:
+                                              onEventUpdated: (updatedEvent) {
+                                                _loadEvents(); // Events neu laden, um die Änderungen anzuzeigen
+                                              },
                                             );
                                           },
                                         );
-                                        if (eventWasDeleted == true) {
-                                          debugPrint(
-                                              'Event was deleted via InfoBottomSheet, EventListPage will refresh.');
-                                          await _loadEvents();
-                                        }
+                                        // Nach dem Schließen des Bottom Sheets, egal ob gelöscht oder nicht,
+                                        // laden wir die Events neu, falls eine Aktualisierung stattgefunden hat.
+                                        // Der onEventUpdated-Callback im InfoBottomSheet sollte dies bereits triggern,
+                                        // aber ein zusätzlicher Aufruf hier schadet nicht, falls andere Änderungen
+                                        // (nicht nur Beschreibung) in Zukunft hinzukommen.
+                                        await _loadEvents();
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
@@ -377,6 +405,7 @@ class _EventListPageState extends State<EventListPage> {
             currentUser: widget.currentUser,
             initialIndex: 1,
             auth: widget.auth,
+            // onEventsRefreshed: widget.onEventsRefreshed, // DIESE ZEILE WIRD ENTFERNT ODER AUSKOMMENTIERT
           ),
         ],
       ),

@@ -17,6 +17,9 @@ class CalendarGrid extends StatefulWidget {
   final AppUser? currentUser;
   final List<SingleEvent> allEvents;
   final Function(String eventId)? onEventDeletedConfirmed;
+  final Function()?
+      onEventsRefreshed; // HINZUGEFÜGT: Callback, wenn Events neu geladen werden sollen
+
   const CalendarGrid(
     this.db, {
     super.key,
@@ -24,6 +27,7 @@ class CalendarGrid extends StatefulWidget {
     this.currentUser,
     required this.allEvents,
     this.onEventDeletedConfirmed,
+    this.onEventsRefreshed, // HINZUGEFÜGT
   });
 
   @override
@@ -239,6 +243,7 @@ class _CalendarGridState extends State<CalendarGrid> {
       currentAvatarUrl: eventUrl,
       displayRadius: size / 2,
       applyTransformOffset: false,
+      isInteractive: false,
     );
   }
 
@@ -419,6 +424,10 @@ class _CalendarGridState extends State<CalendarGrid> {
                                               widget.onEventDeletedConfirmed
                                                   ?.call(deletedEventId);
                                             },
+                                            // HIER IST DIE KORREKTUR/ERGÄNZUNG:
+                                            onEventUpdated: (updatedEvent) {
+                                              widget.onEventsRefreshed?.call();
+                                            },
                                           );
                                         },
                                       );
@@ -426,6 +435,8 @@ class _CalendarGridState extends State<CalendarGrid> {
                                       if (eventWasDeleted == true) {
                                         debugPrint(
                                             'Event was deleted via InfoBottomSheet, CalendarScreen will refresh.');
+                                        widget.onEventsRefreshed
+                                            ?.call(); // Auch hier aktualisieren nach Löschen
                                       }
                                     },
                                     child: Container(
