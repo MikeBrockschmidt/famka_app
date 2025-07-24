@@ -1,4 +1,3 @@
-// lib/src/features/calendar/presentation/widgets/info_bottom_sheet.dart
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:intl/intl.dart';
@@ -15,8 +14,7 @@ class InfoBottomSheet extends StatefulWidget {
   final List<AppUser> currentGroupMembers;
   final DatabaseRepository db;
   final ValueChanged<String>? onEventDeleted;
-  final ValueChanged<SingleEvent>?
-      onEventUpdated; // NEU: Callback für aktualisierte Events
+  final ValueChanged<SingleEvent>? onEventUpdated;
 
   const InfoBottomSheet({
     super.key,
@@ -26,7 +24,7 @@ class InfoBottomSheet extends StatefulWidget {
     required this.currentGroupMembers,
     required this.db,
     this.onEventDeleted,
-    this.onEventUpdated, // NEU: Initialisierung des Callbacks
+    this.onEventUpdated,
   });
 
   @override
@@ -146,8 +144,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
             }
             _isEditingDescription[event.singleEventId] = false;
           });
-          widget.onEventUpdated?.call(
-              updatedEvent); // NEU: Event an das übergeordnete Widget zurückgeben
+          widget.onEventUpdated?.call(updatedEvent);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text('Beschreibung erfolgreich aktualisiert.')),
@@ -164,7 +161,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         }
       }
     } else {
-      // Wenn keine Änderung vorgenommen wurde, einfach den Bearbeitungsmodus beenden
       if (mounted) {
         setState(() {
           _isEditingDescription[event.singleEventId] = false;
@@ -176,7 +172,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
     }
   }
 
-  // NEUE Methode zum Bestätigen und Löschen eines einzelnen Events
   Future<void> _confirmAndDeleteEvent(SingleEvent event) async {
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -206,16 +201,13 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
 
     if (confirm == true) {
       widget.onEventDeleted?.call(event.singleEventId);
-      // Optional: Entferne das Event sofort aus der lokalen Liste
       if (mounted) {
         setState(() {
           _currentEvents
               .removeWhere((e) => e.singleEventId == event.singleEventId);
         });
-        // Wenn keine Events mehr übrig sind, schließe das Bottom Sheet
         if (_currentEvents.isEmpty) {
-          Navigator.of(context).pop(
-              true); // Signalisiert dem aufrufenden Widget, dass Events gelöscht wurden
+          Navigator.of(context).pop(true);
         }
       }
     }
@@ -224,10 +216,10 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.5, // Startet mit 50% des Bildschirms
-      minChildSize: 0.25, // Mindestgröße 25%
-      maxChildSize: 0.9, // Maximalgröße 90%
-      expand: false, // Nicht den ganzen Bildschirm ausfüllen
+      initialChildSize: 0.5,
+      minChildSize: 0.25,
+      maxChildSize: 0.9,
+      expand: false,
       builder: (BuildContext context, ScrollController scrollController) {
         return Container(
           decoration: const BoxDecoration(
@@ -271,8 +263,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
               ),
               Expanded(
                 child: ListView.builder(
-                  controller:
-                      scrollController, // Wichtig: Controller an ListView binden
+                  controller: scrollController,
                   itemCount: _currentEvents.length,
                   itemBuilder: (context, index) {
                     final event = _currentEvents[index];
@@ -360,9 +351,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                       ],
                                     ),
                                   ),
-                                  // NEUE POSITION DER ICONS
                                   Row(
-                                    mainAxisSize: MainAxisSize.min, // Wichtig!
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
                                         icon: Icon(isEditing
@@ -376,9 +366,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                             _isEditingDescription[event
                                                 .singleEventId] = !isEditing;
                                             if (!isEditing) {
-                                              // Wenn in den Bearbeitungsmodus gewechselt wird, nichts tun
                                             } else {
-                                              // Wenn Bearbeitungsmodus verlassen wird, versuchen zu speichern
                                               _saveDescription(event);
                                             }
                                           });
@@ -387,8 +375,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                       IconButton(
                                         icon: const Icon(Icons.delete_forever,
                                             color: AppColors.famkaRed),
-                                        onPressed: () => _confirmAndDeleteEvent(
-                                            event), // Rufe die neue Methode auf
+                                        onPressed: () =>
+                                            _confirmAndDeleteEvent(event),
                                       ),
                                     ],
                                   ),
@@ -417,55 +405,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                 'Teilnehmer: ${participantNames.join(', ')}',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
-                              // DER VORHERIGE "TERMIN LÖSCHEN" BUTTON WIRD HIER ENTFERNT
-                              // const SizedBox(height: 16),
-                              // Center(
-                              //   child: GestureDetector(
-                              //     onTap: () async {
-                              //       final bool confirmDelete = await showDialog(
-                              //             context: context,
-                              //             builder:
-                              //                 (BuildContext dialogContext) {
-                              //               return AlertDialog(
-                              //                 title:
-                              //                     const Text('Termin löschen'),
-                              //                 content: const Text(
-                              //                     'Bist du sicher, dass du diesen Termin löschen möchtest?'),
-                              //                 actions: <Widget>[
-                              //                   TextButton(
-                              //                     child:
-                              //                         const Text('Abbrechen'),
-                              //                     onPressed: () {
-                              //                       Navigator.of(dialogContext)
-                              //                           .pop(false);
-                              //                     },
-                              //                   ),
-                              //                   TextButton(
-                              //                     child: const Text('Löschen',
-                              //                         style: TextStyle(
-                              //                             color: AppColors
-                              //                                 .famkaRed)),
-                              //                     onPressed: () {
-                              //                       Navigator.of(dialogContext)
-                              //                           .pop(true);
-                              //                     },
-                              //                   ),
-                              //                 ],
-                              //               );
-                              //             },
-                              //           ) ??
-                              //           false;
-                              //       if (confirmDelete) {
-                              //         widget.onEventDeleted
-                              //             ?.call(event.singleEventId);
-                              //         Navigator.of(context).pop(true);
-                              //       }
-                              //     },
-                              //     child: const ButtonLinearGradient(
-                              //       buttonText: 'Termin löschen',
-                              //     ),
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),
@@ -474,14 +413,14 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                   },
                 ),
               ),
+              const SizedBox(height: 10),
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 52),
                 child: Row(
                   children: [
                     Expanded(
                       child: GestureDetector(
                         onTap: () async {
-                          // Nur speichern, wenn der Bearbeitungsmodus aktiv ist und Änderungen vorliegen
                           for (var event in _currentEvents) {
                             if (_isEditingDescription[event.singleEventId] ==
                                 true) {
@@ -495,7 +434,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 26),
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
