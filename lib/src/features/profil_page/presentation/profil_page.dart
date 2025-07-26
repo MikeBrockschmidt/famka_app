@@ -33,10 +33,20 @@ class ProfilPage extends StatefulWidget {
 }
 
 class _ProfilPageState extends State<ProfilPage> {
+  // Neue Controller für Vor- und Nachname
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _miscellaneousController =
       TextEditingController();
+
+  // Neue FocusNodes für Vor- und Nachname
+  final FocusNode _firstNameFocusNode = FocusNode();
+  final FocusNode _lastNameFocusNode = FocusNode();
+  final FocusNode _phoneNumberFocusNode = FocusNode();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _miscellaneousFocusNode = FocusNode();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -44,6 +54,9 @@ class _ProfilPageState extends State<ProfilPage> {
   late String _currentProfileAvatarUrl;
 
   bool _hasChanges = false;
+  // Initialwerte für die neuen Felder
+  String? _initialFirstName;
+  String? _initialLastName;
   String? _initialPhoneNumber;
   String? _initialEmail;
   String? _initialMiscellaneous;
@@ -52,12 +65,18 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
+    // Controller mit den aktuellen Benutzerdaten initialisieren
+    _firstNameController.text = widget.currentUser.firstName ?? '';
+    _lastNameController.text = widget.currentUser.lastName ?? '';
     _phoneNumberController.text = widget.currentUser.phoneNumber ?? '';
     _emailController.text = widget.currentUser.email ?? '';
     _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
     _currentProfileAvatarUrl =
         widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';
 
+    // Initialwerte speichern, um Änderungen zu verfolgen
+    _initialFirstName = widget.currentUser.firstName;
+    _initialLastName = widget.currentUser.lastName;
     _initialPhoneNumber = widget.currentUser.phoneNumber;
     _initialEmail = widget.currentUser.email;
     _initialMiscellaneous = widget.currentUser.miscellaneous;
@@ -65,6 +84,9 @@ class _ProfilPageState extends State<ProfilPage> {
 
     _loadUserGroups();
 
+    // Listener für die neuen Controller hinzufügen
+    _firstNameController.addListener(_checkIfHasChanges);
+    _lastNameController.addListener(_checkIfHasChanges);
     _phoneNumberController.addListener(_checkIfHasChanges);
     _emailController.addListener(_checkIfHasChanges);
     _miscellaneousController.addListener(_checkIfHasChanges);
@@ -74,19 +96,35 @@ class _ProfilPageState extends State<ProfilPage> {
 
   @override
   void dispose() {
+    // Listener für die neuen Controller entfernen
+    _firstNameController.removeListener(_checkIfHasChanges);
+    _lastNameController.removeListener(_checkIfHasChanges);
     _phoneNumberController.removeListener(_checkIfHasChanges);
     _emailController.removeListener(_checkIfHasChanges);
     _miscellaneousController.removeListener(_checkIfHasChanges);
 
+    // Controller für die neuen Felder entsorgen
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _phoneNumberController.dispose();
     _emailController.dispose();
     _miscellaneousController.dispose();
+
+    // FocusNodes für die neuen Felder entsorgen
+    _firstNameFocusNode.dispose();
+    _lastNameFocusNode.dispose();
+    _phoneNumberFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _miscellaneousFocusNode.dispose();
+
     super.dispose();
   }
 
   void _checkIfHasChanges() {
     final bool newHasChanges =
-        _phoneNumberController.text != (_initialPhoneNumber ?? '') ||
+        _firstNameController.text != (_initialFirstName ?? '') || // Neu
+            _lastNameController.text != (_initialLastName ?? '') || // Neu
+            _phoneNumberController.text != (_initialPhoneNumber ?? '') ||
             _emailController.text != (_initialEmail ?? '') ||
             _miscellaneousController.text != (_initialMiscellaneous ?? '') ||
             _currentProfileAvatarUrl !=
@@ -97,6 +135,15 @@ class _ProfilPageState extends State<ProfilPage> {
         _hasChanges = newHasChanges;
       });
     }
+  }
+
+  // Optional: Validierung für Vor- und Nachname (kann leer bleiben, wenn gewünscht)
+  String? _validateName(String? input) {
+    if (input == null || input.trim().isEmpty) {
+      // return 'Name darf nicht leer sein'; // Wenn der Name zwingend ist
+      return null; // Wenn der Name optional ist
+    }
+    return null;
   }
 
   String? _validateEmail(String? input) {
@@ -166,8 +213,8 @@ class _ProfilPageState extends State<ProfilPage> {
     if (_formKey.currentState?.validate() ?? false) {
       final updatedUser = AppUser(
         profilId: widget.currentUser.profilId,
-        firstName: widget.currentUser.firstName,
-        lastName: widget.currentUser.lastName,
+        firstName: _firstNameController.text.trim(), // Aktualisiert
+        lastName: _lastNameController.text.trim(), // Aktualisiert
         email: _emailController.text.trim(),
         phoneNumber: _phoneNumberController.text.trim().isEmpty
             ? null
@@ -183,6 +230,9 @@ class _ProfilPageState extends State<ProfilPage> {
         await widget.db.updateUser(updatedUser);
 
         setState(() {
+          // Initialwerte aktualisieren
+          _initialFirstName = updatedUser.firstName;
+          _initialLastName = updatedUser.lastName;
           _initialPhoneNumber = updatedUser.phoneNumber;
           _initialEmail = updatedUser.email;
           _initialMiscellaneous = updatedUser.miscellaneous;
@@ -393,14 +443,50 @@ class _ProfilPageState extends State<ProfilPage> {
               const SizedBox(height: 20),
               const Divider(thickness: 0.3, height: 0.1, color: Colors.black),
               const SizedBox(height: 20),
+              // Hier wird der Name anpassbar
               Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '${widget.currentUser.firstName ?? ''} ${widget.currentUser.lastName ?? ''}',
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
+                padding: const EdgeInsets.only(
+                    left: 30, right: 30), // Rechte Padding für Symmetrie
+                child: Column(
+                  // Column, um Vor- und Nachname untereinander zu halten oder in einer Row
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _firstNameController,
+                      focusNode: _firstNameFocusNode,
+                      textInputAction: TextInputAction
+                          .next, // Nach dem Vornamen zum Nachnamen springen
+                      onFieldSubmitted: (value) {
+                        FocusScope.of(context).requestFocus(_lastNameFocusNode);
+                      },
+                      validator: _validateName, // Optionaler Validator
+                      decoration: const InputDecoration(
+                        hintText: 'Vorname eingeben',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                      ),
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                    TextFormField(
+                      controller: _lastNameController,
+                      focusNode: _lastNameFocusNode,
+                      textInputAction: TextInputAction
+                          .next, // Nach dem Nachnamen zur Telefonnummer springen
+                      onFieldSubmitted: (value) {
+                        FocusScope.of(context)
+                            .requestFocus(_phoneNumberFocusNode);
+                      },
+                      validator: _validateName, // Optionaler Validator
+                      decoration: const InputDecoration(
+                        hintText: 'Nachname eingeben',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                      ),
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 20),
@@ -409,183 +495,219 @@ class _ProfilPageState extends State<ProfilPage> {
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.only(bottom: 100),
-                  child: Form(
-                    key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.phone, size: 20),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _phoneNumberController,
-                                  keyboardType: TextInputType.phone,
-                                  validator: _validatePhoneNumber,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Telefonnummer eingeben',
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.zero,
-                                  ),
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const Icon(Icons.email, size: 20),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _emailController,
-                                  keyboardType: TextInputType.emailAddress,
-                                  validator: _validateEmail,
-                                  decoration: const InputDecoration(
-                                    hintText: 'E-Mail Adresse eingeben',
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.zero,
-                                  ),
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const Icon(Icons.calendar_today, size: 20),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _miscellaneousController,
-                                  maxLines: null,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Zusätzliche Infos',
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.zero,
-                                  ),
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          const Divider(
-                              thickness: 0.3, height: 1, color: Colors.black),
-                          const SizedBox(height: 20),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                  // Hier haben wir einen GestureDetector hinzugefügt, um die Tastatur zu schließen, wenn außerhalb getippt wird
+                  child: GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                    },
+                    child: Form(
+                      key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
                               children: [
-                                Column(
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        _navigateToAddGroupScreen(context);
-                                      },
-                                      child: Container(
-                                        width: 69,
-                                        height: 69,
-                                        decoration: BoxDecoration(
-                                          color: AppColors.famkaGreen,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.group_add,
-                                          color: Colors.white,
-                                          size: 40,
-                                        ),
-                                      ),
+                                const Icon(Icons.phone, size: 20),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _phoneNumberController,
+                                    focusNode:
+                                        _phoneNumberFocusNode, // FocusNode zugewiesen
+                                    keyboardType: TextInputType.phone,
+                                    textInputAction: TextInputAction
+                                        .next, // Zum nächsten Feld springen
+                                    onFieldSubmitted: (value) {
+                                      FocusScope.of(context)
+                                          .requestFocus(_emailFocusNode);
+                                    },
+                                    validator: _validatePhoneNumber,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Telefonnummer eingeben',
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.zero,
                                     ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      'Gruppe hinzufügen',
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 20),
-                                FutureBuilder<List<Group>>(
-                                  future: _userGroupsFuture,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    } else if (snapshot.hasError) {
-                                      return Center(
-                                          child: Text(
-                                              'Fehler: ${snapshot.error}'));
-                                    } else if (!snapshot.hasData ||
-                                        snapshot.data!.isEmpty) {
-                                      return const Center(
-                                          child:
-                                              Text('Keine Gruppen gefunden.'));
-                                    } else {
-                                      return Row(
-                                        children: snapshot.data!
-                                            .map(
-                                              (group) => Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 20),
-                                                child: ProfilAvatarRow(
-                                                  widget.db,
-                                                  group: group,
-                                                  currentUser:
-                                                      widget.currentUser,
-                                                  auth: widget.auth,
-                                                  onGroupModified:
-                                                      _loadUserGroups,
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
-                                      );
-                                    }
-                                  },
+                                    style:
+                                        Theme.of(context).textTheme.labelSmall,
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: Opacity(
-                              opacity: _hasChanges ? 1.0 : 0.5,
-                              child: InkWell(
-                                onTap: _hasChanges ? _saveUserData : null,
-                                child: const SizedBox(
-                                  width: 150,
-                                  height: 50,
-                                  child: ButtonLinearGradient(
-                                      buttonText: 'Speichern'),
+                            Row(
+                              children: [
+                                const Icon(Icons.email, size: 20),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _emailController,
+                                    focusNode:
+                                        _emailFocusNode, // FocusNode zugewiesen
+                                    keyboardType: TextInputType.emailAddress,
+                                    textInputAction: TextInputAction
+                                        .next, // Zum nächsten Feld springen
+                                    onFieldSubmitted: (value) {
+                                      FocusScope.of(context).requestFocus(
+                                          _miscellaneousFocusNode);
+                                    },
+                                    validator: _validateEmail,
+                                    decoration: const InputDecoration(
+                                      hintText: 'E-Mail Adresse eingeben',
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                    style:
+                                        Theme.of(context).textTheme.labelSmall,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                const Icon(Icons.calendar_today, size: 20),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _miscellaneousController,
+                                    focusNode:
+                                        _miscellaneousFocusNode, // FocusNode zugewiesen
+                                    maxLines: null,
+                                    textInputAction: TextInputAction
+                                        .done, // Letztes Feld, Tastatur schließen
+                                    onFieldSubmitted: (value) {
+                                      _miscellaneousFocusNode
+                                          .unfocus(); // Tastatur schließen
+                                      _saveUserData(); // Daten speichern, wenn letztes Feld abgeschlossen
+                                    },
+                                    decoration: const InputDecoration(
+                                      hintText: 'Zusätzliche Infos',
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                    style:
+                                        Theme.of(context).textTheme.labelSmall,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            const Divider(
+                                thickness: 0.3, height: 1, color: Colors.black),
+                            const SizedBox(height: 20),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Column(
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          _navigateToAddGroupScreen(context);
+                                        },
+                                        child: Container(
+                                          width: 69,
+                                          height: 69,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.famkaGreen,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.group_add,
+                                            color: Colors.white,
+                                            size: 40,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        'Gruppe hinzufügen',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 20),
+                                  FutureBuilder<List<Group>>(
+                                    future: _userGroupsFuture,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      } else if (snapshot.hasError) {
+                                        return Center(
+                                            child: Text(
+                                                'Fehler: ${snapshot.error}'));
+                                      } else if (!snapshot.hasData ||
+                                          snapshot.data!.isEmpty) {
+                                        return const Center(
+                                            child: Text(
+                                                'Keine Gruppen gefunden.'));
+                                      } else {
+                                        return Row(
+                                          children: snapshot.data!
+                                              .map(
+                                                (group) => Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          right: 20),
+                                                  child: ProfilAvatarRow(
+                                                    widget.db,
+                                                    group: group,
+                                                    currentUser:
+                                                        widget.currentUser,
+                                                    auth: widget.auth,
+                                                    onGroupModified:
+                                                        _loadUserGroups,
+                                                  ),
+                                                ),
+                                              )
+                                              .toList(),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Center(
+                              child: Opacity(
+                                opacity: _hasChanges ? 1.0 : 0.5,
+                                child: InkWell(
+                                  onTap: _hasChanges ? _saveUserData : null,
+                                  child: const SizedBox(
+                                    width: 150,
+                                    height: 50,
+                                    child: ButtonLinearGradient(
+                                        buttonText: 'Speichern'),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          Center(
-                            child: InkWell(
-                              onTap: _logout,
-                              child: Text(
-                                'Ausloggen',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(
-                                        color: AppColors.famkaGrey,
-                                        decoration: TextDecoration.none),
+                            const SizedBox(height: 10),
+                            Center(
+                              child: InkWell(
+                                onTap: _logout,
+                                child: Text(
+                                  'Ausloggen',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                          color: AppColors.famkaGrey,
+                                          decoration: TextDecoration.none),
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                        ],
+                            const SizedBox(height: 20),
+                          ],
+                        ),
                       ),
                     ),
                   ),

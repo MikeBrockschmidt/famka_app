@@ -42,6 +42,11 @@ class _GroupPageState extends State<GroupPage> {
   late TextEditingController _locationController;
   late TextEditingController _descriptionController;
 
+  // Füge FocusNodes für jedes TextFormField hinzu
+  late FocusNode _groupNameFocusNode;
+  late FocusNode _locationFocusNode;
+  late FocusNode _descriptionFocusNode;
+
   String? _initialGroupAvatarUrl;
   bool _hasChanges = false;
   bool _isLoading = true;
@@ -52,6 +57,10 @@ class _GroupPageState extends State<GroupPage> {
     _groupNameController = TextEditingController();
     _locationController = TextEditingController();
     _descriptionController = TextEditingController();
+    // Initialisiere FocusNodes im Konstruktor
+    _groupNameFocusNode = FocusNode();
+    _locationFocusNode = FocusNode();
+    _descriptionFocusNode = FocusNode();
   }
 
   @override
@@ -76,6 +85,12 @@ class _GroupPageState extends State<GroupPage> {
     _locationController.dispose();
     _descriptionController.removeListener(_checkIfHasChanges);
     _descriptionController.dispose();
+
+    // Entsorge die FocusNodes
+    _groupNameFocusNode.dispose();
+    _locationFocusNode.dispose();
+    _descriptionFocusNode.dispose();
+
     super.dispose();
   }
 
@@ -455,6 +470,7 @@ class _GroupPageState extends State<GroupPage> {
       },
       child: Scaffold(
         backgroundColor: AppColors.famkaWhite,
+        resizeToAvoidBottomInset: true, // Stelle sicher, dass dies auf true ist
         body: SafeArea(
           child: Column(
             children: [
@@ -485,6 +501,13 @@ class _GroupPageState extends State<GroupPage> {
                       Expanded(
                         child: TextField(
                           controller: _groupNameController,
+                          focusNode:
+                              _groupNameFocusNode, // FocusNode zugewiesen
+                          textInputAction: TextInputAction.done, // Hinzugefügt
+                          onSubmitted: (value) {
+                            // onSubmitted für TextField ist korrekt
+                            _groupNameFocusNode.unfocus(); // Tastatur schließen
+                          },
                           style: Theme.of(context).textTheme.labelMedium,
                           decoration: const InputDecoration(
                             hintText: 'Gruppenname',
@@ -516,161 +539,190 @@ class _GroupPageState extends State<GroupPage> {
               const SizedBox(height: 10),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                const Icon(Icons.location_on,
-                                    size: 20, color: AppColors.famkaBlack),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _locationController,
-                                    style:
-                                        Theme.of(context).textTheme.labelSmall,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Ort eingeben',
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.zero,
-                                      isDense: true,
+                  // GestureDetector hinzugefügt, um die Tastatur bei Tippen außerhalb zu schließen
+                  child: GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_on,
+                                      size: 20, color: AppColors.famkaBlack),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _locationController,
+                                      focusNode:
+                                          _locationFocusNode, // FocusNode zugewiesen
+                                      textInputAction:
+                                          TextInputAction.done, // Hinzugefügt
+                                      onSubmitted: (value) {
+                                        // onSubmitted für TextField ist korrekt
+                                        _locationFocusNode
+                                            .unfocus(); // Tastatur schließen
+                                      },
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall,
+                                      decoration: const InputDecoration(
+                                        hintText: 'Ort eingeben',
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.zero,
+                                        isDense: true,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.description,
-                                  size: 20,
-                                  color: AppColors.famkaBlack,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _descriptionController,
-                                    style:
-                                        Theme.of(context).textTheme.labelSmall,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Beschreibung eingeben',
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.zero,
-                                      isDense: true,
-                                    ),
-                                    maxLines: null,
-                                    keyboardType: TextInputType.multiline,
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.description,
+                                    size: 20,
+                                    color: AppColors.famkaBlack,
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Mitglieder:',
-                                  style:
-                                      Theme.of(context).textTheme.labelMedium,
-                                ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (isUserAdmin)
-                                      InkWell(
-                                        onTap: _showGroupIdDialog,
-                                        child: const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: Icon(
-                                            Icons.info_outline,
-                                            color: AppColors.famkaBlack,
-                                          ),
-                                        ),
-                                      ),
-                                    if (isUserAdmin) const SizedBox(width: 12),
-                                    if (isUserAdmin)
-                                      InkWell(
-                                        onTap: _showAddPassiveMemberDialog,
-                                        child: const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: Icon(
-                                            Icons.person_add_alt_1,
-                                            color: AppColors.famkaBlack,
-                                          ),
-                                        ),
-                                      ),
-                                    if (isUserAdmin) const SizedBox(width: 12),
-                                    if (isUserAdmin)
-                                      InkWell(
-                                        onTap: _showInviteDialog,
-                                        child: const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: Icon(
-                                            Icons.event_available,
-                                            color: AppColors.famkaBlack,
-                                          ),
-                                        ),
-                                      ),
-                                    const SizedBox(width: 12),
-                                    InkWell(
-                                      onTap: _manageGroupMembers,
-                                      child: const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: Icon(
-                                          Icons.edit,
-                                          color: AppColors.famkaBlack,
-                                        ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _descriptionController,
+                                      focusNode:
+                                          _descriptionFocusNode, // FocusNode zugewiesen
+                                      maxLines: null,
+                                      keyboardType: TextInputType.multiline,
+                                      textInputAction:
+                                          TextInputAction.done, // Hinzugefügt
+                                      onSubmitted: (value) {
+                                        // onSubmitted für TextField ist korrekt
+                                        _descriptionFocusNode
+                                            .unfocus(); // Tastatur schließen
+                                      },
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall,
+                                      decoration: const InputDecoration(
+                                        hintText: 'Beschreibung eingeben',
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.zero,
+                                        isDense: true,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                          ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Mitglieder:',
+                                    style:
+                                        Theme.of(context).textTheme.labelMedium,
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (isUserAdmin)
+                                        InkWell(
+                                          onTap: _showGroupIdDialog,
+                                          child: const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: Icon(
+                                              Icons.info_outline,
+                                              color: AppColors.famkaBlack,
+                                            ),
+                                          ),
+                                        ),
+                                      if (isUserAdmin)
+                                        const SizedBox(width: 12),
+                                      if (isUserAdmin)
+                                        InkWell(
+                                          onTap: _showAddPassiveMemberDialog,
+                                          child: const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: Icon(
+                                              Icons.person_add_alt_1,
+                                              color: AppColors.famkaBlack,
+                                            ),
+                                          ),
+                                        ),
+                                      if (isUserAdmin)
+                                        const SizedBox(width: 12),
+                                      if (isUserAdmin)
+                                        InkWell(
+                                          onTap: _showInviteDialog,
+                                          child: const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: Icon(
+                                              Icons.event_available,
+                                              color: AppColors.famkaBlack,
+                                            ),
+                                          ),
+                                        ),
+                                      const SizedBox(width: 12),
+                                      InkWell(
+                                        onTap: _manageGroupMembers,
+                                        child: const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: Icon(
+                                            Icons.edit,
+                                            color: AppColors.famkaBlack,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                            ],
+                          ),
                         ),
-                      ),
-                      GroupMembersList(
-                        db: widget.db,
-                        auth: widget.auth,
-                        currentUser: widget.currentUser,
-                        members: _currentGroup!.groupMembers,
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 10.0),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Opacity(
-                            opacity: _hasChanges ? 1.0 : 0.5,
-                            child: InkWell(
-                              onTap: _hasChanges ? _saveGroupChanges : null,
-                              child: const SizedBox(
-                                width: 150,
-                                height: 50,
-                                child: ButtonLinearGradient(
-                                  buttonText: 'Speichern',
+                        GroupMembersList(
+                          db: widget.db,
+                          auth: widget.auth,
+                          currentUser: widget.currentUser,
+                          members: _currentGroup!.groupMembers,
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30.0, vertical: 10.0),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Opacity(
+                              opacity: _hasChanges ? 1.0 : 0.5,
+                              child: InkWell(
+                                onTap: _hasChanges ? _saveGroupChanges : null,
+                                child: const SizedBox(
+                                  width: 150,
+                                  height: 50,
+                                  child: ButtonLinearGradient(
+                                    buttonText: 'Speichern',
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 70),
-                    ],
+                        const SizedBox(height: 70),
+                      ],
+                    ),
                   ),
                 ),
               ),
