@@ -123,10 +123,14 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> addGroup(Group group) async {
     try {
+      final Map<String, dynamic> dataToSave =
+          group.toMap(); // Hinzugefügte Zeile
+      print(
+          'DEBUG: Daten, die an Firestore gesendet werden: $dataToSave'); // Hinzugefügte Zeile
       await _firestore
           .collection('groups')
           .doc(group.groupId)
-          .set(group.toMap());
+          .set(dataToSave); // Geändert von group.toMap() zu dataToSave
       print('✅ Gruppe ${group.groupId} erfolgreich hinzugefügt.');
     } catch (e) {
       print('❌ Fehler beim Hinzufügen der Gruppe: $e');
@@ -165,7 +169,19 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       final doc = await _firestore.collection('groups').doc(groupId).get();
       if (doc.exists) {
         final groupData = doc.data()!;
-        final memberIds = List<String>.from(groupData['groupMemberIds'] ?? []);
+        // Überprüfen, ob groupMemberIds ein Array ist, bevor es konvertiert wird
+        // Falls es immer noch als Map gespeichert wird, muss das behandelt werden
+        final dynamic memberIdsRaw = groupData['groupMemberIds'];
+        List<String> memberIds;
+        if (memberIdsRaw is List) {
+          memberIds = List<String>.from(memberIdsRaw);
+        } else if (memberIdsRaw is Map) {
+          // Fallback für den Übergang, falls noch alte Daten vorhanden sind
+          memberIds = memberIdsRaw.keys.cast<String>().toList();
+        } else {
+          memberIds = [];
+        }
+
         final List<AppUser> members = [];
         for (final memberId in memberIds) {
           final member = await getUserAsync(memberId);
@@ -194,7 +210,18 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       final List<Group> groups = [];
       for (var doc in snapshot.docs) {
         final groupData = doc.data();
-        final memberIds = List<String>.from(groupData['groupMemberIds'] ?? []);
+        // Überprüfen, ob groupMemberIds ein Array ist, bevor es konvertiert wird
+        final dynamic memberIdsRaw = groupData['groupMemberIds'];
+        List<String> memberIds;
+        if (memberIdsRaw is List) {
+          memberIds = List<String>.from(memberIdsRaw);
+        } else if (memberIdsRaw is Map) {
+          // Fallback für den Übergang, falls noch alte Daten vorhanden sind
+          memberIds = memberIdsRaw.keys.cast<String>().toList();
+        } else {
+          memberIds = [];
+        }
+
         final List<AppUser> members = [];
         for (final memberId in memberIds) {
           final member = await getUserAsync(memberId);
@@ -224,8 +251,18 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       final groupDoc = await _firestore.collection('groups').doc(groupId).get();
       if (!groupDoc.exists) return [];
 
-      final memberIds =
-          List<String>.from(groupDoc.data()?['groupMemberIds'] ?? []);
+      // Überprüfen, ob groupMemberIds ein Array ist, bevor es konvertiert wird
+      final dynamic memberIdsRaw = groupDoc.data()?['groupMemberIds'];
+      List<String> memberIds;
+      if (memberIdsRaw is List) {
+        memberIds = List<String>.from(memberIdsRaw);
+      } else if (memberIdsRaw is Map) {
+        // Fallback für den Übergang, falls noch alte Daten vorhanden sind
+        memberIds = memberIdsRaw.keys.cast<String>().toList();
+      } else {
+        memberIds = [];
+      }
+
       final List<AppUser> members = [];
       for (final id in memberIds) {
         final user = await getUserAsync(id);
@@ -251,8 +288,17 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
       if (groupDoc.exists) {
         final groupData = groupDoc.data()!;
-        final List<String> currentMemberIds =
-            List<String>.from(groupData['groupMemberIds'] ?? []);
+        // Hier ebenfalls die Umwandlung von Map zu List behandeln
+        final dynamic currentMemberIdsRaw = groupData['groupMemberIds'];
+        List<String> currentMemberIds;
+        if (currentMemberIdsRaw is List) {
+          currentMemberIds = List<String>.from(currentMemberIdsRaw);
+        } else if (currentMemberIdsRaw is Map) {
+          currentMemberIds = currentMemberIdsRaw.keys.cast<String>().toList();
+        } else {
+          currentMemberIds = [];
+        }
+
         Map<String, dynamic> currentUserRoles =
             Map<String, dynamic>.from(groupData['userRoles'] ?? {});
 
@@ -292,8 +338,17 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
       if (groupDoc.exists) {
         final groupData = groupDoc.data()!;
-        final List<String> currentMemberIds =
-            List<String>.from(groupData['groupMemberIds'] ?? []);
+        // Hier ebenfalls die Umwandlung von Map zu List behandeln
+        final dynamic currentMemberIdsRaw = groupData['groupMemberIds'];
+        List<String> currentMemberIds;
+        if (currentMemberIdsRaw is List) {
+          currentMemberIds = List<String>.from(currentMemberIdsRaw);
+        } else if (currentMemberIdsRaw is Map) {
+          currentMemberIds = currentMemberIdsRaw.keys.cast<String>().toList();
+        } else {
+          currentMemberIds = [];
+        }
+
         Map<String, dynamic> currentUserRoles =
             Map<String, dynamic>.from(groupData['userRoles'] ?? {});
 
@@ -328,7 +383,17 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       final List<Group> groups = [];
       for (var doc in snapshot.docs) {
         final groupData = doc.data();
-        final memberIds = List<String>.from(groupData['groupMemberIds'] ?? []);
+        // Hier ebenfalls die Umwandlung von Map zu List behandeln
+        final dynamic memberIdsRaw = groupData['groupMemberIds'];
+        List<String> memberIds;
+        if (memberIdsRaw is List) {
+          memberIds = List<String>.from(memberIdsRaw);
+        } else if (memberIdsRaw is Map) {
+          memberIds = memberIdsRaw.keys.cast<String>().toList();
+        } else {
+          memberIds = [];
+        }
+
         final List<AppUser> members = [];
         for (final memberId in memberIds) {
           final member = await getUserAsync(memberId);

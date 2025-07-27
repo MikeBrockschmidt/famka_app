@@ -1,3 +1,4 @@
+// lib/src/features/group_page/presentation/group_page.dart
 import 'package:famka_app/src/common/headline_g.dart';
 import 'package:famka_app/src/features/group_page/presentation/manage_group_members_page.dart';
 import 'package:flutter/material.dart';
@@ -456,6 +457,19 @@ class _GroupPageState extends State<GroupPage> {
     final bool showDeleteButton = _isCurrentUserGroupCreator();
     final bool isUserAdmin = _isUserAdmin;
 
+    // Bestimme die Rolle des aktuellen Benutzers
+    String userRoleText = '';
+    if (_currentGroup!.userRoles.containsKey(_currentUserId)) {
+      final UserRole userRole = _currentGroup!.userRoles[_currentUserId]!;
+      if (userRole == UserRole.admin) {
+        userRoleText = 'Rolle: Admin';
+      } else if (userRole == UserRole.member) {
+        userRoleText = 'Rolle: Mitglied';
+      }
+      // Der "passive"-Fall wird entfernt, da er nicht im Enum existiert.
+      // Alle Nicht-Admins werden somit als "Mitglied" angezeigt.
+    }
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) async {
@@ -496,35 +510,55 @@ class _GroupPageState extends State<GroupPage> {
                 padding: const EdgeInsets.only(left: 30, right: 30),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Row(
+                  child: Column(
+                    // ÄNDERUNG: Column statt Row, um Text untereinander zu legen
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Links ausgerichtet
                     children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _groupNameController,
-                          focusNode:
-                              _groupNameFocusNode, // FocusNode zugewiesen
-                          textInputAction: TextInputAction.done, // Hinzugefügt
-                          onSubmitted: (value) {
-                            // onSubmitted für TextField ist korrekt
-                            _groupNameFocusNode.unfocus(); // Tastatur schließen
-                          },
-                          style: Theme.of(context).textTheme.labelMedium,
-                          decoration: const InputDecoration(
-                            hintText: 'Gruppenname',
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                            isDense: true,
+                      Row(
+                        // Ursprüngliche Row für Gruppennamen und Löschen-Button
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _groupNameController,
+                              focusNode:
+                                  _groupNameFocusNode, // FocusNode zugewiesen
+                              textInputAction:
+                                  TextInputAction.done, // Hinzugefügt
+                              onSubmitted: (value) {
+                                // onSubmitted für TextField ist korrekt
+                                _groupNameFocusNode
+                                    .unfocus(); // Tastatur schließen
+                              },
+                              style: Theme.of(context).textTheme.labelMedium,
+                              decoration: const InputDecoration(
+                                hintText: 'Gruppenname',
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                isDense: true,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (showDeleteButton)
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete_forever,
+                                color: AppColors.famkaBlack,
+                              ),
+                              onPressed: _confirmDeleteGroup,
+                              iconSize: 24,
+                            ),
+                        ],
                       ),
-                      if (showDeleteButton)
-                        IconButton(
-                          icon: const Icon(
-                            Icons.delete_forever,
-                            color: AppColors.famkaBlack,
-                          ),
-                          onPressed: _confirmDeleteGroup,
-                          iconSize: 24,
+                      // NEUE ANZEIGE DER ROLLE HIER
+                      if (userRoleText.isNotEmpty)
+                        Text(
+                          userRoleText,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.famkaGrey,
+                                    fontStyle: FontStyle.italic,
+                                  ),
                         ),
                     ],
                   ),

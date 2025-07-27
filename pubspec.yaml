@@ -36,6 +36,7 @@ dependencies:
   flutter_image_compress: ^2.2.0 
   reorderable_grid_view: ^2.2.4
   google_sign_in: ^7.1.1
+  flutter_local_notifications: ^19.4.0
 
 dev_dependencies:
   flutter_test:

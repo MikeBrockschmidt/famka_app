@@ -124,8 +124,14 @@ class _RegisterWindowState extends State<RegisterWindow> {
           profilId: firebaseUser.uid,
           firstName: firstName,
           lastName: lastName,
-          email: firebaseUser.email,
+          email: firebaseUser.email ??
+              '', // HIER BEHOBEN: Nullable String in non-nullable umwandeln
           avatarUrl: 'assets/grafiken/famka-kreis.png',
+          phoneNumber: null, // Initialisierung für neue Felder
+          miscellaneous: null, // Initialisierung für neue Felder
+          password:
+              null, // Passwörter sollten nicht direkt im AppUser-Modell gespeichert werden. Setzen Sie es auf null.
+          canCreateGroups: true, // Standardmäßig true für neue Registrierungen
         );
 
         await widget.db.createUser(newUser);

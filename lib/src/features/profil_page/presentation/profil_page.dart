@@ -211,6 +211,10 @@ class _ProfilPageState extends State<ProfilPage> {
 
   void _saveUserData() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // WICHTIG: Wenn Sie canCreateGroups über die UI ändern wollen,
+      // müsste hier ein entsprechendes UI-Element (z.B. Checkbox) sein
+      // und der Wert von dort übernommen werden.
+      // Für den Moment bleibt es beim Wert des aktuellen Benutzers.
       final updatedUser = AppUser(
         profilId: widget.currentUser.profilId,
         firstName: _firstNameController.text.trim(), // Aktualisiert
@@ -224,6 +228,8 @@ class _ProfilPageState extends State<ProfilPage> {
             ? null
             : _miscellaneousController.text.trim(),
         password: widget.currentUser.password,
+        canCreateGroups:
+            widget.currentUser.canCreateGroups, // Behält den aktuellen Wert bei
       );
 
       try {
@@ -237,6 +243,7 @@ class _ProfilPageState extends State<ProfilPage> {
           _initialEmail = updatedUser.email;
           _initialMiscellaneous = updatedUser.miscellaneous;
           _initialAvatarUrl = updatedUser.avatarUrl;
+          // canCreateGroups muss hier nicht aktualisiert werden, da es nicht über die UI geändert wird
         });
         _checkIfHasChanges();
 
@@ -602,35 +609,38 @@ class _ProfilPageState extends State<ProfilPage> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Column(
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          _navigateToAddGroupScreen(context);
-                                        },
-                                        child: Container(
-                                          width: 69,
-                                          height: 69,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.famkaGreen,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.group_add,
-                                            color: Colors.white,
-                                            size: 40,
+                                  // Hinzugefügte Bedingung für den "Gruppe hinzufügen"-Button
+                                  if (widget.currentUser
+                                      .canCreateGroups) // NEUE BEDINGUNG
+                                    Column(
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            _navigateToAddGroupScreen(context);
+                                          },
+                                          child: Container(
+                                            width: 69,
+                                            height: 69,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.famkaGreen,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.group_add,
+                                              color: Colors.white,
+                                              size: 40,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        'Gruppe hinzufügen',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
-                                      ),
-                                    ],
-                                  ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          'Gruppe hinzufügen',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
+                                        ),
+                                      ],
+                                    ),
                                   const SizedBox(width: 20),
                                   FutureBuilder<List<Group>>(
                                     future: _userGroupsFuture,
