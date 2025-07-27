@@ -116,9 +116,10 @@ class _AppointmentState extends State<Appointment> {
     if (!allowedChars.hasMatch(value)) {
       return 'Unerlaubte Zeichen im Standort';
     }
-    if (value.isNotEmpty && !RegExp(r'^[A-ZÄÖÜ]').hasMatch(value[0])) {
-      return 'Erster Buchstabe muss groß sein';
-    }
+    // Die folgende Zeile wurde entfernt, um die Großbuchstaben-Regel am Anfang aufzuheben.
+    // if (value.isNotEmpty && !RegExp(r'^[A-ZÄÖÜ]').hasMatch(value[0])) {
+    //   return 'Erster Buchstabe muss groß sein';
+    // }
     return null;
   }
 
