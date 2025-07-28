@@ -1,3 +1,4 @@
+// lib/src/features/appointment/presentation/widgets/appointment1.dart:
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
@@ -18,6 +19,7 @@ import 'package:famka_app/src/features/appointment/presentation/widgets/save_app
 import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/src/features/login/domain/user_role.dart'; // HINZUGEFÜGT: Für UserRole Enum
 
 class Appointment extends StatefulWidget {
   final DatabaseRepository db;
@@ -352,6 +354,30 @@ class _AppointmentState extends State<Appointment> {
       maybeMemberIds: [],
       declinedMemberIds: [],
     );
+
+    // --- HIER DIE DEBUG-AUSGABEN HINZUFÜGEN ---
+    debugPrint('*** DEBUGGING EVENT ERSTELLUNG ***');
+    debugPrint('Ersteller ID (creatorId): ${initialEvent.creatorId}');
+    debugPrint('Gruppen ID des Events (groupId): ${initialEvent.groupId}');
+    // NEU: Zusätzliche Prüfung
+    debugPrint('Ist widget.currentGroup null? ${widget.currentGroup == null}');
+    if (widget.currentGroup != null) {
+      debugPrint(
+          'widget.currentGroup.groupId: ${widget.currentGroup!.groupId}');
+      // Sicherstellen, dass widget.currentUser und dessen profillId nicht null sind
+      if (widget.currentUser != null) {
+        debugPrint(
+            'widget.currentGroup.userRoles[currentUserId]: ${widget.currentGroup!.userRoles[widget.currentUser!.profilId]}');
+      } else {
+        debugPrint(
+            'widget.currentUser ist null, kann userRoles nicht abrufen.');
+      }
+    } else {
+      debugPrint(
+          'currentGroup oder currentUser ist null, kann Rollen nicht prüfen.');
+    }
+    debugPrint('*** ENDE DEBUGGING EVENT ERSTELLUNG ***');
+    // --- ENDE DEBUG-AUSGABEN ---
 
     try {
       if (_repeat) {
