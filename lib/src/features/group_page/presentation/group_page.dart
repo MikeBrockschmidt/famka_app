@@ -231,6 +231,10 @@ class _GroupPageState extends State<GroupPage> {
         builder: (context) => ManageGroupMembersPage(
           db: widget.db,
           group: _currentGroup!,
+          currentUser:
+              widget.currentUser, // HINZUGEFÜGT für Berechtigungsprüfung
+          isCurrentUserAdmin:
+              _isUserAdmin, // HINZUGEFÜGT für Berechtigungsprüfung
         ),
       ),
     );
@@ -379,6 +383,10 @@ class _GroupPageState extends State<GroupPage> {
             ),
           ),
         );
+
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -455,7 +463,8 @@ class _GroupPageState extends State<GroupPage> {
     }
 
     final bool showDeleteButton = _isCurrentUserGroupCreator();
-    final bool isUserAdmin = _isUserAdmin;
+    final bool isUserAdmin =
+        _isUserAdmin; // Diese Variable wird nun in der Navigation verwendet
 
     // Bestimme die Rolle des aktuellen Benutzers
     String userRoleText = '';
@@ -667,46 +676,42 @@ class _GroupPageState extends State<GroupPage> {
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      if (isUserAdmin)
-                                        InkWell(
-                                          onTap: _showGroupIdDialog,
-                                          child: const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: Icon(
-                                              Icons.info_outline,
-                                              color: AppColors.famkaBlack,
-                                            ),
+                                      // Icons sind jetzt IMMER sichtbar
+                                      InkWell(
+                                        onTap: _showGroupIdDialog,
+                                        child: const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: Icon(
+                                            Icons.info_outline,
+                                            color: AppColors.famkaBlack,
                                           ),
                                         ),
-                                      if (isUserAdmin)
-                                        const SizedBox(width: 12),
-                                      if (isUserAdmin)
-                                        InkWell(
-                                          onTap: _showAddPassiveMemberDialog,
-                                          child: const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: Icon(
-                                              Icons.person_add_alt_1,
-                                              color: AppColors.famkaBlack,
-                                            ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      InkWell(
+                                        onTap: _showAddPassiveMemberDialog,
+                                        child: const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: Icon(
+                                            Icons.person_add_alt_1,
+                                            color: AppColors.famkaBlack,
                                           ),
                                         ),
-                                      if (isUserAdmin)
-                                        const SizedBox(width: 12),
-                                      if (isUserAdmin)
-                                        InkWell(
-                                          onTap: _showInviteDialog,
-                                          child: const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: Icon(
-                                              Icons.event_available,
-                                              color: AppColors.famkaBlack,
-                                            ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      InkWell(
+                                        onTap: _showInviteDialog,
+                                        child: const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: Icon(
+                                            Icons.event_available,
+                                            color: AppColors.famkaBlack,
                                           ),
                                         ),
+                                      ),
                                       const SizedBox(width: 12),
                                       InkWell(
                                         onTap: _manageGroupMembers,

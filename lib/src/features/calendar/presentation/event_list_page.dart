@@ -95,32 +95,23 @@ class _EventListPageState extends State<EventListPage> {
 
   Future<void> _onEventDeleted(String eventId) async {
     try {
-      final SingleEvent? deletedEvent = _events.firstWhere(
+      // KORREKTUR: Besserer Umgang mit orElse für firstWhere
+      final SingleEvent deletedEvent = _events.firstWhere(
         (event) => event.singleEventId == eventId,
-        orElse: () => null!,
+        orElse: () =>
+            throw Exception('Event with ID $eventId not found for deletion.'),
       );
 
-      if (deletedEvent != null) {
-        await widget.db
-            .deleteEvent(deletedEvent.groupId, deletedEvent.singleEventId);
-        if (mounted) {
-          setState(() {
-            _events.removeWhere((e) => e.singleEventId == eventId);
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Termin erfolgreich gelöscht.')),
-          );
-          widget.onEventsRefreshed?.call(); // HINZUGEFÜGT: Refresh nach Löschen
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              backgroundColor: AppColors.famkaRed,
-              content: Text('Fehler: Zu löschender Termin nicht gefunden.'),
-            ),
-          );
-        }
+      await widget.db
+          .deleteEvent(deletedEvent.groupId, deletedEvent.singleEventId);
+      if (mounted) {
+        setState(() {
+          _events.removeWhere((e) => e.singleEventId == eventId);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Termin erfolgreich gelöscht.')),
+        );
+        widget.onEventsRefreshed?.call(); // HINZUGEFÜGT: Refresh nach Löschen
       }
     } catch (e) {
       if (mounted) {
@@ -131,6 +122,7 @@ class _EventListPageState extends State<EventListPage> {
           ),
         );
       }
+      // Immer Events neu laden, auch bei Fehler, um den aktuellen Zustand sicherzustellen
       await _loadEvents();
     }
   }
@@ -258,7 +250,10 @@ class _EventListPageState extends State<EventListPage> {
       ),
       body: Column(
         children: [
-          MenuSubContainer2LinesGroupC(
+          // Hier ist der Aufruf, der den Fehler verursachte.
+          // Der Aufruf selbst ist syntaktisch korrekt, wenn MenuSubContainer2LinesGroupC ein Widget ist.
+          // Der Fehler muss in der Definition oder dem Import liegen.
+          MenuSubContainerTwoLinesGroupC(
             widget.db,
             currentGroup: _displayGroup,
             onGroupUpdated: _handleGroupUpdated,

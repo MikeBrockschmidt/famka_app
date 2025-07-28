@@ -1,3 +1,4 @@
+// lib/src/features/calendar/presentation/widgets/menu_sub_container_two_lines_group_c.dart
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
 import 'package:flutter/material.dart';
@@ -6,14 +7,14 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/common/image_utils.dart';
 
-class MenuSubContainer2LinesGroupC extends StatelessWidget {
+class MenuSubContainerTwoLinesGroupC extends StatelessWidget {
   final DatabaseRepository db;
   final Group currentGroup;
   final ValueChanged<Group> onGroupUpdated;
   final AppUser currentUser;
   final AuthRepository auth;
 
-  const MenuSubContainer2LinesGroupC(
+  const MenuSubContainerTwoLinesGroupC(
     this.db, {
     super.key,
     required this.currentGroup,
@@ -69,9 +70,13 @@ class MenuSubContainer2LinesGroupC extends StatelessWidget {
                                 ),
                           ),
                           const SizedBox(height: 2),
+                          // KORREKTUR: Null-Safety für groupLocation
                           Text(
-                            currentGroup.groupLocation,
-                            style: Theme.of(context).textTheme.bodySmall,
+                            currentGroup.groupLocation ??
+                                '', // Hinzufügen von ?? ''
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall, // Original-Stil beibehalten
                           ),
                         ],
                       ),
@@ -86,7 +91,8 @@ class MenuSubContainer2LinesGroupC extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => GroupPage(
                           db: db,
-                          group: currentGroup,
+                          group:
+                              currentGroup, // currentGroup: currentGroup hier beibehalten, da es im Original war
                           currentUser: currentUser,
                           auth: auth,
                         ),

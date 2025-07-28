@@ -1,7 +1,8 @@
+// lib/src/data/firestore_repository.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:famka_app/src/features/appointment/domain/single_event.dart';
+import 'package:famka_app/src/features/appointment/domain/single_event.dart'; // Sicherstellen, dass diese Importe korrekt sind
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
@@ -25,9 +26,11 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
     _currentGroupInternal = group;
   }
 
+  // Dies ist ein Platzhalter und sollte normalerweise über Dependency Injection bereitgestellt werden.
+  // Wenn Sie einen echten AuthRepository benötigen, muss dieser hier implementiert oder injiziert werden.
   @override
-  AuthRepository get auth =>
-      throw UnimplementedError('AuthRepository should be injected.');
+  AuthRepository get auth => throw UnimplementedError(
+      'AuthRepository is not implemented in FirestoreDatabaseRepository. It should be injected separately.');
 
   @override
   Future<String> getCurrentUserId() async {
@@ -123,14 +126,9 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> addGroup(Group group) async {
     try {
-      final Map<String, dynamic> dataToSave =
-          group.toMap(); // Hinzugefügte Zeile
-      print(
-          'DEBUG: Daten, die an Firestore gesendet werden: $dataToSave'); // Hinzugefügte Zeile
-      await _firestore
-          .collection('groups')
-          .doc(group.groupId)
-          .set(dataToSave); // Geändert von group.toMap() zu dataToSave
+      final Map<String, dynamic> dataToSave = group.toMap();
+      print('DEBUG: Daten, die an Firestore gesendet werden: $dataToSave');
+      await _firestore.collection('groups').doc(group.groupId).set(dataToSave);
       print('✅ Gruppe ${group.groupId} erfolgreich hinzugefügt.');
     } catch (e) {
       print('❌ Fehler beim Hinzufügen der Gruppe: $e');
@@ -163,32 +161,73 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
     }
   }
 
+  // Hilfsfunktion zum Abrufen von Gruppenmitgliedern, einschließlich passiver
+  Future<List<AppUser>> _fetchGroupMembersAndPassive(List<String> memberIds,
+      Map<String, Map<String, dynamic>> passiveMembersData) async {
+    final List<AppUser> members = [];
+    for (final memberId in memberIds) {
+      final member = await getUserAsync(memberId);
+      if (member != null) {
+        members.add(member);
+      } else {
+        // Wenn Benutzer nicht gefunden, versuchen Sie, es als passives Mitglied zu behandeln
+        if (passiveMembersData.containsKey(memberId)) {
+          final passiveData = passiveMembersData[memberId]!;
+          final dummyPassiveUser = AppUser(
+            profilId: memberId,
+            firstName: passiveData['firstName'] ?? 'Passives Mitglied',
+            lastName: passiveData['lastName'] ?? '(Unbekannt)',
+            email: '',
+            phoneNumber: '',
+            avatarUrl:
+                passiveData['avatarUrl'] ?? 'assets/grafiken/famka-kreis.png',
+            password: '',
+            miscellaneous: null,
+          );
+          members.add(dummyPassiveUser);
+        } else {
+          // Fallback, falls ID in groupMemberIds ist, aber weder im users-Dokument noch in passiveMembersData
+          // Erstelle einen Dummy-Benutzer mit grundlegenden Informationen, damit die App nicht abstürzt.
+          final dummyPassiveUser = AppUser(
+            profilId: memberId,
+            firstName: 'Passives Mitglied',
+            lastName:
+                '(ID: ${memberId.substring(0, 4)}...)', // Kurz-ID für Debugging
+            email: '',
+            phoneNumber: '',
+            avatarUrl: 'assets/grafiken/famka-kreis.png',
+            password: '',
+            miscellaneous: null,
+          );
+          members.add(dummyPassiveUser);
+        }
+      }
+    }
+    return members;
+  }
+
   @override
   Future<Group?> getGroupAsync(String groupId) async {
     try {
       final doc = await _firestore.collection('groups').doc(groupId).get();
       if (doc.exists) {
         final groupData = doc.data()!;
-        // Überprüfen, ob groupMemberIds ein Array ist, bevor es konvertiert wird
-        // Falls es immer noch als Map gespeichert wird, muss das behandelt werden
-        final dynamic memberIdsRaw = groupData['groupMemberIds'];
-        List<String> memberIds;
-        if (memberIdsRaw is List) {
-          memberIds = List<String>.from(memberIdsRaw);
-        } else if (memberIdsRaw is Map) {
-          // Fallback für den Übergang, falls noch alte Daten vorhanden sind
-          memberIds = memberIdsRaw.keys.cast<String>().toList();
-        } else {
-          memberIds = [];
-        }
+        List<String> memberIds =
+            List<String>.from(groupData['groupMemberIds'] ?? []);
 
-        final List<AppUser> members = [];
-        for (final memberId in memberIds) {
-          final member = await getUserAsync(memberId);
-          if (member != null) {
-            members.add(member);
+        final Map<String, dynamic> passiveMembersDataRaw =
+            groupData['passiveMembersData'] ?? {};
+        final Map<String, Map<String, dynamic>> extractedPassiveMembersData =
+            {};
+        passiveMembersDataRaw.forEach((key, value) {
+          if (value is Map<String, dynamic>) {
+            extractedPassiveMembersData[key] = value;
           }
-        }
+        });
+
+        final List<AppUser> members = await _fetchGroupMembersAndPassive(
+            memberIds, extractedPassiveMembersData);
+
         print('✅ Gruppe $groupId erfolgreich abgerufen.');
         return Group.fromMap(groupData, members);
       }
@@ -210,25 +249,21 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       final List<Group> groups = [];
       for (var doc in snapshot.docs) {
         final groupData = doc.data();
-        // Überprüfen, ob groupMemberIds ein Array ist, bevor es konvertiert wird
-        final dynamic memberIdsRaw = groupData['groupMemberIds'];
-        List<String> memberIds;
-        if (memberIdsRaw is List) {
-          memberIds = List<String>.from(memberIdsRaw);
-        } else if (memberIdsRaw is Map) {
-          // Fallback für den Übergang, falls noch alte Daten vorhanden sind
-          memberIds = memberIdsRaw.keys.cast<String>().toList();
-        } else {
-          memberIds = [];
-        }
+        List<String> memberIds =
+            List<String>.from(groupData['groupMemberIds'] ?? []);
 
-        final List<AppUser> members = [];
-        for (final memberId in memberIds) {
-          final member = await getUserAsync(memberId);
-          if (member != null) {
-            members.add(member);
+        final Map<String, dynamic> passiveMembersDataRaw =
+            groupData['passiveMembersData'] ?? {};
+        final Map<String, Map<String, dynamic>> extractedPassiveMembersData =
+            {};
+        passiveMembersDataRaw.forEach((key, value) {
+          if (value is Map<String, dynamic>) {
+            extractedPassiveMembersData[key] = value;
           }
-        }
+        });
+
+        final List<AppUser> members = await _fetchGroupMembersAndPassive(
+            memberIds, extractedPassiveMembersData);
         groups.add(Group.fromMap(groupData, members));
       }
       print('✅ Gruppen für Benutzer $userId erfolgreich abgerufen.');
@@ -251,25 +286,22 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       final groupDoc = await _firestore.collection('groups').doc(groupId).get();
       if (!groupDoc.exists) return [];
 
-      // Überprüfen, ob groupMemberIds ein Array ist, bevor es konvertiert wird
-      final dynamic memberIdsRaw = groupDoc.data()?['groupMemberIds'];
-      List<String> memberIds;
-      if (memberIdsRaw is List) {
-        memberIds = List<String>.from(memberIdsRaw);
-      } else if (memberIdsRaw is Map) {
-        // Fallback für den Übergang, falls noch alte Daten vorhanden sind
-        memberIds = memberIdsRaw.keys.cast<String>().toList();
-      } else {
-        memberIds = [];
-      }
+      final groupData = groupDoc.data()!;
+      List<String> memberIds =
+          List<String>.from(groupData['groupMemberIds'] ?? []);
 
-      final List<AppUser> members = [];
-      for (final id in memberIds) {
-        final user = await getUserAsync(id);
-        if (user != null) {
-          members.add(user);
+      final Map<String, dynamic> passiveMembersDataRaw =
+          groupData['passiveMembersData'] ?? {};
+      final Map<String, Map<String, dynamic>> extractedPassiveMembersData = {};
+      passiveMembersDataRaw.forEach((key, value) {
+        if (value is Map<String, dynamic>) {
+          extractedPassiveMembersData[key] = value;
         }
-      }
+      });
+
+      final List<AppUser> members = await _fetchGroupMembersAndPassive(
+          memberIds, extractedPassiveMembersData);
+
       print('✅ Gruppenmitglieder für Gruppe $groupId erfolgreich abgerufen.');
       return members;
     } catch (e) {
@@ -288,19 +320,12 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
       if (groupDoc.exists) {
         final groupData = groupDoc.data()!;
-        // Hier ebenfalls die Umwandlung von Map zu List behandeln
-        final dynamic currentMemberIdsRaw = groupData['groupMemberIds'];
-        List<String> currentMemberIds;
-        if (currentMemberIdsRaw is List) {
-          currentMemberIds = List<String>.from(currentMemberIdsRaw);
-        } else if (currentMemberIdsRaw is Map) {
-          currentMemberIds = currentMemberIdsRaw.keys.cast<String>().toList();
-        } else {
-          currentMemberIds = [];
-        }
-
+        List<String> currentMemberIds =
+            List<String>.from(groupData['groupMemberIds'] ?? []);
         Map<String, dynamic> currentUserRoles =
             Map<String, dynamic>.from(groupData['userRoles'] ?? {});
+        Map<String, dynamic> currentPassiveMembersData =
+            Map<String, dynamic>.from(groupData['passiveMembersData'] ?? {});
 
         if (!currentMemberIds.contains(user.profilId)) {
           currentMemberIds.add(user.profilId);
@@ -308,14 +333,34 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
         currentUserRoles[user.profilId] = role.toJson();
 
+        // Wenn es ein passives Mitglied ist, speichern wir seine grundlegenden Daten direkt in der Gruppe
+        if (role == UserRole.passiveMember) {
+          currentPassiveMembersData[user.profilId] = {
+            'firstName': user.firstName,
+            'lastName': user.lastName,
+            'avatarUrl': user.avatarUrl,
+            // Fügen Sie hier weitere relevante Felder hinzu, die Sie für passive Mitglieder benötigen könnten
+          };
+        } else {
+          // Wenn es kein passives Mitglied ist, entfernen Sie es aus den passiven Daten
+          currentPassiveMembersData.remove(user.profilId);
+        }
+
         await groupRef.update({
           'groupMemberIds': currentMemberIds,
           'userRoles': currentUserRoles,
+          'passiveMembersData': currentPassiveMembersData,
         });
 
-        final existingUser = await getUserAsync(user.profilId);
-        if (existingUser == null) {
-          await createUser(user);
+        // Nur wenn es kein passives Mitglied ist, versuchen wir, den Benutzer in der 'users'-Sammlung zu erstellen/aktualisieren
+        if (role != UserRole.passiveMember) {
+          final existingUser = await getUserAsync(user.profilId);
+          if (existingUser == null) {
+            await createUser(
+                user); // Erstellt den vollständigen Benutzer in der 'users'-Sammlung
+          } else {
+            await updateUser(user); // Aktualisiert den vorhandenen Benutzer
+          }
         }
 
         print(
@@ -338,26 +383,22 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
       if (groupDoc.exists) {
         final groupData = groupDoc.data()!;
-        // Hier ebenfalls die Umwandlung von Map zu List behandeln
-        final dynamic currentMemberIdsRaw = groupData['groupMemberIds'];
-        List<String> currentMemberIds;
-        if (currentMemberIdsRaw is List) {
-          currentMemberIds = List<String>.from(currentMemberIdsRaw);
-        } else if (currentMemberIdsRaw is Map) {
-          currentMemberIds = currentMemberIdsRaw.keys.cast<String>().toList();
-        } else {
-          currentMemberIds = [];
-        }
-
+        List<String> currentMemberIds =
+            List<String>.from(groupData['groupMemberIds'] ?? []);
         Map<String, dynamic> currentUserRoles =
             Map<String, dynamic>.from(groupData['userRoles'] ?? {});
+        Map<String, dynamic> currentPassiveMembersData =
+            Map<String, dynamic>.from(groupData['passiveMembersData'] ?? {});
 
         currentMemberIds.remove(userId);
         currentUserRoles.remove(userId);
+        currentPassiveMembersData
+            .remove(userId); // Entfernen Sie auch aus passiven Daten
 
         await groupRef.update({
           'groupMemberIds': currentMemberIds,
           'userRoles': currentUserRoles,
+          'passiveMembersData': currentPassiveMembersData,
         });
         print('✅ Benutzer $userId erfolgreich aus Gruppe $groupId entfernt.');
       } else {
@@ -383,24 +424,21 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       final List<Group> groups = [];
       for (var doc in snapshot.docs) {
         final groupData = doc.data();
-        // Hier ebenfalls die Umwandlung von Map zu List behandeln
-        final dynamic memberIdsRaw = groupData['groupMemberIds'];
-        List<String> memberIds;
-        if (memberIdsRaw is List) {
-          memberIds = List<String>.from(memberIdsRaw);
-        } else if (memberIdsRaw is Map) {
-          memberIds = memberIdsRaw.keys.cast<String>().toList();
-        } else {
-          memberIds = [];
-        }
+        List<String> memberIds =
+            List<String>.from(groupData['groupMemberIds'] ?? []);
 
-        final List<AppUser> members = [];
-        for (final memberId in memberIds) {
-          final member = await getUserAsync(memberId);
-          if (member != null) {
-            members.add(member);
+        final Map<String, dynamic> passiveMembersDataRaw =
+            groupData['passiveMembersData'] ?? {};
+        final Map<String, Map<String, dynamic>> extractedPassiveMembersData =
+            {};
+        passiveMembersDataRaw.forEach((key, value) {
+          if (value is Map<String, dynamic>) {
+            extractedPassiveMembersData[key] = value;
           }
-        }
+        });
+
+        final List<AppUser> members = await _fetchGroupMembersAndPassive(
+            memberIds, extractedPassiveMembersData);
         groups.add(Group.fromMap(groupData, members));
       }
       print('✅ Alle Gruppen erfolgreich abgerufen.');
@@ -533,6 +571,8 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           ? displayName!.split(' ').last
           : '',
       avatarUrl: photoUrl ?? 'assets/grafiken/famka-kreis.png',
+      password: '', // Standardwert für Passwort hinzugefügt
+      miscellaneous: null,
     );
 
     final existingUser = await getUserAsync(uid);
@@ -540,7 +580,9 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       await createUser(user);
       print('✅ Google-Nutzer $uid erfolgreich erstellt.');
     } else {
-      print('ℹ️ Google-Nutzer $uid existiert bereits.');
+      await updateUser(
+          user); // Aktualisieren Sie den Benutzer, falls er existiert
+      print('ℹ️ Google-Nutzer $uid existiert bereits und wurde aktualisiert.');
     }
 
     currentUser = user;

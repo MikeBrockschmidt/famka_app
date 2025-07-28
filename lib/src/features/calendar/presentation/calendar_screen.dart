@@ -100,10 +100,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
-  // Diese Methode wird aufgerufen, wenn Events in den Unter-Widgets aktualisiert oder gelöscht wurden
   void _onEventsRefreshed() {
     print('CalendarScreen: _onEventsRefreshed aufgerufen, lade Events neu.');
-    _loadEvents(); // Löst das Neuladen der Events und ein setState aus
+    _loadEvents();
   }
 
   Future<void> _onEventDeletedConfirmed(String eventId) async {
@@ -122,7 +121,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Termin erfolgreich gelöscht.')),
           );
-          // WICHTIG: Nach dem Löschen die Events in der Hauptliste neu laden
           _loadEvents();
         }
       } else {
@@ -144,16 +142,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
         );
       }
-      await _loadEvents(); // Auch bei Fehler neu laden, um den aktuellen Stand zu bekommen
+      await _loadEvents();
     }
-    // _loadEvents(); // Dieser Aufruf ist überflüssig, da er oben schon in if/else ausgeführt wird
   }
 
   void _handleGroupUpdated(Group updatedGroup) {
     if (mounted) {
       setState(() {
         _displayGroup = updatedGroup;
-        _loadEvents(); // Events neu laden, wenn die Gruppe aktualisiert wurde
+        _loadEvents();
       });
     }
   }
@@ -180,15 +177,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   currentUser: widget.currentUser,
                   allEvents: _allEvents,
                   onEventDeletedConfirmed: _onEventDeletedConfirmed,
-                  onEventsRefreshed:
-                      _onEventsRefreshed, // NEU: Callback übergeben
+                  onEventsRefreshed: _onEventsRefreshed,
                 ),
       EventListPage(
         db: widget.db,
         currentGroup: _displayGroup,
         currentUser: widget.currentUser,
         auth: widget.auth,
-        onEventsRefreshed: _onEventsRefreshed, // NEU: Callback übergeben
+        onEventsRefreshed: _onEventsRefreshed,
       ),
       const Center(
         child: Text(
@@ -207,7 +203,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body: Column(
         children: [
-          MenuSubContainer2LinesGroupC(
+          MenuSubContainerTwoLinesGroupC(
             widget.db,
             currentGroup: _displayGroup,
             onGroupUpdated: _handleGroupUpdated,
