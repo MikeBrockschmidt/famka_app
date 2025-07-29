@@ -1,4 +1,3 @@
-// lib/src/features/group_page/presentation/manage_group_members_page.dart
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
@@ -11,17 +10,15 @@ import 'package:famka_app/src/features/login/domain/user_role.dart';
 class ManageGroupMembersPage extends StatefulWidget {
   final DatabaseRepository db;
   final Group group;
-  final AppUser
-      currentUser; // HINZUGEFÜGT: Erforderlich für die Berechtigungsprüfung
-  final bool
-      isCurrentUserAdmin; // HINZUGEFÜGT: Erforderlich für die Berechtigungsprüfung
+  final AppUser currentUser;
+  final bool isCurrentUserAdmin;
 
   const ManageGroupMembersPage({
     super.key,
     required this.db,
     required this.group,
-    required this.currentUser, // HINZUGEFÜGT
-    required this.isCurrentUserAdmin, // HINZUGEFÜGT
+    required this.currentUser,
+    required this.isCurrentUserAdmin,
   });
 
   @override
@@ -189,10 +186,6 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                   child: ReorderableListView.builder(
                     itemCount: _currentGroupMembersEditable.length,
                     onReorder: (int oldIndex, int newIndex) {
-                      // NEU: Neuordnungsfunktion ist jetzt für alle Mitglieder verfügbar.
-                      // Die vorherige isAdmin-Prüfung wurde entfernt,
-                      // damit alle Benutzer die Reihenfolge ändern können.
-
                       setState(() {
                         if (newIndex > oldIndex) {
                           newIndex -= 1;
@@ -227,7 +220,6 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                               (member.phoneNumber == null ||
                                   member.phoneNumber!.isEmpty);
 
-                      // Bedingung für den "Entfernen"-Button
                       final bool canRemoveMember = widget.isCurrentUserAdmin &&
                           member.profilId != widget.currentUser.profilId;
 
@@ -270,13 +262,11 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Drag-Handle ist immer sichtbar
                               const Icon(
                                 Icons.drag_handle,
                                 color: AppColors.famkaGrey,
                               ),
                               const SizedBox(width: 8),
-                              // DER WICHTIGE TEIL: Den Button nur anzeigen, wenn der Benutzer Admin ist UND nicht das eigene Profil entfernen will
                               if (canRemoveMember)
                                 IconButton(
                                   icon: Icon(Icons.remove_circle_outline,

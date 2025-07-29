@@ -33,7 +33,6 @@ class ProfilPage extends StatefulWidget {
 }
 
 class _ProfilPageState extends State<ProfilPage> {
-  // Neue Controller für Vor- und Nachname
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -41,7 +40,6 @@ class _ProfilPageState extends State<ProfilPage> {
   final TextEditingController _miscellaneousController =
       TextEditingController();
 
-  // Neue FocusNodes für Vor- und Nachname
   final FocusNode _firstNameFocusNode = FocusNode();
   final FocusNode _lastNameFocusNode = FocusNode();
   final FocusNode _phoneNumberFocusNode = FocusNode();
@@ -54,7 +52,6 @@ class _ProfilPageState extends State<ProfilPage> {
   late String _currentProfileAvatarUrl;
 
   bool _hasChanges = false;
-  // Initialwerte für die neuen Felder
   String? _initialFirstName;
   String? _initialLastName;
   String? _initialPhoneNumber;
@@ -65,7 +62,6 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
-    // Controller mit den aktuellen Benutzerdaten initialisieren
     _firstNameController.text = widget.currentUser.firstName ?? '';
     _lastNameController.text = widget.currentUser.lastName ?? '';
     _phoneNumberController.text = widget.currentUser.phoneNumber ?? '';
@@ -74,7 +70,6 @@ class _ProfilPageState extends State<ProfilPage> {
     _currentProfileAvatarUrl =
         widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';
 
-    // Initialwerte speichern, um Änderungen zu verfolgen
     _initialFirstName = widget.currentUser.firstName;
     _initialLastName = widget.currentUser.lastName;
     _initialPhoneNumber = widget.currentUser.phoneNumber;
@@ -84,7 +79,6 @@ class _ProfilPageState extends State<ProfilPage> {
 
     _loadUserGroups();
 
-    // Listener für die neuen Controller hinzufügen
     _firstNameController.addListener(_checkIfHasChanges);
     _lastNameController.addListener(_checkIfHasChanges);
     _phoneNumberController.addListener(_checkIfHasChanges);
@@ -96,22 +90,17 @@ class _ProfilPageState extends State<ProfilPage> {
 
   @override
   void dispose() {
-    // Listener für die neuen Controller entfernen
     _firstNameController.removeListener(_checkIfHasChanges);
     _lastNameController.removeListener(_checkIfHasChanges);
     _phoneNumberController.removeListener(_checkIfHasChanges);
     _emailController.removeListener(_checkIfHasChanges);
     _miscellaneousController.removeListener(_checkIfHasChanges);
 
-    // Controller für die neuen Felder entsorgen
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
     _miscellaneousController.dispose();
-    _phoneNumberController
-        .dispose(); // Sicherstellen, dass dies auch entsorgt wird
-
-    // FocusNodes für die neuen Felder entsorgen
+    _phoneNumberController.dispose();
     _firstNameFocusNode.dispose();
     _lastNameFocusNode.dispose();
     _phoneNumberFocusNode.dispose();
@@ -138,11 +127,9 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
-  // Optional: Validierung für Vor- und Nachname (kann leer bleiben, wenn gewünscht)
   String? _validateName(String? input) {
     if (input == null || input.trim().isEmpty) {
-      // return 'Name darf nicht leer sein'; // Wenn der Name zwingend ist
-      return null; // Wenn der Name optional ist
+      return null;
     }
     return null;
   }
@@ -495,15 +482,12 @@ class _ProfilPageState extends State<ProfilPage> {
                     onTap: () {
                       FocusScope.of(context).unfocus();
                     },
-                    // Entfernt das horizontale Padding von diesem Form-Wrapper
                     child: Form(
                       key: _formKey,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
-                        // Column hier beibehalten, aber Padding innen für Textfelder
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Padding hier für die Textfelder beibehalten
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 30),
                             child: Column(
@@ -592,20 +576,17 @@ class _ProfilPageState extends State<ProfilPage> {
                                 ),
                               ],
                             ),
-                          ), // Ende des Padding für Textfelder
-
+                          ),
                           const SizedBox(height: 4),
                           const Divider(
                               thickness: 0.3, height: 1, color: Colors.black),
                           const SizedBox(height: 20),
-                          // HIER BEGINNT DIE ÄNDERUNG FÜR DIE GRUPPEN-LEISTE
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                // Manueller linker Abstand für die Gruppen-Leiste
                                 const SizedBox(width: 30),
                                 if (widget.currentUser.canCreateGroups)
                                   Column(
@@ -680,7 +661,6 @@ class _ProfilPageState extends State<ProfilPage> {
                               ],
                             ),
                           ),
-                          // HIER ENDET DIE ÄNDERUNG FÜR DIE GRUPPEN-LEISTE
                           const SizedBox(height: 20),
                           Center(
                             child: Opacity(

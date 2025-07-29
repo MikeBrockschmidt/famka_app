@@ -1,4 +1,3 @@
-// lib/src/features/group_page/presentation/widgets/add_passive_member_dialog.dart
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -31,7 +30,7 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
   final TextEditingController _lastNameController = TextEditingController();
   String? _avatarUrl;
   bool _isLoading = false;
-  final _formKey = GlobalKey<FormState>(); // Korrektur des Typs für GlobalKey
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -57,16 +56,11 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
         lastName: _lastNameController.text.trim(),
         email: '',
         phoneNumber: '',
-        avatarUrl: _avatarUrl ??
-            'assets/grafiken/famka-kreis.png', // Default-Avatar setzen
+        avatarUrl: _avatarUrl ?? 'assets/grafiken/famka-kreis.png',
         password: '',
         miscellaneous: null,
       );
 
-      // <<<<<<<<<<<<<<<<<<<< DIESE ZEILE WIRD ENTFERNT! >>>>>>>>>>>>>>>>>>>>
-      // await widget.db.createUser(newPassiveMember); // <-- Entfernen Sie diesen Aufruf!
-
-      // DIESER Aufruf aktualisiert NUR das Gruppen-Dokument, was Ihre aktuellen Regeln erlauben.
       await widget.db.addUserToGroup(
           newPassiveMember, widget.group.groupId, UserRole.passiveMember);
 
@@ -138,7 +132,7 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Passives Mitglied hinzufügen',
+              'Passives Mitglied \nhinzufügen',
               style: theme.labelMedium?.copyWith(color: AppColors.famkaBlack),
             ),
           ],

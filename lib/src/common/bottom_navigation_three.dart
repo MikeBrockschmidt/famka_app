@@ -1,24 +1,23 @@
-// lib/src/common/bottom_navigation_three.dart
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/login/domain/app_user.dart'; // KORREKTUR: Korrekter Import für AppUser
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
-import 'package:famka_app/src/features/menu/presentation/menu.dart'; // KORREKTUR: menu.dart statt menu_screen.dart, da Ihre Klasse 'Menu' heißt
+import 'package:famka_app/src/features/menu/presentation/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
-import 'package:famka_app/src/data/auth_repository.dart'; // NEU: AuthRepository muss importiert werden, da es benötigt wird
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class BottomNavigationThree extends StatefulWidget {
   final DatabaseRepository db;
   final Group? currentGroup;
   final AppUser? currentUser;
-  final AuthRepository auth; // NEU: auth muss übergeben werden
+  final AuthRepository auth;
 
   const BottomNavigationThree(
     this.db, {
     super.key,
     this.currentGroup,
     required this.currentUser,
-    required this.auth, // NEU: auth als required Parameter
+    required this.auth,
   });
 
   @override
@@ -55,12 +54,6 @@ class _BottomNavigationThreeState extends State<BottomNavigationThree> {
       return;
     }
 
-    // Sicherstellen, dass currentGroup nicht null ist, bevor es an andere Widgets übergeben wird,
-    // die einen nicht-nullbaren Group-Parameter erwarten.
-    // Falls currentGroup tatsächlich null sein kann und die Widgets es benötigen,
-    // muss die Logik zur Handhabung eines fehlenden currentGroup in den Ziel-Widgets implementiert werden.
-    // Für jetzt nehmen wir an, dass es entweder vorhanden ist oder wir einen Fehler anzeigen.
-    // Besser wäre es, hier zu prüfen und ggf. eine Ladeanzeige oder Fehlermeldung zu zeigen.
     if (widget.currentGroup == null) {
       _widgetOptions = [
         const Center(child: Text('Fehler: Keine Gruppe ausgewählt.')),
@@ -72,19 +65,16 @@ class _BottomNavigationThreeState extends State<BottomNavigationThree> {
 
     _widgetOptions = <Widget>[
       Menu(
-        // KORREKTUR: Klasse heißt 'Menu', nicht 'MenuScreen'
         widget.db,
-        currentGroup: widget
-            .currentGroup!, // KORREKTUR: ! Operator, da oben auf null geprüft
+        currentGroup: widget.currentGroup!,
         currentUser: widget.currentUser!,
-        auth: widget.auth, // KORREKTUR: 'auth' Parameter hinzugefügt
+        auth: widget.auth,
       ),
       CalendarScreen(
         widget.db,
-        currentGroup: widget
-            .currentGroup!, // KORREKTUR: ! Operator, da oben auf null geprüft
+        currentGroup: widget.currentGroup!,
         currentUser: widget.currentUser!,
-        auth: widget.auth, // KORREKTUR: 'auth' Parameter hinzugefügt
+        auth: widget.auth,
       ),
       Container(
         color: Colors.grey[200],
@@ -108,19 +98,12 @@ class _BottomNavigationThreeState extends State<BottomNavigationThree> {
   @override
   Widget build(BuildContext context) {
     if (widget.currentUser == null || widget.currentGroup == null) {
-      // Prüfen, ob Initialisierung fehlgeschlagen ist
       return const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(), // Oder eine Fehlermeldung
+          child: CircularProgressIndicator(),
         ),
       );
     }
-
-    // Die _widgetOptions werden in _initializeWidgetOptions gesetzt.
-    // Wenn currentUser oder currentGroup null sind, wird _widgetOptions gesetzt
-    // und sollte nicht leer sein, es sei denn, _initializeWidgetOptions wird nicht aufgerufen.
-    // Die isEmpty Prüfung sollte nach der Initialisierung erfolgen.
-    // Die Widgets werden nur geladen, wenn currentUser und currentGroup da sind.
 
     return Scaffold(
       body: Center(
@@ -142,11 +125,8 @@ class _BottomNavigationThreeState extends State<BottomNavigationThree> {
           ),
         ],
         currentIndex: _selectedIndex,
-        // Hier wurde 'Theme.of(context).primaryColor' verwendet.
-        // Falls Sie eine bestimmte Farbe haben möchten:
-        selectedItemColor: Colors.blue, // Beispiel: Oder AppColors.famkaBlue
-        unselectedItemColor:
-            Colors.grey, // Optional: Farbe für nicht ausgewählte Items
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
     );

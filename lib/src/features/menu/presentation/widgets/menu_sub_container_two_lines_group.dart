@@ -1,4 +1,3 @@
-// lib/src/features/menu/presentation/widgets/menu_sub_container_two_lines_group.dart
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
 import 'package:flutter/material.dart';
@@ -82,9 +81,8 @@ class _SingleGroupItem extends StatelessWidget {
                                   height: 0.9,
                                 ),
                       ),
-                      // HIER IST DIE KORREKTUR: Null-Safety für groupLocation
                       Text(
-                        group.groupLocation ?? '', // Korrektur hinzugefügt
+                        group.groupLocation ?? '',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               height: 1.0,
                             ),

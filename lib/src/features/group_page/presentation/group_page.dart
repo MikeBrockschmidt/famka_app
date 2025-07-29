@@ -1,4 +1,3 @@
-// lib/src/features/group_page/presentation/group_page.dart
 import 'package:famka_app/src/common/headline_g.dart';
 import 'package:famka_app/src/features/group_page/presentation/manage_group_members_page.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +42,6 @@ class _GroupPageState extends State<GroupPage> {
   late TextEditingController _locationController;
   late TextEditingController _descriptionController;
 
-  // Füge FocusNodes für jedes TextFormField hinzu
   late FocusNode _groupNameFocusNode;
   late FocusNode _locationFocusNode;
   late FocusNode _descriptionFocusNode;
@@ -58,7 +56,6 @@ class _GroupPageState extends State<GroupPage> {
     _groupNameController = TextEditingController();
     _locationController = TextEditingController();
     _descriptionController = TextEditingController();
-    // Initialisiere FocusNodes im Konstruktor
     _groupNameFocusNode = FocusNode();
     _locationFocusNode = FocusNode();
     _descriptionFocusNode = FocusNode();
@@ -87,7 +84,6 @@ class _GroupPageState extends State<GroupPage> {
     _descriptionController.removeListener(_checkIfHasChanges);
     _descriptionController.dispose();
 
-    // Entsorge die FocusNodes
     _groupNameFocusNode.dispose();
     _locationFocusNode.dispose();
     _descriptionFocusNode.dispose();
@@ -231,10 +227,8 @@ class _GroupPageState extends State<GroupPage> {
         builder: (context) => ManageGroupMembersPage(
           db: widget.db,
           group: _currentGroup!,
-          currentUser:
-              widget.currentUser, // HINZUGEFÜGT für Berechtigungsprüfung
-          isCurrentUserAdmin:
-              _isUserAdmin, // HINZUGEFÜGT für Berechtigungsprüfung
+          currentUser: widget.currentUser,
+          isCurrentUserAdmin: _isUserAdmin,
         ),
       ),
     );
@@ -463,10 +457,8 @@ class _GroupPageState extends State<GroupPage> {
     }
 
     final bool showDeleteButton = _isCurrentUserGroupCreator();
-    final bool isUserAdmin =
-        _isUserAdmin; // Diese Variable wird nun in der Navigation verwendet
+    final bool isUserAdmin = _isUserAdmin;
 
-    // Bestimme die Rolle des aktuellen Benutzers
     String userRoleText = '';
     if (_currentGroup!.userRoles.containsKey(_currentUserId)) {
       final UserRole userRole = _currentGroup!.userRoles[_currentUserId]!;
@@ -475,8 +467,6 @@ class _GroupPageState extends State<GroupPage> {
       } else if (userRole == UserRole.member) {
         userRoleText = 'Rolle: Mitglied';
       }
-      // Der "passive"-Fall wird entfernt, da er nicht im Enum existiert.
-      // Alle Nicht-Admins werden somit als "Mitglied" angezeigt.
     }
 
     return PopScope(
@@ -493,7 +483,7 @@ class _GroupPageState extends State<GroupPage> {
       },
       child: Scaffold(
         backgroundColor: AppColors.famkaWhite,
-        resizeToAvoidBottomInset: true, // Stelle sicher, dass dies auf true ist
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: Column(
             children: [
@@ -520,24 +510,17 @@ class _GroupPageState extends State<GroupPage> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Column(
-                    // ÄNDERUNG: Column statt Row, um Text untereinander zu legen
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Links ausgerichtet
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        // Ursprüngliche Row für Gruppennamen und Löschen-Button
                         children: [
                           Expanded(
                             child: TextField(
                               controller: _groupNameController,
-                              focusNode:
-                                  _groupNameFocusNode, // FocusNode zugewiesen
-                              textInputAction:
-                                  TextInputAction.done, // Hinzugefügt
+                              focusNode: _groupNameFocusNode,
+                              textInputAction: TextInputAction.done,
                               onSubmitted: (value) {
-                                // onSubmitted für TextField ist korrekt
-                                _groupNameFocusNode
-                                    .unfocus(); // Tastatur schließen
+                                _groupNameFocusNode.unfocus();
                               },
                               style: Theme.of(context).textTheme.labelMedium,
                               decoration: const InputDecoration(
@@ -559,7 +542,6 @@ class _GroupPageState extends State<GroupPage> {
                             ),
                         ],
                       ),
-                      // NEUE ANZEIGE DER ROLLE HIER
                       if (userRoleText.isNotEmpty)
                         Text(
                           userRoleText,
@@ -582,7 +564,6 @@ class _GroupPageState extends State<GroupPage> {
               const SizedBox(height: 10),
               Expanded(
                 child: SingleChildScrollView(
-                  // GestureDetector hinzugefügt, um die Tastatur bei Tippen außerhalb zu schließen
                   child: GestureDetector(
                     onTap: () {
                       FocusScope.of(context).unfocus();
@@ -604,14 +585,10 @@ class _GroupPageState extends State<GroupPage> {
                                   Expanded(
                                     child: TextField(
                                       controller: _locationController,
-                                      focusNode:
-                                          _locationFocusNode, // FocusNode zugewiesen
-                                      textInputAction:
-                                          TextInputAction.done, // Hinzugefügt
+                                      focusNode: _locationFocusNode,
+                                      textInputAction: TextInputAction.done,
                                       onSubmitted: (value) {
-                                        // onSubmitted für TextField ist korrekt
-                                        _locationFocusNode
-                                            .unfocus(); // Tastatur schließen
+                                        _locationFocusNode.unfocus();
                                       },
                                       style: Theme.of(context)
                                           .textTheme
@@ -639,16 +616,12 @@ class _GroupPageState extends State<GroupPage> {
                                   Expanded(
                                     child: TextField(
                                       controller: _descriptionController,
-                                      focusNode:
-                                          _descriptionFocusNode, // FocusNode zugewiesen
+                                      focusNode: _descriptionFocusNode,
                                       maxLines: null,
                                       keyboardType: TextInputType.multiline,
-                                      textInputAction:
-                                          TextInputAction.done, // Hinzugefügt
+                                      textInputAction: TextInputAction.done,
                                       onSubmitted: (value) {
-                                        // onSubmitted für TextField ist korrekt
-                                        _descriptionFocusNode
-                                            .unfocus(); // Tastatur schließen
+                                        _descriptionFocusNode.unfocus();
                                       },
                                       style: Theme.of(context)
                                           .textTheme
@@ -676,7 +649,6 @@ class _GroupPageState extends State<GroupPage> {
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      // Icons sind jetzt IMMER sichtbar
                                       InkWell(
                                         onTap: _showGroupIdDialog,
                                         child: const SizedBox(

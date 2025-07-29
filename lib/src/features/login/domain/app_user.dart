@@ -1,15 +1,13 @@
-import 'package:famka_app/src/features/login/domain/user_role.dart'; // Sicherstellen, dass dies importiert ist
-
 class AppUser {
   final String profilId;
   final String email;
   final String firstName;
   final String lastName;
   final String? avatarUrl;
-  final String? phoneNumber; // Hinzugefügt, falls noch nicht vorhanden
-  final String? miscellaneous; // Hinzugefügt, falls noch nicht vorhanden
-  final String? password; // Hinzugefügt, falls noch nicht vorhanden
-  final bool canCreateGroups; // NEUES FELD HINZUGEFÜGT
+  final String? phoneNumber;
+  final String? miscellaneous;
+  final String? password;
+  final bool canCreateGroups;
 
   const AppUser({
     required this.profilId,
@@ -20,7 +18,7 @@ class AppUser {
     this.phoneNumber,
     this.miscellaneous,
     this.password,
-    this.canCreateGroups = true, // Standardmäßig true setzen
+    this.canCreateGroups = true,
   });
 
   AppUser copyWith({
@@ -32,7 +30,7 @@ class AppUser {
     String? phoneNumber,
     String? miscellaneous,
     String? password,
-    bool? canCreateGroups, // NEUES FELD HINZUGEFÜGT
+    bool? canCreateGroups,
   }) {
     return AppUser(
       profilId: profilId ?? this.profilId,
@@ -43,8 +41,7 @@ class AppUser {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       miscellaneous: miscellaneous ?? this.miscellaneous,
       password: password ?? this.password,
-      canCreateGroups:
-          canCreateGroups ?? this.canCreateGroups, // NEUES FELD HINZUGEFÜGT
+      canCreateGroups: canCreateGroups ?? this.canCreateGroups,
     );
   }
 
@@ -58,7 +55,7 @@ class AppUser {
       'phoneNumber': phoneNumber,
       'miscellaneous': miscellaneous,
       'password': password,
-      'canCreateGroups': canCreateGroups, // NEUES FELD HINZUGEFÜGT
+      'canCreateGroups': canCreateGroups,
     };
   }
 
@@ -71,15 +68,8 @@ class AppUser {
       avatarUrl: map['avatarUrl'] as String?,
       phoneNumber: map['phoneNumber'] as String?,
       miscellaneous: map['miscellaneous'] as String?,
-      password: map['password']
-          as String?, // Passwörter sollten nicht direkt im AppUser-Modell gespeichert werden, es sei denn, es ist gehasht.
-      canCreateGroups: map['canCreateGroups'] as bool? ??
-          true, // NEUES FELD HINZUGEFÜGT (Standardwert bei null)
+      password: map['password'] as String?,
+      canCreateGroups: map['canCreateGroups'] as bool? ?? true,
     );
   }
-
-  // fromJson ist hier nicht mehr notwendig, da fromMap verwendet wird.
-  // factory AppUser.fromJson(Map<String, dynamic> json) {
-  //   throw UnimplementedError('Use AppUser.fromMap(map)');
-  // }
 }

@@ -1,8 +1,7 @@
-// lib/src/data/firestore_repository.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:famka_app/src/features/appointment/domain/single_event.dart'; // Sicherstellen, dass diese Importe korrekt sind
+import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
@@ -26,8 +25,6 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
     _currentGroupInternal = group;
   }
 
-  // Dies ist ein Platzhalter und sollte normalerweise über Dependency Injection bereitgestellt werden.
-  // Wenn Sie einen echten AuthRepository benötigen, muss dieser hier implementiert oder injiziert werden.
   @override
   AuthRepository get auth => throw UnimplementedError(
       'AuthRepository is not implemented in FirestoreDatabaseRepository. It should be injected separately.');
@@ -161,7 +158,6 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
     }
   }
 
-  // Hilfsfunktion zum Abrufen von Gruppenmitgliedern, einschließlich passiver
   Future<List<AppUser>> _fetchGroupMembersAndPassive(List<String> memberIds,
       Map<String, Map<String, dynamic>> passiveMembersData) async {
     final List<AppUser> members = [];
@@ -170,7 +166,6 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       if (member != null) {
         members.add(member);
       } else {
-        // Wenn Benutzer nicht gefunden, versuchen Sie, es als passives Mitglied zu behandeln
         if (passiveMembersData.containsKey(memberId)) {
           final passiveData = passiveMembersData[memberId]!;
           final dummyPassiveUser = AppUser(
@@ -186,13 +181,10 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           );
           members.add(dummyPassiveUser);
         } else {
-          // Fallback, falls ID in groupMemberIds ist, aber weder im users-Dokument noch in passiveMembersData
-          // Erstelle einen Dummy-Benutzer mit grundlegenden Informationen, damit die App nicht abstürzt.
           final dummyPassiveUser = AppUser(
             profilId: memberId,
             firstName: 'Passives Mitglied',
-            lastName:
-                '(ID: ${memberId.substring(0, 4)}...)', // Kurz-ID für Debugging
+            lastName: '(ID: ${memberId.substring(0, 4)}...)',
             email: '',
             phoneNumber: '',
             avatarUrl: 'assets/grafiken/famka-kreis.png',
@@ -333,16 +325,13 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
         currentUserRoles[user.profilId] = role.toJson();
 
-        // Wenn es ein passives Mitglied ist, speichern wir seine grundlegenden Daten direkt in der Gruppe
         if (role == UserRole.passiveMember) {
           currentPassiveMembersData[user.profilId] = {
             'firstName': user.firstName,
             'lastName': user.lastName,
             'avatarUrl': user.avatarUrl,
-            // Fügen Sie hier weitere relevante Felder hinzu, die Sie für passive Mitglieder benötigen könnten
           };
         } else {
-          // Wenn es kein passives Mitglied ist, entfernen Sie es aus den passiven Daten
           currentPassiveMembersData.remove(user.profilId);
         }
 
@@ -352,14 +341,12 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           'passiveMembersData': currentPassiveMembersData,
         });
 
-        // Nur wenn es kein passives Mitglied ist, versuchen wir, den Benutzer in der 'users'-Sammlung zu erstellen/aktualisieren
         if (role != UserRole.passiveMember) {
           final existingUser = await getUserAsync(user.profilId);
           if (existingUser == null) {
-            await createUser(
-                user); // Erstellt den vollständigen Benutzer in der 'users'-Sammlung
+            await createUser(user);
           } else {
-            await updateUser(user); // Aktualisiert den vorhandenen Benutzer
+            await updateUser(user);
           }
         }
 
@@ -392,8 +379,7 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
 
         currentMemberIds.remove(userId);
         currentUserRoles.remove(userId);
-        currentPassiveMembersData
-            .remove(userId); // Entfernen Sie auch aus passiven Daten
+        currentPassiveMembersData.remove(userId);
 
         await groupRef.update({
           'groupMemberIds': currentMemberIds,
@@ -571,7 +557,7 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           ? displayName!.split(' ').last
           : '',
       avatarUrl: photoUrl ?? 'assets/grafiken/famka-kreis.png',
-      password: '', // Standardwert für Passwort hinzugefügt
+      password: '',
       miscellaneous: null,
     );
 
@@ -580,8 +566,7 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       await createUser(user);
       print('✅ Google-Nutzer $uid erfolgreich erstellt.');
     } else {
-      await updateUser(
-          user); // Aktualisieren Sie den Benutzer, falls er existiert
+      await updateUser(user);
       print('ℹ️ Google-Nutzer $uid existiert bereits und wurde aktualisiert.');
     }
 

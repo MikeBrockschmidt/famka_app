@@ -1,4 +1,3 @@
-// lib/src/features/group_page/domain/group.dart
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
 
@@ -6,24 +5,23 @@ class Group {
   final String groupId;
   String groupName;
   String groupDescription;
-  String? groupLocation; // ZURÜCKGEFÜHRT als optionaler String
+  String? groupLocation;
   String groupAvatarUrl;
-  final String creatorId; // Wieder creatorId genannt, um UI anzupassen
-  final List<AppUser> groupMembers; // Liste der AppUser-Objekte
+  final String creatorId;
+  final List<AppUser> groupMembers;
   final Map<String, UserRole> userRoles;
-  final Map<String, Map<String, dynamic>>
-      passiveMembersData; // Beibehalten für passive Mitglieder
+  final Map<String, Map<String, dynamic>> passiveMembersData;
 
   Group({
     required this.groupId,
     required this.groupName,
-    this.groupLocation, // Optionaler Parameter
+    this.groupLocation,
     required this.groupDescription,
     required this.groupAvatarUrl,
     required this.creatorId,
     required this.groupMembers,
     required this.userRoles,
-    this.passiveMembersData = const {}, // Initialisierung des Feldes
+    this.passiveMembersData = const {},
   });
 
   Map<String, dynamic> toMap() {
@@ -31,18 +29,16 @@ class Group {
       'groupId': groupId,
       'groupName': groupName,
       'groupDescription': groupDescription,
-      'groupLocation': groupLocation, // Hinzugefügt
+      'groupLocation': groupLocation,
       'groupAvatarUrl': groupAvatarUrl,
-      'creatorId': creatorId, // Hinzugefügt
-      'groupMemberIds':
-          groupMembers.map((e) => e.profilId).toList(), // Speichert IDs
+      'creatorId': creatorId,
+      'groupMemberIds': groupMembers.map((e) => e.profilId).toList(),
       'userRoles': userRoles.map((key, value) => MapEntry(key, value.toJson())),
-      'passiveMembersData': passiveMembersData, // Beibehalten
+      'passiveMembersData': passiveMembersData,
     };
   }
 
   factory Group.fromMap(Map<String, dynamic> map, List<AppUser> members) {
-    // Umwandlung von userRoles
     Map<String, UserRole> roles = {};
     if (map['userRoles'] is Map) {
       (map['userRoles'] as Map).forEach((key, value) {
@@ -50,7 +46,6 @@ class Group {
       });
     }
 
-    // Extrahieren der passiveMembersData
     Map<String, Map<String, dynamic>> extractedPassiveMembersData = {};
     if (map['passiveMembersData'] is Map) {
       (map['passiveMembersData'] as Map).forEach((key, value) {
@@ -63,17 +58,16 @@ class Group {
     return Group(
       groupId: map['groupId'] as String,
       groupName: map['groupName'] as String,
-      groupLocation: map['groupLocation'] as String?, // Hinzugefügt
+      groupLocation: map['groupLocation'] as String?,
       groupDescription: map['groupDescription'] as String,
       groupAvatarUrl: map['groupAvatarUrl'] as String,
-      creatorId: map['creatorId'] as String, // Hinzugefügt
-      groupMembers: members, // Die Liste der AppUser-Objekte
+      creatorId: map['creatorId'] as String,
+      groupMembers: members,
       userRoles: roles,
       passiveMembersData: extractedPassiveMembersData,
     );
   }
 
-  // Ihr copyWith und getCreator()
   Group copyWith({
     String? groupId,
     String? groupName,

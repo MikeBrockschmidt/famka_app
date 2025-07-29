@@ -34,7 +34,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.616611076821-grrmj9qjjffu01f6duju7fo43jpnb1si</string>
+				<string>com.googleusercontent.apps.616611076821-rgu9ga0hejthhce1nbuivlnh6g51c93e</string>
 			</array>
 		</dict>
 	</array>
@@ -43,7 +43,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>GIDClientID</key>
-	<string>616611076821-grrmj9qjjffu01f6duju7fo43jpnb1si.apps.googleusercontent.com</string>
+	<string>616611076821-rgu9ga0hejthhce1nbuivlnh6g51c93e.apps.googleusercontent.com</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>

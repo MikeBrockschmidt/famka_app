@@ -1,4 +1,3 @@
-// lib/src/features/calendar/presentation/event_list_page.dart
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -20,8 +19,7 @@ class EventListPage extends StatefulWidget {
   final Group currentGroup;
   final AppUser currentUser;
   final AuthRepository auth;
-  final Function()?
-      onEventsRefreshed; // HINZUGEFÜGT: Callback, wenn Events neu geladen werden sollen
+  final Function()? onEventsRefreshed;
 
   const EventListPage({
     super.key,
@@ -29,7 +27,7 @@ class EventListPage extends StatefulWidget {
     required this.currentGroup,
     required this.currentUser,
     required this.auth,
-    this.onEventsRefreshed, // HINZUGEFÜGT
+    this.onEventsRefreshed,
   });
 
   @override
@@ -95,7 +93,6 @@ class _EventListPageState extends State<EventListPage> {
 
   Future<void> _onEventDeleted(String eventId) async {
     try {
-      // KORREKTUR: Besserer Umgang mit orElse für firstWhere
       final SingleEvent deletedEvent = _events.firstWhere(
         (event) => event.singleEventId == eventId,
         orElse: () =>
@@ -111,7 +108,7 @@ class _EventListPageState extends State<EventListPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Termin erfolgreich gelöscht.')),
         );
-        widget.onEventsRefreshed?.call(); // HINZUGEFÜGT: Refresh nach Löschen
+        widget.onEventsRefreshed?.call();
       }
     } catch (e) {
       if (mounted) {
@@ -122,7 +119,6 @@ class _EventListPageState extends State<EventListPage> {
           ),
         );
       }
-      // Immer Events neu laden, auch bei Fehler, um den aktuellen Zustand sicherzustellen
       await _loadEvents();
     }
   }
@@ -130,7 +126,6 @@ class _EventListPageState extends State<EventListPage> {
   Widget _buildEventLeadingIcon(
       String? eventUrl, String eventName, double size) {
     if (eventUrl == null || eventUrl.isEmpty) {
-      // Fallback für leere/null URLs
       return CircleAvatar(
         radius: size / 2,
         backgroundColor: Colors.grey.shade200,
@@ -167,7 +162,7 @@ class _EventListPageState extends State<EventListPage> {
         );
       }
     } else if (eventUrl.startsWith('image:')) {
-      final actualImageUrl = eventUrl.substring(6); // Entferne 'image:' Präfix
+      final actualImageUrl = eventUrl.substring(6);
 
       if (actualImageUrl.startsWith('http://') ||
           actualImageUrl.startsWith('https://')) {
@@ -176,10 +171,9 @@ class _EventListPageState extends State<EventListPage> {
           currentAvatarUrl: actualImageUrl,
           displayRadius: size / 2,
           applyTransformOffset: false,
-          isInteractive: false, // <-- Wichtige Änderung
+          isInteractive: false,
         );
       } else {
-        // Fallback für lokale Asset-Bilder mit 'image:' Präfix
         return Image.asset(
           actualImageUrl,
           fit: BoxFit.contain,
@@ -193,14 +187,12 @@ class _EventListPageState extends State<EventListPage> {
       }
     }
 
-    // Dieser Fall sollte greifen, wenn eventUrl direkt eine HTTP/HTTPS-URL ist
-    // ohne das 'image:' Präfix, oder als letzter Fallback.
     return EventImage(
       widget.db,
       currentAvatarUrl: eventUrl,
       displayRadius: size / 2,
       applyTransformOffset: false,
-      isInteractive: false, // <-- Wichtige Änderung
+      isInteractive: false,
     );
   }
 
@@ -250,9 +242,6 @@ class _EventListPageState extends State<EventListPage> {
       ),
       body: Column(
         children: [
-          // Hier ist der Aufruf, der den Fehler verursachte.
-          // Der Aufruf selbst ist syntaktisch korrekt, wenn MenuSubContainer2LinesGroupC ein Widget ist.
-          // Der Fehler muss in der Definition oder dem Import liegen.
           MenuSubContainerTwoLinesGroupC(
             widget.db,
             currentGroup: _displayGroup,
@@ -322,18 +311,12 @@ class _EventListPageState extends State<EventListPage> {
                                                   _displayGroup.groupMembers,
                                               db: widget.db,
                                               onEventDeleted: _onEventDeleted,
-                                              // HIER IST DIE KORREKTUR/ERGÄNZUNG:
                                               onEventUpdated: (updatedEvent) {
-                                                _loadEvents(); // Events neu laden, um die Änderungen anzuzeigen
+                                                _loadEvents();
                                               },
                                             );
                                           },
                                         );
-                                        // Nach dem Schließen des Bottom Sheets, egal ob gelöscht oder nicht,
-                                        // laden wir die Events neu, falls eine Aktualisierung stattgefunden hat.
-                                        // Der onEventUpdated-Callback im InfoBottomSheet sollte dies bereits triggern,
-                                        // aber ein zusätzlicher Aufruf hier schadet nicht, falls andere Änderungen
-                                        // (nicht nur Beschreibung) in Zukunft hinzukommen.
                                         await _loadEvents();
                                       },
                                       child: Container(
@@ -476,7 +459,6 @@ class _EventListPageState extends State<EventListPage> {
             currentUser: widget.currentUser,
             initialIndex: 1,
             auth: widget.auth,
-            // onEventsRefreshed: widget.onEventsRefreshed, // DIESE ZEILE WIRD ENTFERNT ODER AUSKOMMENTIERT
           ),
         ],
       ),

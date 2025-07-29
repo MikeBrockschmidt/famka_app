@@ -1,4 +1,3 @@
-// lib/src/features/menu/presentation/widgets/menu_sub_container_two_lines_calendar.dart
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
 import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
@@ -6,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-import 'package:famka_app/src/common/image_utils.dart'; // Beibehalten, falls benötigt
+import 'package:famka_app/src/common/image_utils.dart';
 
 class MenuSubContainer2LinesCalendar extends StatelessWidget {
   final DatabaseRepository db;
@@ -41,15 +40,13 @@ class MenuSubContainer2LinesCalendar extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  // Sicherstellen, dass die aktuelle Gruppe in der db gesetzt ist
                   db.currentGroup = group;
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => GroupPage(
                         db: db,
-                        group:
-                            group, // group: group hier beibehalten, da es im Original war
+                        group: group,
                         currentUser: currentUser,
                         auth: auth,
                       ),
@@ -78,12 +75,9 @@ class MenuSubContainer2LinesCalendar extends StatelessWidget {
                             height: 0.9,
                           ),
                     ),
-                    // KORREKTUR: Null-Safety für groupLocation
                     Text(
-                      group.groupLocation ?? '', // Hinzufügen von ?? ''
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall, // Original-Stil beibehalten
+                      group.groupLocation ?? '',
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
                 ),
@@ -93,7 +87,6 @@ class MenuSubContainer2LinesCalendar extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.arrow_forward),
                     onPressed: () {
-                      // Sicherstellen, dass die aktuelle Gruppe in der db gesetzt ist
                       db.currentGroup = group;
                       Navigator.push(
                         context,

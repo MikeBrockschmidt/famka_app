@@ -9,7 +9,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
-import 'package:famka_app/src/features/calendar/presentation/widgets/event_service.dart';
 
 class CalendarGrid extends StatefulWidget {
   final DatabaseRepository db;
@@ -17,8 +16,7 @@ class CalendarGrid extends StatefulWidget {
   final AppUser? currentUser;
   final List<SingleEvent> allEvents;
   final Function(String eventId)? onEventDeletedConfirmed;
-  final Function()?
-      onEventsRefreshed; // HINZUGEFÜGT: Callback, wenn Events neu geladen werden sollen
+  final Function()? onEventsRefreshed;
 
   const CalendarGrid(
     this.db, {
@@ -27,7 +25,7 @@ class CalendarGrid extends StatefulWidget {
     this.currentUser,
     required this.allEvents,
     this.onEventDeletedConfirmed,
-    this.onEventsRefreshed, // HINZUGEFÜGT
+    this.onEventsRefreshed,
   });
 
   @override
@@ -205,15 +203,14 @@ class _CalendarGridState extends State<CalendarGrid> {
 
     if (eventUrl.startsWith('emoji:')) {
       final emoji = eventUrl.substring(6);
-      return Text(
-        emoji,
-        style: TextStyle(
-          fontSize: size * 0.9,
-          fontFamilyFallback: const [
-            'Apple Color Emoji',
-            'Segoe UI Emoji',
-            'Segoe UI Symbol'
-          ],
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          emoji,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: size,
+          ),
         ),
       );
     } else if (eventUrl.startsWith('icon:')) {
@@ -424,7 +421,6 @@ class _CalendarGridState extends State<CalendarGrid> {
                                               widget.onEventDeletedConfirmed
                                                   ?.call(deletedEventId);
                                             },
-                                            // HIER IST DIE KORREKTUR/ERGÄNZUNG:
                                             onEventUpdated: (updatedEvent) {
                                               widget.onEventsRefreshed?.call();
                                             },
@@ -435,8 +431,7 @@ class _CalendarGridState extends State<CalendarGrid> {
                                       if (eventWasDeleted == true) {
                                         debugPrint(
                                             'Event was deleted via InfoBottomSheet, CalendarScreen will refresh.');
-                                        widget.onEventsRefreshed
-                                            ?.call(); // Auch hier aktualisieren nach Löschen
+                                        widget.onEventsRefreshed?.call();
                                       }
                                     },
                                     child: Container(

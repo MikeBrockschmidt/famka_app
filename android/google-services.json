@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:616611076821:android:f30ae8c12f998e66cfe05c",
+        "mobilesdk_app_id": "1:616611076821:android:a57cd29871c6e8eacfe05c",
         "android_client_info": {
-          "package_name": "com.example.famka_app"
+          "package_name": "com.brockschmidt.famka"
         }
       },
       "oauth_client": [

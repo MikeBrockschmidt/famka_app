@@ -23,9 +23,7 @@ Future<void> main() async {
   // --- Start des Fixes für ungültige SharedPreferences-Benutzer-ID ---
 
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  // Nehmen wir an, Ihre Benutzer-ID wird unter dem Schlüssel 'last_logged_in_user_id' gespeichert.
-  // PASSE DIESEN SCHLÜSSEL AN DEN TATSÄCHLICHEN AN, DEN DU VERWENDEST!
-  const String userIdKey = 'last_logged_in_user_id'; // Beispielschlüssel
+  const String userIdKey = 'last_logged_in_user_id';
   final String? storedUserId = prefs.getString(userIdKey);
 
   if (storedUserId != null && storedUserId.isNotEmpty) {
