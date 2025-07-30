@@ -279,6 +279,8 @@ class _LoginWindowState extends State<LoginWindow> {
                             width: 24,
                           ),
                           onPressed: () async {
+                            int b = 0;
+                            print('hallo');
                             try {
                               UserCredential userCredential =
                                   await widget.auth.signInWithGoogle();

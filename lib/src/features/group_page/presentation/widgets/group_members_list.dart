@@ -5,6 +5,9 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'dart:io';
+// HINWEIS: Du benötigst möglicherweise auch den Import für ImageUtils,
+// wenn getDynamicImageProvider nicht bereits in dieser Datei verfügbar ist
+// import 'package:famka_app/src/common/image_utils.dart'; // Füge diese Zeile hinzu, falls 'getDynamicImageProvider' benötigt wird
 
 class GroupMembersList extends StatelessWidget {
   final DatabaseRepository db;
@@ -20,6 +23,25 @@ class GroupMembersList extends StatelessWidget {
     required this.members,
   });
 
+  // HINWEIS: Wenn getDynamicImageProvider eine globale oder statische Funktion ist,
+  // musst du sicherstellen, dass sie hier verfügbar ist oder den entsprechenden Import hinzufügen.
+  // Falls getDynamicImageProvider Teil von ImageUtils ist, benötigst du den Import oben.
+  // Für diesen Code nutze ich deine ursprüngliche Logik für memberImageProvider.
+  ImageProvider<Object> _getMemberImageProvider(AppUser member) {
+    if (member.avatarUrl != null) {
+      if (member.avatarUrl!.startsWith('http://') ||
+          member.avatarUrl!.startsWith('https://')) {
+        return NetworkImage(member.avatarUrl!);
+      } else if (member.avatarUrl!.startsWith('assets/')) {
+        return AssetImage(member.avatarUrl!);
+      } else {
+        return FileImage(File(member.avatarUrl!));
+      }
+    } else {
+      return const AssetImage('assets/grafiken/famka-kreis.png');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -29,36 +51,15 @@ class GroupMembersList extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Row(
           children: members.map((member) {
-            ImageProvider<Object> memberImageProvider;
-
-            if (member.avatarUrl != null) {
-              if (member.avatarUrl!.startsWith('http://') ||
-                  member.avatarUrl!.startsWith('https://')) {
-                memberImageProvider = NetworkImage(member.avatarUrl!);
-              } else if (member.avatarUrl!.startsWith('assets/')) {
-                memberImageProvider = AssetImage(member.avatarUrl!);
-              } else {
-                final file = File(member.avatarUrl!);
-                if (file.existsSync()) {
-                  memberImageProvider = FileImage(file);
-                } else {
-                  debugPrint(
-                      'Warnung: Lokales Bild konnte nicht geladen werden: ${member.avatarUrl}. Verwende Default.jpg');
-                  memberImageProvider =
-                      const AssetImage('assets/fotos/default.jpg');
-                }
-              }
-            } else {
-              memberImageProvider =
-                  const AssetImage('assets/fotos/default.jpg');
-            }
+            // Der ImageProvider wird jetzt über die Hilfsfunktion (_getMemberImageProvider) ermittelt
+            final ImageProvider<Object> memberImageProvider =
+                _getMemberImageProvider(member);
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Column(
                 children: [
-                  InkWell(
-                    borderRadius: BorderRadius.circular(40),
+                  GestureDetector(
                     onTap: () async {
                       final AppUser? updatedUser =
                           await db.getUserAsync(member.profilId);
@@ -87,48 +88,49 @@ class GroupMembersList extends StatelessWidget {
                         );
                       }
                     },
+                    // HIER BEGINNT DAS ÜBERNOMMENE STACK-DESIGN
                     child: Stack(
-                      alignment: Alignment.center,
+                      alignment: Alignment.center, // Zentriert die Schichten
                       children: [
-                        const SizedBox(
-                          width: 70,
+                        // Äußerer Kreis (dunkelblau, 70x70)
+                        Container(
+                          width: 70, // Größerer Kreis für den äußeren Rahmen
                           height: 70,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: AppColors.famkaBlack,
-                              shape: BoxShape.circle,
-                            ),
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(
+                                255, 39, 60, 69), // Dunkelblauer Farbton
+                            shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(
-                          width: 58,
+                        // Mittlerer Kreis (weiß, 58x58)
+                        Container(
+                          width: 58, // Mittlerer Kreis für den weißen Rahmen
                           height: 58,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: AppColors.famkaWhite,
-                              shape: BoxShape.circle,
-                            ),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
                           ),
                         ),
-                        SizedBox(
-                          width: 54,
+                        // Innerer Kreis mit dem eigentlichen Avatar-Bild (54x54)
+                        Container(
+                          width: 54, // Kleinster Kreis für das Bild selbst
                           height: 54,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image: memberImageProvider,
-                                fit: BoxFit.cover,
-                                onError: (exception, stackTrace) {
-                                  debugPrint(
-                                      'Error loading member avatar: $exception');
-                                },
-                              ),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image:
+                                  memberImageProvider, // Der zuvor ermittelte ImageProvider
+                              fit: BoxFit.cover,
+                              onError: (exception, stackTrace) {
+                                debugPrint(
+                                    'Fehler beim Laden des Mitglieder-Avatars: $exception');
+                              },
                             ),
                           ),
                         ),
                       ],
                     ),
+                    // HIER ENDET DAS ÜBERNOMMENE STACK-DESIGN
                   ),
                   const SizedBox(height: 6),
                   SizedBox(

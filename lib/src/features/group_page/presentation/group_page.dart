@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
-import 'package:famka_app/src/common/button_linear_gradient.dart';
+// import 'package:famka_app/src/common/button_linear_gradient.dart'; // Wird jetzt in SaveButton verwendet
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
@@ -15,8 +14,14 @@ import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_id_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/invite_user_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/confirm_delete_group_dialog.dart';
-import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_list.dart';
+// import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_list.dart'; // Ist jetzt Teil von GroupMembersSection
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_passive_member_dialog.dart';
+
+import 'package:famka_app/src/features/group_page/presentation/widgets/group_avatar.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/group_header.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/group_details.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_section.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/save_button.dart'; // NEU: Import für SaveButton
 
 class GroupPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -107,6 +112,8 @@ class _GroupPageState extends State<GroupPage> {
           _groupNameController.text = _currentGroup!.groupName;
           _locationController.text = _currentGroup!.groupLocation ?? '';
           _descriptionController.text = _currentGroup!.groupDescription ?? '';
+          // Sicherstellen, dass groupAvatarUrl nie null ist, bevor es zugewiesen wird,
+          // oder Initialisierung des nullbaren Strings.
           _initialGroupAvatarUrl = _currentGroup!.groupAvatarUrl;
           _hasChanges = false;
           _isUserAdmin = _isCurrentUserGroupAdminCheck();
@@ -160,12 +167,10 @@ class _GroupPageState extends State<GroupPage> {
   void _checkIfHasChanges() {
     if (_currentGroup == null) return;
 
-    final bool newHasChanges =
-        _groupNameController.text != _currentGroup!.groupName ||
-            _locationController.text != (_currentGroup!.groupLocation ?? '') ||
-            _descriptionController.text !=
-                (_currentGroup!.groupDescription ?? '') ||
-            _currentGroup!.groupAvatarUrl != _initialGroupAvatarUrl;
+    final bool newHasChanges = _groupNameController.text !=
+            _currentGroup!.groupName ||
+        _locationController.text != (_currentGroup!.groupLocation ?? '') ||
+        _descriptionController.text != (_currentGroup!.groupDescription ?? '');
 
     if (_hasChanges != newHasChanges) {
       setState(() {
@@ -177,8 +182,6 @@ class _GroupPageState extends State<GroupPage> {
   Future<void> _saveGroupChanges() async {
     if (_currentGroup == null) return;
 
-    final String currentAvatarUrl = _currentGroup!.groupAvatarUrl;
-
     final updatedGroup = _currentGroup!.copyWith(
       groupName: _groupNameController.text,
       groupLocation: _locationController.text.trim().isEmpty
@@ -187,14 +190,12 @@ class _GroupPageState extends State<GroupPage> {
       groupDescription: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
-      groupAvatarUrl: currentAvatarUrl,
     );
 
     await widget.db.updateGroup(updatedGroup);
 
     setState(() {
       _currentGroup = updatedGroup;
-      _initialGroupAvatarUrl = _currentGroup!.groupAvatarUrl;
       _hasChanges = false;
     });
     if (mounted) {
@@ -214,7 +215,7 @@ class _GroupPageState extends State<GroupPage> {
     if (_currentGroup == null) return;
     setState(() {
       _currentGroup = _currentGroup!.copyWith(groupAvatarUrl: newAvatarUrl);
-      _checkIfHasChanges();
+      _initialGroupAvatarUrl = newAvatarUrl;
     });
   }
 
@@ -364,6 +365,10 @@ class _GroupPageState extends State<GroupPage> {
               ),
             ),
           );
+
+          setState(() {
+            _isLoading = false;
+          });
         }
       }
     } catch (e) {
@@ -375,6 +380,7 @@ class _GroupPageState extends State<GroupPage> {
               'Fehler beim Einladen des Benutzers: $e',
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            duration: const Duration(seconds: 2), // Dauer hinzugefügt
           ),
         );
 
@@ -487,81 +493,24 @@ class _GroupPageState extends State<GroupPage> {
         body: SafeArea(
           child: Column(
             children: [
-              const HeadlineG(
-                screenHead: 'Gruppe',
+              // GroupHeader-Widget
+              GroupHeader(
+                groupNameController: _groupNameController,
+                groupNameFocusNode: _groupNameFocusNode,
+                showDeleteButton: showDeleteButton,
+                onDeleteGroup: _confirmDeleteGroup,
+                userRoleText: userRoleText,
+                // PARAMETER FÜR GROUPAVATAR HIER ÜBERGEBEN
+                db: widget.db,
+                // Verwende den Null-Aware Operator ?? um einen Standardwert bereitzustellen
+                groupAvatarUrl: _currentGroup!.groupAvatarUrl ??
+                    'assets/grafiken/famka-kreis.png', // Korrektur hier
+                onAvatarChanged: _onAvatarChanged,
+                isUserAdmin: isUserAdmin,
+                currentGroup: _currentGroup!,
               ),
-              const SizedBox(height: 20),
-              Center(
-                child: ProfilImage3(
-                  db: widget.db,
-                  avatarUrl: _currentGroup!.groupAvatarUrl,
-                  onAvatarChanged: _onAvatarChanged,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Divider(
-                thickness: 0.3,
-                height: 0.1,
-                color: AppColors.famkaBlack,
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.only(left: 30, right: 30),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _groupNameController,
-                              focusNode: _groupNameFocusNode,
-                              textInputAction: TextInputAction.done,
-                              onSubmitted: (value) {
-                                _groupNameFocusNode.unfocus();
-                              },
-                              style: Theme.of(context).textTheme.labelMedium,
-                              decoration: const InputDecoration(
-                                hintText: 'Gruppenname',
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,
-                                isDense: true,
-                              ),
-                            ),
-                          ),
-                          if (showDeleteButton)
-                            IconButton(
-                              icon: const Icon(
-                                Icons.delete_forever,
-                                color: AppColors.famkaBlack,
-                              ),
-                              onPressed: _confirmDeleteGroup,
-                              iconSize: 24,
-                            ),
-                        ],
-                      ),
-                      if (userRoleText.isNotEmpty)
-                        Text(
-                          userRoleText,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.famkaGrey,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Divider(
-                thickness: 0.3,
-                height: 0.1,
-                color: AppColors.famkaBlack,
-              ),
-              const SizedBox(height: 10),
+              // const SizedBox(height: 20), // ENTFERNT: Jetzt im GroupHeader
+              // GroupAvatar( ... ), // ENTFERNT: GroupAvatar ist jetzt im GroupHeader
               Expanded(
                 child: SingleChildScrollView(
                   child: GestureDetector(
@@ -571,167 +520,35 @@ class _GroupPageState extends State<GroupPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 30),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  const Icon(Icons.location_on,
-                                      size: 20, color: AppColors.famkaBlack),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _locationController,
-                                      focusNode: _locationFocusNode,
-                                      textInputAction: TextInputAction.done,
-                                      onSubmitted: (value) {
-                                        _locationFocusNode.unfocus();
-                                      },
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Ort eingeben',
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.zero,
-                                        isDense: true,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.description,
-                                    size: 20,
-                                    color: AppColors.famkaBlack,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _descriptionController,
-                                      focusNode: _descriptionFocusNode,
-                                      maxLines: null,
-                                      keyboardType: TextInputType.multiline,
-                                      textInputAction: TextInputAction.done,
-                                      onSubmitted: (value) {
-                                        _descriptionFocusNode.unfocus();
-                                      },
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Beschreibung eingeben',
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.zero,
-                                        isDense: true,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Mitglieder:',
-                                    style:
-                                        Theme.of(context).textTheme.labelMedium,
-                                  ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      InkWell(
-                                        onTap: _showGroupIdDialog,
-                                        child: const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: Icon(
-                                            Icons.info_outline,
-                                            color: AppColors.famkaBlack,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      InkWell(
-                                        onTap: _showAddPassiveMemberDialog,
-                                        child: const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: Icon(
-                                            Icons.person_add_alt_1,
-                                            color: AppColors.famkaBlack,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      InkWell(
-                                        onTap: _showInviteDialog,
-                                        child: const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: Icon(
-                                            Icons.event_available,
-                                            color: AppColors.famkaBlack,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      InkWell(
-                                        onTap: _manageGroupMembers,
-                                        child: const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: Icon(
-                                            Icons.edit,
-                                            color: AppColors.famkaBlack,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                            ],
-                          ),
+                        // GroupDetails-Widget
+                        GroupDetails(
+                          locationController: _locationController,
+                          locationFocusNode: _locationFocusNode,
+                          descriptionController: _descriptionController,
+                          descriptionFocusNode: _descriptionFocusNode,
                         ),
-                        GroupMembersList(
+                        const SizedBox(height: 20),
+                        // GroupMembersSection-Widget
+                        GroupMembersSection(
+                          onShowGroupIdDialog: _showGroupIdDialog,
+                          onShowAddPassiveMemberDialog:
+                              _showAddPassiveMemberDialog,
+                          onShowInviteDialog: _showInviteDialog,
+                          onManageGroupMembers: _manageGroupMembers,
                           db: widget.db,
                           auth: widget.auth,
                           currentUser: widget.currentUser,
                           members: _currentGroup!.groupMembers,
                         ),
                         const SizedBox(height: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30.0, vertical: 10.0),
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Opacity(
-                              opacity: _hasChanges ? 1.0 : 0.5,
-                              child: InkWell(
-                                onTap: _hasChanges ? _saveGroupChanges : null,
-                                child: const SizedBox(
-                                  width: 150,
-                                  height: 50,
-                                  child: ButtonLinearGradient(
-                                    buttonText: 'Speichern',
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        // SaveButton-Widget
+                        SaveButton(
+                          hasChanges: _hasChanges,
+                          onSave: _saveGroupChanges,
                         ),
-                        const SizedBox(height: 70),
+                        const SizedBox(
+                            height:
+                                70), // Sicherstellen, dass der BottomNavigationBar Platz hat
                       ],
                     ),
                   ),

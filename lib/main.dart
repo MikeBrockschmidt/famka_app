@@ -6,9 +6,9 @@ import 'package:famka_app/src/data/firestore_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/main_app.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Hinzugefügt
-import 'package:firebase_auth/firebase_auth.dart'; // Hinzugefügt
-import 'package:cloud_firestore/cloud_firestore.dart'; // Hinzugefügt
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
