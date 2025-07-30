@@ -1,14 +1,14 @@
+import 'package:famka_app/src/features/group_page/presentation/widgets/group_image.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image3.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/common/image_selection_context.dart';
-import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'dart:io';
 
 class GroupAvatar extends StatelessWidget {
   final DatabaseRepository db;
-  final String groupAvatarUrl; // Dies ist jetzt String (nicht nullable)
+  final String groupAvatarUrl;
   final Function(String newAvatarUrl) onAvatarChanged;
   final bool isUserAdmin;
   final Group currentGroup;
@@ -16,25 +16,29 @@ class GroupAvatar extends StatelessWidget {
   const GroupAvatar({
     super.key,
     required this.db,
-    required this.groupAvatarUrl, // Und hier auch String
+    required this.groupAvatarUrl,
     required this.onAvatarChanged,
     required this.isUserAdmin,
     required this.currentGroup,
   });
 
   Future<void> _changeGroupAvatar(BuildContext context) async {
-    if (!isUserAdmin) return;
+    if (!isUserAdmin) {
+      debugPrint('DEBUG: Kein Admin – Avatar-Änderung abgebrochen.');
+      return;
+    }
+
+    debugPrint('DEBUG: Öffne Avatar-Auswahl als Modal...');
 
     final String? newAvatarUrl = await showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: MediaQuery.of(context).size.height * 0.75,
-          child: ProfilImage(
+          child: GroupImage(
             db,
-            currentAvatarUrl:
-                groupAvatarUrl, // Sollte hier passen, da groupAvatarUrl jetzt String ist
+            currentAvatarUrl: groupAvatarUrl,
             contextType: ImageSelectionContext.group,
             onAvatarSelected: (url) {
               Navigator.pop(context, url);
@@ -45,25 +49,48 @@ class GroupAvatar extends StatelessWidget {
     );
 
     if (newAvatarUrl != null && newAvatarUrl != groupAvatarUrl) {
-      onAvatarChanged(
-          newAvatarUrl); // Ruft die Callback-Funktion in GroupPage auf
-      // Die Speicherung in der DB und SnackBar-Nachrichten werden jetzt über den Callback in GroupPage gehandhabt
-      // da der 'onAvatarChanged' in GroupPage bereits die Speicherung übernimmt.
-      // Der nachfolgende Try-Catch-Block ist hier nicht mehr nötig, da _onGroupAvatarChanged in GroupPage das übernimmt.
+      debugPrint('DEBUG: Avatar geändert – Callback wird aufgerufen.');
+      onAvatarChanged(newAvatarUrl);
+    } else {
+      debugPrint('DEBUG: Avatar nicht geändert oder abgebrochen.');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final String effectiveUrl = (groupAvatarUrl.isEmpty)
+        ? 'assets/grafiken/famka-kreis.png'
+        : groupAvatarUrl;
+
+    ImageProvider imageProvider;
+    if (effectiveUrl.startsWith('http')) {
+      imageProvider = NetworkImage(effectiveUrl);
+    } else if (effectiveUrl.startsWith('assets/')) {
+      imageProvider = AssetImage(effectiveUrl);
+    } else if (File(effectiveUrl).existsSync()) {
+      imageProvider = FileImage(File(effectiveUrl));
+    } else {
+      imageProvider = const AssetImage('assets/grafiken/famka-kreis.png');
+    }
+
     return Center(
       child: GestureDetector(
-        onTap: isUserAdmin ? () => _changeGroupAvatar(context) : null,
         behavior: HitTestBehavior.opaque,
-        child: ProfilImage3(
-          db: db,
-          avatarUrl:
-              groupAvatarUrl, // Sollte hier passen, da groupAvatarUrl jetzt String ist
-          onAvatarChanged: onAvatarChanged, // Weitergabe des Callbacks
+        onTap: () {
+          debugPrint('DEBUG: Tap auf Avatar erkannt.');
+          if (isUserAdmin) {
+            _changeGroupAvatar(context);
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 60,
+              backgroundColor: Colors.grey[300],
+              backgroundImage: imageProvider,
+            ),
+          ],
         ),
       ),
     );

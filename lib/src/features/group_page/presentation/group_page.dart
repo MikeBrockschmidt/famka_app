@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
-// import 'package:famka_app/src/common/button_linear_gradient.dart'; // Wird jetzt in SaveButton verwendet
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
@@ -14,14 +13,13 @@ import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_id_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/invite_user_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/confirm_delete_group_dialog.dart';
-// import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_list.dart'; // Ist jetzt Teil von GroupMembersSection
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_passive_member_dialog.dart';
 
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_avatar.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_header.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_details.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_section.dart';
-import 'package:famka_app/src/features/group_page/presentation/widgets/save_button.dart'; // NEU: Import für SaveButton
+import 'package:famka_app/src/features/group_page/presentation/widgets/save_button.dart';
 
 class GroupPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -112,8 +110,6 @@ class _GroupPageState extends State<GroupPage> {
           _groupNameController.text = _currentGroup!.groupName;
           _locationController.text = _currentGroup!.groupLocation ?? '';
           _descriptionController.text = _currentGroup!.groupDescription ?? '';
-          // Sicherstellen, dass groupAvatarUrl nie null ist, bevor es zugewiesen wird,
-          // oder Initialisierung des nullbaren Strings.
           _initialGroupAvatarUrl = _currentGroup!.groupAvatarUrl;
           _hasChanges = false;
           _isUserAdmin = _isCurrentUserGroupAdminCheck();
@@ -211,12 +207,53 @@ class _GroupPageState extends State<GroupPage> {
     }
   }
 
-  void _onAvatarChanged(String newAvatarUrl) {
-    if (_currentGroup == null) return;
+  void _onAvatarChanged(String newAvatarUrl) async {
+    print(
+        'DEBUG: _onAvatarChanged in GroupPage aufgerufen mit newAvatarUrl: $newAvatarUrl');
+
+    if (_currentGroup == null) {
+      print('DEBUG: _currentGroup ist null in _onAvatarChanged.');
+      return;
+    }
+
+    final updatedGroup = _currentGroup!.copyWith(groupAvatarUrl: newAvatarUrl);
+
     setState(() {
-      _currentGroup = _currentGroup!.copyWith(groupAvatarUrl: newAvatarUrl);
+      _currentGroup = updatedGroup;
       _initialGroupAvatarUrl = newAvatarUrl;
     });
+
+    try {
+      await widget.db.updateGroup(updatedGroup);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.famkaCyan,
+            content: Text(
+              'Gruppenbild erfolgreich aktualisiert!',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        );
+        setState(() {
+          _hasChanges = false;
+        });
+      }
+    } catch (e) {
+      print(
+          'DEBUG: Fehler beim Speichern des Gruppenbilds in _onAvatarChanged: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.famkaRed,
+            content: Text(
+              'Fehler beim Speichern des Gruppenbilds: $e',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _manageGroupMembers() async {
@@ -380,7 +417,7 @@ class _GroupPageState extends State<GroupPage> {
               'Fehler beim Einladen des Benutzers: $e',
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            duration: const Duration(seconds: 2), // Dauer hinzugefügt
+            duration: const Duration(seconds: 2),
           ),
         );
 
@@ -493,24 +530,18 @@ class _GroupPageState extends State<GroupPage> {
         body: SafeArea(
           child: Column(
             children: [
-              // GroupHeader-Widget
               GroupHeader(
                 groupNameController: _groupNameController,
                 groupNameFocusNode: _groupNameFocusNode,
                 showDeleteButton: showDeleteButton,
                 onDeleteGroup: _confirmDeleteGroup,
                 userRoleText: userRoleText,
-                // PARAMETER FÜR GROUPAVATAR HIER ÜBERGEBEN
                 db: widget.db,
-                // Verwende den Null-Aware Operator ?? um einen Standardwert bereitzustellen
-                groupAvatarUrl: _currentGroup!.groupAvatarUrl ??
-                    'assets/grafiken/famka-kreis.png', // Korrektur hier
+                groupAvatarUrl: _currentGroup!.groupAvatarUrl,
                 onAvatarChanged: _onAvatarChanged,
                 isUserAdmin: isUserAdmin,
                 currentGroup: _currentGroup!,
               ),
-              // const SizedBox(height: 20), // ENTFERNT: Jetzt im GroupHeader
-              // GroupAvatar( ... ), // ENTFERNT: GroupAvatar ist jetzt im GroupHeader
               Expanded(
                 child: SingleChildScrollView(
                   child: GestureDetector(
@@ -520,7 +551,6 @@ class _GroupPageState extends State<GroupPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // GroupDetails-Widget
                         GroupDetails(
                           locationController: _locationController,
                           locationFocusNode: _locationFocusNode,
@@ -528,7 +558,6 @@ class _GroupPageState extends State<GroupPage> {
                           descriptionFocusNode: _descriptionFocusNode,
                         ),
                         const SizedBox(height: 20),
-                        // GroupMembersSection-Widget
                         GroupMembersSection(
                           onShowGroupIdDialog: _showGroupIdDialog,
                           onShowAddPassiveMemberDialog:
@@ -541,14 +570,11 @@ class _GroupPageState extends State<GroupPage> {
                           members: _currentGroup!.groupMembers,
                         ),
                         const SizedBox(height: 8),
-                        // SaveButton-Widget
                         SaveButton(
                           hasChanges: _hasChanges,
                           onSave: _saveGroupChanges,
                         ),
-                        const SizedBox(
-                            height:
-                                70), // Sicherstellen, dass der BottomNavigationBar Platz hat
+                        const SizedBox(height: 70),
                       ],
                     ),
                   ),

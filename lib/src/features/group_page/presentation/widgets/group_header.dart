@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/headline_g.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
-import 'package:famka_app/src/features/group_page/presentation/widgets/group_avatar.dart'; // Import für GroupAvatar
-import 'package:famka_app/src/data/database_repository.dart'; // Import für DatabaseRepository
-import 'package:famka_app/src/features/group_page/domain/group.dart'; // Import für Group
+import 'package:famka_app/src/features/group_page/presentation/widgets/group_avatar.dart';
+import 'package:famka_app/src/data/database_repository.dart';
+import 'package:famka_app/src/features/group_page/domain/group.dart';
 
 class GroupHeader extends StatelessWidget {
   final TextEditingController groupNameController;
@@ -11,10 +11,8 @@ class GroupHeader extends StatelessWidget {
   final bool showDeleteButton;
   final VoidCallback onDeleteGroup;
   final String userRoleText;
-  // NEUE PARAMETER FÜR GROUPAVATAR
   final DatabaseRepository db;
-  final String
-      groupAvatarUrl; // <--- HIER KORRIGIERT: Von 'String?' zu 'String'
+  final String groupAvatarUrl;
   final Function(String) onAvatarChanged;
   final bool isUserAdmin;
   final Group currentGroup;
@@ -26,9 +24,8 @@ class GroupHeader extends StatelessWidget {
     required this.showDeleteButton,
     required this.onDeleteGroup,
     required this.userRoleText,
-    // NEUE PARAMETER INITIALISIEREN
     required this.db,
-    required this.groupAvatarUrl, // <--- Jetzt auch hier 'required' String
+    required this.groupAvatarUrl,
     required this.onAvatarChanged,
     required this.isUserAdmin,
     required this.currentGroup,
@@ -41,7 +38,7 @@ class GroupHeader extends StatelessWidget {
         const HeadlineG(
           screenHead: 'Gruppe',
         ),
-        // HIER STEHT JETZT DAS GRUPPENFOTO DIREKT UNTER DER HEADLINE
+        const SizedBox(height: 20),
         GroupAvatar(
           db: db,
           groupAvatarUrl: groupAvatarUrl,
@@ -49,13 +46,13 @@ class GroupHeader extends StatelessWidget {
           isUserAdmin: isUserAdmin,
           currentGroup: currentGroup,
         ),
-        const SizedBox(height: 20), // Abstand nach dem Gruppenfoto
+        const SizedBox(height: 20),
         const Divider(
           thickness: 0.3,
           height: 0.1,
           color: AppColors.famkaBlack,
         ),
-        const SizedBox(height: 20), // Abstand vor dem Gruppennamen/Rolle
+        const SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.only(left: 30, right: 30),
           child: Align(
@@ -105,7 +102,7 @@ class GroupHeader extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 20), // Abstand vor der letzten Trennlinie
+        const SizedBox(height: 20),
         const Divider(
           thickness: 0.3,
           height: 0.1,

@@ -16,11 +16,8 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Instanziieren der Repositories
   final AuthRepository auth = FirebaseAuthRepository();
   final DatabaseRepository db = FirestoreDatabaseRepository();
-
-  // --- Start des Fixes für ungültige SharedPreferences-Benutzer-ID ---
 
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   const String userIdKey = 'last_logged_in_user_id';
@@ -31,13 +28,8 @@ Future<void> main() async {
     bool userStillExists = false;
 
     try {
-      // 1. Prüfen über Firebase Authentication (aktuell angemeldeter Benutzer)
-      // Dies ist die robusteste Prüfung auf Client-Seite.
       User? currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null && currentUser.uid == storedUserId) {
-        // Der Benutzer ist über Firebase Auth angemeldet und die ID stimmt überein.
-        // Optional: 2. Zusätzliche Prüfung in Firestore, ob das Benutzerdokument existiert.
-        // Dies ist wichtig, wenn Benutzer in Firestore gelöscht, aber nicht in Auth.
         final DocumentSnapshot userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(storedUserId)
@@ -49,7 +41,6 @@ Future<void> main() async {
         } else {
           print(
               '⚠️ Benutzer $storedUserId in Firebase Auth gefunden, aber Firestore-Dokument fehlt.');
-          // Wenn das Firestore-Dokument fehlt, betrachten wir den Benutzer als nicht existierend für die App.
         }
       } else {
         print(
@@ -57,23 +48,17 @@ Future<void> main() async {
       }
     } catch (e) {
       print('❌ Fehler beim Überprüfen der Benutzer-ID in Firebase: $e');
-      // Im Fehlerfall (z.B. Netzwerkprobleme) gehen wir davon aus, dass der Benutzer nicht valide ist.
       userStillExists = false;
     }
 
-    // Wenn der Benutzer nach allen Prüfungen nicht mehr existiert,
-    // den Eintrag aus SharedPreferences löschen.
     if (!userStillExists) {
       await prefs.remove(userIdKey);
       print(
           '🗑️ Ungültiger Benutzer $storedUserId aus SharedPreferences entfernt.');
-      // Hier könnten Sie auch andere benutzerbezogene SharedPreferences-Daten löschen, falls vorhanden.
     }
   } else {
     print('ℹ️ Keine Benutzer-ID in SharedPreferences gefunden.');
   }
-
-  // --- Ende des Fixes ---
 
   runApp(MainApp(db, auth));
 }

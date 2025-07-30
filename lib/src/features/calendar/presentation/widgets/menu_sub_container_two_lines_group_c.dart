@@ -1,4 +1,3 @@
-// lib/src/features/calendar/presentation/widgets/menu_sub_container_two_lines_group_c.dart
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/presentation/group_page.dart';
 import 'package:flutter/material.dart';
@@ -70,13 +69,9 @@ class MenuSubContainerTwoLinesGroupC extends StatelessWidget {
                                 ),
                           ),
                           const SizedBox(height: 2),
-                          // KORREKTUR: Null-Safety für groupLocation
                           Text(
-                            currentGroup.groupLocation ??
-                                '', // Hinzufügen von ?? ''
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall, // Original-Stil beibehalten
+                            currentGroup.groupLocation ?? '',
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       ),
@@ -91,8 +86,7 @@ class MenuSubContainerTwoLinesGroupC extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => GroupPage(
                           db: db,
-                          group:
-                              currentGroup, // currentGroup: currentGroup hier beibehalten, da es im Original war
+                          group: currentGroup,
                           currentUser: currentUser,
                           auth: auth,
                         ),
