@@ -86,7 +86,7 @@ class GroupAvatar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             CircleAvatar(
-              radius: 60,
+              radius: 100,
               backgroundColor: Colors.grey[300],
               backgroundImage: imageProvider,
             ),

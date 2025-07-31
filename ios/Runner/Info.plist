@@ -24,11 +24,11 @@
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array>
-		<dict>
+		<!-- <dict>
 			<key>CFBundleURLName</key>
 			<string></string>
-		</dict>
-		<string>de.brockschmidt.famka </string>
+		</dict> -->
+		<!-- <string>de.brockschmidt.famka</string> -->
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>

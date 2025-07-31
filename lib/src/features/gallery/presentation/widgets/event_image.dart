@@ -49,7 +49,7 @@ class _EventImageState extends State<EventImage> {
 
   final Map<ImageSelectionContext, List<String>> _predefinedAvatarsByContext = {
     ImageSelectionContext.profile: [
-      'assets/grafiken/mann-pink.png',
+      'assets/grafiken/Familie.jpg',
       'assets/grafiken/mann.png',
       'assets/grafiken/frau.png',
       'assets/grafiken/frau-blau.png',

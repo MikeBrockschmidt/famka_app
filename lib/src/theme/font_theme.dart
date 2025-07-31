@@ -23,13 +23,13 @@ final ThemeData appTheme = ThemeData(
     labelSmall: TextStyle(
       fontFamily: 'SFProDisplay',
       fontWeight: FontWeight.w300,
-      fontSize: 15,
+      fontSize: 18,
       color: const Color.fromARGB(255, 0, 0, 0),
     ),
     labelMedium: TextStyle(
       fontFamily: 'SFProDisplay',
       fontWeight: FontWeight.w600,
-      fontSize: 18,
+      fontSize: 21,
       color: Colors.black,
     ),
     labelLarge: TextStyle(

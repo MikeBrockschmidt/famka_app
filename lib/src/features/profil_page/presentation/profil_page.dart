@@ -264,6 +264,9 @@ class _ProfilPageState extends State<ProfilPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboardingComplete', false);
 
+      await prefs.remove('last_logged_in_user_id');
+      print('last_logged_in_user_id Test');
+
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
           MaterialPageRoute(
@@ -428,7 +431,7 @@ class _ProfilPageState extends State<ProfilPage> {
                   onAvatarSelected: _handleProfileAvatarSelected,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 4),
               const Divider(thickness: 0.3, height: 0.1, color: Colors.black),
               const SizedBox(height: 20),
               Padding(
@@ -512,6 +515,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                           hintText: 'Telefonnummer eingeben',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
+                                          isDense: true, // Hinzugefügt
                                         ),
                                         style: Theme.of(context)
                                             .textTheme
@@ -520,6 +524,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                     ),
                                   ],
                                 ),
+                                const SizedBox(height: 10),
                                 Row(
                                   children: [
                                     const Icon(Icons.email, size: 20),
@@ -540,6 +545,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                           hintText: 'E-Mail Adresse eingeben',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
+                                          isDense: true, // Hinzugefügt
                                         ),
                                         style: Theme.of(context)
                                             .textTheme
@@ -548,6 +554,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                     ),
                                   ],
                                 ),
+                                const SizedBox(height: 10),
                                 Row(
                                   children: [
                                     const Icon(Icons.calendar_today, size: 20),
@@ -566,6 +573,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                           hintText: 'Zusätzliche Infos',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
+                                          isDense: true, // Hinzugefügt
                                         ),
                                         style: Theme.of(context)
                                             .textTheme
@@ -598,7 +606,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                         child: Container(
                                           width: 69,
                                           height: 69,
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: AppColors.famkaGreen,
                                             shape: BoxShape.circle,
                                           ),

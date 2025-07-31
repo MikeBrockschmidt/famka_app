@@ -295,7 +295,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                 shape: BoxShape.circle,
                 color: Colors.grey.shade300,
                 image: const DecorationImage(
-                  image: AssetImage('assets/grafiken/mann-pink.png'),
+                  image: AssetImage('assets/grafiken/HI.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),

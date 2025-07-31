@@ -50,9 +50,9 @@ class _GroupImageState extends State<GroupImage> {
     ],
     ImageSelectionContext.group: [
       'assets/grafiken/Familie.jpg',
-      'assets/grafiken/gruppe-blau.png',
-      'assets/grafiken/gruppe-pink.png',
-      'assets/grafiken/gruppe-gruen.png',
+      'assets/grafiken/family.jpg',
+      'assets/grafiken/familienbande.jpg',
+      'assets/grafiken/baum-des-lebens.jpg',
       'assets/grafiken/gruppe-rot.png',
     ],
     ImageSelectionContext.event: [

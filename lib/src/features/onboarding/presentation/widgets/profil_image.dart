@@ -49,9 +49,9 @@ class _ProfilImageState extends State<ProfilImage> {
       'assets/fotos/boyd.jpg',
     ],
     ImageSelectionContext.group: [
-      // 'assets/grafiken/Familie.jpg',
-      'assets/grafiken/gruppe-blau.png',
-      'assets/grafiken/gruppe-pink.png',
+      'assets/grafiken/Familie.jpg',
+      'assets/grafiken/family.jpg',
+      'assets/grafiken/familienbande.jpg',
       'assets/grafiken/gruppe-gruen.png',
       'assets/grafiken/gruppe-rot.png',
     ],
@@ -277,7 +277,7 @@ class _ProfilImageState extends State<ProfilImage> {
           compressedXFile = await FlutterImageCompress.compressAndGetFile(
             croppedFile.path,
             targetPath,
-            quality: 70,
+            quality: 100,
             minWidth: 400,
             minHeight: 400,
             format: CompressFormat.jpeg,
@@ -436,7 +436,7 @@ class _ProfilImageState extends State<ProfilImage> {
           alignment: Alignment.center,
           children: [
             CircleAvatar(
-              radius: 70,
+              radius: 100,
               backgroundColor: AppColors.famkaGreen,
               backgroundImage: imageProvider,
             ),

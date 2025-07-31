@@ -38,7 +38,7 @@ class GroupHeader extends StatelessWidget {
         const HeadlineG(
           screenHead: 'Gruppe',
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 6),
         GroupAvatar(
           db: db,
           groupAvatarUrl: groupAvatarUrl,
@@ -46,13 +46,13 @@ class GroupHeader extends StatelessWidget {
           isUserAdmin: isUserAdmin,
           currentGroup: currentGroup,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 8),
         const Divider(
           thickness: 0.3,
           height: 0.1,
           color: AppColors.famkaBlack,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 6),
         Padding(
           padding: const EdgeInsets.only(left: 30, right: 30),
           child: Align(
@@ -83,7 +83,7 @@ class GroupHeader extends StatelessWidget {
                       IconButton(
                         icon: const Icon(
                           Icons.delete_forever,
-                          color: AppColors.famkaBlack,
+                          color: AppColors.famkaGrey,
                         ),
                         onPressed: onDeleteGroup,
                         iconSize: 24,
