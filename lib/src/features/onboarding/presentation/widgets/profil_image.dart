@@ -414,7 +414,7 @@ class _ProfilImageState extends State<ProfilImage> {
   Widget build(BuildContext context) {
     final String effectiveDisplayUrl =
         (_displayImageUrl == null || _displayImageUrl!.isEmpty)
-            ? 'assets/fotos/default.jpg'
+            ? 'assets/grafiken/HI-blau.jpg'
             : _displayImageUrl!;
 
     ImageProvider imageProvider;
@@ -450,7 +450,7 @@ class _ProfilImageState extends State<ProfilImage> {
               const Icon(
                 Icons.camera_alt,
                 size: 48,
-                color: Colors.white70,
+                color: Colors.white30,
               ),
           ],
         ),

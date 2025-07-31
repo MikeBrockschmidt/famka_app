@@ -133,7 +133,10 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
           children: [
             Text(
               'Passives Mitglied \nhinzufügen',
-              style: theme.labelMedium?.copyWith(color: AppColors.famkaBlack),
+              style: theme.labelMedium?.copyWith(
+                color: AppColors.famkaBlack,
+                height: 1.0,
+              ),
             ),
           ],
         ),
@@ -145,6 +148,7 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 10),
               ProfilImage(
                 widget.db,
                 currentAvatarUrl: _avatarUrl,
