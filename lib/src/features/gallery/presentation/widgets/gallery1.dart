@@ -4,13 +4,13 @@ import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:famka_app/src/common/image_upload_service.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/item_data.dart';
+import 'package:famka_app/src/common/button_linear_gradient.dart';
 
 class Gallery extends StatefulWidget {
   final DatabaseRepository db;
@@ -91,28 +91,54 @@ class _GalleryState extends State<Gallery> {
             final Color famkaBlue = AppColors.famkaBlue;
 
             return AlertDialog(
-              title: Text(
-                'Bild löschen?',
-                style: textTheme.labelMedium?.copyWith(color: famkaBlue),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-              content: Text(
-                'Möchten Sie dieses Bild wirklich aus der Galerie entfernen? Diese Aktion kann nicht rückgängig gemacht werden.',
-                style: textTheme.labelSmall?.copyWith(color: famkaBlue),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(
-                    'Abbrechen',
-                    style: textTheme.labelMedium?.copyWith(color: famkaBlue),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Bild löschen?',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.famkaBlack,
+                        ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(
-                    'Löschen',
-                    style: textTheme.labelMedium
-                        ?.copyWith(color: AppColors.famkaRed),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Möchten Sie dieses Bild wirklich aus der Galerie entfernen? Diese Aktion kann nicht rückgängig gemacht werden.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+              actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              actions: [
+                Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(true),
+                        child: const ButtonLinearGradient(
+                          buttonText: 'Löschen',
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(
+                          'Abbrechen',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -428,7 +454,7 @@ class _GalleryState extends State<Gallery> {
       body: Column(
         children: [
           SizedBox(
-            height: 80,
+            height: 100,
             width: double.infinity,
             child: const Align(
               alignment: Alignment.centerLeft,

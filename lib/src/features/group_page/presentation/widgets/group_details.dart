@@ -24,9 +24,13 @@ class GroupDetails extends StatelessWidget {
         children: [
           const SizedBox(height: 10),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(Icons.location_on,
-                  size: 20, color: AppColors.famkaBlack),
+              const Padding(
+                padding: EdgeInsets.only(top: 4.0),
+                child: Icon(Icons.location_on,
+                    size: 20, color: AppColors.famkaBlack),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: TextField(
@@ -49,12 +53,15 @@ class GroupDetails extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.description,
-                size: 20,
-                color: AppColors.famkaBlack,
+              const Padding(
+                padding: EdgeInsets.only(top: 4.0),
+                child: Icon(
+                  Icons.description,
+                  size: 20,
+                  color: AppColors.famkaBlack,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

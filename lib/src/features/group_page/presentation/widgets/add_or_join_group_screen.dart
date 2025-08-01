@@ -212,7 +212,6 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 20),
               Center(
                 child: ProfilImage(
                   widget.db,

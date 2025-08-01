@@ -141,15 +141,19 @@ class _EventListPageState extends State<EventListPage> {
 
     if (eventUrl.startsWith('emoji:')) {
       final emoji = eventUrl.substring(6);
-      return Text(
-        emoji,
-        style: TextStyle(
-          fontSize: size * 0.9,
-          fontFamilyFallback: const [
-            'Apple Color Emoji',
-            'Segoe UI Emoji',
-            'Segoe UI Symbol'
-          ],
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          emoji,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: size,
+            fontFamilyFallback: const [
+              'Apple Color Emoji',
+              'Segoe UI Emoji',
+              'Segoe UI Symbol'
+            ],
+          ),
         ),
       );
     } else if (eventUrl.startsWith('icon:')) {
@@ -352,7 +356,9 @@ class _EventListPageState extends State<EventListPage> {
                                                           .titleMedium,
                                                     ),
                                                     Text(
-                                                      '${DateFormat('HH:mm', 'de_DE').format(event.singleEventDate)} Uhr',
+                                                      event.isAllDay
+                                                          ? ' '
+                                                          : '${DateFormat('HH:mm', 'de_DE').format(event.singleEventDate)} Uhr',
                                                       style: Theme.of(context)
                                                           .textTheme
                                                           .bodySmall,

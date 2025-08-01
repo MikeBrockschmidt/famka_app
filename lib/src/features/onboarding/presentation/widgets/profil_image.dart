@@ -429,7 +429,7 @@ class _ProfilImageState extends State<ProfilImage> {
     }
 
     return Transform.translate(
-      offset: const Offset(0, -20),
+      offset: const Offset(0, 0),
       child: GestureDetector(
         onTap: _isPickingImage ? null : _pickImageAndUpload,
         child: Stack(

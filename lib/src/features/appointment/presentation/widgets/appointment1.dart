@@ -18,7 +18,6 @@ import 'package:famka_app/src/features/appointment/presentation/widgets/save_app
 import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-import 'package:famka_app/src/features/login/domain/user_role.dart';
 
 class Appointment extends StatefulWidget {
   final DatabaseRepository db;
@@ -232,6 +231,7 @@ class _AppointmentState extends State<Appointment> {
         invitedMemberIds: initialEvent.invitedMemberIds,
         maybeMemberIds: initialEvent.maybeMemberIds,
         declinedMemberIds: initialEvent.declinedMemberIds,
+        isAllDay: initialEvent.isAllDay,
       );
       saveOperations.add(widget.db.createEvent(recurringEvent));
       occurrencesGenerated++;
@@ -348,6 +348,7 @@ class _AppointmentState extends State<Appointment> {
       invitedMemberIds: [],
       maybeMemberIds: [],
       declinedMemberIds: [],
+      isAllDay: _allDay,
     );
     debugPrint('*** DEBUGGING EVENT ERSTELLUNG ***');
     debugPrint('Ersteller ID (creatorId): ${initialEvent.creatorId}');

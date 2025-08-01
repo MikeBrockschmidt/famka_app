@@ -1,3 +1,4 @@
+// lib/src/features/onboarding/presentation/widgets/profil_onboarding.dart
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/onboarding2.dart';
@@ -123,13 +124,9 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
     }
 
     try {
-      print('[_saveNewUserAndNavigate] Starte Registrierung...');
-
       final fb_auth.UserCredential userCredential =
           await widget.auth.createUserWithEmailAndPassword(email, password);
       final String firebaseUid = userCredential.user!.uid;
-      print(
-          '[_saveNewUserAndNavigate] Firebase Auth Benutzer erstellt. UID: $firebaseUid');
 
       final newUser = AppUser(
         profilId: firebaseUid,
@@ -141,16 +138,11 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
         miscellaneous: null,
         password: '',
       );
-      print('[_saveNewUserAndNavigate] AppUser Objekt erstellt.');
 
       await widget.db.createUser(newUser);
-      print(
-          '[_saveNewUserAndNavigate] Benutzerdaten in Firestore gespeichert.');
-
       widget.db.currentUser = newUser;
 
       if (mounted) {
-        print('[_saveNewUserAndNavigate] Navigiere zu Onboarding2Screen...');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -163,8 +155,6 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
         );
       }
     } on fb_auth.FirebaseAuthException catch (e) {
-      print(
-          '[_saveNewUserAndNavigate] FirebaseAuthException: ${e.code} - ${e.message}');
       String errorMessage;
       if (e.code == 'email-already-in-use') {
         errorMessage = 'Diese E-Mail-Adresse wird bereits verwendet.';
@@ -182,8 +172,6 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
         );
       }
     } catch (e) {
-      print(
-          '[_saveNewUserAndNavigate] Allgemeiner Fehler beim Speichern des Profils: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -203,24 +191,23 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(top: 30, bottom: 60),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: Container(
-                  padding: const EdgeInsets.fromLTRB(32, 10, 32, 28),
+                  padding: const EdgeInsets.fromLTRB(32, 110, 32, 28),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const SizedBox(height: 185),
                         Container(
                           padding: const EdgeInsets.all(16.0),
                           decoration: BoxDecoration(
@@ -282,30 +269,27 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
               ),
             ),
           ),
-        ),
-        Positioned(
-          top: -10,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey.shade300,
-                image: const DecorationImage(
-                  image: AssetImage('assets/grafiken/HI.jpg'),
-                  fit: BoxFit.cover,
+          Positioned(
+            top: -60,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.grey.shade300,
+                  image: const DecorationImage(
+                    image: AssetImage('assets/grafiken/HI.jpg'),
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              child: ClipOval(
-                child: Container(),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

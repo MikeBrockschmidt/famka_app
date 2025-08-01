@@ -1,4 +1,3 @@
-// lib/src/features/gallery/presentation/widgets/event_image.dart
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
@@ -427,7 +426,6 @@ class _EventImageState extends State<EventImage> {
     final double effectiveBorderRadius = 0.0;
 
     return GestureDetector(
-      // WICHTIG: onTap nur ausführen, wenn isInteractive true ist
       onTap: widget.isInteractive
           ? (_isPickingImage ? null : _pickImageAndUpload)
           : null,

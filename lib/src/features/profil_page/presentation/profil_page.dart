@@ -423,7 +423,7 @@ class _ProfilPageState extends State<ProfilPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 10),
               Center(
                 child: ProfilImage(
                   widget.db,
@@ -431,11 +431,11 @@ class _ProfilPageState extends State<ProfilPage> {
                   onAvatarSelected: _handleProfileAvatarSelected,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 11),
               const Divider(thickness: 0.3, height: 0.1, color: Colors.black),
               const SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.only(left: 30, right: 30),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -450,27 +450,30 @@ class _ProfilPageState extends State<ProfilPage> {
                       decoration: const InputDecoration(
                         hintText: 'Vorname eingeben',
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
                         isDense: true,
+                        contentPadding: EdgeInsets.zero,
                       ),
                       style: Theme.of(context).textTheme.labelMedium,
                     ),
-                    TextFormField(
-                      controller: _lastNameController,
-                      focusNode: _lastNameFocusNode,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (value) {
-                        FocusScope.of(context)
-                            .requestFocus(_phoneNumberFocusNode);
-                      },
-                      validator: _validateName,
-                      decoration: const InputDecoration(
-                        hintText: 'Nachname eingeben',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                        isDense: true,
+                    Transform.translate(
+                      offset: const Offset(0, -8),
+                      child: TextFormField(
+                        controller: _lastNameController,
+                        focusNode: _lastNameFocusNode,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (value) {
+                          FocusScope.of(context)
+                              .requestFocus(_phoneNumberFocusNode);
+                        },
+                        validator: _validateName,
+                        decoration: const InputDecoration(
+                          hintText: 'Nachname eingeben',
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
-                      style: Theme.of(context).textTheme.labelMedium,
                     ),
                   ],
                 ),
@@ -515,7 +518,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                           hintText: 'Telefonnummer eingeben',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
-                                          isDense: true, // Hinzugefügt
+                                          isDense: true,
                                         ),
                                         style: Theme.of(context)
                                             .textTheme
@@ -545,7 +548,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                           hintText: 'E-Mail Adresse eingeben',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
-                                          isDense: true, // Hinzugefügt
+                                          isDense: true,
                                         ),
                                         style: Theme.of(context)
                                             .textTheme
@@ -573,7 +576,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                           hintText: 'Zusätzliche Infos',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
-                                          isDense: true, // Hinzugefügt
+                                          isDense: true,
                                         ),
                                         style: Theme.of(context)
                                             .textTheme

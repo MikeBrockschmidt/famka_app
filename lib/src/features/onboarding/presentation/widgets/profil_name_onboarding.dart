@@ -160,24 +160,32 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 20),
               Center(
                 child: GestureDetector(
                   onTap: () => _handleAvatarSelected(""),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      ProfilImage(
-                        widget.db,
-                        currentAvatarUrl: _currentAvatarUrl,
-                        onAvatarSelected: _handleAvatarSelected,
-                        contextType: ImageSelectionContext.profile,
+                      SizedBox(
+                        height: 150,
+                        width: 150,
+                        child: ProfilImage(
+                          widget.db,
+                          currentAvatarUrl: _currentAvatarUrl,
+                          onAvatarSelected: _handleAvatarSelected,
+                          contextType: ImageSelectionContext.profile,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.camera_alt,
+                        size: 48,
+                        color: Colors.white30,
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 44),
+              const SizedBox(height: 24),
               ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
@@ -203,34 +211,44 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                             ),
                           ),
                         ),
-                        TextFormField(
-                          controller: _firstNameController,
-                          decoration: const InputDecoration(
-                            labelText: "Vorname",
-                            hintText: "Vorname eingeben",
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Bitte Vorname eingeben.';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _lastNameController,
-                          decoration: const InputDecoration(
-                            labelText: "Nachname",
-                            hintText: "Nachname eingeben",
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Bitte Nachname eingeben.';
-                            }
-                            return null;
-                          },
+                        Row(
+                          children: [
+                            Flexible(
+                              flex: 1,
+                              child: TextFormField(
+                                controller: _firstNameController,
+                                decoration: const InputDecoration(
+                                  labelText: "Vorname",
+                                  hintText: "Vorname eingeben",
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Bitte Vorname eingeben.';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Flexible(
+                              flex: 2,
+                              child: TextFormField(
+                                controller: _lastNameController,
+                                decoration: const InputDecoration(
+                                  labelText: "Nachname",
+                                  hintText: "Nachname eingeben",
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Bitte Nachname eingeben.';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 12),
                         TextFormField(

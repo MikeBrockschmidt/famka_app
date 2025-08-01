@@ -367,7 +367,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            'Uhrzeit: ${DateFormat('HH:mm', 'de_DE').format(event.singleEventDate)} Uhr',
+                                            event.isAllDay // <-- HIER wurde die Logik geändert
+                                                ? 'Uhrzeit:  '
+                                                : 'Uhrzeit: ${DateFormat('HH:mm', 'de_DE').format(event.singleEventDate)} Uhr',
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyLarge,

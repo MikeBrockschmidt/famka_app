@@ -13,6 +13,7 @@ class SingleEvent {
   final List<String> invitedMemberIds;
   final List<String> maybeMemberIds;
   final List<String> declinedMemberIds;
+  final bool isAllDay;
 
   SingleEvent({
     required this.singleEventId,
@@ -27,6 +28,7 @@ class SingleEvent {
     this.invitedMemberIds = const [],
     this.maybeMemberIds = const [],
     this.declinedMemberIds = const [],
+    required this.isAllDay,
   });
 
   SingleEvent copyWith({
@@ -42,6 +44,7 @@ class SingleEvent {
     List<String>? invitedMemberIds,
     List<String>? maybeMemberIds,
     List<String>? declinedMemberIds,
+    bool? isAllDay,
   }) {
     return SingleEvent(
       singleEventId: singleEventId ?? this.singleEventId,
@@ -57,6 +60,7 @@ class SingleEvent {
       invitedMemberIds: invitedMemberIds ?? this.invitedMemberIds,
       maybeMemberIds: maybeMemberIds ?? this.maybeMemberIds,
       declinedMemberIds: declinedMemberIds ?? this.declinedMemberIds,
+      isAllDay: isAllDay ?? this.isAllDay,
     );
   }
 
@@ -74,6 +78,7 @@ class SingleEvent {
       'invitedMemberIds': invitedMemberIds,
       'maybeMemberIds': maybeMemberIds,
       'declinedMemberIds': declinedMemberIds,
+      'isAllDay': isAllDay,
     };
   }
 
@@ -91,6 +96,7 @@ class SingleEvent {
       invitedMemberIds: List<String>.from(map['invitedMemberIds'] ?? []),
       maybeMemberIds: List<String>.from(map['maybeMemberIds'] ?? []),
       declinedMemberIds: List<String>.from(map['declinedMemberIds'] ?? []),
+      isAllDay: map['isAllDay'] as bool? ?? false,
     );
   }
 }

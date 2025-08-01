@@ -473,7 +473,7 @@ class _GroupImageState extends State<GroupImage> {
     }
 
     return Transform.translate(
-      offset: const Offset(0, -20),
+      offset: const Offset(0, 0),
       child: GestureDetector(
         onTap: _pickImageAndUpload,
         child: Stack(

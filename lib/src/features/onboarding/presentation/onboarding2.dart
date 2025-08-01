@@ -23,7 +23,6 @@ class Onboarding2Screen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           const Positioned(
@@ -34,7 +33,6 @@ class Onboarding2Screen extends StatelessWidget {
           ),
           Positioned.fill(
             child: SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.only(bottom: 150),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

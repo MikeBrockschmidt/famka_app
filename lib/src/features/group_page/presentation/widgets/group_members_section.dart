@@ -3,7 +3,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
-import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_list.dart'; // Import für GroupMembersList
+import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_list.dart';
 
 class GroupMembersSection extends StatelessWidget {
   final VoidCallback onShowGroupIdDialog;
