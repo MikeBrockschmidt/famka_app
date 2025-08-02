@@ -8,6 +8,7 @@ class AppUser {
   final String? miscellaneous;
   final String? password;
   final bool canCreateGroups;
+  final String? fcmToken;
 
   const AppUser({
     required this.profilId,
@@ -19,6 +20,7 @@ class AppUser {
     this.miscellaneous,
     this.password,
     this.canCreateGroups = true,
+    this.fcmToken,
   });
 
   AppUser copyWith({
@@ -31,6 +33,7 @@ class AppUser {
     String? miscellaneous,
     String? password,
     bool? canCreateGroups,
+    String? fcmToken,
   }) {
     return AppUser(
       profilId: profilId ?? this.profilId,
@@ -42,6 +45,7 @@ class AppUser {
       miscellaneous: miscellaneous ?? this.miscellaneous,
       password: password ?? this.password,
       canCreateGroups: canCreateGroups ?? this.canCreateGroups,
+      fcmToken: fcmToken ?? this.fcmToken,
     );
   }
 
@@ -56,6 +60,7 @@ class AppUser {
       'miscellaneous': miscellaneous,
       'password': password,
       'canCreateGroups': canCreateGroups,
+      'fcmToken': fcmToken,
     };
   }
 
@@ -70,6 +75,7 @@ class AppUser {
       miscellaneous: map['miscellaneous'] as String?,
       password: map['password'] as String?,
       canCreateGroups: map['canCreateGroups'] as bool? ?? true,
+      fcmToken: map['fcmToken'] as String?,
     );
   }
 }

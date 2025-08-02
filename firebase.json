@@ -1,1 +1,35 @@
-{"flutter":{"platforms":{"ios":{"default":{"projectId":"famka-app-free-storage","appId":"1:616611076821:ios:9e2e2f16ded0c576cfe05c","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"famka-app-free-storage","configurations":{"ios":"1:616611076821:ios:9e2e2f16ded0c576cfe05c"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "ios": {
+        "default": {
+          "projectId": "famka-app-free-storage",
+          "appId": "1:616611076821:ios:9e2e2f16ded0c576cfe05c",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "famka-app-free-storage",
+          "configurations": {
+            "ios": "1:616611076821:ios:9e2e2f16ded0c576cfe05c"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}

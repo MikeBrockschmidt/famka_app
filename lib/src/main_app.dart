@@ -8,6 +8,7 @@ import 'package:famka_app/src/theme/font_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class MainApp extends StatefulWidget {
   final DatabaseRepository db;
@@ -26,11 +27,15 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
+    _setupPushNotifications();
+
     widget.auth.authStateChanges().listen((firebaseUser) async {
       setState(() {
         _isLoadingUserData = true;
       });
       if (firebaseUser != null) {
+        await _saveFCMToken(firebaseUser.uid);
+
         final userFromFirestore =
             await widget.db.getUserAsync(firebaseUser.uid);
         setState(() {
@@ -46,6 +51,46 @@ class _MainAppState extends State<MainApp> {
         });
       }
     });
+  }
+
+  void _setupPushNotifications() async {
+    final fcm = FirebaseMessaging.instance;
+
+    final settings = await fcm.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    print('User granted permission: ${settings.authorizationStatus}');
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Got a message whilst in the foreground!');
+      print('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        print('Message also contained a notification: ${message.notification}');
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+    });
+  }
+
+  Future<void> _saveFCMToken(String userId) async {
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        await widget.db.saveUserFCMToken(userId, fcmToken);
+        print('✅ FCM-Token für Benutzer $userId erfolgreich gespeichert.');
+      }
+    } catch (e) {
+      print('❌ Fehler beim Speichern des FCM-Tokens: $e');
+    }
   }
 
   @override

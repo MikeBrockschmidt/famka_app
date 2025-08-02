@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:famka_app/src/features/login/domain/app_user.dart';
 
 class SingleEvent {
   final String singleEventId;
@@ -14,6 +15,8 @@ class SingleEvent {
   final List<String> maybeMemberIds;
   final List<String> declinedMemberIds;
   final bool isAllDay;
+  final bool? hasReminder;
+  final String? reminderOffset;
 
   SingleEvent({
     required this.singleEventId,
@@ -29,6 +32,8 @@ class SingleEvent {
     this.maybeMemberIds = const [],
     this.declinedMemberIds = const [],
     required this.isAllDay,
+    this.hasReminder,
+    this.reminderOffset,
   });
 
   SingleEvent copyWith({
@@ -45,6 +50,8 @@ class SingleEvent {
     List<String>? maybeMemberIds,
     List<String>? declinedMemberIds,
     bool? isAllDay,
+    bool? hasReminder,
+    String? reminderOffset,
   }) {
     return SingleEvent(
       singleEventId: singleEventId ?? this.singleEventId,
@@ -61,6 +68,8 @@ class SingleEvent {
       maybeMemberIds: maybeMemberIds ?? this.maybeMemberIds,
       declinedMemberIds: declinedMemberIds ?? this.declinedMemberIds,
       isAllDay: isAllDay ?? this.isAllDay,
+      hasReminder: hasReminder ?? this.hasReminder,
+      reminderOffset: reminderOffset ?? this.reminderOffset,
     );
   }
 
@@ -79,6 +88,8 @@ class SingleEvent {
       'maybeMemberIds': maybeMemberIds,
       'declinedMemberIds': declinedMemberIds,
       'isAllDay': isAllDay,
+      'hasReminder': hasReminder,
+      'reminderOffset': reminderOffset,
     };
   }
 
@@ -97,6 +108,8 @@ class SingleEvent {
       maybeMemberIds: List<String>.from(map['maybeMemberIds'] ?? []),
       declinedMemberIds: List<String>.from(map['declinedMemberIds'] ?? []),
       isAllDay: map['isAllDay'] as bool? ?? false,
+      hasReminder: map['hasReminder'] as bool?,
+      reminderOffset: map['reminderOffset'] as String?,
     );
   }
 }

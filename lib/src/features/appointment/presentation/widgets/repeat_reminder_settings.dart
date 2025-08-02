@@ -132,13 +132,7 @@ class _RepeatReminderSettingsState extends State<RepeatReminderSettings> {
             leftIcon: Icons.notifications_active,
             label: 'Erinnerung vor',
             value: _selectedReminder,
-            items: const [
-              '5 Minuten',
-              '15 Minuten',
-              '30 Minuten',
-              '1 Stunde',
-              '1 Tag'
-            ],
+            items: const ['30 Minuten', '1 Stunde', '1 Tag'],
             onChanged: (val) {
               if (val != null) {
                 setState(() {

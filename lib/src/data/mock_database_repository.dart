@@ -464,4 +464,10 @@ class MockDatabaseRepository implements DatabaseRepository {
   Future<void> addUserToGroup(AppUser user, String groupId, UserRole role) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> saveUserFCMToken(String userId, String? token) {
+    // TODO: implement saveUserFCMToken
+    throw UnimplementedError();
+  }
 }

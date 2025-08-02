@@ -29,6 +29,8 @@ abstract class DatabaseRepository {
 
   Future<String> getCurrentUserAvatarUrl();
 
+  Future<void> saveUserFCMToken(String userId, String? token);
+
   String generateNewGroupId();
   Future<void> addGroup(Group group);
   Future<void> updateGroup(Group group);

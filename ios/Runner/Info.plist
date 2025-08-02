@@ -24,11 +24,6 @@
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array>
-		<!-- <dict>
-			<key>CFBundleURLName</key>
-			<string></string>
-		</dict> -->
-		<!-- <string>de.brockschmidt.famka</string> -->
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -38,12 +33,12 @@
 			</array>
 		</dict>
 	</array>
-	<key>LSApplicationCategoryType</key>
-	<string></string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>GIDClientID</key>
 	<string>616611076821-rgu9ga0hejthhce1nbuivlnh6g51c93e.apps.googleusercontent.com</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
@@ -54,6 +49,11 @@
 	<string>Famka App benötigt Zugriff auf Ihre Fotobibliothek, um Bilder für die Galerie und Profilbilder auszuwählen und zuzuschneiden.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

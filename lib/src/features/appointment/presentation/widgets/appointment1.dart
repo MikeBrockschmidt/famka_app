@@ -232,6 +232,8 @@ class _AppointmentState extends State<Appointment> {
         maybeMemberIds: initialEvent.maybeMemberIds,
         declinedMemberIds: initialEvent.declinedMemberIds,
         isAllDay: initialEvent.isAllDay,
+        hasReminder: initialEvent.hasReminder,
+        reminderOffset: initialEvent.reminderOffset,
       );
       saveOperations.add(widget.db.createEvent(recurringEvent));
       occurrencesGenerated++;
@@ -349,6 +351,8 @@ class _AppointmentState extends State<Appointment> {
       maybeMemberIds: [],
       declinedMemberIds: [],
       isAllDay: _allDay,
+      hasReminder: _reminder,
+      reminderOffset: _reminder ? _selectedReminder : null,
     );
     debugPrint('*** DEBUGGING EVENT ERSTELLUNG ***');
     debugPrint('Ersteller ID (creatorId): ${initialEvent.creatorId}');

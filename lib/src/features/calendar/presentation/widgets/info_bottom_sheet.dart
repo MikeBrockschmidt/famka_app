@@ -56,10 +56,12 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
     super.dispose();
   }
 
-  Widget _buildEventLeadingIcon(
-      String? eventUrl, String eventName, double size) {
+  Widget _buildEventLeadingIcon(String? eventUrl, String eventName, double size,
+      {bool isClickable = true}) {
+    Widget iconWidget;
+
     if (eventUrl == null || eventUrl.isEmpty) {
-      return CircleAvatar(
+      iconWidget = CircleAvatar(
         radius: size / 2,
         backgroundColor: Colors.grey.shade200,
         child: Text(
@@ -70,35 +72,42 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           ),
         ),
       );
-    }
-
-    if (eventUrl.startsWith('emoji:')) {
+    } else if (eventUrl.startsWith('emoji:')) {
       final emoji = eventUrl.substring(6);
-      return Text(
-        emoji,
-        style: TextStyle(
-          fontSize: size * 0.9,
-          fontFamilyFallback: const [
-            'Apple Color Emoji',
-            'Segoe UI Emoji',
-            'Segoe UI Symbol'
-          ],
+      iconWidget = SizedBox(
+        width: size,
+        height: size,
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: Text(
+            emoji,
+            style: const TextStyle(
+              fontFamilyFallback: [
+                'Apple Color Emoji',
+                'Segoe UI Emoji',
+                'Segoe UI Symbol'
+              ],
+            ),
+          ),
         ),
       );
     } else if (eventUrl.startsWith('icon:')) {
       final iconCodePoint = int.tryParse(eventUrl.substring(5));
       if (iconCodePoint != null) {
-        return Icon(
+        iconWidget = Icon(
           IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
           size: size * 0.9,
           color: AppColors.famkaBlack,
         );
+      } else {
+        iconWidget =
+            Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
       }
     } else if (eventUrl.startsWith('image:')) {
       final actualImageUrl = eventUrl.substring(6);
       if (actualImageUrl.startsWith('http://') ||
           actualImageUrl.startsWith('https://')) {
-        return EventImage(
+        iconWidget = EventImage(
           widget.db,
           currentAvatarUrl: actualImageUrl,
           displayRadius: size / 2,
@@ -106,7 +115,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           isInteractive: false,
         );
       } else {
-        return Image.asset(
+        iconWidget = Image.asset(
           actualImageUrl,
           fit: BoxFit.contain,
           width: size,
@@ -117,24 +126,185 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           },
         );
       }
+    } else {
+      iconWidget = EventImage(
+        widget.db,
+        currentAvatarUrl: eventUrl,
+        displayRadius: size / 2,
+        applyTransformOffset: false,
+        isInteractive: false,
+      );
     }
-    return EventImage(
-      widget.db,
-      currentAvatarUrl: eventUrl,
-      displayRadius: size / 2,
-      applyTransformOffset: false,
-      isInteractive: false,
+
+    if (isClickable && _canShowEnlarged(eventUrl)) {
+      return GestureDetector(
+        onTap: () => _showEnlargedImage(eventUrl!, eventName),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade300, width: 1),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(7),
+            child: iconWidget,
+          ),
+        ),
+      );
+    }
+
+    return iconWidget;
+  }
+
+  bool _canShowEnlarged(String? eventUrl) {
+    if (eventUrl == null || eventUrl.isEmpty) return false;
+    return eventUrl.startsWith('image:') ||
+        eventUrl.startsWith('http://') ||
+        eventUrl.startsWith('https://') ||
+        (!eventUrl.startsWith('emoji:') && !eventUrl.startsWith('icon:'));
+  }
+
+  void _showEnlargedImage(String eventUrl, String eventName) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.of(dialogContext).pop(),
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.black54,
+                ),
+              ),
+              Center(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.9,
+                    maxHeight: MediaQuery.of(context).size.height * 0.8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.famkaBlue,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(12),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                eventName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(),
+                              icon:
+                                  const Icon(Icons.close, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          child: _buildEnlargedImageWidget(eventUrl),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
+  }
+
+  Widget _buildEnlargedImageWidget(String eventUrl) {
+    if (eventUrl.startsWith('image:')) {
+      final actualImageUrl = eventUrl.substring(6);
+      if (actualImageUrl.startsWith('http://') ||
+          actualImageUrl.startsWith('https://')) {
+        return EventImage(
+          widget.db,
+          currentAvatarUrl: actualImageUrl,
+          displayRadius: 150,
+          applyTransformOffset: false,
+          isInteractive: false,
+        );
+      } else {
+        return Image.asset(
+          actualImageUrl,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.broken_image, size: 64, color: Colors.red),
+                SizedBox(height: 8),
+                Text('Bild konnte nicht geladen werden'),
+              ],
+            );
+          },
+        );
+      }
+    } else {
+      return EventImage(
+        widget.db,
+        currentAvatarUrl: eventUrl,
+        displayRadius: 150,
+        applyTransformOffset: false,
+        isInteractive: false,
+      );
+    }
   }
 
   Future<void> _saveDescription(SingleEvent event) async {
     final String newDescription =
         _descriptionControllers[event.singleEventId]?.text ?? '';
+
+    print('Saving description for event: ${event.singleEventId}');
+    print('Old description: "${event.singleEventDescription}"');
+    print('New description: "$newDescription"');
+
     if (newDescription != event.singleEventDescription) {
       final updatedEvent =
           event.copyWith(singleEventDescription: newDescription);
+
+      print('Calling database update...');
+
       try {
         await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+
+        print('Database update successful');
+
         if (mounted) {
           setState(() {
             final index = _currentEvents
@@ -144,13 +314,16 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
             }
             _isEditingDescription[event.singleEventId] = false;
           });
+
           widget.onEventUpdated?.call(updatedEvent);
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text('Beschreibung erfolgreich aktualisiert.')),
           );
         }
       } catch (e) {
+        print('Database update failed: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -161,6 +334,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         }
       }
     } else {
+      print('No changes detected');
       if (mounted) {
         setState(() {
           _isEditingDescription[event.singleEventId] = false;
@@ -169,6 +343,31 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           const SnackBar(content: Text('Keine Änderungen zum Speichern.')),
         );
       }
+    }
+  }
+
+  Future<void> _saveAllDescriptions() async {
+    bool hasChanges = false;
+
+    for (var event in _currentEvents) {
+      if (_isEditingDescription[event.singleEventId] == true) {
+        final newDescription =
+            _descriptionControllers[event.singleEventId]?.text ?? '';
+        if (newDescription != event.singleEventDescription) {
+          hasChanges = true;
+          await _saveDescription(event);
+        } else {
+          setState(() {
+            _isEditingDescription[event.singleEventId] = false;
+          });
+        }
+      }
+    }
+
+    if (!hasChanges) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Keine Änderungen zum Speichern.')),
+      );
     }
   }
 
@@ -367,8 +566,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            event.isAllDay // <-- HIER wurde die Logik geändert
-                                                ? 'Uhrzeit:  '
+                                            event.isAllDay
+                                                ? 'Uhrzeit: Ganztägig'
                                                 : 'Uhrzeit: ${DateFormat('HH:mm', 'de_DE').format(event.singleEventDate)} Uhr',
                                             style: Theme.of(context)
                                                 .textTheme
@@ -394,15 +593,15 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                           color: isEditing
                                               ? AppColors.famkaGreen
                                               : AppColors.famkaGrey,
-                                          onPressed: () {
-                                            setState(() {
-                                              _isEditingDescription[event
-                                                  .singleEventId] = !isEditing;
-                                              if (!isEditing) {
-                                              } else {
-                                                _saveDescription(event);
-                                              }
-                                            });
+                                          onPressed: () async {
+                                            if (isEditing) {
+                                              await _saveDescription(event);
+                                            } else {
+                                              setState(() {
+                                                _isEditingDescription[
+                                                    event.singleEventId] = true;
+                                              });
+                                            }
                                           },
                                         ),
                                         IconButton(
@@ -426,6 +625,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                         ),
                                         maxLines: null,
                                         keyboardType: TextInputType.multiline,
+                                        onSubmitted: (_) async {
+                                          await _saveDescription(event);
+                                        },
                                       )
                                     : Text(
                                         'Beschreibung: ${event.singleEventDescription.isNotEmpty ? event.singleEventDescription : "Keine Beschreibung"}',
@@ -453,13 +655,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () async {
-                              for (var event in _currentEvents) {
-                                if (_isEditingDescription[
-                                        event.singleEventId] ==
-                                    true) {
-                                  await _saveDescription(event);
-                                }
-                              }
+                              await _saveAllDescriptions();
                               Navigator.pop(context);
                             },
                             child: const ButtonLinearGradient(

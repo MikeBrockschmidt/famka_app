@@ -191,105 +191,102 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(top: 30, bottom: 60),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(32, 110, 32, 28),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 12),
-                              TextFormField(
-                                controller: _emailController,
-                                decoration: const InputDecoration(
-                                  labelText: 'E-Mail-Adresse',
-                                  hintText: 'Gib deine E-Mail-Adresse ein',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: _validateEmail,
-                              ),
-                              const SizedBox(height: 6),
-                              TextFormField(
-                                controller: _passwordController,
-                                obscureText: true,
-                                decoration: const InputDecoration(
-                                  labelText: 'Passwort',
-                                  hintText: 'Gib ein sicheres Passwort ein',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: _validatePassword,
-                              ),
-                              const SizedBox(height: 6),
-                              TextFormField(
-                                controller: _confirmPasswordController,
-                                obscureText: true,
-                                decoration: const InputDecoration(
-                                  labelText: 'Passwort bestätigen',
-                                  hintText: 'Passwort wiederholen',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: _validateConfirmPassword,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: InkWell(
-                            onTap: _isLoading ? null : _saveNewUserAndNavigate,
-                            child: ButtonLinearGradient(
-                              buttonText: _isLoading ? 'Lädt...' : 'Fortfahren',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: -60,
-            left: 0,
-            right: 0,
-            child: Center(
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
               child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey.shade300,
-                  image: const DecorationImage(
-                    image: AssetImage('assets/grafiken/HI.jpg'),
-                    fit: BoxFit.cover,
+                padding: const EdgeInsets.fromLTRB(32, 110, 32, 28),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: const InputDecoration(
+                                labelText: 'E-Mail-Adresse',
+                                hintText: 'Gib deine E-Mail-Adresse ein',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: _validateEmail,
+                            ),
+                            const SizedBox(height: 6),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Passwort',
+                                hintText: 'Gib ein sicheres Passwort ein',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: _validatePassword,
+                            ),
+                            const SizedBox(height: 6),
+                            TextFormField(
+                              controller: _confirmPasswordController,
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Passwort bestätigen',
+                                hintText: 'Passwort wiederholen',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: _validateConfirmPassword,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: InkWell(
+                          onTap: _isLoading ? null : _saveNewUserAndNavigate,
+                          child: ButtonLinearGradient(
+                            buttonText: _isLoading ? 'Lädt...' : 'Fortfhren',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+        Positioned(
+          top: -60,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey.shade300,
+                image: const DecorationImage(
+                  image: AssetImage('assets/grafiken/HI.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

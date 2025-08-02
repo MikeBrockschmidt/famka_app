@@ -7,6 +7,8 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:uuid/uuid.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class FirestoreDatabaseRepository implements DatabaseRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -116,6 +118,19 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
   }
 
   @override
+  Future<void> saveUserFCMToken(String userId, String? token) async {
+    if (token == null) return;
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .update({'fcmToken': token});
+      print('✅ FCM-Token für Benutzer $userId erfolgreich gespeichert.');
+    } catch (e) {
+      print('❌ Fehler beim Speichern des FCM-Tokens für Benutzer $userId: $e');
+    }
+  }
+
   String generateNewGroupId() {
     return _uuid.v4();
   }
@@ -571,5 +586,23 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
     }
 
     currentUser = user;
+  }
+
+  @override
+  Future<void> sendAppointmentNotification(SingleEvent event) async {}
+
+  @override
+  Future<void> createUserFromAppleSignIn({
+    required String uid,
+    String? email,
+    String? displayName,
+    String? photoUrl,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> getGroupsStream(String userId) {
+    throw UnimplementedError();
   }
 }
