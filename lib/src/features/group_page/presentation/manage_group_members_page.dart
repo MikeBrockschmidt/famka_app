@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
@@ -54,7 +55,7 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Fehler beim Laden der Benutzer: $e');
+      print('Error loading users: $e');
       setState(() {
         _isLoading = false;
       });
@@ -98,8 +99,7 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
 
       for (var user in _selectedNewUsers) {
         UserRole assignedRole;
-        if ((user.email == null || user.email!.isEmpty) &&
-            (user.phoneNumber == null || user.phoneNumber!.isEmpty)) {
+        if (user.email.isEmpty && (user.phoneNumber?.isEmpty ?? true)) {
           assignedRole = UserRole.passiveMember;
         } else {
           assignedRole = UserRole.member;
@@ -117,8 +117,7 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
 
       for (var user in _selectedNewUsers) {
         final UserRole assignedRole;
-        if ((user.email == null || user.email!.isEmpty) &&
-            (user.phoneNumber == null || user.phoneNumber!.isEmpty)) {
+        if (user.email.isEmpty && (user.phoneNumber?.isEmpty ?? true)) {
           assignedRole = UserRole.passiveMember;
         } else {
           assignedRole = UserRole.member;
@@ -138,18 +137,20 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Gruppenmitglieder erfolgreich aktualisiert!'),
+        SnackBar(
+          content:
+              Text(AppLocalizations.of(context)!.manageMembersUpdateSuccess),
           backgroundColor: AppColors.famkaGreen,
         ),
       );
       Navigator.of(context).pop();
     } catch (e) {
-      print('Fehler beim Speichern der Änderungen: $e');
+      print('Error saving changes: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Fehler beim Speichern: $e'),
+          content: Text(AppLocalizations.of(context)!
+              .manageMembersUpdateError(e.toString())),
           backgroundColor: AppColors.famkaRed,
         ),
       );
@@ -165,7 +166,7 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gruppenmitglieder verwalten'),
+        title: Text(AppLocalizations.of(context)!.manageMembersTitle),
         backgroundColor: AppColors.famkaBlue,
       ),
       body: _isLoading
@@ -176,7 +177,7 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Aktuelle Mitglieder:',
+                    '${AppLocalizations.of(context)!.manageMembersCurrentTitle}:',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: AppColors.famkaBlack,
                         ),
@@ -204,21 +205,22 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                       if (memberRole != null) {
                         switch (memberRole) {
                           case UserRole.admin:
-                            roleText = '(Admin)';
+                            roleText = AppLocalizations.of(context)!
+                                .manageMembersRoleAdmin;
                             break;
                           case UserRole.member:
-                            roleText = '(Mitglied)';
+                            roleText = AppLocalizations.of(context)!
+                                .manageMembersRoleMember;
                             break;
                           case UserRole.passiveMember:
-                            roleText = '(Passiv)';
+                            roleText = AppLocalizations.of(context)!
+                                .manageMembersRolePassive;
                             break;
                         }
                       }
 
-                      final bool isTrulyPassive =
-                          (member.email == null || member.email!.isEmpty) &&
-                              (member.phoneNumber == null ||
-                                  member.phoneNumber!.isEmpty);
+                      final bool isTrulyPassive = member.email.isEmpty &&
+                          (member.phoneNumber?.isEmpty ?? true);
 
                       final bool canRemoveMember = widget.isCurrentUserAdmin &&
                           member.profilId != widget.currentUser.profilId;
@@ -246,17 +248,19 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                             ),
                           ),
                           title: Text(
-                            '${member.firstName ?? ''} ${member.lastName ?? ''} $roleText',
+                            '${member.firstName} ${member.lastName} $roleText',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           subtitle: Text(
                             isTrulyPassive
-                                ? 'Keine E-Mail / Telefonnummer'
-                                : (member.email?.isNotEmpty ?? false
-                                    ? member.email!
+                                ? AppLocalizations.of(context)!
+                                    .manageMembersNoEmailPhone
+                                : (member.email.isNotEmpty
+                                    ? member.email
                                     : (member.phoneNumber?.isNotEmpty ?? false
                                         ? member.phoneNumber!
-                                        : 'Keine E-Mail / Telefonnummer')),
+                                        : AppLocalizations.of(context)!
+                                            .manageMembersNoEmailPhone)),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           trailing: Row(
@@ -291,8 +295,11 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                           width: 200,
                           height: 50,
                           child: ButtonLinearGradient(
-                            buttonText:
-                                _isLoading ? 'Speichern...' : 'Speichern',
+                            buttonText: _isLoading
+                                ? AppLocalizations.of(context)!
+                                    .manageMembersSavingButton
+                                : AppLocalizations.of(context)!
+                                    .manageMembersSaveChangesButton,
                           ),
                         ),
                       ),
