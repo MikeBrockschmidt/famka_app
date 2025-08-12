@@ -15,7 +15,8 @@ import 'package:famka_app/src/features/appointment/presentation/widgets/event_pa
 import 'package:famka_app/src/features/appointment/presentation/widgets/gallery_selection_field.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/repeat_reminder_settings.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/save_appointment_button.dart';
-import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart' as time_picker;
+import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart'
+    as time_picker;
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 

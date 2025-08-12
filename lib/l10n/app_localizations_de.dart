@@ -4,13 +4,12 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for English (`en`).
-class AppLocalizationsEn extends AppLocalizations {
-  AppLocalizationsEn([String locale = 'en']) : super(locale);
+/// The translations for German (`de`).
+class AppLocalizationsDe extends AppLocalizations {
+  AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
-  String get addOrJoinGroupRequiredFieldError =>
-      'Please fill out all required fields.';
+  String get addOrJoinGroupRequiredFieldError => 'Please fill out all required fields.';
 
   @override
   String get addOrJoinGroupTitle => 'Create Group';
@@ -22,8 +21,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addOrJoinGroupGroupNameEmpty => 'Please enter a group name.';
 
   @override
-  String get addOrJoinGroupDescriptionHint =>
-      'A short description of your group';
+  String get addOrJoinGroupDescriptionHint => 'A short description of your group';
 
   @override
   String get addOrJoinGroupLocationHint => 'Where is your group located?';
@@ -75,8 +73,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupPageRoleMember => 'Member';
 
   @override
-  String get shareGroupIdInstruction =>
-      'Share this group ID with your friends!';
+  String get shareGroupIdInstruction => 'Share this group ID with your friends!';
 
   @override
   String get groupIdCopied => 'Group ID copied!';
@@ -110,12 +107,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createButtonText => 'Create';
 
   @override
-  String get noCurrentUserError =>
-      'Error: No current user available. Please sign in.';
+  String get noCurrentUserError => 'Error: No current user available. Please sign in.';
 
   @override
-  String get noActiveGroupError =>
-      'Could not load any groups or no active group to display.';
+  String get noActiveGroupError => 'Could not load any groups or no active group to display.';
 
   @override
   String loadingGroupsError(String error) {
@@ -123,15 +118,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get groupsDeletedError =>
-      'All groups have been deleted or could not be loaded.';
+  String get groupsDeletedError => 'All groups have been deleted or could not be loaded.';
 
   @override
   String get unknownError => 'An unknown error occurred.';
 
   @override
-  String get createGroupNotImplemented =>
-      'Create group function not yet implemented.';
+  String get createGroupNotImplemented => 'Create group function not yet implemented.';
 
   @override
   String get createGroupButtonText => 'Create New Group';
@@ -210,8 +203,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginFailedWrongPassword => 'Wrong password for this email.';
 
   @override
-  String get googleLoginFailedNoUser =>
-      'Google login failed: No Firebase user received.';
+  String get googleLoginFailedNoUser => 'Google login failed: No Firebase user received.';
 
   @override
   String get googleLoginNewUserCreated => 'New Google user profile created.';
@@ -225,12 +217,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get googleLoginFailedFirestoreLoad =>
-      'Error: Could not load user data after creation.';
+  String get googleLoginFailedFirestoreLoad => 'Error: Could not load user data after creation.';
 
   @override
-  String get googleLoginFailedDifferentCredential =>
-      'An account already exists with this email but with a different sign-in method.';
+  String get googleLoginFailedDifferentCredential => 'An account already exists with this email but with a different sign-in method.';
 
   @override
   String get googleLoginAborted => 'Google login aborted by user.';
@@ -244,8 +234,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInWithGoogleTooltip => 'Sign in with Google';
 
   @override
-  String get signInWithAppleNotImplemented =>
-      'Apple login not yet implemented.';
+  String get signInWithAppleNotImplemented => 'Apple login not yet implemented.';
 
   @override
   String get signInWithAppleTooltip => 'Sign in with Apple';
@@ -357,15 +346,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get snackbarAddImage => 'Please give your event a face.';
 
   @override
-  String get snackbarSelectParticipants =>
-      'For whom is the appointment? Please select at least one participant.';
+  String get snackbarSelectParticipants => 'For whom is the appointment? Please select at least one participant.';
 
   @override
   String get snackbarDateParseError => 'Error parsing date or time.';
 
   @override
-  String get snackbarCreatorError =>
-      'Error: Could not determine appointment creator.';
+  String get snackbarCreatorError => 'Error: Could not determine appointment creator.';
 
   @override
   String get snackbarRecurringEventSaved => 'Event series saved!';
@@ -429,8 +416,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addImageTitle => 'Add photo or pictogram';
 
   @override
-  String get addImageDescription =>
-      'The selected image will replace the event\'s title in the calendar view.';
+  String get addImageDescription => 'The selected image will replace the event\'s title in the calendar view.';
 
   @override
   String get repeatLabel => 'Repeat';
@@ -515,10 +501,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageMembersSaveChangesButton => 'Save Changes';
-
-  @override
-  String get passwordShowTooltip => 'Show password';
-
-  @override
-  String get passwordHideTooltip => 'Hide password';
 }

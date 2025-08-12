@@ -258,6 +258,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get signInWithAppleTooltip => 'Mit Apple anmelden';
 
   @override
+  String get showPasswordTooltip => 'Show password';
+
+  @override
+  String get hidePasswordTooltip => 'Hide password';
+
+  @override
   String get emailValidationEmpty => 'E-Mail-Adresse darf nicht leer sein';
 
   @override
@@ -522,4 +528,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get manageMembersSaveChangesButton => 'Änderungen speichern';
+
+  @override
+  String get passwordShowTooltip => 'Passwort anzeigen';
+
+  @override
+  String get passwordHideTooltip => 'Passwort verbergen';
 }

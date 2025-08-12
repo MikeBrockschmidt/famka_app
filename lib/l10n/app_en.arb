@@ -81,6 +81,8 @@
   "signInWithGoogleTooltip": "Sign in with Google",
   "signInWithAppleNotImplemented": "Apple login not yet implemented.",
   "signInWithAppleTooltip": "Sign in with Apple",
+  "showPasswordTooltip": "Show password",
+  "hidePasswordTooltip": "Hide password",
 
   "emailValidationEmpty": "Email address cannot be empty",
   "emailValidationInvalid": "Please enter a valid email address.",
@@ -326,5 +328,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "passwordShowTooltip": "Show password",
+  "passwordHideTooltip": "Hide password"
 }

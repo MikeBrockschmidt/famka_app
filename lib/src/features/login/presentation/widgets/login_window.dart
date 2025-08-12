@@ -2,6 +2,7 @@ import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:famka_app/src/features/register/presentation/register_screen.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
@@ -33,6 +34,7 @@ class _LoginWindowState extends State<LoginWindow> {
   }
 
   Future<void> _handleLogin() async {
+    final l10n = AppLocalizations.of(context)!;
     final email = _emailOrPhoneController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -43,8 +45,7 @@ class _LoginWindowState extends State<LoginWindow> {
       if (firebaseUser == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text("Benutzer nicht in Firebase gefunden.")),
+            SnackBar(content: Text(l10n.firebaseUserNotFound)),
           );
         }
         return;
@@ -54,8 +55,7 @@ class _LoginWindowState extends State<LoginWindow> {
       if (currentUser == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text("Benutzerdaten nicht in Firestore gefunden.")),
+            SnackBar(content: Text(l10n.firestoreUserNotFound)),
           );
         }
         await widget.auth.signOut();
@@ -66,14 +66,10 @@ class _LoginWindowState extends State<LoginWindow> {
       try {
         List<Group> userGroups =
             await widget.db.getGroupsForUser(firebaseUser.uid);
-        if (userGroups.isNotEmpty) {
-          widget.db.currentGroup = userGroups.first;
-        } else {
-          widget.db.currentGroup = null;
-        }
+        widget.db.currentGroup =
+            userGroups.isNotEmpty ? userGroups.first : null;
       } catch (e) {
-        debugPrint(
-            'Fehler beim Laden der Gruppen für den Benutzer (nicht kritisch für Login-Flow): $e');
+        debugPrint(l10n.loadingGroupsError(e.toString()));
         widget.db.currentGroup = null;
       }
 
@@ -83,7 +79,7 @@ class _LoginWindowState extends State<LoginWindow> {
           MaterialPageRoute(
             builder: (context) => ProfilPage(
               db: widget.db,
-              currentUser: currentUser!,
+              currentUser: currentUser,
               auth: widget.auth,
             ),
           ),
@@ -92,11 +88,11 @@ class _LoginWindowState extends State<LoginWindow> {
     } on FirebaseAuthException catch (e) {
       String message;
       if (e.code == 'user-not-found') {
-        message = 'Kein Benutzer für diese E-Mail gefunden.';
+        message = l10n.loginFailedUserNotFound;
       } else if (e.code == 'wrong-password') {
-        message = 'Falsches Passwort für diese E-Mail.';
+        message = l10n.loginFailedWrongPassword;
       } else {
-        message = 'Login fehlgeschlagen: ${e.message}';
+        message = l10n.loginFailedGeneric(e.message ?? e.code);
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -110,7 +106,7 @@ class _LoginWindowState extends State<LoginWindow> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Login fehlgeschlagen: $e"),
+            content: Text(l10n.loginFailedGeneric(e.toString())),
             backgroundColor: AppColors.famkaRed,
           ),
         );
@@ -121,6 +117,7 @@ class _LoginWindowState extends State<LoginWindow> {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.titleSmall;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -147,8 +144,8 @@ class _LoginWindowState extends State<LoginWindow> {
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: validateEmailOrPhone,
                         decoration: InputDecoration(
-                          labelText: "E-Mail Adresse",
-                          hintText: "E-Mail Adresse eingeben",
+                          labelText: l10n.emailInputLabel,
+                          hintText: l10n.emailInputHint,
                           border: const OutlineInputBorder(),
                           hintStyle: textStyle,
                           labelStyle: textStyle,
@@ -183,9 +180,12 @@ class _LoginWindowState extends State<LoginWindow> {
                                       ? Icons.visibility
                                       : Icons.visibility_off,
                                 ),
+                                tooltip: _isObscured
+                                    ? l10n.passwordShowTooltip
+                                    : l10n.passwordHideTooltip,
                               ),
-                              labelText: "Passwort",
-                              hintText: "Passwort eingeben",
+                              labelText: l10n.passwordInputLabel,
+                              hintText: l10n.passwordInputHint,
                               border: const OutlineInputBorder(),
                               hintStyle: textStyle,
                               labelStyle: textStyle,
@@ -213,9 +213,9 @@ class _LoginWindowState extends State<LoginWindow> {
                                 content: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
-                                  children: const [
-                                    Text("Bitte überprüfe deine Eingaben"),
-                                    SizedBox(
+                                  children: [
+                                    Text(l10n.checkInputsError),
+                                    const SizedBox(
                                       height: 16,
                                       width: 16,
                                       child: CircularProgressIndicator(
@@ -229,8 +229,8 @@ class _LoginWindowState extends State<LoginWindow> {
                             );
                           }
                         },
-                        child:
-                            const ButtonLinearGradient(buttonText: 'Anmelden'),
+                        child: ButtonLinearGradient(
+                            buttonText: l10n.loginButtonText),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -246,8 +246,8 @@ class _LoginWindowState extends State<LoginWindow> {
                             ),
                           );
                         },
-                        child: const ButtonLinearGradient(
-                            buttonText: 'Neu hier? Dann hier entlang'),
+                        child: ButtonLinearGradient(
+                            buttonText: l10n.newHereButtonText),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -262,7 +262,7 @@ class _LoginWindowState extends State<LoginWindow> {
                         );
                       },
                       child: Text(
-                        'Ich bin noch nicht registriert!',
+                        l10n.notRegisteredYetText,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: AppColors.famkaWhite,
                             ),
@@ -279,8 +279,6 @@ class _LoginWindowState extends State<LoginWindow> {
                             width: 24,
                           ),
                           onPressed: () async {
-                            int b = 0;
-                            print('hallo');
                             try {
                               UserCredential userCredential =
                                   await widget.auth.signInWithGoogle();
@@ -289,13 +287,14 @@ class _LoginWindowState extends State<LoginWindow> {
                               if (firebaseUser == null) {
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            "Google-Login fehlgeschlagen: Kein Firebase-Benutzer erhalten.")),
+                                    SnackBar(
+                                        content:
+                                            Text(l10n.googleLoginFailedNoUser)),
                                   );
                                 }
                                 return;
                               }
+
                               AppUser? currentUser = await widget.db
                                   .getUserAsync(firebaseUser.uid);
 
@@ -314,9 +313,9 @@ class _LoginWindowState extends State<LoginWindow> {
                                 if (currentUser == null) {
                                   if (mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              "Fehler: Konnte Benutzerdaten nach dem Erstellen nicht laden.")),
+                                      SnackBar(
+                                          content: Text(l10n
+                                              .googleLoginFailedFirestoreLoad)),
                                     );
                                   }
                                   await widget.auth.signOut();
@@ -325,9 +324,9 @@ class _LoginWindowState extends State<LoginWindow> {
 
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                         content: Text(
-                                            "Neues Google-Benutzerprofil erstellt.")),
+                                            l10n.googleLoginNewUserCreated)),
                                   );
                                 }
                               } else {
@@ -335,9 +334,8 @@ class _LoginWindowState extends State<LoginWindow> {
                                     'Bestehender Google-Nutzer gefunden in Firestore: ${firebaseUser.uid}');
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            "Google-Benutzer erfolgreich angemeldet.")),
+                                    SnackBar(
+                                        content: Text(l10n.googleLoginSuccess)),
                                   );
                                 }
                               }
@@ -352,7 +350,7 @@ class _LoginWindowState extends State<LoginWindow> {
                                     : null;
                               } catch (e) {
                                 debugPrint(
-                                    'Fehler beim Laden der Gruppen für den Benutzer (nicht kritisch für Login-Flow): $e');
+                                    l10n.loadingGroupsError(e.toString()));
                                 widget.db.currentGroup = null;
                               }
 
@@ -373,13 +371,12 @@ class _LoginWindowState extends State<LoginWindow> {
                               if (e.code ==
                                   'account-exists-with-different-credential') {
                                 message =
-                                    'Es existiert bereits ein Konto mit dieser E-Mail, aber mit einer anderen Anmeldemethode.';
+                                    l10n.googleLoginFailedDifferentCredential;
                               } else if (e.code == 'ABORTED_BY_USER') {
-                                message =
-                                    'Google-Login vom Benutzer abgebrochen.';
+                                message = l10n.googleLoginAborted;
                               } else {
-                                message =
-                                    'Google-Login fehlgeschlagen: ${e.message}';
+                                message = l10n.googleLoginUnexpectedError(
+                                    e.message ?? e.code);
                               }
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -394,16 +391,17 @@ class _LoginWindowState extends State<LoginWindow> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                        "Unerwarteter Google-Login-Fehler: $e"),
+                                        l10n.googleLoginUnexpectedError(
+                                            e.toString())),
                                     backgroundColor: AppColors.famkaRed,
                                   ),
                                 );
                               }
-                              debugPrint(
-                                  'Unerwarteter Fehler beim Google-Login: $e');
+                              debugPrint(l10n
+                                  .googleLoginUnexpectedError(e.toString()));
                             }
                           },
-                          tooltip: 'Mit Google anmelden',
+                          tooltip: l10n.signInWithGoogleTooltip,
                         ),
                         const SizedBox(width: 12),
                         Image.asset(
@@ -417,13 +415,12 @@ class _LoginWindowState extends State<LoginWindow> {
                               size: 32, color: AppColors.famkaWhite),
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    "Apple Login noch nicht implementiert."),
-                              ),
+                              SnackBar(
+                                  content:
+                                      Text(l10n.signInWithAppleNotImplemented)),
                             );
                           },
-                          tooltip: 'Mit Apple anmelden',
+                          tooltip: l10n.signInWithAppleTooltip,
                         ),
                       ],
                     ),
@@ -438,23 +435,28 @@ class _LoginWindowState extends State<LoginWindow> {
   }
 
   String? validateEmailOrPhone(String? input) {
+    final l10n = AppLocalizations.of(context)!;
     if (input == null || input.trim().isEmpty) {
-      return "E-Mail-Adresse darf nicht leer sein";
+      return l10n.emailValidationEmpty;
     }
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(input)) {
-      return "Bitte eine gültige E-Mail-Adresse eingeben.";
+      return l10n.emailValidationInvalid;
     }
     return null;
   }
 
   String? validatePassword(String? input) {
-    if (input == null || input.length < 8) return "Mind. 8 Zeichen";
-    if (input.length > 50) return "Max. 50 Zeichen";
-    if (!RegExp(r'[a-z]').hasMatch(input)) return "Mind. ein Kleinbuchstabe";
-    if (!RegExp(r'[A-Z]').hasMatch(input)) return "Mind. ein Großbuchstabe";
-    if (!RegExp(r'\d').hasMatch(input)) return "Mind. eine Zahl";
+    final l10n = AppLocalizations.of(context)!;
+    if (input == null || input.length < 8)
+      return l10n.passwordValidationMinLength;
+    if (input.length > 50) return l10n.passwordValidationMaxLength;
+    if (!RegExp(r'[a-z]').hasMatch(input))
+      return l10n.passwordValidationLowercase;
+    if (!RegExp(r'[A-Z]').hasMatch(input))
+      return l10n.passwordValidationUppercase;
+    if (!RegExp(r'\d').hasMatch(input)) return l10n.passwordValidationDigit;
     if (!RegExp(r'[!@#\$&*~\-+=_.,;:<>?/|]').hasMatch(input)) {
-      return "Mind. ein Sonderzeichen";
+      return l10n.passwordValidationSpecialChar;
     }
     return null;
   }
