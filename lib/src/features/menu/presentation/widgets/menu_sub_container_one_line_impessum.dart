@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/common/legal_info_page.dart';
 
-class MenuSubContainer1LinesInvitation extends StatelessWidget {
+class MenuSubContainer1LinesImpressum extends StatelessWidget {
   // Atribute
   final DatabaseRepository db;
 
   // Konstrukter
-  const MenuSubContainer1LinesInvitation(
+  const MenuSubContainer1LinesImpressum(
     this.db, {
     super.key,
     this.isIconWhite = true,

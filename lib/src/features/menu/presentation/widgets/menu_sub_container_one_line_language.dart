@@ -15,9 +15,9 @@ class _MenuSubContainer1LinesLanguageState
   bool _isEnglish = false; // Zustand für den Schalter
 
   @override
-  void initState() {
-    super.initState();
-    // Initialen Zustand basierend auf der aktuellen App-Sprache setzen
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialer Zustand basierend auf der aktuellen App-Sprache setzen
     _isEnglish = Localizations.localeOf(context).languageCode == 'en';
   }
 

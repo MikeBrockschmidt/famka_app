@@ -1,7 +1,7 @@
 import 'package:famka_app/src/common/bottom_navigation_three.dart';
 import 'package:famka_app/src/common/color_row1.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_one_line_invitation.dart';
+import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_one_line_impessum.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_two_lines_calendar.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_two_lines_group.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +10,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_one_line_language.dart';
 
 class MenuScreen extends StatefulWidget {
   final DatabaseRepository db;
@@ -44,7 +45,14 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('MenuScreen: initState called');
     _loadInitialData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    debugPrint('MenuScreen: didChangeDependencies called');
   }
 
   Future<void> _loadInitialData() async {
@@ -155,6 +163,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('MenuScreen: build called');
     if (_isLoading) {
       return Scaffold(
         body: Center(
@@ -320,34 +329,40 @@ class _MenuScreenState extends State<MenuScreen> {
                   children: [
                     Container(
                       color: AppColors.famkaWhite,
-                      child: FutureBuilder<void>(
-                        future: Future.delayed(
-                          const Duration(milliseconds: 50),
-                          () => Future.value(),
-                        ),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  CircularProgressIndicator(),
-                                ],
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                'Fehler beim Laden: ${snapshot.error}',
-                                style: const TextStyle(color: Colors.red),
-                                textAlign: TextAlign.center,
-                              ),
-                            );
-                          } else {
-                            return MenuSubContainer1LinesInvitation(widget.db);
-                          }
-                        },
+                      child: Column(
+                        children: [
+                          FutureBuilder<void>(
+                            future: Future.delayed(
+                              const Duration(milliseconds: 50),
+                              () => Future.value(),
+                            ),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(),
+                                    ],
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                  child: Text(
+                                    'Fehler beim Laden: ${snapshot.error}',
+                                    style: const TextStyle(color: Colors.red),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                );
+                              } else {
+                                return MenuSubContainer1LinesImpressum(
+                                    widget.db);
+                              }
+                            },
+                          ),
+                          MenuSubContainer1LinesLanguage(),
+                        ],
                       ),
                     ),
                   ],
