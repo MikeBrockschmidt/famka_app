@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
@@ -456,9 +457,12 @@ class _GalleryState extends State<Gallery> {
           SizedBox(
             height: 100,
             width: double.infinity,
-            child: const Align(
+            child: Align(
               alignment: Alignment.centerLeft,
-              child: HeadlineK(screenHead: 'Piktogramme'),
+              child: HeadlineK(
+                screenHead: AppLocalizations.of(context)?.piktogrammeLabe ??
+                    'Piktogramme',
+              ),
             ),
           ),
           Expanded(

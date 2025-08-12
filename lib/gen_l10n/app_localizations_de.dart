@@ -85,6 +85,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get groupIdCopied => 'Gruppen-ID wurde kopiert!';
 
   @override
+  String get menuTitle => 'Menü';
+
+  @override
   String get newGroupTitle => 'Neue Gruppe erstellen';
 
   @override
@@ -101,6 +104,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get noGroupSelectedError =>
+      'Bitte erstellen oder treten Sie einer Gruppe bei, um diese Funktion zu nutzen.';
+
+  @override
   String get groupNameLabel => 'Gruppenname';
 
   @override
@@ -111,6 +118,37 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get createButtonText => 'Erstellen';
+
+  @override
+  String get fillRequiredFields => 'Please fill in all required fields';
+
+  @override
+  String get groupName => 'Group Name';
+
+  @override
+  String get groupDescription => 'Group Description';
+
+  @override
+  String get appTitle => 'Famka';
+
+  @override
+  String get groupLocation => 'Location';
+
+  @override
+  String get inviteUserPrompt =>
+      'Enter the profile ID of the user you want to invite';
+
+  @override
+  String get userProfileIdHint => 'Enter user profile ID';
+
+  @override
+  String get enterProfileIdError => 'Please enter a valid profile ID';
+
+  @override
+  String get addButtonText => 'Add';
+
+  @override
+  String get cancelButtonText => 'Cancel';
 
   @override
   String get noCurrentUserError =>
@@ -475,6 +513,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get errorCreatingGroup => 'Error creating group';
+
+  @override
   String imageUploadSuccess(String downloadUrl) {
     return 'Bild erfolgreich hochgeladen: $downloadUrl';
   }
@@ -530,8 +571,40 @@ class AppLocalizationsDe extends AppLocalizations {
   String get manageMembersSaveChangesButton => 'Änderungen speichern';
 
   @override
+  String get deleteAppointment => 'Delete Appointment';
+
+  @override
+  String confirmDeleteAppointment(Object eventName) {
+    return 'Do you really want to delete \"$eventName\" permanently?';
+  }
+
+  @override
+  String get editDescription => 'Edit Description';
+
+  @override
+  String get participants => 'Participants';
+
+  @override
+  String get menuLabel => 'Menu';
+
+  @override
+  String get calendarLabel => 'Calendar';
+
+  @override
+  String get appointmentLabel => 'Appointment';
+
+  @override
+  String get galleryLabel => 'Piktogramme';
+
+  @override
+  String get piktogrammeLabe => 'Pictograms';
+
+  @override
   String get passwordShowTooltip => 'Passwort anzeigen';
 
   @override
   String get passwordHideTooltip => 'Passwort verbergen';
+
+  @override
+  String get noUserDataError => 'Keine Benutzerdaten verfügbar.';
 }

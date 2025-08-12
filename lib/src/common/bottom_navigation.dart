@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/appointment1.dart';
 import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
 import 'package:flutter/material.dart';
@@ -114,12 +115,14 @@ class _BottomNavigationThreeCalendarState extends State<BottomNavigation> {
   }
 
   void _onItemTapped(int index) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_currentActiveGroup == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.famkaRed,
           content: Text(
-            'Bitte erst eine Gruppe erstellen oder beitreten, um diese Funktion zu nutzen.',
+            l10n.noGroupSelectedError,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -132,7 +135,7 @@ class _BottomNavigationThreeCalendarState extends State<BottomNavigation> {
         SnackBar(
           backgroundColor: AppColors.famkaRed,
           content: Text(
-            'Fehler: Benutzerdaten nicht verfügbar.',
+            l10n.noUserDataError,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -224,6 +227,8 @@ class _BottomNavigationThreeCalendarState extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_isLoadingGroup) {
       return Container(
         height: 90,
@@ -249,7 +254,7 @@ class _BottomNavigationThreeCalendarState extends State<BottomNavigation> {
           _buildNavItem(
             context,
             icon: Icons.menu,
-            label: 'Menü',
+            label: l10n.menuTitle,
             isActive: _selectedIndex == 0 && enableAllNavigation,
             onTap: enableAllNavigation ? () => _onItemTapped(0) : null,
             selectedItemColor: widget.selectedItemColor,
@@ -261,7 +266,7 @@ class _BottomNavigationThreeCalendarState extends State<BottomNavigation> {
           _buildNavItem(
             context,
             icon: Icons.calendar_month,
-            label: 'Kalender',
+            label: l10n.calendarTitle,
             isActive: _selectedIndex == 1 && enableAllNavigation,
             onTap: enableAllNavigation ? () => _onItemTapped(1) : null,
             selectedItemColor: widget.selectedItemColor,
@@ -273,7 +278,7 @@ class _BottomNavigationThreeCalendarState extends State<BottomNavigation> {
           _buildNavItem(
             context,
             icon: Icons.add_box_outlined,
-            label: 'Termin',
+            label: l10n.appointmentTitle,
             isActive: _selectedIndex == 2 && enableAllNavigation,
             onTap: enableAllNavigation ? () => _onItemTapped(2) : null,
             selectedItemColor: widget.selectedItemColor,

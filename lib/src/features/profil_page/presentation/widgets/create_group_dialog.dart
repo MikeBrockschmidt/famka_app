@@ -7,6 +7,7 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:uuid/uuid.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class CreateGroupDialog extends StatefulWidget {
   final DatabaseRepository db;
@@ -49,12 +50,14 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
   }
 
   Future<void> _handleCreate() async {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.famkaRed,
           content: Text(
-            'Bitte geben Sie einen Gruppennamen ein.',
+            l10n.enterGroupName,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -86,7 +89,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
           SnackBar(
             backgroundColor: AppColors.famkaGreen,
             content: Text(
-              'Gruppe "${newGroup.groupName}" erfolgreich erstellt!',
+              l10n.groupCreatedSuccess(newGroup.groupName),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -98,7 +101,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
           SnackBar(
             backgroundColor: AppColors.famkaRed,
             content: Text(
-              'Fehler beim Erstellen der Gruppe: $e',
+              l10n.createGroupError(e.toString()),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -110,6 +113,8 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
+
     return AlertDialog(
       backgroundColor: AppColors.famkaWhite,
       surfaceTintColor: Colors.transparent,
@@ -119,7 +124,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Neue Gruppe erstellen',
+              'Create Group', // TODO: Use l10n.createGroupTitle after adding it to localizations
               style: theme.labelMedium?.copyWith(color: AppColors.famkaBlack),
             ),
           ],
@@ -141,24 +146,24 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
             const SizedBox(height: 32),
             TextField(
               controller: _nameController,
-              decoration: _inputDecoration('Gruppenname', theme),
+              decoration: _inputDecoration(l10n.groupNameLabel, theme),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _locationController,
-              decoration: _inputDecoration('Ort', theme),
+              decoration: _inputDecoration(l10n.locationLabel, theme),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _descriptionController,
-              decoration: _inputDecoration('Beschreibung', theme),
+              decoration: _inputDecoration(l10n.descriptionLabel, theme),
               maxLines: 3,
             ),
             const SizedBox(height: 24),
             InkWell(
               onTap: _handleCreate,
-              child: const ButtonLinearGradient(
-                buttonText: 'Erstellen',
+              child: ButtonLinearGradient(
+                buttonText: l10n.createButtonText,
               ),
             ),
           ],

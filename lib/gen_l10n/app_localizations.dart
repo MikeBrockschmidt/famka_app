@@ -230,6 +230,12 @@ abstract class AppLocalizations {
   /// **'Group ID copied!'**
   String get groupIdCopied;
 
+  /// No description provided for @menuTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Menü'**
+  String get menuTitle;
+
   /// No description provided for @newGroupTitle.
   ///
   /// In en, this message translates to:
@@ -254,6 +260,12 @@ abstract class AppLocalizations {
   /// **'Error creating group: {error}'**
   String createGroupError(String error);
 
+  /// No description provided for @noGroupSelectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please create or join a group to use this feature.'**
+  String get noGroupSelectedError;
+
   /// No description provided for @groupNameLabel.
   ///
   /// In en, this message translates to:
@@ -277,6 +289,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create'**
   String get createButtonText;
+
+  /// No description provided for @fillRequiredFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all required fields'**
+  String get fillRequiredFields;
+
+  /// No description provided for @groupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Name'**
+  String get groupName;
+
+  /// No description provided for @groupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Description'**
+  String get groupDescription;
+
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Famka'**
+  String get appTitle;
+
+  /// No description provided for @groupLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get groupLocation;
+
+  /// No description provided for @inviteUserPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the profile ID of the user you want to invite'**
+  String get inviteUserPrompt;
+
+  /// No description provided for @userProfileIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter user profile ID'**
+  String get userProfileIdHint;
+
+  /// No description provided for @enterProfileIdError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid profile ID'**
+  String get enterProfileIdError;
+
+  /// No description provided for @addButtonText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addButtonText;
+
+  /// No description provided for @cancelButtonText.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelButtonText;
 
   /// No description provided for @noCurrentUserError.
   ///
@@ -920,6 +992,12 @@ abstract class AppLocalizations {
   /// **'Error loading avatar in SingleEventAvatar: {error}'**
   String singleEventAvatarLoadingError(String error);
 
+  /// No description provided for @errorCreatingGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Error creating group'**
+  String get errorCreatingGroup;
+
   /// Success message when uploading an image
   ///
   /// In en, this message translates to:
@@ -1010,6 +1088,60 @@ abstract class AppLocalizations {
   /// **'Save Changes'**
   String get manageMembersSaveChangesButton;
 
+  /// No description provided for @deleteAppointment.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Appointment'**
+  String get deleteAppointment;
+
+  /// No description provided for @confirmDeleteAppointment.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to delete \"{eventName}\" permanently?'**
+  String confirmDeleteAppointment(Object eventName);
+
+  /// No description provided for @editDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Description'**
+  String get editDescription;
+
+  /// No description provided for @participants.
+  ///
+  /// In en, this message translates to:
+  /// **'Participants'**
+  String get participants;
+
+  /// No description provided for @menuLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menuLabel;
+
+  /// No description provided for @calendarLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get calendarLabel;
+
+  /// No description provided for @appointmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment'**
+  String get appointmentLabel;
+
+  /// No description provided for @galleryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get galleryLabel;
+
+  /// No description provided for @piktogrammeLabe.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictograms'**
+  String get piktogrammeLabe;
+
   /// No description provided for @passwordShowTooltip.
   ///
   /// In en, this message translates to:
@@ -1021,6 +1153,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide password'**
   String get passwordHideTooltip;
+
+  /// No description provided for @noUserDataError.
+  ///
+  /// In en, this message translates to:
+  /// **'No user data available.'**
+  String get noUserDataError;
 }
 
 class _AppLocalizationsDelegate

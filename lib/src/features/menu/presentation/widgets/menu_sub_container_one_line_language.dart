@@ -1,6 +1,8 @@
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:famka_app/src/providers/locale_provider.dart';
 
 class MenuSubContainer1LinesLanguage extends StatefulWidget {
   const MenuSubContainer1LinesLanguage({super.key});
@@ -25,17 +27,9 @@ class _MenuSubContainer1LinesLanguageState
     setState(() {
       _isEnglish = value;
     });
-    // Hier müsste die Logik zum tatsächlichen Wechseln der Sprache hin.
-    // Dies erfordert, dass Sie die Sprache der MaterialApp dynamisch ändern können.
-    // Normalerweise geschieht das über einen Provider oder einen Notifier.
-    // Fürs Erste können wir hier einen Debug-Print einfügen.
-    debugPrint('Sprache gewechselt zu: ${value ? 'Englisch' : 'Deutsch'}');
 
-    // Um die Sprache tatsächlich zu ändern, müssten Sie den Locale der MaterialApp
-    // von einem übergeordneten Widget aus steuern, z.B. über einen ValueNotifier
-    // oder ein State-Management-Paket wie Provider/Riverpod.
-    // Beispiel (nur zur Veranschaulichung, nicht direkt hier implementierbar):
-    // MyApp.setLocale(context, value ? const Locale('en') : const Locale('de'));
+    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+    localeProvider.setLocale(value ? const Locale('en') : const Locale('de'));
   }
 
   @override

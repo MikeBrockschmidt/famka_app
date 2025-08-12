@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -69,7 +70,8 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
           SnackBar(
             backgroundColor: AppColors.famkaCyan,
             content: Text(
-              'Passives Mitglied ${_firstNameController.text.trim()} erfolgreich hinzugefügt!',
+              AppLocalizations.of(context)!
+                  .addPassiveMemberSuccess(_firstNameController.text.trim()),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -83,7 +85,7 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
           SnackBar(
             backgroundColor: AppColors.famkaRed,
             content: Text(
-              'Fehler beim Hinzufügen des passiven Mitglieds: $e',
+              AppLocalizations.of(context)!.addPassiveMemberError(e.toString()),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -162,10 +164,14 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
               const SizedBox(height: 32),
               TextFormField(
                 controller: _firstNameController,
-                decoration: _inputDecoration('Vorname', theme),
+                decoration: _inputDecoration(
+                    AppLocalizations.of(context)!
+                        .addPassiveMemberFirstNameLabel,
+                    theme),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Vorname darf nicht leer sein.';
+                    return AppLocalizations.of(context)!
+                        .addPassiveMemberFirstNameError;
                   }
                   return null;
                 },
@@ -173,10 +179,13 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _lastNameController,
-                decoration: _inputDecoration('Nachname', theme),
+                decoration: _inputDecoration(
+                    AppLocalizations.of(context)!.addPassiveMemberLastNameLabel,
+                    theme),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Nachname darf nicht leer sein.';
+                    return AppLocalizations.of(context)!
+                        .addPassiveMemberLastNameError;
                   }
                   return null;
                 },
@@ -186,15 +195,16 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
                   ? const CircularProgressIndicator(color: AppColors.famkaCyan)
                   : InkWell(
                       onTap: _addPassiveMember,
-                      child: const ButtonLinearGradient(
-                        buttonText: 'Hinzufügen',
+                      child: ButtonLinearGradient(
+                        buttonText: AppLocalizations.of(context)!
+                            .addPassiveMemberAddButton,
                       ),
                     ),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  'Abbrechen',
+                  AppLocalizations.of(context)!.addPassiveMemberCancelButton,
                   style:
                       theme.titleMedium?.copyWith(color: Colors.grey.shade600),
                 ),

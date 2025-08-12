@@ -1,4 +1,4 @@
-import 'package:famka_app/src/common/bottom_navigation_three.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/common/color_row1.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_sub_container_one_line_impessum.dart';
@@ -227,7 +227,10 @@ class _MenuScreenState extends State<MenuScreen> {
                   key: Key('tile_1_${expandedIndex == 1}'),
                   backgroundColor: AppColors.famkaYellow,
                   initiallyExpanded: expandedIndex == 1,
-                  title: _buildTileTitle(context, 'Kalender'),
+                  title: _buildTileTitle(
+                      context,
+                      AppLocalizations.of(context)!
+                          .calendarTitle), // Localized key for 'Kalender'
                   onExpansionChanged: (isExpanded) =>
                       _handleExpansion(1, isExpanded),
                   children: [
@@ -274,7 +277,10 @@ class _MenuScreenState extends State<MenuScreen> {
                   key: Key('tile_2_${expandedIndex == 2}'),
                   backgroundColor: AppColors.famkaYellow,
                   initiallyExpanded: expandedIndex == 2,
-                  title: _buildTileTitle(context, 'Gruppen'),
+                  title: _buildTileTitle(
+                      context,
+                      AppLocalizations.of(context)!
+                          .groupsTitle), // Localized key for 'Gruppen'
                   onExpansionChanged: (isExpanded) =>
                       _handleExpansion(2, isExpanded),
                   children: [
@@ -323,7 +329,10 @@ class _MenuScreenState extends State<MenuScreen> {
                   key: Key('tile_3_${expandedIndex == 3}'),
                   backgroundColor: AppColors.famkaYellow,
                   initiallyExpanded: expandedIndex == 3,
-                  title: _buildTileTitle(context, 'Setup'),
+                  title: _buildTileTitle(
+                      context,
+                      AppLocalizations.of(context)!
+                          .languageTitle), // Localized key for 'Setup'
                   onExpansionChanged: (isExpanded) =>
                       _handleExpansion(3, isExpanded),
                   children: [

@@ -10,6 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:provider/provider.dart';
+import 'src/providers/locale_provider.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -69,5 +72,28 @@ Future<void> main() async {
     print('ℹ️ Keine Benutzer-ID in SharedPreferences gefunden.');
   }
 
-  runApp(MainApp(db, auth));
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => LocaleProvider(),
+      child: MainApp(db, auth),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+
+    return MaterialApp(
+      locale: localeProvider.locale,
+      supportedLocales: const [
+        Locale('en'),
+        Locale('de'),
+      ],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+    );
+  }
 }

@@ -6,6 +6,7 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class InfoBottomSheet extends StatefulWidget {
   final DateTime date;
@@ -379,12 +380,13 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Text(
-            'Termin löschen',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            AppLocalizations.of(context)!.deleteAppointment,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           content: Text(
-            'Möchtest du "${event.singleEventName}" wirklich unwiderruflich löschen?',
+            AppLocalizations.of(context)!
+                .confirmDeleteAppointment(event.singleEventName),
             style: TextStyle(color: Colors.black87),
           ),
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
@@ -619,9 +621,11 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                     ? TextField(
                                         controller: _descriptionControllers[
                                             event.singleEventId],
-                                        decoration: const InputDecoration(
-                                          labelText: 'Beschreibung bearbeiten',
-                                          border: OutlineInputBorder(),
+                                        decoration: InputDecoration(
+                                          labelText:
+                                              AppLocalizations.of(context)!
+                                                  .editDescription,
+                                          border: const OutlineInputBorder(),
                                         ),
                                         maxLines: null,
                                         keyboardType: TextInputType.multiline,

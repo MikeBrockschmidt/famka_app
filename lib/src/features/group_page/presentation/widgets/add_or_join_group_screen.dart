@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
@@ -8,7 +9,6 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
-
 import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/common/image_selection_context.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
@@ -65,8 +65,7 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
     if (!(_createGroupFormKey.currentState?.validate() ?? false)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              const Text("Bitte füllen Sie alle erforderlichen Felder aus."),
+          content: Text(AppLocalizations.of(context)!.fillRequiredFields),
           backgroundColor: AppColors.famkaRed,
         ),
       );
@@ -106,7 +105,8 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Gruppe '$groupName' erfolgreich erstellt!"),
+            content: Text(
+                AppLocalizations.of(context)!.groupCreatedSuccess(groupName)),
             backgroundColor: AppColors.famkaCyan,
           ),
         );
@@ -116,7 +116,8 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Fehler beim Erstellen der Gruppe: $e"),
+            content: Text(
+                '${AppLocalizations.of(context)!.errorCreatingGroup}: ${e.toString()}'),
             backgroundColor: AppColors.famkaRed,
           ),
         );
@@ -223,14 +224,16 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
               const SizedBox(height: 24),
               TextFormField(
                 controller: _newGroupNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Gruppenname',
-                  hintText: 'Zuhause, Freunde, Arbeit...',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.groupName,
+                  hintText:
+                      AppLocalizations.of(context)!.addOrJoinGroupCreateHint,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Gruppenname darf nicht leer sein.';
+                    return AppLocalizations.of(context)!
+                        .addOrJoinGroupGroupNameEmpty;
                   }
                   return null;
                 },
@@ -238,27 +241,30 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _newGroupDescriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Beschreibung (optional)',
-                  hintText: 'Eine kurze Beschreibung der Gruppe',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.groupDescription,
+                  hintText: AppLocalizations.of(context)!
+                      .addOrJoinGroupDescriptionHint,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _newGroupLocationController,
-                decoration: const InputDecoration(
-                  labelText: 'Standort (optional)',
-                  hintText: 'Ort der Gruppe, z.B. Stadt oder Adresse',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.groupLocation,
+                  hintText:
+                      AppLocalizations.of(context)!.addOrJoinGroupLocationHint,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 32),
               InkWell(
                 onTap: _createGroup,
-                child: const ButtonLinearGradient(
-                  buttonText: 'Gruppe erstellen',
+                child: ButtonLinearGradient(
+                  buttonText:
+                      AppLocalizations.of(context)!.addOrJoinGroupCreateButton,
                 ),
               ),
             ],

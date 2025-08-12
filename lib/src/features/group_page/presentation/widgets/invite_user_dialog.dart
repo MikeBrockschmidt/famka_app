@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class InviteUserDialog extends StatefulWidget {
   final Function(String inviteeProfileId) onInvite;
@@ -25,21 +26,23 @@ class _InviteUserDialogState extends State<InviteUserDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return AlertDialog(
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 8),
-          const Text(
-            'Gebe die Profil-ID des Benutzers ein, den du hinzufügen möchtes:',
+          Text(
+            l10n.inviteUserPrompt,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _inviteeIdController,
             decoration: InputDecoration(
-              hintText: 'Profil-ID des Benutzers',
+              hintText: l10n.userProfileIdHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
@@ -66,20 +69,20 @@ class _InviteUserDialogState extends State<InviteUserDialog> {
                       SnackBar(
                         backgroundColor: AppColors.famkaRed,
                         content: Text(
-                          'Bitte geben Sie eine Profil-ID ein.',
+                          l10n.enterProfileIdError,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
                     );
                   }
                 },
-                child: const ButtonLinearGradient(buttonText: 'Hinzufügen'),
+                child: ButtonLinearGradient(buttonText: "Add"),
               ),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  'Abbrechen',
+                  l10n.cancelButtonText,
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium

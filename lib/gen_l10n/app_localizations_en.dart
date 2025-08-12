@@ -82,6 +82,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupIdCopied => 'Group ID copied!';
 
   @override
+  String get menuTitle => 'Menü';
+
+  @override
   String get newGroupTitle => 'Create New Group';
 
   @override
@@ -98,6 +101,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get noGroupSelectedError =>
+      'Please create or join a group to use this feature.';
+
+  @override
   String get groupNameLabel => 'Group Name';
 
   @override
@@ -108,6 +115,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createButtonText => 'Create';
+
+  @override
+  String get fillRequiredFields => 'Please fill in all required fields';
+
+  @override
+  String get groupName => 'Group Name';
+
+  @override
+  String get groupDescription => 'Group Description';
+
+  @override
+  String get appTitle => 'Famka';
+
+  @override
+  String get groupLocation => 'Location';
+
+  @override
+  String get inviteUserPrompt =>
+      'Enter the profile ID of the user you want to invite';
+
+  @override
+  String get userProfileIdHint => 'Enter user profile ID';
+
+  @override
+  String get enterProfileIdError => 'Please enter a valid profile ID';
+
+  @override
+  String get addButtonText => 'Add';
+
+  @override
+  String get cancelButtonText => 'Cancel';
 
   @override
   String get noCurrentUserError =>
@@ -464,6 +502,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get errorCreatingGroup => 'Error creating group';
+
+  @override
   String imageUploadSuccess(String downloadUrl) {
     return 'Image successfully uploaded: $downloadUrl';
   }
@@ -517,8 +558,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageMembersSaveChangesButton => 'Save Changes';
 
   @override
+  String get deleteAppointment => 'Delete Appointment';
+
+  @override
+  String confirmDeleteAppointment(Object eventName) {
+    return 'Do you really want to delete \"$eventName\" permanently?';
+  }
+
+  @override
+  String get editDescription => 'Edit Description';
+
+  @override
+  String get participants => 'Participants';
+
+  @override
+  String get menuLabel => 'Menu';
+
+  @override
+  String get calendarLabel => 'Calendar';
+
+  @override
+  String get appointmentLabel => 'Appointment';
+
+  @override
+  String get galleryLabel => 'Gallery';
+
+  @override
+  String get piktogrammeLabe => 'Pictograms';
+
+  @override
   String get passwordShowTooltip => 'Show password';
 
   @override
   String get passwordHideTooltip => 'Hide password';
+
+  @override
+  String get noUserDataError => 'No user data available.';
 }

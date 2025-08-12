@@ -162,6 +162,7 @@
   "imageDeleteError": "Fehler beim Löschen des Bildes: {error}",
   "imageUploadAborted": "Bild-Upload abgebrochen oder fehlgeschlagen.",
   "imageUploadError": "Fehler beim Bild-Upload: {error}",
+  "menuTitle": "Menu",
   
   "manageMembersUpdateSuccess": "Mitglieder erfolgreich aktualisiert.",
   "manageMembersUpdateError": "Fehler beim Aktualisieren der Mitglieder: {error}",
@@ -173,6 +174,8 @@
   "manageMembersNoEmailPhone": "Keine E-Mail/Telefonnummer",
   "manageMembersSavingButton": "Wird gespeichert...",
   "manageMembersSaveChangesButton": "Änderungen speichern",
+
+  "galleryLabel": "Piktogramme",
 
   "@manageMembersUpdateError": {
     "description": "Fehlermeldung beim Aktualisieren der Mitglieder",
@@ -319,5 +322,8 @@
     }
   },
   "passwordShowTooltip": "Passwort anzeigen",
-  "passwordHideTooltip": "Passwort verbergen"
+  "passwordHideTooltip": "Passwort verbergen",
+  "noGroupSelectedError": "Bitte erstellen oder treten Sie einer Gruppe bei, um diese Funktion zu nutzen.",
+  "noUserDataError": "Keine Benutzerdaten verfügbar.",
+  "menuTitle": "Menü"
 }

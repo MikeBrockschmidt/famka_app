@@ -4,6 +4,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_avatar.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class GroupHeader extends StatelessWidget {
   final TextEditingController groupNameController;
@@ -33,10 +34,12 @@ class GroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       children: [
-        const HeadlineG(
-          screenHead: 'Gruppe',
+        HeadlineG(
+          screenHead: l10n.groupsTitle,
         ),
         const SizedBox(height: 6),
         GroupAvatar(

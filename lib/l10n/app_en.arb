@@ -24,15 +24,27 @@
   "groupPageRoleMember": "Member",
   "shareGroupIdInstruction": "Share this group ID with your friends!",
   "groupIdCopied": "Group ID copied!",
+  "menuTitle": "Menü",
 
   "newGroupTitle": "Create New Group",
   "enterGroupName": "Please enter a group name.",
   "groupCreatedSuccess": "Group \"{groupName}\" successfully created!",
   "createGroupError": "Error creating group: {error}",
+  "noGroupSelectedError": "Please create or join a group to use this feature.",
   "groupNameLabel": "Group Name",
   "locationLabel": "Location",
   "descriptionLabel": "Description",
   "createButtonText": "Create",
+  "fillRequiredFields": "Please fill in all required fields",
+  "groupName": "Group Name",
+  "groupDescription": "Group Description",
+  "appTitle": "Famka",
+  "groupLocation": "Location",
+  "inviteUserPrompt": "Enter the profile ID of the user you want to invite",
+  "userProfileIdHint": "Enter user profile ID",
+  "enterProfileIdError": "Please enter a valid profile ID",
+  "addButtonText": "Add",
+  "cancelButtonText": "Cancel",
 
   "noCurrentUserError": "Error: No current user available. Please sign in.",
   "noActiveGroupError": "Could not load any groups or no active group to display.",
@@ -159,6 +171,7 @@
 
   "groupAvatarLoadingError": "Error loading group avatar: {error}",
   "singleEventAvatarLoadingError": "Error loading avatar in SingleEventAvatar: {error}",
+  "errorCreatingGroup": "Error creating group",
 
   "imageUploadSuccess": "Image successfully uploaded: {downloadUrl}",
   "imageDeletedSuccess": "Image successfully deleted.",
@@ -176,6 +189,17 @@
   "manageMembersNoEmailPhone": "No email/phone number",
   "manageMembersSavingButton": "Saving...",
   "manageMembersSaveChangesButton": "Save Changes",
+
+  "deleteAppointment": "Delete Appointment",
+  "confirmDeleteAppointment": "Do you really want to delete \"{eventName}\" permanently?",
+  "editDescription": "Edit Description",
+  "participants": "Participants",
+  "menuLabel": "Menu",
+  "calendarLabel": "Calendar",
+  "appointmentLabel": "Appointment",
+  "galleryLabel": "Gallery",
+
+  "piktogrammeLabe": "Pictograms",
 
   "@manageMembersUpdateError": {
     "description": "Error message when updating members",
@@ -330,5 +354,6 @@
     }
   },
   "passwordShowTooltip": "Show password",
-  "passwordHideTooltip": "Hide password"
+  "passwordHideTooltip": "Hide password",
+  "noUserDataError": "No user data available."
 }

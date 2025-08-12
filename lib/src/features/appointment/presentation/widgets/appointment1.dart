@@ -433,13 +433,15 @@ class _AppointmentState extends State<Appointment> {
                         Padding(
                           padding: const EdgeInsets.all(4.0),
                           child: Text(
-                              'Erstellt von: ${widget.currentUser!.firstName}'),
+                            l10n.createdByUser(widget.currentUser!.firstName),
+                          ),
                         ),
                       if (widget.currentGroup != null)
                         Padding(
                           padding: const EdgeInsets.all(4.0),
                           child: Text(
-                              'Für Gruppe: ${widget.currentGroup!.groupName}'),
+                            l10n.forGroup(widget.currentGroup!.groupName),
+                          ),
                         ),
                       AppTextField(
                         leftIcon: Icons.sort,
@@ -473,7 +475,7 @@ class _AppointmentState extends State<Appointment> {
                       ),
                       AppSwitchRow(
                         leftIcon: Icons.timer_outlined,
-                        label: 'Ganzer Tag',
+                        label: l10n.allDayLabel, // Replaces 'Ganzer Tag'
                         value: _allDay,
                         onChanged: (val) => setState(() => _allDay = val),
                       ),

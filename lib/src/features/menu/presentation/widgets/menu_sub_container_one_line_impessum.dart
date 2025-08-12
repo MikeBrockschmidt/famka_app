@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
@@ -61,7 +62,8 @@ class MenuSubContainer1LinesImpressum extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Impressum',
+                        AppLocalizations.of(context)!
+                            .imprintTitle, // Localized key for 'Impressum'
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ],

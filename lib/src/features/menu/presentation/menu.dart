@@ -10,6 +10,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/l10n/app_localizations.dart';
 
 class Menu extends StatefulWidget {
   final DatabaseRepository db;
@@ -377,6 +378,7 @@ class _CustomScreenState extends State<Menu> {
   }
 
   Widget _buildTileTitle(BuildContext context, String title) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(8),
@@ -384,7 +386,11 @@ class _CustomScreenState extends State<Menu> {
         children: [
           const SizedBox(width: 5),
           Text(
-            title,
+            title == 'Kalender'
+                ? l10n.calendarTitle
+                : title == 'Gruppen'
+                    ? l10n.groupsTitle
+                    : title,
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
                   height: 1.5,
                 ),
