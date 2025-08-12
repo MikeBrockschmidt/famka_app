@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @menuTitle.
   ///
   /// In en, this message translates to:
-  /// **'Menü'**
+  /// **'Menu'**
   String get menuTitle;
 
   /// No description provided for @newGroupTitle.

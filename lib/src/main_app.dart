@@ -3,6 +3,7 @@ import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
+import 'package:famka_app/src/providers/locale_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/font_theme.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:provider/provider.dart';
 
 class MainApp extends StatefulWidget {
   final DatabaseRepository db;
@@ -109,31 +111,26 @@ class _MainAppState extends State<MainApp> {
           );
         }
 
-        return MaterialApp(
-          locale: DevicePreview.locale(context),
-          builder: DevicePreview.appBuilder,
-          debugShowCheckedModeBanner: false,
-          theme: appTheme,
-          home: _getHomeScreen(snapshot.data),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('de', ''),
-            Locale('en', ''),
-          ],
-          localeResolutionCallback: (locale, supportedLocales) {
-            if (locale != null) {
-              for (var supportedLocale in supportedLocales) {
-                if (supportedLocale.languageCode == locale.languageCode) {
-                  return supportedLocale;
-                }
-              }
-            }
-            return const Locale('de', '');
+        // Verwende LocaleProvider für die Spracheinstellung
+        return Consumer<LocaleProvider>(
+          builder: (context, localeProvider, child) {
+            return MaterialApp(
+              locale: localeProvider.locale, // Verwende die Locale vom Provider
+              builder: DevicePreview.appBuilder,
+              debugShowCheckedModeBanner: false,
+              theme: appTheme,
+              home: _getHomeScreen(snapshot.data),
+              localizationsDelegates: [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('de', ''),
+                Locale('en', ''),
+              ],
+            );
           },
         );
       },

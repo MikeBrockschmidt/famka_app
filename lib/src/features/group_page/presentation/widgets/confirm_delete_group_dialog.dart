@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class ConfirmDeleteGroupDialog extends StatelessWidget {
   final String groupName;
@@ -12,6 +13,8 @@ class ConfirmDeleteGroupDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return AlertDialog(
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -25,10 +28,10 @@ class ConfirmDeleteGroupDialog extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Möchtest du diese Gruppe wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+          Text(
+            l10n.confirmDeleteAppointment(groupName),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ],
       ),
@@ -38,15 +41,15 @@ class ConfirmDeleteGroupDialog extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () => Navigator.of(context).pop(true),
-                child: const ButtonLinearGradient(
-                  buttonText: 'Löschen',
+                child: ButtonLinearGradient(
+                  buttonText: l10n.deleteAppointment,
                 ),
               ),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
                 child: Text(
-                  'Abbrechen',
+                  l10n.cancelButtonText,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.grey.shade600,
                       ),

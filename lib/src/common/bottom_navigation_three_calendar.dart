@@ -7,7 +7,7 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/menu/presentation/widgets/menu_screen.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-import 'package:famka_app/l10n/app_localizations.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class BottomNavigationThreeCalendar extends StatefulWidget {
   final DatabaseRepository db;
@@ -105,7 +105,7 @@ class _BottomNavigationThreeCalendarState
           _selectedIndex = 0;
         });
       }
-      debugPrint('Fehler beim Laden der aktiven Gruppe: $e');
+      debugPrint('Error loading active group: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -117,11 +117,12 @@ class _BottomNavigationThreeCalendarState
 
   void _onItemTapped(int index) {
     if (_currentActiveGroup == null) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.famkaRed,
           content: Text(
-            'Bitte erst eine Gruppe erstellen oder beitreten, um den Kalender oder Termine zu verwalten.',
+            l10n.noGroupSelectedError,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -130,11 +131,12 @@ class _BottomNavigationThreeCalendarState
     }
 
     if (widget.currentUser == null) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.famkaRed,
           content: Text(
-            'Fehler: Benutzerdaten nicht verfügbar.',
+            l10n.noUserDataError,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),

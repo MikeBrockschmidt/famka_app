@@ -74,8 +74,8 @@ class GroupHeader extends StatelessWidget {
                           groupNameFocusNode.unfocus();
                         },
                         style: Theme.of(context).textTheme.labelMedium,
-                        decoration: const InputDecoration(
-                          hintText: 'Gruppenname',
+                        decoration: InputDecoration(
+                          hintText: l10n.groupName,
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
                           isDense: true,

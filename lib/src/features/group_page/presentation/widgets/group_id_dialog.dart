@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class GroupIdDialog extends StatelessWidget {
   final String groupName;
@@ -15,6 +16,8 @@ class GroupIdDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return AlertDialog(
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -29,7 +32,7 @@ class GroupIdDialog extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "Teilen Sie diese Gruppen-ID mit anderen, damit sie der Gruppe beitreten können:",
+            l10n.shareGroupIdInstruction,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16),
           ),
@@ -54,20 +57,20 @@ class GroupIdDialog extends StatelessWidget {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("Gruppen-ID kopiert!"),
+                      content: Text(l10n.groupIdCopied),
                       duration: const Duration(seconds: 2),
                     ),
                   );
                 },
                 child: ButtonLinearGradient(
-                  buttonText: "Kopieren",
+                  buttonText: l10n.copyButton,
                 ),
               ),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  "Schließen",
+                  l10n.closeButton,
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium

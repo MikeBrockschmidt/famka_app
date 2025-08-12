@@ -163,7 +163,7 @@
   "imageDeleteError": "Fehler beim Löschen des Bildes: {error}",
   "imageUploadAborted": "Bild-Upload abgebrochen oder fehlgeschlagen.",
   "imageUploadError": "Fehler beim Bild-Upload: {error}",
-  "menuTitle": "Menu",
+  "menuTitle": "Menü",
   
   "manageMembersUpdateSuccess": "Mitglieder erfolgreich aktualisiert.",
   "manageMembersUpdateError": "Fehler beim Aktualisieren der Mitglieder: {error}",

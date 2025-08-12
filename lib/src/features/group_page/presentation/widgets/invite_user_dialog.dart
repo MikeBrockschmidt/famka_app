@@ -76,7 +76,7 @@ class _InviteUserDialogState extends State<InviteUserDialog> {
                     );
                   }
                 },
-                child: ButtonLinearGradient(buttonText: "Add"),
+                child: ButtonLinearGradient(buttonText: l10n.addButtonText),
               ),
               const SizedBox(height: 10),
               TextButton(

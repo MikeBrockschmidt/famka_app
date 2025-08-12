@@ -194,11 +194,12 @@ class _GroupPageState extends State<GroupPage> {
       _hasChanges = false;
     });
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.famkaCyan,
           content: Text(
-            'Änderungen gespeichert!',
+            l10n.changesSaved,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -496,13 +497,14 @@ class _GroupPageState extends State<GroupPage> {
     final bool showDeleteButton = _isCurrentUserGroupCreator();
     final bool isUserAdmin = _isUserAdmin;
 
+    final l10n = AppLocalizations.of(context)!;
     String userRoleText = '';
     if (_currentGroup!.userRoles.containsKey(_currentUserId)) {
       final UserRole userRole = _currentGroup!.userRoles[_currentUserId]!;
       if (userRole == UserRole.admin) {
-        userRoleText = 'Rolle: Admin';
+        userRoleText = l10n.groupPageRoleAdmin;
       } else if (userRole == UserRole.member) {
-        userRoleText = 'Rolle: Mitglied';
+        userRoleText = l10n.groupPageRoleMember;
       }
     }
 

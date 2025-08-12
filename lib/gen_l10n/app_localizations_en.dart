@@ -85,7 +85,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copyButton => 'Copy';
 
   @override
-  String get menuTitle => 'Menü';
+  String get menuTitle => 'Menu';
 
   @override
   String get newGroupTitle => 'Create New Group';

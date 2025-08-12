@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class GroupDetails extends StatelessWidget {
   final TextEditingController locationController;
@@ -17,6 +18,8 @@ class GroupDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
@@ -41,8 +44,8 @@ class GroupDetails extends StatelessWidget {
                     locationFocusNode.unfocus();
                   },
                   style: Theme.of(context).textTheme.labelSmall,
-                  decoration: const InputDecoration(
-                    hintText: 'Ort eingeben',
+                  decoration: InputDecoration(
+                    hintText: l10n.enterLocationHint,
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                     isDense: true,
@@ -75,8 +78,8 @@ class GroupDetails extends StatelessWidget {
                     descriptionFocusNode.unfocus();
                   },
                   style: Theme.of(context).textTheme.labelSmall,
-                  decoration: const InputDecoration(
-                    hintText: 'Beschreibung eingeben',
+                  decoration: InputDecoration(
+                    hintText: l10n.enterDescriptionHint,
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                     isDense: true,

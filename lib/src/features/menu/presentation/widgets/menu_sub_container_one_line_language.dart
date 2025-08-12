@@ -4,95 +4,73 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:famka_app/src/providers/locale_provider.dart';
 
-class MenuSubContainer1LinesLanguage extends StatefulWidget {
+class MenuSubContainer1LinesLanguage extends StatelessWidget {
   const MenuSubContainer1LinesLanguage({super.key});
-
-  @override
-  State<MenuSubContainer1LinesLanguage> createState() =>
-      _MenuSubContainer1LinesLanguageState();
-}
-
-class _MenuSubContainer1LinesLanguageState
-    extends State<MenuSubContainer1LinesLanguage> {
-  bool _isEnglish = false; // Zustand für den Schalter
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Initialer Zustand basierend auf der aktuellen App-Sprache setzen
-    _isEnglish = Localizations.localeOf(context).languageCode == 'en';
-  }
-
-  void _toggleLanguage(bool value) {
-    setState(() {
-      _isEnglish = value;
-    });
-
-    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
-    localeProvider.setLocale(value ? const Locale('en') : const Locale('de'));
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Divider(
-          thickness: 1,
-          height: 1,
-          color: Colors.grey,
-        ),
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.only(
-            top: 12.0,
-            left: 20.0,
-            bottom: 14.0,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.famkaCyan,
-                child: const Icon(
-                  Icons.language,
-                  color: Colors.white,
-                  size: 20,
-                ),
+    return Consumer<LocaleProvider>(
+      builder: (context, localeProvider, child) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Divider(
+              thickness: 1,
+              height: 1,
+              color: Colors.grey,
+            ),
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.only(
+                top: 12.0,
+                left: 20.0,
+                bottom: 14.0,
               ),
-              const SizedBox(width: 18),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.languageSettingTitle, // Neuer Lokalisierungsschlüssel
-                      style: Theme.of(context).textTheme.labelMedium,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: AppColors.famkaCyan,
+                    child: const Icon(
+                      Icons.language,
+                      color: Colors.white,
+                      size: 20,
                     ),
-                    Text(
-                      _isEnglish
-                          ? l10n.languageEnglish
-                          : l10n
-                              .languageGerman, // Neuer Lokalisierungsschlüssel
-                      style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(width: 18),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.languageSettingTitle,
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                        Text(
+                          localeProvider.isEnglish
+                              ? l10n.languageEnglish
+                              : l10n.languageGerman,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  Switch(
+                    value: localeProvider.isEnglish,
+                    onChanged: (value) => localeProvider.toggleLanguage(),
+                    activeColor: AppColors.famkaGreen,
+                    inactiveThumbColor: AppColors.famkaRed,
+                    inactiveTrackColor: AppColors.famkaRed.withOpacity(0.5),
+                  ),
+                ],
               ),
-              Switch(
-                value: _isEnglish,
-                onChanged: _toggleLanguage,
-                activeColor: AppColors.famkaGreen,
-                inactiveThumbColor: AppColors.famkaRed,
-                inactiveTrackColor: AppColors.famkaRed.withOpacity(0.5),
-              ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 }
