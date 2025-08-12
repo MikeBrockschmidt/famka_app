@@ -1,25 +1,8 @@
 {
   "de": [
-    "fillRequiredFields",
-    "groupName",
-    "groupDescription",
-    "appTitle",
-    "groupLocation",
-    "inviteUserPrompt",
-    "userProfileIdHint",
-    "enterProfileIdError",
-    "addButtonText",
-    "cancelButtonText",
     "showPasswordTooltip",
     "hidePasswordTooltip",
     "errorCreatingGroup",
-    "deleteAppointment",
-    "confirmDeleteAppointment",
-    "editDescription",
-    "participants",
-    "menuLabel",
-    "calendarLabel",
-    "appointmentLabel",
-    "piktogrammeLabe"
+    "ungueltigeTelefonnummer"
   ]
 }

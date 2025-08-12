@@ -162,6 +162,8 @@
   "imageDeleteError": "Fehler beim Löschen des Bildes: {error}",
   "imageUploadAborted": "Bild-Upload abgebrochen oder fehlgeschlagen.",
   "imageUploadError": "Fehler beim Bild-Upload: {error}",
+  "copyButton": "Kopieren",
+  "closeButton": "Schließen",
   
   "manageMembersUpdateSuccess": "Mitglieder erfolgreich aktualisiert.",
   "manageMembersUpdateError": "Fehler beim Aktualisieren der Mitglieder: {error}",

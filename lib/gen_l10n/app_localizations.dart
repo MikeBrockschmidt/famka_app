@@ -209,19 +209,19 @@ abstract class AppLocalizations {
   /// No description provided for @groupPageRoleAdmin.
   ///
   /// In en, this message translates to:
-  /// **'Administrator'**
+  /// **'Role: Admin'**
   String get groupPageRoleAdmin;
 
   /// No description provided for @groupPageRoleMember.
   ///
   /// In en, this message translates to:
-  /// **'Member'**
+  /// **'Role: Member'**
   String get groupPageRoleMember;
 
   /// No description provided for @shareGroupIdInstruction.
   ///
   /// In en, this message translates to:
-  /// **'Share this group ID with your friends!'**
+  /// **'Share this Group ID with others so they can join the group:'**
   String get shareGroupIdInstruction;
 
   /// No description provided for @groupIdCopied.
@@ -229,6 +229,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Group ID copied!'**
   String get groupIdCopied;
+
+  /// No description provided for @copyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copyButton;
 
   /// No description provided for @menuTitle.
   ///
@@ -446,6 +452,12 @@ abstract class AppLocalizations {
   /// **'English'**
   String get languageEnglish;
 
+  /// No description provided for @closeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeButton;
+
   /// No description provided for @loginScreenTitle.
   ///
   /// In en, this message translates to:
@@ -479,7 +491,7 @@ abstract class AppLocalizations {
   /// No description provided for @checkInputsError.
   ///
   /// In en, this message translates to:
-  /// **'Please check your inputs'**
+  /// **'Please check your inputs.'**
   String get checkInputsError;
 
   /// No description provided for @loginButtonText.
@@ -1159,6 +1171,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No user data available.'**
   String get noUserDataError;
+
+  /// No description provided for @dateFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'yyyy-MM-dd'**
+  String get dateFormat;
+
+  /// No description provided for @localeGerman.
+  ///
+  /// In en, this message translates to:
+  /// **'de'**
+  String get localeGerman;
+
+  /// No description provided for @errorLoadingAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading avatar from {avatarUrl}: {exception}'**
+  String errorLoadingAvatar(Object avatarUrl, Object exception);
+
+  /// No description provided for @httpPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'http://'**
+  String get httpPrefix;
+
+  /// No description provided for @httpsPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'https://'**
+  String get httpsPrefix;
+
+  /// No description provided for @assetsPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'assets/'**
+  String get assetsPrefix;
+
+  /// No description provided for @defaultAvatarPath.
+  ///
+  /// In en, this message translates to:
+  /// **'assets/fotos/default.jpg'**
+  String get defaultAvatarPath;
+
+  /// No description provided for @errorLoadingGroupAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading group avatar in ProfilAvatarRow: {exception}'**
+  String errorLoadingGroupAvatar(Object exception);
+
+  /// No description provided for @cropImageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Image'**
+  String get cropImageTitle;
+
+  /// No description provided for @compressedImageName.
+  ///
+  /// In en, this message translates to:
+  /// **'compressed_{timestamp}.jpg'**
+  String compressedImageName(Object timestamp);
+
+  /// No description provided for @compressionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Compression failed.'**
+  String get compressionFailed;
+
+  /// No description provided for @uploadSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Image successfully uploaded to Firebase Storage: {downloadUrl}'**
+  String uploadSuccess(Object downloadUrl);
+
+  /// No description provided for @uploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Error uploading image: {state}'**
+  String uploadError(Object state);
+
+  /// No description provided for @errorLoadingActiveGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading active group: {error}'**
+  String errorLoadingActiveGroup(Object error);
+
+  /// No description provided for @menuScreenRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'/menuScreen'**
+  String get menuScreenRoute;
+
+  /// No description provided for @calendarScreenRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'/calendarScreen'**
+  String get calendarScreenRoute;
+
+  /// No description provided for @appointmentScreenRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'/appointmentScreen'**
+  String get appointmentScreenRoute;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveButton;
+
+  /// No description provided for @logoutButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logoutButton;
+
+  /// No description provided for @addGroupButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Group'**
+  String get addGroupButton;
+
+  /// No description provided for @invalidEmailError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email address'**
+  String get invalidEmailError;
+
+  /// No description provided for @invalidPhoneNumberError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid phone number (min. 8 digits, numbers only)'**
+  String get invalidPhoneNumberError;
+
+  /// No description provided for @profilePictureUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile picture updated.'**
+  String get profilePictureUpdated;
+
+  /// No description provided for @profilePictureUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating profile picture:'**
+  String get profilePictureUpdateError;
+
+  /// No description provided for @profileInfoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile information saved.'**
+  String get profileInfoSaved;
+
+  /// No description provided for @profileInfoSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving profile information:'**
+  String get profileInfoSaveError;
+
+  /// No description provided for @logoutError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error logging out:'**
+  String get logoutError;
+
+  /// No description provided for @profileIdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Profile ID'**
+  String get profileIdTitle;
+
+  /// No description provided for @profileIdDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your personal ID. You can share it with others so they can invite you to groups.'**
+  String get profileIdDescription;
+
+  /// No description provided for @profileIdCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile ID copied!'**
+  String get profileIdCopied;
+
+  /// No description provided for @enterPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number'**
+  String get enterPhoneNumber;
+
+  /// No description provided for @additionalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional info'**
+  String get additionalInfo;
+
+  /// No description provided for @enterEmailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter email address'**
+  String get enterEmailAddress;
+
+  /// No description provided for @onboardingComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Data has been saved and onboarding completed.'**
+  String get onboardingComplete;
+
+  /// No description provided for @telefonnummerEingeben.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number'**
+  String get telefonnummerEingeben;
+
+  /// No description provided for @emailAdresseEingeben.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter email address'**
+  String get emailAdresseEingeben;
+
+  /// No description provided for @zusaetzlicheInfos.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional info'**
+  String get zusaetzlicheInfos;
+
+  /// No description provided for @keineGruppenGefunden.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups found.'**
+  String get keineGruppenGefunden;
+
+  /// No description provided for @ungueltigeTelefonnummer.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid phone number'**
+  String get ungueltigeTelefonnummer;
+
+  /// No description provided for @profilGesichtGeben.
+  ///
+  /// In en, this message translates to:
+  /// **'Give your profile a face'**
+  String get profilGesichtGeben;
+
+  /// No description provided for @fortfahren.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get fortfahren;
+
+  /// No description provided for @ungueltigeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email address'**
+  String get ungueltigeEmail;
+
+  /// No description provided for @vorname.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get vorname;
+
+  /// No description provided for @bitteVornameEingeben.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter first name'**
+  String get bitteVornameEingeben;
+
+  /// No description provided for @nachname.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get nachname;
+
+  /// No description provided for @nachnameEingeben.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter last name'**
+  String get nachnameEingeben;
+
+  /// No description provided for @bitteNachnameEingeben.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter last name'**
+  String get bitteNachnameEingeben;
+
+  /// No description provided for @emailAdresse.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address'**
+  String get emailAdresse;
+
+  /// No description provided for @telefonnummerOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number (optional)'**
+  String get telefonnummerOptional;
+
+  /// No description provided for @groupDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Group \"{groupName}\" successfully deleted.'**
+  String groupDeletedSuccess(Object groupName);
+
+  /// No description provided for @groupDeleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting group: {error}'**
+  String groupDeleteError(Object error);
+
+  /// No description provided for @userInviteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error inviting user: {error}'**
+  String userInviteError(Object error);
+
+  /// No description provided for @userNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'User with this ID not found.'**
+  String get userNotFound;
+
+  /// No description provided for @userAlreadyMember.
+  ///
+  /// In en, this message translates to:
+  /// **'User is already a member of this group.'**
+  String get userAlreadyMember;
+
+  /// No description provided for @membersManagementComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Members management completed.'**
+  String get membersManagementComplete;
+
+  /// No description provided for @groupAvatarUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving group avatar: {error}'**
+  String groupAvatarUpdateError(Object error);
+
+  /// No description provided for @groupAvatarUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Group avatar successfully updated!'**
+  String get groupAvatarUpdateSuccess;
+
+  /// No description provided for @debugAvatarChange.
+  ///
+  /// In en, this message translates to:
+  /// **'DEBUG: _onAvatarChanged in GroupPage called with newAvatarUrl: {newAvatarUrl}'**
+  String debugAvatarChange(Object newAvatarUrl);
+
+  /// No description provided for @changesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved!'**
+  String get changesSaved;
+
+  /// No description provided for @groupDataLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading group data or user ID: {error}'**
+  String groupDataLoadError(Object error);
+
+  /// No description provided for @groupLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: Group could not be loaded or user ID is missing.'**
+  String get groupLoadError;
+
+  /// No description provided for @members.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get members;
 }
 
 class _AppLocalizationsDelegate

@@ -28,10 +28,10 @@ class GroupIdDialog extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Teilen Sie diese ID, um andere zur Gruppe einzuladen:',
+          Text(
+            "Teilen Sie diese Gruppen-ID mit anderen, damit sie der Gruppe beitreten können:",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
           SelectableText(
@@ -53,19 +53,21 @@ class GroupIdDialog extends StatelessWidget {
                   Clipboard.setData(ClipboardData(text: groupId));
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Gruppen-ID kopiert!'),
-                      duration: Duration(seconds: 2),
+                    SnackBar(
+                      content: Text("Gruppen-ID kopiert!"),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 },
-                child: const ButtonLinearGradient(buttonText: 'Kopieren'),
+                child: ButtonLinearGradient(
+                  buttonText: "Kopieren",
+                ),
               ),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  'Schließen',
+                  "Schließen",
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium

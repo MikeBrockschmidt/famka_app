@@ -4,6 +4,7 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_list.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class GroupMembersSection extends StatelessWidget {
   final VoidCallback onShowGroupIdDialog;
@@ -38,7 +39,7 @@ class GroupMembersSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Mitglieder:',
+                AppLocalizations.of(context)!.members,
                 style: Theme.of(context).textTheme.labelMedium,
               ),
               Row(

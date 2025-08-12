@@ -69,17 +69,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterDescriptionHint => 'Enter description';
 
   @override
-  String get groupPageRoleAdmin => 'Administrator';
+  String get groupPageRoleAdmin => 'Role: Admin';
 
   @override
-  String get groupPageRoleMember => 'Member';
+  String get groupPageRoleMember => 'Role: Member';
 
   @override
   String get shareGroupIdInstruction =>
-      'Share this group ID with your friends!';
+      'Share this Group ID with others so they can join the group:';
 
   @override
   String get groupIdCopied => 'Group ID copied!';
+
+  @override
+  String get copyButton => 'Copy';
 
   @override
   String get menuTitle => 'Menü';
@@ -204,6 +207,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageEnglish => 'English';
 
   @override
+  String get closeButton => 'Close';
+
+  @override
   String get loginScreenTitle => 'Login';
 
   @override
@@ -219,7 +225,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordInputHint => 'Enter password';
 
   @override
-  String get checkInputsError => 'Please check your inputs';
+  String get checkInputsError => 'Please check your inputs.';
 
   @override
   String get loginButtonText => 'Login';
@@ -594,4 +600,218 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noUserDataError => 'No user data available.';
+
+  @override
+  String get dateFormat => 'yyyy-MM-dd';
+
+  @override
+  String get localeGerman => 'de';
+
+  @override
+  String errorLoadingAvatar(Object avatarUrl, Object exception) {
+    return 'Error loading avatar from $avatarUrl: $exception';
+  }
+
+  @override
+  String get httpPrefix => 'http://';
+
+  @override
+  String get httpsPrefix => 'https://';
+
+  @override
+  String get assetsPrefix => 'assets/';
+
+  @override
+  String get defaultAvatarPath => 'assets/fotos/default.jpg';
+
+  @override
+  String errorLoadingGroupAvatar(Object exception) {
+    return 'Error loading group avatar in ProfilAvatarRow: $exception';
+  }
+
+  @override
+  String get cropImageTitle => 'Crop Image';
+
+  @override
+  String compressedImageName(Object timestamp) {
+    return 'compressed_$timestamp.jpg';
+  }
+
+  @override
+  String get compressionFailed => '❌ Compression failed.';
+
+  @override
+  String uploadSuccess(Object downloadUrl) {
+    return '✅ Image successfully uploaded to Firebase Storage: $downloadUrl';
+  }
+
+  @override
+  String uploadError(Object state) {
+    return '❌ Error uploading image: $state';
+  }
+
+  @override
+  String errorLoadingActiveGroup(Object error) {
+    return 'Error loading active group: $error';
+  }
+
+  @override
+  String get menuScreenRoute => '/menuScreen';
+
+  @override
+  String get calendarScreenRoute => '/calendarScreen';
+
+  @override
+  String get appointmentScreenRoute => '/appointmentScreen';
+
+  @override
+  String get saveButton => 'Save';
+
+  @override
+  String get logoutButton => 'Logout';
+
+  @override
+  String get addGroupButton => 'Add Group';
+
+  @override
+  String get invalidEmailError => 'Invalid email address';
+
+  @override
+  String get invalidPhoneNumberError =>
+      'Invalid phone number (min. 8 digits, numbers only)';
+
+  @override
+  String get profilePictureUpdated => 'Profile picture updated.';
+
+  @override
+  String get profilePictureUpdateError => 'Error updating profile picture:';
+
+  @override
+  String get profileInfoSaved => 'Profile information saved.';
+
+  @override
+  String get profileInfoSaveError => 'Error saving profile information:';
+
+  @override
+  String get logoutError => 'Error logging out:';
+
+  @override
+  String get profileIdTitle => 'Your Profile ID';
+
+  @override
+  String get profileIdDescription =>
+      'This is your personal ID. You can share it with others so they can invite you to groups.';
+
+  @override
+  String get profileIdCopied => 'Profile ID copied!';
+
+  @override
+  String get enterPhoneNumber => 'Enter phone number';
+
+  @override
+  String get additionalInfo => 'Additional info';
+
+  @override
+  String get enterEmailAddress => 'Enter email address';
+
+  @override
+  String get onboardingComplete =>
+      'Data has been saved and onboarding completed.';
+
+  @override
+  String get telefonnummerEingeben => 'Enter phone number';
+
+  @override
+  String get emailAdresseEingeben => 'Enter email address';
+
+  @override
+  String get zusaetzlicheInfos => 'Additional info';
+
+  @override
+  String get keineGruppenGefunden => 'No groups found.';
+
+  @override
+  String get ungueltigeTelefonnummer => 'Invalid phone number';
+
+  @override
+  String get profilGesichtGeben => 'Give your profile a face';
+
+  @override
+  String get fortfahren => 'Continue';
+
+  @override
+  String get ungueltigeEmail => 'Invalid email address';
+
+  @override
+  String get vorname => 'First Name';
+
+  @override
+  String get bitteVornameEingeben => 'Please enter first name';
+
+  @override
+  String get nachname => 'Last Name';
+
+  @override
+  String get nachnameEingeben => 'Enter last name';
+
+  @override
+  String get bitteNachnameEingeben => 'Please enter last name';
+
+  @override
+  String get emailAdresse => 'Email Address';
+
+  @override
+  String get telefonnummerOptional => 'Phone Number (optional)';
+
+  @override
+  String groupDeletedSuccess(Object groupName) {
+    return 'Group \"$groupName\" successfully deleted.';
+  }
+
+  @override
+  String groupDeleteError(Object error) {
+    return 'Error deleting group: $error';
+  }
+
+  @override
+  String userInviteError(Object error) {
+    return 'Error inviting user: $error';
+  }
+
+  @override
+  String get userNotFound => 'User with this ID not found.';
+
+  @override
+  String get userAlreadyMember => 'User is already a member of this group.';
+
+  @override
+  String get membersManagementComplete => 'Members management completed.';
+
+  @override
+  String groupAvatarUpdateError(Object error) {
+    return 'Error saving group avatar: $error';
+  }
+
+  @override
+  String get groupAvatarUpdateSuccess => 'Group avatar successfully updated!';
+
+  @override
+  String debugAvatarChange(Object newAvatarUrl) {
+    return 'DEBUG: _onAvatarChanged in GroupPage called with newAvatarUrl: $newAvatarUrl';
+  }
+
+  @override
+  String get changesSaved => 'Changes saved!';
+
+  @override
+  String groupDataLoadError(Object error) {
+    return 'Error loading group data or user ID: $error';
+  }
+
+  @override
+  String get groupLoadError =>
+      'Error: Group could not be loaded or user ID is missing.';
+
+  @override
+  String get members => 'Members';
 }

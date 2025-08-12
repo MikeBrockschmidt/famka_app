@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/common/headline_g.dart';
 import 'package:famka_app/src/features/group_page/presentation/manage_group_members_page.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,6 @@ class _GroupPageState extends State<GroupPage> {
   late FocusNode _locationFocusNode;
   late FocusNode _descriptionFocusNode;
 
-  String? _initialGroupAvatarUrl;
   bool _hasChanges = false;
   bool _isLoading = true;
   String? _currentUserId;
@@ -109,8 +109,7 @@ class _GroupPageState extends State<GroupPage> {
           _currentGroup = fetchedGroup;
           _groupNameController.text = _currentGroup!.groupName;
           _locationController.text = _currentGroup!.groupLocation ?? '';
-          _descriptionController.text = _currentGroup!.groupDescription ?? '';
-          _initialGroupAvatarUrl = _currentGroup!.groupAvatarUrl;
+          _descriptionController.text = _currentGroup!.groupDescription;
           _hasChanges = false;
           _isUserAdmin = _isCurrentUserGroupAdminCheck();
         });
@@ -121,7 +120,7 @@ class _GroupPageState extends State<GroupPage> {
               SnackBar(
                 backgroundColor: AppColors.famkaCyan,
                 content: Text(
-                  'Fehler: Gruppe konnte nicht geladen werden oder Benutzer-ID fehlt.',
+                  AppLocalizations.of(context)!.groupLoadError,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
@@ -163,10 +162,10 @@ class _GroupPageState extends State<GroupPage> {
   void _checkIfHasChanges() {
     if (_currentGroup == null) return;
 
-    final bool newHasChanges = _groupNameController.text !=
-            _currentGroup!.groupName ||
-        _locationController.text != (_currentGroup!.groupLocation ?? '') ||
-        _descriptionController.text != (_currentGroup!.groupDescription ?? '');
+    final bool newHasChanges =
+        _groupNameController.text != _currentGroup!.groupName ||
+            _locationController.text != (_currentGroup!.groupLocation ?? '') ||
+            _descriptionController.text != _currentGroup!.groupDescription;
 
     if (_hasChanges != newHasChanges) {
       setState(() {
@@ -220,7 +219,6 @@ class _GroupPageState extends State<GroupPage> {
 
     setState(() {
       _currentGroup = updatedGroup;
-      _initialGroupAvatarUrl = newAvatarUrl;
     });
 
     try {
@@ -302,10 +300,6 @@ class _GroupPageState extends State<GroupPage> {
     return isAdmin;
   }
 
-  bool _isCurrentUserGroupAdmin() {
-    return _isUserAdmin;
-  }
-
   void _showGroupIdDialog() {
     if (_currentGroup == null) return;
     showDialog(
@@ -385,7 +379,7 @@ class _GroupPageState extends State<GroupPage> {
             SnackBar(
               backgroundColor: AppColors.famkaCyan,
               content: Text(
-                '${inviteeUser.firstName ?? 'Benutzer'} erfolgreich eingeladen!',
+                '${inviteeUser.firstName} erfolgreich eingeladen!',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),

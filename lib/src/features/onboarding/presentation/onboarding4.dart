@@ -12,6 +12,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class Onboarding4 extends StatefulWidget {
   final DatabaseRepository db;
@@ -61,7 +62,8 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
     }
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     if (!emailRegex.hasMatch(input)) {
-      return 'Ungültige E-Mail Adresse';
+      return AppLocalizations.of(context)?.invalidEmailError ??
+          'Ungültige E-Mail Adresse';
     }
     return null;
   }
@@ -72,7 +74,8 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
     }
     final phoneRegex = RegExp(r'^\+?\d{8,}$');
     if (!phoneRegex.hasMatch(input)) {
-      return 'Ungültige Telefonnummer (min. 8 Ziffern, nur Zahlen)';
+      return AppLocalizations.of(context)?.invalidPhoneNumberError ??
+          'Ungültige Telefonnummer (min. 8 Ziffern, nur Zahlen)';
     }
     return null;
   }
@@ -102,8 +105,8 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-                "Daten wurden gespeichert und Onboarding abgeschlossen."),
+            content: Text(AppLocalizations.of(context)?.onboardingComplete ??
+                'Daten wurden gespeichert und Onboarding abgeschlossen.'),
             backgroundColor: AppColors.famkaCyan,
           ),
         );
@@ -124,7 +127,8 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text("Bitte überprüfen Sie Ihre Eingaben."),
+          content: Text(AppLocalizations.of(context)?.checkInputsError ??
+              'Bitte überprüfen Sie Ihre Eingaben.'),
           backgroundColor: AppColors.famkaCyan,
         ),
       );
@@ -191,8 +195,10 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                       controller: _phoneNumberController,
                                       keyboardType: TextInputType.phone,
                                       validator: _validatePhoneNumber,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Telefonnummer eingeben',
+                                      decoration: InputDecoration(
+                                        hintText: AppLocalizations.of(context)
+                                                ?.enterPhoneNumber ??
+                                            'Telefonnummer eingeben',
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.zero,
                                       ),
@@ -212,8 +218,10 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                       controller: _emailController,
                                       keyboardType: TextInputType.emailAddress,
                                       validator: _validateEmail,
-                                      decoration: const InputDecoration(
-                                        hintText: 'E-Mail Adresse eingeben',
+                                      decoration: InputDecoration(
+                                        hintText: AppLocalizations.of(context)
+                                                ?.enterEmailAddress ??
+                                            'E-Mail Adresse eingeben',
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.zero,
                                       ),
@@ -232,8 +240,10 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                     child: TextFormField(
                                       controller: _miscellaneousController,
                                       maxLines: null,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Zusätzliche Infos',
+                                      decoration: InputDecoration(
+                                        hintText: AppLocalizations.of(context)
+                                                ?.additionalInfo ??
+                                            'Zusätzliche Infos',
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.zero,
                                       ),

@@ -8,6 +8,7 @@ import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_im
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famka_app/src/common/image_selection_context.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class ProfilNameOnboarding extends StatefulWidget {
   final DatabaseRepository db;
@@ -63,7 +64,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
     if (input == null || input.isEmpty) return null;
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     if (!emailRegex.hasMatch(input)) {
-      return 'Ungültige E-Mail Adresse';
+      return AppLocalizations.of(context)!.ungueltigeEmail;
     }
     return null;
   }
@@ -72,7 +73,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
     if (input == null || input.isEmpty) return null;
     final phoneRegex = RegExp(r'^\+?\d{8,}$');
     if (!phoneRegex.hasMatch(input)) {
-      return 'Ungültige Telefonnummer (min. 8 Ziffern, nur Zahlen)';
+      return AppLocalizations.of(context)!.ungueltigeTelefonnummer;
     }
     return null;
   }
@@ -206,7 +207,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 16.0),
                             child: Text(
-                              'Gebe deinem Profil ein Gesicht',
+                              AppLocalizations.of(context)!.profilGesichtGeben,
                               style: Theme.of(context).textTheme.labelSmall,
                             ),
                           ),
@@ -217,14 +218,17 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                               flex: 1,
                               child: TextFormField(
                                 controller: _firstNameController,
-                                decoration: const InputDecoration(
-                                  labelText: "Vorname",
-                                  hintText: "Vorname eingeben",
-                                  border: OutlineInputBorder(),
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.vorname,
+                                  hintText: AppLocalizations.of(context)!
+                                      .bitteVornameEingeben,
+                                  border: const OutlineInputBorder(),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Bitte Vorname eingeben.';
+                                    return AppLocalizations.of(context)!
+                                        .bitteVornameEingeben;
                                   }
                                   return null;
                                 },
@@ -235,14 +239,17 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                               flex: 2,
                               child: TextFormField(
                                 controller: _lastNameController,
-                                decoration: const InputDecoration(
-                                  labelText: "Nachname",
-                                  hintText: "Nachname eingeben",
-                                  border: OutlineInputBorder(),
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.nachname,
+                                  hintText: AppLocalizations.of(context)!
+                                      .nachnameEingeben,
+                                  border: const OutlineInputBorder(),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Bitte Nachname eingeben.';
+                                    return AppLocalizations.of(context)!
+                                        .bitteNachnameEingeben;
                                   }
                                   return null;
                                 },
@@ -255,10 +262,12 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           validator: _validateEmail,
-                          decoration: const InputDecoration(
-                            labelText: "E-Mail Adresse",
-                            hintText: "E-Mail Adresse eingeben",
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText:
+                                AppLocalizations.of(context)!.emailAdresse,
+                            hintText: AppLocalizations.of(context)!
+                                .emailAdresseEingeben,
+                            border: const OutlineInputBorder(),
                           ),
                           readOnly: true,
                           contextMenuBuilder: (context, editableTextState) {
@@ -270,10 +279,12 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                           controller: _phoneNumberController,
                           keyboardType: TextInputType.phone,
                           validator: _validatePhoneNumber,
-                          decoration: const InputDecoration(
-                            labelText: "Telefonnummer (optional)",
-                            hintText: "Telefonnummer eingeben",
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!
+                                .telefonnummerOptional,
+                            hintText: AppLocalizations.of(context)!
+                                .telefonnummerEingeben,
+                            border: const OutlineInputBorder(),
                           ),
                         ),
                       ],
@@ -286,7 +297,9 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                 alignment: Alignment.centerRight,
                 child: InkWell(
                   onTap: _saveUserDataAndNavigate,
-                  child: const ButtonLinearGradient(buttonText: 'Fortfahren'),
+                  child: ButtonLinearGradient(
+                    buttonText: AppLocalizations.of(context)!.fortfahren,
+                  ),
                 ),
               ),
             ],

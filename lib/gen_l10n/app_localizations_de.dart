@@ -72,17 +72,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get enterDescriptionHint => 'Beschreibung eingeben';
 
   @override
-  String get groupPageRoleAdmin => 'Administrator';
+  String get groupPageRoleAdmin => 'Rolle: Admin';
 
   @override
-  String get groupPageRoleMember => 'Mitglied';
+  String get groupPageRoleMember => 'Rolle: Mitglied';
 
   @override
   String get shareGroupIdInstruction =>
-      'Teile diese Gruppen-ID mit deinen Freunden!';
+      'Teilen Sie diese Gruppen-ID mit anderen, damit sie der Gruppe beitreten können:';
 
   @override
-  String get groupIdCopied => 'Gruppen-ID wurde kopiert!';
+  String get groupIdCopied => 'Gruppen-ID kopiert!';
+
+  @override
+  String get copyButton => 'Kopieren';
 
   @override
   String get menuTitle => 'Menü';
@@ -120,35 +123,37 @@ class AppLocalizationsDe extends AppLocalizations {
   String get createButtonText => 'Erstellen';
 
   @override
-  String get fillRequiredFields => 'Please fill in all required fields';
+  String get fillRequiredFields =>
+      'Bitte füllen Sie alle erforderlichen Felder aus.';
 
   @override
-  String get groupName => 'Group Name';
+  String get groupName => 'Gruppenname';
 
   @override
-  String get groupDescription => 'Group Description';
+  String get groupDescription => 'Gruppenbeschreibung';
 
   @override
   String get appTitle => 'Famka';
 
   @override
-  String get groupLocation => 'Location';
+  String get groupLocation => 'Ort';
 
   @override
   String get inviteUserPrompt =>
-      'Enter the profile ID of the user you want to invite';
+      'Geben Sie die Profil-ID des Benutzers ein, den Sie einladen möchten';
 
   @override
-  String get userProfileIdHint => 'Enter user profile ID';
+  String get userProfileIdHint => 'Benutzerprofil-ID eingeben';
 
   @override
-  String get enterProfileIdError => 'Please enter a valid profile ID';
+  String get enterProfileIdError =>
+      'Bitte geben Sie eine gültige Profil-ID ein';
 
   @override
-  String get addButtonText => 'Add';
+  String get addButtonText => 'Hinzufügen';
 
   @override
-  String get cancelButtonText => 'Cancel';
+  String get cancelButtonText => 'Abbrechen';
 
   @override
   String get noCurrentUserError =>
@@ -207,6 +212,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get languageEnglish => 'Englisch';
 
   @override
+  String get closeButton => 'Schließen';
+
+  @override
   String get loginScreenTitle => 'Anmeldung';
 
   @override
@@ -222,7 +230,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get passwordInputHint => 'Passwort eingeben';
 
   @override
-  String get checkInputsError => 'Bitte überprüfen Sie Ihre Eingaben';
+  String get checkInputsError => 'Bitte überprüfen Sie Ihre Eingaben.';
 
   @override
   String get loginButtonText => 'Anmelden';
@@ -571,33 +579,33 @@ class AppLocalizationsDe extends AppLocalizations {
   String get manageMembersSaveChangesButton => 'Änderungen speichern';
 
   @override
-  String get deleteAppointment => 'Delete Appointment';
+  String get deleteAppointment => 'Termin löschen';
 
   @override
   String confirmDeleteAppointment(Object eventName) {
-    return 'Do you really want to delete \"$eventName\" permanently?';
+    return 'Möchten Sie \"$eventName\" wirklich dauerhaft löschen?';
   }
 
   @override
-  String get editDescription => 'Edit Description';
+  String get editDescription => 'Beschreibung bearbeiten';
 
   @override
-  String get participants => 'Participants';
+  String get participants => 'Teilnehmer';
 
   @override
-  String get menuLabel => 'Menu';
+  String get menuLabel => 'Menü';
 
   @override
-  String get calendarLabel => 'Calendar';
+  String get calendarLabel => 'Kalender';
 
   @override
-  String get appointmentLabel => 'Appointment';
+  String get appointmentLabel => 'Termin';
 
   @override
-  String get galleryLabel => 'Piktogramme';
+  String get galleryLabel => 'Galerie';
 
   @override
-  String get piktogrammeLabe => 'Pictograms';
+  String get piktogrammeLabe => 'Piktogramme';
 
   @override
   String get passwordShowTooltip => 'Passwort anzeigen';
@@ -607,4 +615,222 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noUserDataError => 'Keine Benutzerdaten verfügbar.';
+
+  @override
+  String get dateFormat => 'yyyy-MM-dd';
+
+  @override
+  String get localeGerman => 'de';
+
+  @override
+  String errorLoadingAvatar(Object avatarUrl, Object exception) {
+    return 'Fehler beim Laden des Avatars von $avatarUrl: $exception';
+  }
+
+  @override
+  String get httpPrefix => 'http://';
+
+  @override
+  String get httpsPrefix => 'https://';
+
+  @override
+  String get assetsPrefix => 'assets/';
+
+  @override
+  String get defaultAvatarPath => 'assets/fotos/default.jpg';
+
+  @override
+  String errorLoadingGroupAvatar(Object exception) {
+    return 'Fehler beim Laden des Gruppen-Avatars in ProfilAvatarRow: $exception';
+  }
+
+  @override
+  String get cropImageTitle => 'Bild zuschneiden';
+
+  @override
+  String compressedImageName(Object timestamp) {
+    return 'compressed_$timestamp.jpg';
+  }
+
+  @override
+  String get compressionFailed => '❌ Komprimierung fehlgeschlagen.';
+
+  @override
+  String uploadSuccess(Object downloadUrl) {
+    return '✅ Bild erfolgreich zu Firebase Storage hochgeladen: $downloadUrl';
+  }
+
+  @override
+  String uploadError(Object state) {
+    return '❌ Fehler beim Hochladen des Bildes: $state';
+  }
+
+  @override
+  String errorLoadingActiveGroup(Object error) {
+    return 'Fehler beim Laden der aktiven Gruppe: $error';
+  }
+
+  @override
+  String get menuScreenRoute => '/menuScreen';
+
+  @override
+  String get calendarScreenRoute => '/calendarScreen';
+
+  @override
+  String get appointmentScreenRoute => '/appointmentScreen';
+
+  @override
+  String get saveButton => 'Speichern';
+
+  @override
+  String get logoutButton => 'Ausloggen';
+
+  @override
+  String get addGroupButton => 'Gruppe hinzufügen';
+
+  @override
+  String get invalidEmailError => 'Ungültige E-Mail Adresse';
+
+  @override
+  String get invalidPhoneNumberError =>
+      'Ungültige Telefonnummer (min. 8 Ziffern, nur Zahlen)';
+
+  @override
+  String get profilePictureUpdated => 'Profilbild aktualisiert.';
+
+  @override
+  String get profilePictureUpdateError =>
+      'Fehler beim Aktualisieren des Profilbilds:';
+
+  @override
+  String get profileInfoSaved => 'Profilinformationen gespeichert.';
+
+  @override
+  String get profileInfoSaveError =>
+      'Fehler beim Speichern der Profilinformationen:';
+
+  @override
+  String get logoutError => 'Fehler beim Abmelden:';
+
+  @override
+  String get profileIdTitle => 'Deine Profil-ID';
+
+  @override
+  String get profileIdDescription =>
+      'Dies ist deine persönliche ID. Du kannst sie mit anderen teilen, damit sie dich zu Gruppen einladen können.';
+
+  @override
+  String get profileIdCopied => 'Profil-ID kopiert!';
+
+  @override
+  String get enterPhoneNumber => 'Telefonnummer eingeben';
+
+  @override
+  String get additionalInfo => 'Zusätzliche Infos';
+
+  @override
+  String get enterEmailAddress => 'E-Mail Adresse eingeben';
+
+  @override
+  String get onboardingComplete =>
+      'Daten wurden gespeichert und Onboarding abgeschlossen.';
+
+  @override
+  String get telefonnummerEingeben => 'Telefonnummer eingeben';
+
+  @override
+  String get emailAdresseEingeben => 'E-Mail Adresse eingeben';
+
+  @override
+  String get zusaetzlicheInfos => 'Zusätzliche Infos';
+
+  @override
+  String get keineGruppenGefunden => 'Keine Gruppen gefunden.';
+
+  @override
+  String get ungueltigeTelefonnummer => 'Invalid phone number';
+
+  @override
+  String get profilGesichtGeben => 'Geben Sie Ihrem Profil ein Gesicht';
+
+  @override
+  String get fortfahren => 'Fortfahren';
+
+  @override
+  String get ungueltigeEmail => 'Ungültige E-Mail-Adresse';
+
+  @override
+  String get vorname => 'Vorname';
+
+  @override
+  String get bitteVornameEingeben => 'Bitte Vorname eingeben';
+
+  @override
+  String get nachname => 'Nachname';
+
+  @override
+  String get nachnameEingeben => 'Nachname eingeben';
+
+  @override
+  String get bitteNachnameEingeben => 'Bitte Nachname eingeben';
+
+  @override
+  String get emailAdresse => 'E-Mail-Adresse';
+
+  @override
+  String get telefonnummerOptional => 'Telefonnummer (optional)';
+
+  @override
+  String groupDeletedSuccess(Object groupName) {
+    return 'Gruppe \"$groupName\" erfolgreich gelöscht.';
+  }
+
+  @override
+  String groupDeleteError(Object error) {
+    return 'Fehler beim Löschen der Gruppe: $error';
+  }
+
+  @override
+  String userInviteError(Object error) {
+    return 'Fehler beim Einladen des Benutzers: $error';
+  }
+
+  @override
+  String get userNotFound => 'Benutzer mit dieser ID nicht gefunden.';
+
+  @override
+  String get userAlreadyMember =>
+      'Benutzer ist bereits Mitglied dieser Gruppe.';
+
+  @override
+  String get membersManagementComplete => 'Mitgliederverwaltung abgeschlossen.';
+
+  @override
+  String groupAvatarUpdateError(Object error) {
+    return 'Fehler beim Speichern des Gruppenbilds: $error';
+  }
+
+  @override
+  String get groupAvatarUpdateSuccess =>
+      'Gruppenbild erfolgreich aktualisiert!';
+
+  @override
+  String debugAvatarChange(Object newAvatarUrl) {
+    return 'DEBUG: _onAvatarChanged in GroupPage aufgerufen mit newAvatarUrl: $newAvatarUrl';
+  }
+
+  @override
+  String get changesSaved => 'Änderungen gespeichert!';
+
+  @override
+  String groupDataLoadError(Object error) {
+    return 'Fehler beim Laden der Gruppendaten oder Benutzer-ID: $error';
+  }
+
+  @override
+  String get groupLoadError =>
+      'Fehler: Gruppe konnte nicht geladen werden oder Benutzer-ID fehlt.';
+
+  @override
+  String get members => 'Mitglieder';
 }

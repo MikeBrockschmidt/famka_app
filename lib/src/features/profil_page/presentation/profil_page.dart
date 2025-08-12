@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/common/bottom_navigation.dart';
 import 'package:famka_app/src/common/headline_p.dart';
@@ -140,7 +141,8 @@ class _ProfilPageState extends State<ProfilPage> {
     }
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     if (!emailRegex.hasMatch(input)) {
-      return 'Ungültige E-Mail Adresse';
+      return AppLocalizations.of(context)?.invalidEmailError ??
+          'Ungültige E-Mail Adresse';
     }
     return null;
   }
@@ -151,7 +153,8 @@ class _ProfilPageState extends State<ProfilPage> {
     }
     final phoneRegex = RegExp(r'^\+?\d{8,}$');
     if (!phoneRegex.hasMatch(input)) {
-      return 'Ungültige Telefonnummer (min. 8 Ziffern, nur Zahlen)';
+      return AppLocalizations.of(context)?.invalidPhoneNumberError ??
+          'Ungültige Telefonnummer (min. 8 Ziffern, nur Zahlen)';
     }
     return null;
   }
@@ -179,8 +182,9 @@ class _ProfilPageState extends State<ProfilPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Profilbild aktualisiert."),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)?.profilePictureUpdated ??
+                "Profilbild aktualisiert."),
             backgroundColor: AppColors.famkaCyan,
           ),
         );
@@ -189,7 +193,8 @@ class _ProfilPageState extends State<ProfilPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Fehler beim Aktualisieren des Profilbilds: $e"),
+            content: Text(
+                "${AppLocalizations.of(context)?.profilePictureUpdateError ?? "Fehler beim Aktualisieren des Profilbilds:"} $e"),
             backgroundColor: AppColors.famkaRed,
           ),
         );
@@ -230,8 +235,9 @@ class _ProfilPageState extends State<ProfilPage> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Profilinformationen gespeichert."),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)?.profileInfoSaved ??
+                  "Profilinformationen gespeichert."),
               backgroundColor: AppColors.famkaCyan,
             ),
           );
@@ -240,8 +246,8 @@ class _ProfilPageState extends State<ProfilPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content:
-                  Text('Fehler beim Speichern der Profilinformationen: $e'),
+              content: Text(
+                  "${AppLocalizations.of(context)?.profileInfoSaveError ?? "Fehler beim Speichern der Profilinformationen:"} $e"),
               backgroundColor: AppColors.famkaRed,
             ),
           );
@@ -250,7 +256,8 @@ class _ProfilPageState extends State<ProfilPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text("Bitte überprüfen Sie Ihre Eingaben."),
+          content: Text(AppLocalizations.of(context)?.checkInputsError ??
+              "Bitte überprüfen Sie Ihre Eingaben."),
           backgroundColor: AppColors.famkaRed,
         ),
       );
@@ -278,7 +285,8 @@ class _ProfilPageState extends State<ProfilPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Fehler beim Abmelden: $e'),
+            content: Text(
+                "${AppLocalizations.of(context)?.logoutError ?? "Fehler beim Abmelden:"} $e"),
             backgroundColor: AppColors.famkaRed,
           ),
         );
@@ -309,7 +317,8 @@ class _ProfilPageState extends State<ProfilPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Deine Profil-ID',
+                AppLocalizations.of(context)?.profileIdTitle ??
+                    'Deine Profil-ID',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
@@ -317,10 +326,11 @@ class _ProfilPageState extends State<ProfilPage> {
                     ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Dies ist deine persönliche ID. Du kannst sie mit anderen teilen, damit sie dich zu Gruppen einladen können.',
+              Text(
+                AppLocalizations.of(context)?.profileIdDescription ??
+                    'Dies ist deine persönliche ID. Du kannst sie mit anderen teilen, damit sie dich zu Gruppen einladen können.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
               SelectableText(
@@ -343,19 +353,23 @@ class _ProfilPageState extends State<ProfilPage> {
                           ClipboardData(text: widget.currentUser.profilId));
                       Navigator.of(context).pop();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Profil-ID kopiert!'),
-                          duration: Duration(seconds: 2),
+                        SnackBar(
+                          content: Text(
+                              AppLocalizations.of(context)?.profileIdCopied ??
+                                  'Profil-ID kopiert!'),
+                          duration: const Duration(seconds: 2),
                         ),
                       );
                     },
-                    child: const ButtonLinearGradient(buttonText: 'Kopieren'),
+                    child: ButtonLinearGradient(
+                        buttonText: AppLocalizations.of(context)?.copyButton ??
+                            'Kopieren'),
                   ),
                   const SizedBox(height: 10),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
-                      'Schließen',
+                      AppLocalizations.of(context)?.closeButton ?? 'Schließen',
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium
@@ -514,8 +528,10 @@ class _ProfilPageState extends State<ProfilPage> {
                                               .requestFocus(_emailFocusNode);
                                         },
                                         validator: _validatePhoneNumber,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Telefonnummer eingeben',
+                                        decoration: InputDecoration(
+                                          hintText: AppLocalizations.of(context)
+                                                  ?.telefonnummerEingeben ??
+                                              'Telefonnummer eingeben',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
                                           isDense: true,
@@ -544,8 +560,10 @@ class _ProfilPageState extends State<ProfilPage> {
                                               _miscellaneousFocusNode);
                                         },
                                         validator: _validateEmail,
-                                        decoration: const InputDecoration(
-                                          hintText: 'E-Mail Adresse eingeben',
+                                        decoration: InputDecoration(
+                                          hintText: AppLocalizations.of(context)
+                                                  ?.emailAdresseEingeben ??
+                                              'E-Mail Adresse eingeben',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
                                           isDense: true,
@@ -572,8 +590,10 @@ class _ProfilPageState extends State<ProfilPage> {
                                           _miscellaneousFocusNode.unfocus();
                                           _saveUserData();
                                         },
-                                        decoration: const InputDecoration(
-                                          hintText: 'Zusätzliche Infos',
+                                        decoration: InputDecoration(
+                                          hintText: AppLocalizations.of(context)
+                                                  ?.zusaetzlicheInfos ??
+                                              'Zusätzliche Infos',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
                                           isDense: true,
@@ -622,7 +642,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                       ),
                                       const SizedBox(height: 5),
                                       Text(
-                                        'Gruppe hinzufügen',
+                                        AppLocalizations.of(context)
+                                                ?.addGroupButton ??
+                                            'Gruppe hinzufügen',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodySmall,
@@ -643,9 +665,13 @@ class _ProfilPageState extends State<ProfilPage> {
                                               'Fehler: ${snapshot.error}'));
                                     } else if (!snapshot.hasData ||
                                         snapshot.data!.isEmpty) {
-                                      return const Center(
-                                          child:
-                                              Text('Keine Gruppen gefunden.'));
+                                      return Center(
+                                        child: Text(
+                                          AppLocalizations.of(context)
+                                                  ?.keineGruppenGefunden ??
+                                              'Keine Gruppen gefunden.',
+                                        ),
+                                      );
                                     } else {
                                       return Row(
                                         children: snapshot.data!
@@ -678,11 +704,13 @@ class _ProfilPageState extends State<ProfilPage> {
                               opacity: _hasChanges ? 1.0 : 0.5,
                               child: InkWell(
                                 onTap: _hasChanges ? _saveUserData : null,
-                                child: const SizedBox(
+                                child: SizedBox(
                                   width: 150,
                                   height: 50,
                                   child: ButtonLinearGradient(
-                                      buttonText: 'Speichern'),
+                                      buttonText: AppLocalizations.of(context)
+                                              ?.saveButton ??
+                                          'Speichern'),
                                 ),
                               ),
                             ),
@@ -692,13 +720,15 @@ class _ProfilPageState extends State<ProfilPage> {
                             child: InkWell(
                               onTap: _logout,
                               child: Text(
-                                'Ausloggen',
+                                AppLocalizations.of(context)?.logoutButton ??
+                                    'Ausloggen',
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelSmall
                                     ?.copyWith(
-                                        color: AppColors.famkaGrey,
-                                        decoration: TextDecoration.none),
+                                      color: AppColors.famkaGrey,
+                                      decoration: TextDecoration.none,
+                                    ),
                               ),
                             ),
                           ),
