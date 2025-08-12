@@ -1,0 +1,321 @@
+{
+  "@@locale": "de",
+  "addOrJoinGroupRequiredFieldError": "Bitte füllen Sie alle erforderlichen Felder aus.",
+  "addOrJoinGroupTitle": "Gruppe erstellen",
+  "addOrJoinGroupCreateHint": "Gruppenname eingeben", 
+  "addOrJoinGroupGroupNameEmpty": "Bitte geben Sie einen Gruppennamen ein.",
+  "addOrJoinGroupDescriptionHint": "Eine kurze Beschreibung Ihrer Gruppe",
+  "addOrJoinGroupLocationHint": "Wo befindet sich Ihre Gruppe?",
+  "addOrJoinGroupCreateButton": "Gruppe erstellen",
+  "addPassiveMemberTitle": "Passives Mitglied hinzufügen",
+  "addPassiveMemberFirstNameLabel": "Vorname", 
+  "addPassiveMemberLastNameLabel": "Nachname",
+  "addPassiveMemberLastNameError": "Bitte geben Sie einen Nachnamen ein.",
+  "addPassiveMemberFirstNameError": "Bitte geben Sie einen Vornamen ein.",
+  "addPassiveMemberAddButton": "Hinzufügen",
+  "addPassiveMemberCancelButton": "Abbrechen",
+  "addPassiveMemberSuccess": "{firstName} wurde erfolgreich hinzugefügt.",
+  "addPassiveMemberError": "Fehler beim Hinzufügen des Mitglieds: {error}",
+  
+  "enterLocationHint": "Ort eingeben",
+  "enterDescriptionHint": "Beschreibung eingeben",
+  "groupPageRoleAdmin": "Administrator",
+  "groupPageRoleMember": "Mitglied",
+  "shareGroupIdInstruction": "Teile diese Gruppen-ID mit deinen Freunden!",
+  "groupIdCopied": "Gruppen-ID wurde kopiert!",
+  
+  "newGroupTitle": "Neue Gruppe erstellen",
+  "enterGroupName": "Bitte geben Sie einen Gruppennamen ein.",
+  "groupCreatedSuccess": "Gruppe \"{groupName}\" erfolgreich erstellt!",
+  "createGroupError": "Fehler beim Erstellen der Gruppe: {error}",
+  "groupNameLabel": "Gruppenname",
+  "locationLabel": "Ort",
+  "descriptionLabel": "Beschreibung",
+  "createButtonText": "Erstellen",
+  
+  "noCurrentUserError": "Fehler: Kein angemeldeter Benutzer verfügbar. Bitte melden Sie sich an.",
+  "noActiveGroupError": "Es konnten keine Gruppen geladen werden oder es ist keine aktive Gruppe vorhanden.",
+  "loadingGroupsError": "Fehler beim Laden der Gruppen: {error}",
+  "groupsDeletedError": "Alle Gruppen wurden gelöscht oder konnten nicht geladen werden.",
+  "unknownError": "Ein unbekannter Fehler ist aufgetreten.",
+  "createGroupNotImplemented": "Gruppen-Erstellungsfunktion noch nicht implementiert.",
+  "createGroupButtonText": "Neue Gruppe erstellen",
+  
+  "calendarTitle": "Kalender",
+  "groupsTitle": "Gruppen",
+  "loadingErrorWithDetails": "Fehler beim Laden: {error}",
+  "noGroupsJoined": "Sie sind noch keiner Gruppe beigetreten.",
+  
+  "imprintTitle": "Impressum",
+  "languageTitle": "Sprache",
+  "languageSettingTitle": "Sprache auswählen",
+  "languageGerman": "Deutsch",
+  "languageEnglish": "Englisch",
+  
+  "loginScreenTitle": "Anmeldung",
+  "emailInputLabel": "E-Mail-Adresse",
+  "emailInputHint": "E-Mail-Adresse eingeben",
+  "passwordInputLabel": "Passwort",
+  "passwordInputHint": "Passwort eingeben",
+  "checkInputsError": "Bitte überprüfen Sie Ihre Eingaben",
+  "loginButtonText": "Anmelden",
+  "newHereButtonText": "Neu hier? Folgen Sie mir!",
+  "notRegisteredYetText": "Ich bin noch nicht registriert!",
+  
+  "firebaseUserNotFound": "Benutzer nicht in Firebase gefunden.",
+  "firestoreUserNotFound": "Benutzerdaten nicht in Firestore gefunden.",
+  "loginFailedGeneric": "Anmeldung fehlgeschlagen: {message}",
+  "loginFailedUserNotFound": "Kein Benutzer für diese E-Mail-Adresse gefunden.",
+  "loginFailedWrongPassword": "Falsches Passwort für diese E-Mail-Adresse.",
+  
+  "googleLoginFailedNoUser": "Google-Anmeldung fehlgeschlagen: Kein Firebase-Benutzer erhalten.",
+  "googleLoginNewUserCreated": "Neues Google-Benutzerprofil erstellt.",
+  "googleLoginSuccess": "Google-Benutzer erfolgreich angemeldet.",
+  "googleLoginExistingUser": "Google-Benutzer in Firestore gefunden: {uid}",
+  "googleLoginFailedFirestoreLoad": "Fehler: Benutzerdaten konnten nach der Erstellung nicht geladen werden.",
+  "googleLoginFailedDifferentCredential": "Ein Konto mit dieser E-Mail-Adresse existiert bereits, aber mit einer anderen Anmeldemethode.",
+  "googleLoginAborted": "Google-Anmeldung vom Benutzer abgebrochen.",
+  "googleLoginUnexpectedError": "Unerwarteter Fehler bei der Google-Anmeldung: {error}",
+  
+  "signInWithGoogleTooltip": "Mit Google anmelden",
+  "signInWithAppleNotImplemented": "Apple-Anmeldung noch nicht implementiert.",
+  "signInWithAppleTooltip": "Mit Apple anmelden",
+  
+  "emailValidationEmpty": "E-Mail-Adresse darf nicht leer sein",
+  "emailValidationInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+  "passwordValidationMinLength": "Mind. 8 Zeichen",
+  "passwordValidationMaxLength": "Max. 50 Zeichen",
+  "passwordValidationLowercase": "Mind. ein Kleinbuchstabe",
+  "passwordValidationUppercase": "Mind. ein Großbuchstabe",
+  "passwordValidationDigit": "Mind. eine Ziffer",
+  "passwordValidationSpecialChar": "Mind. ein Sonderzeichen",
+  
+  "appointmentTitle": "Termin",
+  "appointmentTitleLabel": "Termintitel",
+  "appointmentTitleHint": "Termintitel",
+  "dateLabel": "Datum",
+  "dateHint": "JJJJ-MM-TT",
+  "timeHint": "HH:MM",
+  "allDayLabel": "Ganztägig",
+  "startTimeLabel": "Startzeit",
+  "endTimeLabel": "Endzeit",
+  "locationHint": "Terminort",
+  "descriptionHint": "Details zum Termin (optional)",
+  
+  "createdByUser": "Erstellt von: {creator}",
+  "forGroup": "Für Gruppe: {groupName}",
+  
+  "validatorTitleEmpty": "Bitte geben Sie einen Titel ein",
+  "validatorTitleLength": "Maximal 80 Zeichen erlaubt",
+  "validatorTitleEmojis": "Keine Emojis erlaubt",
+  "validatorLocationEmpty": "Bitte geben Sie einen Ort ein",
+  "validatorLocationInvalidChars": "Ungültige Zeichen im Ort",
+  "validatorDescriptionLength": "Maximal 500 Zeichen erlaubt",
+  "validatorRepeatCountEmpty": "Bitte geben Sie eine Zahl ein",
+  "validatorRepeatCountInvalid": "Ungültige Zahl (muss > 0 sein)",
+  "validatorRepeatCountMax": "Max. 365 Wiederholungen",
+  
+  "snackbarFillAllFields": "Bitte füllen Sie alle Felder korrekt aus.",
+  "snackbarAddImage": "Bitte geben Sie Ihrem Ereignis ein Gesicht.",
+  "snackbarSelectParticipants": "Für wen ist der Termin? Bitte wählen Sie mindestens einen Teilnehmer aus.",
+  "snackbarDateParseError": "Fehler beim Parsen von Datum oder Uhrzeit.",
+  "snackbarCreatorError": "Fehler: Terminersteller konnte nicht ermittelt werden.",
+  "snackbarRecurringEventSaved": "Terminserie gespeichert!",
+  "snackbarSingleEventSaved": "Termin gespeichert!",
+  "snackbarSaveError": "Fehler beim Speichern des Termins: {error}",
+  
+  "repeatDaily": "Täglich",
+  "repeatWeekly": "Wöchentlich",
+  "repeatMonthly": "Monatlich",
+  "repeatYearly": "Jährlich",
+  "reminderOneHour": "1 Stunde",
+  "reminderOneDay": "1 Tag",
+  "reminder30Minutes": "30 Minuten",
+  
+  "validateDateEmpty": "Bitte wählen Sie ein Datum aus",
+  "validateDateInvalid": "Ungültiges Datum",
+  "validateDateInPast": "Datum kann nicht in der Vergangenheit liegen",
+  
+  "validateTimeEmpty": "Bitte geben Sie eine Zeit ein",
+  "validateTimeInvalid": "Ungültige Zeit",
+  
+  "eventParticipantsTitle": "Für wen ist der Termin?",
+  "errorLoadingMembers": "Fehler: {error}",
+  "noMembersFound": "Keine Mitglieder gefunden.",
+  
+  "addImageTitle": "Foto oder Piktogramm hinzufügen",
+  "addImageDescription": "Das ausgewählte Bild ersetzt den Titel des Termins in der Kalenderansicht.",
+  
+  "repeatLabel": "Wiederholen",
+  "repeatDropdownLabel": "Wiederholung",
+  "numberOfRepeatsLabel": "Anzahl der Wiederholungen",
+  "numberOfRepeatsHint": "z.B. 5 (inkl. diesem Termin)",
+  "reminderLabel": "Erinnerung",
+  "reminderBeforeLabel": "Erinnerung vor",
+  "saveButtonText": "Speichern",
+  
+  "groupAvatarLoadingError": "Fehler beim Laden des Gruppen-Avatars: {error}",
+  "singleEventAvatarLoadingError": "Fehler beim Laden des Avatars in SingleEventAvatar: {error}",
+  
+  "imageUploadSuccess": "Bild erfolgreich hochgeladen: {downloadUrl}",
+  "imageDeletedSuccess": "Bild erfolgreich gelöscht.",
+  "imageDeleteError": "Fehler beim Löschen des Bildes: {error}",
+  "imageUploadAborted": "Bild-Upload abgebrochen oder fehlgeschlagen.",
+  "imageUploadError": "Fehler beim Bild-Upload: {error}",
+  
+  "manageMembersUpdateSuccess": "Mitglieder erfolgreich aktualisiert.",
+  "manageMembersUpdateError": "Fehler beim Aktualisieren der Mitglieder: {error}",
+  "manageMembersTitle": "Mitglieder verwalten",
+  "manageMembersCurrentTitle": "Aktuelle Mitglieder",
+  "manageMembersRoleAdmin": "(Admin)",
+  "manageMembersRoleMember": "(Mitglied)",
+  "manageMembersRolePassive": "(Passiv)",
+  "manageMembersNoEmailPhone": "Keine E-Mail/Telefonnummer",
+  "manageMembersSavingButton": "Wird gespeichert...",
+  "manageMembersSaveChangesButton": "Änderungen speichern",
+
+  "@manageMembersUpdateError": {
+    "description": "Fehlermeldung beim Aktualisieren der Mitglieder",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@imageUploadSuccess": {
+    "description": "Erfolgsmeldung beim Hochladen eines Bildes",
+    "placeholders": {
+      "downloadUrl": {
+        "type": "String"
+      }
+    }
+  },
+  "@groupCreatedSuccess": {
+    "description": "Erfolgsmeldung bei Gruppenerstellung",
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
+  "@createGroupError": {
+    "description": "Fehlermeldung bei Gruppenerstellung",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@loadingGroupsError": {
+    "description": "Fehlermeldung beim Laden von Gruppen",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@loadingErrorWithDetails": {
+    "description": "Allgemeine Fehlermeldung beim Laden",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@loginFailedGeneric": {
+    "description": "Allgemeine Fehlermeldung bei Login",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "@googleLoginUnexpectedError": {
+    "description": "Unerwarteter Fehler bei Google-Login",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@createdByUser": {
+    "description": "Ersteller eines Elements",
+    "placeholders": {
+      "creator": {
+        "type": "String"
+      }
+    }
+  },
+  "@forGroup": {
+    "description": "Gruppenzugehörigkeit eines Elements",
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
+  "@snackbarSaveError": {
+    "description": "Fehlermeldung beim Speichern",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@errorLoadingMembers": {
+    "description": "Fehlermeldung beim Laden von Mitgliedern",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@groupAvatarLoadingError": {
+    "description": "Fehlermeldung beim Laden des Gruppenbildes",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@singleEventAvatarLoadingError": {
+    "description": "Fehlermeldung beim Laden des Ereignisbildes",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@imageDeleteError": {
+    "description": "Fehlermeldung beim Löschen eines Bildes",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@imageUploadError": {
+    "description": "Fehlermeldung beim Hochladen eines Bildes",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@addPassiveMemberSuccess": {
+    "description": "Erfolgsmeldung beim Hinzufügen eines passiven Mitglieds",
+    "placeholders": {
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "@addPassiveMemberError": {
+    "description": "Fehlermeldung beim Hinzufügen eines passiven Mitglieds",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
+}

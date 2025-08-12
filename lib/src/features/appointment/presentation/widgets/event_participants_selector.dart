@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/single_event_avatar.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class EventParticipantsSelector extends StatefulWidget {
   const EventParticipantsSelector({
@@ -60,7 +61,7 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Für wen ist der Termin?',
+                  AppLocalizations.of(context)!.eventParticipantsTitle,
                   style: Theme.of(context)
                       .textTheme
                       .titleSmall
@@ -73,12 +74,15 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
           FutureBuilder<List<AppUser>>(
             future: widget.groupMembersFuture,
             builder: (context, snapshot) {
+              final l10n = AppLocalizations.of(context)!;
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
+                return Center(
+                    child: Text(
+                        l10n.errorLoadingMembers(snapshot.error.toString())));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('Keine Mitglieder gefunden.'));
+                return Center(child: Text(l10n.noMembersFound));
               }
 
               final members = snapshot.data!;
@@ -102,7 +106,7 @@ class _EventParticipantsSelectorState extends State<EventParticipantsSelector> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              member.firstName ?? '',
+                              member.firstName,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isSelected ? Colors.black : Colors.grey,

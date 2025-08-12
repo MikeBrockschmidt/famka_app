@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/common/image_utils.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class SingleEventAvatar extends StatelessWidget {
   final bool isSelected;
@@ -31,8 +32,9 @@ class SingleEventAvatar extends StatelessWidget {
               const AssetImage('assets/fotos/default.jpg'),
           backgroundColor: Colors.transparent,
           onBackgroundImageError: (exception, stackTrace) {
+            final l10n = AppLocalizations.of(context)!;
             debugPrint(
-                'Fehler beim Laden des Avatars in SingleEventAvatar: $exception');
+                l10n.singleEventAvatarLoadingError(exception.toString()));
           },
         ),
       ),

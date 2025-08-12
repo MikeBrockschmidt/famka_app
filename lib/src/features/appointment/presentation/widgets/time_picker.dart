@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 Future<TimeOfDay?> selectAppointmentTime(
   BuildContext context, {
@@ -77,28 +78,27 @@ Future<TimeOfDay?> selectAppointmentTime(
   return picked;
 }
 
-String? validateAppointmentTime(String? value, bool isAllDay) {
+String? validateAppointmentTime(
+    String? value, bool isAllDay, BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
   if (isAllDay) {
     return null;
   }
   if (value == null || value.isEmpty) {
-    return 'Bitte Zeit eingeben';
+    return l10n.validateTimeEmpty;
   }
   final parts = value.split(':');
   if (parts.length != 2) {
-    return 'Zeit muss im Format HH:MM sein';
+    return l10n.validateTimeInvalid;
   }
   try {
     final hour = int.parse(parts[0]);
     final minute = int.parse(parts[1]);
-    if (hour < 0 || hour > 23) {
-      return 'Stunden müssen zwischen 00 und 23 liegen';
-    }
-    if (minute < 0 || minute > 59) {
-      return 'Minuten müssen zwischen 00 und 59 liegen';
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      return l10n.validateTimeInvalid;
     }
   } catch (e) {
-    return 'Zeit muss im Format HH:MM sein';
+    return l10n.validateTimeInvalid;
   }
   return null;
 }

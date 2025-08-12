@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class SaveAppointmentButton extends StatelessWidget {
   const SaveAppointmentButton({
@@ -18,7 +19,8 @@ class SaveAppointmentButton extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: onSave,
-            child: const ButtonLinearGradient(buttonText: 'Speichern'),
+            child: ButtonLinearGradient(
+                buttonText: AppLocalizations.of(context)!.saveButtonText),
           ),
         ],
       ),

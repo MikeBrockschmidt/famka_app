@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
@@ -114,7 +115,8 @@ class _MainAppState extends State<MainApp> {
           debugShowCheckedModeBanner: false,
           theme: appTheme,
           home: _getHomeScreen(snapshot.data),
-          localizationsDelegates: const [
+          localizationsDelegates: [
+            AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,

@@ -3,6 +3,7 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/gallery1.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class GallerySelectionField extends StatefulWidget {
   const GallerySelectionField({
@@ -129,7 +130,7 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Foto oder Piktogramm hinzufügen',
+                    AppLocalizations.of(context)!.addImageTitle,
                     style: Theme.of(context)
                         .textTheme
                         .titleLarge
@@ -157,7 +158,7 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
             Padding(
               padding: const EdgeInsets.only(left: 32),
               child: Text(
-                'Das ausgewählte Zeichen ersetzt in der Kalenderansicht den Titel des Termins.',
+                AppLocalizations.of(context)!.addImageDescription,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/appointment_form_fields.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class RepeatReminderSettings extends StatefulWidget {
   const RepeatReminderSettings({
@@ -68,11 +69,12 @@ class _RepeatReminderSettingsState extends State<RepeatReminderSettings> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         AppSwitchRow(
           leftIcon: Icons.repeat,
-          label: 'Wiederholen',
+          label: l10n.repeatLabel,
           value: _repeat,
           onChanged: (val) {
             setState(() {
@@ -86,13 +88,13 @@ class _RepeatReminderSettingsState extends State<RepeatReminderSettings> {
             children: [
               AppDropdownRow(
                 leftIcon: Icons.repeat_one,
-                label: 'Wiederholung',
+                label: l10n.repeatDropdownLabel,
                 value: _selectedRepeat,
-                items: const [
-                  'Täglich',
-                  'Wöchentlich',
-                  'Monatlich',
-                  'Jährlich'
+                items: [
+                  l10n.repeatDaily,
+                  l10n.repeatWeekly,
+                  l10n.repeatMonthly,
+                  l10n.repeatYearly
                 ],
                 onChanged: (val) {
                   if (val != null) {
@@ -106,8 +108,8 @@ class _RepeatReminderSettingsState extends State<RepeatReminderSettings> {
               AppTextField(
                 leftIcon: Icons.exposure_plus_1,
                 controller: widget.numberOfRepeatsController,
-                label: 'Anzahl der Wiederholungen',
-                hint: 'z.B. 5 (inkl. diesem Termin)',
+                label: l10n.numberOfRepeatsLabel,
+                hint: l10n.numberOfRepeatsHint,
                 keyboardType: TextInputType.number,
                 validator: widget.validateNumberOfRepeats,
                 onChanged: (value) {
@@ -118,7 +120,7 @@ class _RepeatReminderSettingsState extends State<RepeatReminderSettings> {
           ),
         AppSwitchRow(
           leftIcon: Icons.notifications,
-          label: 'Erinnerung',
+          label: l10n.reminderLabel,
           value: _reminder,
           onChanged: (val) {
             setState(() {
@@ -130,9 +132,13 @@ class _RepeatReminderSettingsState extends State<RepeatReminderSettings> {
         if (_reminder)
           AppDropdownRow(
             leftIcon: Icons.notifications_active,
-            label: 'Erinnerung vor',
+            label: l10n.reminderBeforeLabel,
             value: _selectedReminder,
-            items: const ['30 Minuten', '1 Stunde', '1 Tag'],
+            items: [
+              l10n.reminder30Minutes,
+              l10n.reminderOneHour,
+              l10n.reminderOneDay
+            ],
             onChanged: (val) {
               if (val != null) {
                 setState(() {

@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
@@ -9,13 +10,12 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:math';
-
 import 'package:famka_app/src/features/appointment/presentation/widgets/appointment_form_fields.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/event_participants_selector.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/gallery_selection_field.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/repeat_reminder_settings.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/save_appointment_button.dart';
-import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart';
+import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart' as time_picker;
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 
@@ -93,28 +93,30 @@ class _AppointmentState extends State<Appointment> {
   }
 
   String? _validateTitle(String? value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value == null || value.isEmpty) {
-      return 'Bitte Titel eingeben';
+      return l10n.validatorTitleEmpty;
     }
     if (value.length > 80) {
-      return 'Maximal 80 Zeichen erlaubt';
+      return l10n.validatorTitleLength;
     }
     final RegExp emojiRegex = RegExp(
         r'[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]',
         unicode: true);
     if (emojiRegex.hasMatch(value)) {
-      return 'Keine Emojis erlaubt';
+      return l10n.validatorTitleEmojis;
     }
     return null;
   }
 
   String? _validateLocation(String? value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value == null || value.isEmpty) {
-      return 'Bitte Standort eingeben';
+      return l10n.validatorLocationEmpty;
     }
     final RegExp allowedChars = RegExp(r'^[a-zA-ZäöüÄÖÜß\s\d.,\-()\/]+$');
     if (!allowedChars.hasMatch(value)) {
-      return 'Unerlaubte Zeichen im Standort';
+      return l10n.validatorLocationInvalidChars;
     }
     return null;
   }
@@ -127,15 +129,16 @@ class _AppointmentState extends State<Appointment> {
   }
 
   String? _validateNumberOfRepeats(String? value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value == null || value.isEmpty) {
-      return 'Bitte Anzahl eingeben';
+      return l10n.validatorRepeatCountEmpty;
     }
     final count = int.tryParse(value);
     if (count == null || count <= 0) {
-      return 'Ungültige Anzahl (muss > 0 sein)';
+      return l10n.validatorRepeatCountInvalid;
     }
     if (count > 365) {
-      return 'Max. 365 Wiederholungen';
+      return l10n.validatorRepeatCountMax;
     }
     return null;
   }
@@ -255,10 +258,11 @@ class _AppointmentState extends State<Appointment> {
         );
       }
 
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppColors.famkaRed,
-          content: Text('Bitte füllen Sie alle Felder korrekt aus.'),
+          content: Text(l10n.snackbarFillAllFields),
         ),
       );
       return;
@@ -267,10 +271,11 @@ class _AppointmentState extends State<Appointment> {
     if (_selectedGalleryItemContent == null ||
         _selectedGalleryItemContent!.isEmpty) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppColors.famkaRed,
-          content: Text('Bitte geben Sie Ihrem Event ein Gesicht.'),
+          content: Text(l10n.snackbarAddImage),
         ),
       );
       return;
@@ -278,11 +283,11 @@ class _AppointmentState extends State<Appointment> {
 
     if (selectedMembers.isEmpty) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppColors.famkaRed,
-          content: Text(
-              'Für wen ist der Termin? Bitte wählen Sie mindestens einen Teilnehmer aus.'),
+          content: Text(l10n.snackbarSelectParticipants),
         ),
       );
       return;
@@ -304,16 +309,15 @@ class _AppointmentState extends State<Appointment> {
         final minute = int.parse(timeParts[1]);
         eventDate = DateTime(year, month, day, hour, minute);
 
-        if (_endTimeController.text.isNotEmpty) {
-          final endTimeParts = _endTimeController.text.split(':');
-        }
+        if (_endTimeController.text.isNotEmpty) {}
       }
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppColors.famkaRed,
-          content: Text('Fehler beim Parsen von Datum oder Zeit.'),
+          content: Text(l10n.snackbarDateParseError),
         ),
       );
       return;
@@ -322,11 +326,11 @@ class _AppointmentState extends State<Appointment> {
     final String creatorId = widget.currentUser?.profilId ?? '';
     if (creatorId.isEmpty) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppColors.famkaRed,
-          content: Text(
-              'Fehler: Ersteller des Termins konnte nicht ermittelt werden.'),
+          content: Text(l10n.snackbarCreatorError),
         ),
       );
       return;
@@ -378,19 +382,21 @@ class _AppointmentState extends State<Appointment> {
       if (_repeat) {
         await _generateAndSaveRecurringEvents(initialEvent);
         if (!mounted) return;
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             backgroundColor: AppColors.famkaCyan,
-            content: Text('Terminserie gespeichert!'),
+            content: Text(l10n.snackbarRecurringEventSaved),
           ),
         );
       } else {
         await widget.db.createEvent(initialEvent);
         if (!mounted) return;
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             backgroundColor: AppColors.famkaCyan,
-            content: Text('Termin gespeichert!'),
+            content: Text(l10n.snackbarSingleEventSaved),
           ),
         );
       }
@@ -408,13 +414,14 @@ class _AppointmentState extends State<Appointment> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.famkaWhite,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const HeadlineK(screenHead: 'Termin'),
+            HeadlineK(screenHead: l10n.appointmentTitle),
             Expanded(
               child: Form(
                 key: _formKey,
@@ -436,16 +443,17 @@ class _AppointmentState extends State<Appointment> {
                       AppTextField(
                         leftIcon: Icons.sort,
                         controller: _titleController,
-                        label: 'Titel des Termins',
-                        hint: 'Titel des Termins',
+                        label: l10n.appointmentTitleLabel,
+                        hint: l10n.appointmentTitleHint,
                         validator: _validateTitle,
                       ),
                       AppTextField(
                         leftIcon: Icons.calendar_today,
                         controller: _dateController,
-                        label: 'Datum',
-                        hint: 'YYYY-MM-DD',
-                        validator: validateAppointmentDate,
+                        label: l10n.dateLabel,
+                        hint: l10n.dateHint,
+                        validator: (value) =>
+                            validateAppointmentDate(value, context),
                         readOnly: true,
                         onTap: () async {
                           final DateTime? picked = await selectAppointmentDate(
@@ -474,14 +482,14 @@ class _AppointmentState extends State<Appointment> {
                             AppTextField(
                               leftIcon: Icons.access_time,
                               controller: _timeController,
-                              label: 'Startzeit',
-                              hint: 'HH:MM',
-                              validator: (value) =>
-                                  validateAppointmentTime(value, _allDay),
+                              label: l10n.startTimeLabel,
+                              hint: l10n.timeHint,
+                              validator: (value) => validateAppointmentTime(
+                                  value, _allDay, context),
                               readOnly: true,
                               onTap: () async {
                                 final TimeOfDay? pickedTime =
-                                    await selectAppointmentTime(
+                                    await time_picker.selectAppointmentTime(
                                   context,
                                   initialTime: TimeOfDay.now(),
                                 );
@@ -496,14 +504,14 @@ class _AppointmentState extends State<Appointment> {
                             AppTextField(
                               leftIcon: Icons.access_time_outlined,
                               controller: _endTimeController,
-                              label: 'Endzeit',
-                              hint: 'HH:MM',
-                              validator: (value) =>
-                                  validateAppointmentTime(value, _allDay),
+                              label: l10n.endTimeLabel,
+                              hint: l10n.timeHint,
+                              validator: (value) => validateAppointmentTime(
+                                  value, _allDay, context),
                               readOnly: true,
                               onTap: () async {
                                 final TimeOfDay? pickedTime =
-                                    await selectAppointmentTime(
+                                    await time_picker.selectAppointmentTime(
                                   context,
                                   initialTime: TimeOfDay.now(),
                                 );
@@ -520,8 +528,8 @@ class _AppointmentState extends State<Appointment> {
                       AppTextField(
                         leftIcon: Icons.location_on,
                         controller: _locationController,
-                        label: 'Standort',
-                        hint: 'Ort des Termins',
+                        label: l10n.locationLabel,
+                        hint: l10n.locationHint,
                         validator: _validateLocation,
                       ),
                       GallerySelectionField(
@@ -579,8 +587,8 @@ class _AppointmentState extends State<Appointment> {
                       AppTextField(
                         leftIcon: Icons.description,
                         controller: _descriptionController,
-                        label: 'Beschreibung',
-                        hint: 'Details zum Termin (optional)',
+                        label: l10n.descriptionLabel,
+                        hint: l10n.descriptionHint,
                         validator: _validateDescription,
                         maxLines: 3,
                         keyboardType: TextInputType.multiline,
