@@ -200,7 +200,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get imprintTitle => 'Impressum';
 
   @override
-  String get languageTitle => 'Sprache';
+  String get languageTitle => 'Setup';
 
   @override
   String get languageSettingTitle => 'Sprache auswählen';

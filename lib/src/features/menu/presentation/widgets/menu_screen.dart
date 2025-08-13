@@ -330,9 +330,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   backgroundColor: AppColors.famkaYellow,
                   initiallyExpanded: expandedIndex == 3,
                   title: _buildTileTitle(
-                      context,
-                      AppLocalizations.of(context)!
-                          .languageTitle), // Localized key for 'Setup'
+                      context, AppLocalizations.of(context)!.languageTitle),
                   onExpansionChanged: (isExpanded) =>
                       _handleExpansion(3, isExpanded),
                   children: [

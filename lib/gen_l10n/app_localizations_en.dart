@@ -195,7 +195,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imprintTitle => 'Imprint';
 
   @override
-  String get languageTitle => 'Language';
+  String get languageTitle => 'Setup';
 
   @override
   String get languageSettingTitle => 'Select Language';

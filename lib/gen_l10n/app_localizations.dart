@@ -431,7 +431,7 @@ abstract class AppLocalizations {
   /// No description provided for @languageTitle.
   ///
   /// In en, this message translates to:
-  /// **'Language'**
+  /// **'Setup'**
   String get languageTitle;
 
   /// No description provided for @languageSettingTitle.
