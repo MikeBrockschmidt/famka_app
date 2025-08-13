@@ -54,8 +54,9 @@ class _AppointmentState extends State<Appointment> {
   bool _repeat = false;
   bool _reminder = false;
 
-  String _selectedRepeat = 'Täglich';
-  String _selectedReminder = '1 Stunde';
+  // Initialisiere mit null, um anzuzeigen, dass die Werte noch nicht gesetzt wurden
+  String? _selectedRepeat;
+  String? _selectedReminder;
 
   late Future<List<AppUser>> _groupMembersFuture;
   Set<String> selectedMembers = {};
@@ -79,6 +80,17 @@ class _AppointmentState extends State<Appointment> {
       _groupMembersFuture = Future.value([]);
     }
     _numberOfRepeatsController.text = _numberOfRepeats.toString();
+    
+    // Wir initialisieren die Werte nach dem ersten Build, wenn der Kontext verfügbar ist
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        setState(() {
+          _selectedRepeat = l10n.repeatDaily;
+          _selectedReminder = l10n.reminderOneHour;
+        });
+      }
+    });
   }
 
   @override
@@ -174,14 +186,15 @@ class _AppointmentState extends State<Appointment> {
     while (occurrencesGenerated < maxOccurrencesToGenerate) {
       DateTime nextEventDate;
       try {
+        final l10n = AppLocalizations.of(context)!;
         switch (_selectedRepeat) {
-          case 'Täglich':
+          case String repeat when repeat == l10n.repeatDaily:
             nextEventDate = currentEventDate.add(const Duration(days: 1));
             break;
-          case 'Wöchentlich':
+          case String repeat when repeat == l10n.repeatWeekly:
             nextEventDate = currentEventDate.add(const Duration(days: 7));
             break;
-          case 'Monatlich':
+          case String repeat when repeat == l10n.repeatMonthly:
             int newMonth = currentEventDate.month + 1;
             int newYear = currentEventDate.year;
             if (newMonth > 12) {
@@ -198,7 +211,7 @@ class _AppointmentState extends State<Appointment> {
               currentEventDate.minute,
             );
             break;
-          case 'Jährlich':
+          case String repeat when repeat == l10n.repeatYearly:
             int dayOfYear = currentEventDate.day;
             if (currentEventDate.month == DateTime.february &&
                 currentEventDate.day == 29 &&
@@ -554,19 +567,20 @@ class _AppointmentState extends State<Appointment> {
                           });
                         },
                       ),
-                      RepeatReminderSettings(
-                        initialRepeat: _repeat,
-                        onRepeatChanged: (val) {
-                          setState(() {
-                            _repeat = val;
-                          });
-                        },
-                        initialSelectedRepeat: _selectedRepeat,
-                        onSelectedRepeatChanged: (val) {
-                          setState(() {
-                            _selectedRepeat = val;
-                          });
-                        },
+                      if (_selectedRepeat != null && _selectedReminder != null)
+                        RepeatReminderSettings(
+                          initialRepeat: _repeat,
+                          onRepeatChanged: (val) {
+                            setState(() {
+                              _repeat = val;
+                            });
+                          },
+                          initialSelectedRepeat: _selectedRepeat ?? '',
+                          onSelectedRepeatChanged: (val) {
+                            setState(() {
+                              _selectedRepeat = val;
+                            });
+                          },
                         numberOfRepeatsController: _numberOfRepeatsController,
                         validateNumberOfRepeats: _validateNumberOfRepeats,
                         onNumberOfRepeatsChanged: (value) {
@@ -580,7 +594,7 @@ class _AppointmentState extends State<Appointment> {
                             _reminder = val;
                           });
                         },
-                        initialSelectedReminder: _selectedReminder,
+                        initialSelectedReminder: _selectedReminder ?? '',
                         onSelectedReminderChanged: (val) {
                           setState(() {
                             _selectedReminder = val;
