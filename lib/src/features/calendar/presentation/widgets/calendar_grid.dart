@@ -1,3 +1,4 @@
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/info_bottom_sheet.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_avatar_scroll_row.dart';
@@ -39,8 +40,9 @@ class _CalendarGridState extends State<CalendarGrid> {
 
   final DateTime currentDate = DateTime.now();
 
-  static const int _monthsBack = 6;
-  static const int _monthsForward = 6;
+  // Limit backward viewing to approximately 14 days instead of 6 months
+  static const int _daysBack = 14;
+  static const int _monthsForward = 14;
 
   late final DateTime _actualStartDate;
   late int _totalDisplayDays;
@@ -61,10 +63,11 @@ class _CalendarGridState extends State<CalendarGrid> {
     super.initState();
     initializeDateFormatting('de_DE', null);
 
+    // Start date is now 14 days in the past
     _actualStartDate = DateTime(
       currentDate.year,
-      currentDate.month - _monthsBack,
-      currentDate.day,
+      currentDate.month,
+      currentDate.day - _daysBack,
     );
 
     final DateTime actualEndDate = DateTime(
@@ -302,8 +305,9 @@ class _CalendarGridState extends State<CalendarGrid> {
               future: _groupMembersFuture,
               builder: (context, snapshot) {
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
-                      child: Text('Keine Mitglieder gefunden.'));
+                  return Center(
+                      child:
+                          Text(AppLocalizations.of(context)!.noMembersFound));
                 }
 
                 final List<AppUser> currentGroupMembers = snapshot.data!;
@@ -377,6 +381,28 @@ class _CalendarGridState extends State<CalendarGrid> {
                                     (personIndex) {
                                   return GestureDetector(
                                     onTap: () async {
+                                      // Check if date is within range (not older than 14 days)
+                                      final DateTime cutoffDate = DateTime.now()
+                                          .subtract(const Duration(days: 14));
+                                      final bool isWithinRange = date
+                                              .isAfter(cutoffDate) ||
+                                          date.isAtSameMomentAs(cutoffDate) ||
+                                          date.isAfter(DateTime.now());
+
+                                      if (!isWithinRange) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(AppLocalizations.of(
+                                                        context)
+                                                    ?.oldEventsFoundMessage(
+                                                        1) ??
+                                                "Events older than 14 days are hidden. Check the calendar screen to manage old events."),
+                                          ),
+                                        );
+                                        return;
+                                      }
+
                                       final users = currentGroupMembers;
                                       final userId =
                                           users[personIndex].profilId;
@@ -499,14 +525,27 @@ class CalendarCellIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final userId = currentGroupMembers[personIndex].profilId;
 
+    // Check if date is within range (not older than 14 days)
+    final DateTime cutoffDate =
+        DateTime.now().subtract(const Duration(days: 14));
+    // Only show events for dates within the allowed range (not older than 14 days)
+    final bool isWithinRange = date.isAfter(cutoffDate) ||
+        date.isAtSameMomentAs(cutoffDate) ||
+        date.isAfter(DateTime.now());
+
+    // Filter events based on date and user participation
     final eventsForPerson = allEvents.where((event) {
+      // First check if it's the same day
       final sameDay = event.singleEventDate.year == date.year &&
           event.singleEventDate.month == date.month &&
           event.singleEventDate.day == date.day;
+
+      // Then check if user is participating and date is within range
       return sameDay &&
           (event.acceptedMemberIds.contains(userId) ||
               event.invitedMemberIds.contains(userId) ||
-              event.maybeMemberIds.contains(userId));
+              event.maybeMemberIds.contains(userId)) &&
+          isWithinRange; // Only include events within range
     }).toList();
 
     if (eventsForPerson.isEmpty) return const SizedBox.shrink();

@@ -207,6 +207,57 @@
   "galleryLabel": "Gallery",
 
   "piktogrammeLabe": "Pictograms",
+  "gallerySourceCamera": "Camera",
+  "gallerySourceGallery": "Gallery",
+  "timeAllDay": "Time: All-day",
+  "timeAt": "Time: {time}",
+  "location": "Location: {location}",
+  "description": "Description: {description}",
+  "noDescription": "No description",
+  "participants": "Participants: {names}",
+  "appointmentsFor": "Appointments for {name}",
+  "saveButton": "Save",
+  "closeButton": "Close",
+  "noChangesToSave": "No changes to save.",
+  "descriptionUpdateSuccess": "Description successfully updated.",
+  "descriptionUpdateError": "Error updating description: {error}",
+  "imageLoadError": "Image could not be loaded",
+  
+  "@timeAt": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "@location": {
+    "placeholders": {
+      "location": {}
+    }
+  },
+  "@description": {
+    "placeholders": {
+      "description": {}
+    }
+  },
+  "@participants": {
+    "placeholders": {
+      "names": {}
+    }
+  },
+  "@appointmentsFor": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@descriptionUpdateError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "deleteImageTitle": "Delete Image?",
+  "deleteImageDescription": "Do you really want to remove this image from the gallery? This action cannot be undone.",
+  "deleteImageButton": "Delete",
+  "cancelButton": "Cancel",
+  "imageUploadSuccessSelectNow": "Image successfully uploaded. Please select it.",
 
   "@manageMembersUpdateError": {
     "description": "Error message when updating members",
@@ -428,5 +479,71 @@
   "changesSaved": "Changes saved!",
   "groupDataLoadError": "Error loading group data or user ID: {error}",
   "groupLoadError": "Error: Group could not be loaded or user ID is missing.",
-  "members": "Members"
+  "members": "Members",
+  "calendarEventsLoaded": "Calendar: Events for group {groupId} loaded: {count} events",
+  "eventLoadingError": "Error loading events: {error}",
+  "eventDeletedSuccess": "Event successfully deleted.",
+  "eventDeleteTargetNotFound": "Error: Event to be deleted not found.",
+  "eventDeletionError": "Error deleting event: {error}",
+  "placeholderViewText": "This could be another view.",
+  "eventListLoading": "Loading events...",
+  "eventListLoadingForGroup": "Loading events for group {groupId}",
+  "eventListLoadingCount": "{count} events loaded",
+  "eventListLoadingError": "Error loading events: {error}",
+  "eventListNoEvents": "No appointments found for this group.",
+  "eventListTodayHeader": "TODAY",
+  "eventListTomorrowHeader": "TOMORROW",
+  "eventListDeleteConfirmTitle": "Delete Appointment",
+  "eventListDeleteConfirmMessage": "Do you really want to delete \"{eventName}\"?",
+  "eventListCancelButton": "Cancel",
+  "eventListDeleteButton": "Delete",
+  "eventListDeletedSuccess": "Appointment successfully deleted.",
+  "eventListTimeFormat": "{time}",
+  "oldEventsFoundMessage": "Found {count} old events. Would you like to delete them to save storage space?",
+  "deleteOldEventsTitle": "Delete Old Events",
+  "deleteOldEventsConfirmation": "Do you want to delete {count} events that are older than 14 days? This action cannot be undone.",
+  "oldEventsDeletedSuccess": "{count} old events were successfully deleted.",
+  "oldEventsDeletionError": "Error deleting old events: {error}",
+
+  "@calendarEventsLoaded": {
+    "placeholders": {
+      "groupId": {},
+      "count": {}
+    }
+  },
+  "@eventLoadingError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@eventDeletionError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@eventListLoadingForGroup": {
+    "placeholders": {
+      "groupId": {}
+    }
+  },
+  "@eventListLoadingCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@eventListLoadingError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@eventListDeleteConfirmMessage": {
+    "placeholders": {
+      "eventName": {}
+    }
+  },
+  "@eventListTimeFormat": {
+    "placeholders": {
+      "time": {}
+    }
+  }
 }

@@ -575,7 +575,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editDescription => 'Edit Description';
 
   @override
-  String get participants => 'Participants';
+  String participants(Object names) {
+    return 'Participants: $names';
+  }
 
   @override
   String get menuLabel => 'Menu';
@@ -591,6 +593,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get piktogrammeLabe => 'Pictograms';
+
+  @override
+  String get gallerySourceCamera => 'Camera';
+
+  @override
+  String get gallerySourceGallery => 'Gallery';
+
+  @override
+  String get timeAllDay => 'Time: All-day';
+
+  @override
+  String timeAt(Object time) {
+    return 'Time: $time';
+  }
+
+  @override
+  String location(Object location) {
+    return 'Location: $location';
+  }
+
+  @override
+  String description(Object description) {
+    return 'Description: $description';
+  }
+
+  @override
+  String get noDescription => 'No description';
+
+  @override
+  String appointmentsFor(Object name) {
+    return 'Appointments for $name';
+  }
+
+  @override
+  String get saveButton => 'Save';
+
+  @override
+  String get noChangesToSave => 'No changes to save.';
+
+  @override
+  String get descriptionUpdateSuccess => 'Description successfully updated.';
+
+  @override
+  String descriptionUpdateError(Object error) {
+    return 'Error updating description: $error';
+  }
+
+  @override
+  String get imageLoadError => 'Image could not be loaded';
+
+  @override
+  String get deleteImageTitle => 'Delete Image?';
+
+  @override
+  String get deleteImageDescription =>
+      'Do you really want to remove this image from the gallery? This action cannot be undone.';
+
+  @override
+  String get deleteImageButton => 'Delete';
+
+  @override
+  String get cancelButton => 'Cancel';
+
+  @override
+  String get imageUploadSuccessSelectNow =>
+      'Image successfully uploaded. Please select it.';
 
   @override
   String get passwordShowTooltip => 'Show password';
@@ -663,9 +731,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appointmentScreenRoute => '/appointmentScreen';
-
-  @override
-  String get saveButton => 'Save';
 
   @override
   String get logoutButton => 'Logout';
@@ -814,4 +879,101 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get members => 'Members';
+
+  @override
+  String calendarEventsLoaded(Object groupId, Object count) {
+    return 'Calendar: Events for group $groupId loaded: $count events';
+  }
+
+  @override
+  String eventLoadingError(Object error) {
+    return 'Error loading events: $error';
+  }
+
+  @override
+  String get eventDeletedSuccess => 'Event successfully deleted.';
+
+  @override
+  String get eventDeleteTargetNotFound =>
+      'Error: Event to be deleted not found.';
+
+  @override
+  String eventDeletionError(Object error) {
+    return 'Error deleting event: $error';
+  }
+
+  @override
+  String get placeholderViewText => 'This could be another view.';
+
+  @override
+  String get eventListLoading => 'Loading events...';
+
+  @override
+  String eventListLoadingForGroup(Object groupId) {
+    return 'Loading events for group $groupId';
+  }
+
+  @override
+  String eventListLoadingCount(Object count) {
+    return '$count events loaded';
+  }
+
+  @override
+  String eventListLoadingError(Object error) {
+    return 'Error loading events: $error';
+  }
+
+  @override
+  String get eventListNoEvents => 'No appointments found for this group.';
+
+  @override
+  String get eventListTodayHeader => 'TODAY';
+
+  @override
+  String get eventListTomorrowHeader => 'TOMORROW';
+
+  @override
+  String get eventListDeleteConfirmTitle => 'Delete Appointment';
+
+  @override
+  String eventListDeleteConfirmMessage(Object eventName) {
+    return 'Do you really want to delete \"$eventName\"?';
+  }
+
+  @override
+  String get eventListCancelButton => 'Cancel';
+
+  @override
+  String get eventListDeleteButton => 'Delete';
+
+  @override
+  String get eventListDeletedSuccess => 'Appointment successfully deleted.';
+
+  @override
+  String eventListTimeFormat(Object time) {
+    return '$time';
+  }
+
+  @override
+  String oldEventsFoundMessage(Object count) {
+    return 'Found $count old events. Would you like to delete them to save storage space?';
+  }
+
+  @override
+  String get deleteOldEventsTitle => 'Delete Old Events';
+
+  @override
+  String deleteOldEventsConfirmation(Object count) {
+    return 'Do you want to delete $count events that are older than 14 days? This action cannot be undone.';
+  }
+
+  @override
+  String oldEventsDeletedSuccess(Object count) {
+    return '$count old events were successfully deleted.';
+  }
+
+  @override
+  String oldEventsDeletionError(Object error) {
+    return 'Error deleting old events: $error';
+  }
 }

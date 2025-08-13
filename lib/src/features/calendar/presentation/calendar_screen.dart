@@ -9,6 +9,7 @@ import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_grid.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/menu_sub_container_two_lines_group_c.dart';
 import 'package:famka_app/src/features/calendar/presentation/event_list_page.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 extension IterableExtension<E> on Iterable<E> {
   E? firstWhereOrNull(bool Function(E element) test) {
@@ -77,17 +78,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _allEvents
             .sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
       });
-      print(
-          'CalendarScreen: Events für Gruppe ${_displayGroup.groupId} geladen: ${_allEvents.length} Events');
+      print(AppLocalizations.of(context)!
+          .calendarEventsLoaded(_displayGroup.groupId, _allEvents.length));
+
+      // Check for events older than 14 days
+      _checkForOldEvents();
     } catch (e) {
       if (mounted) {
         setState(() {
-          _eventsErrorMessage = 'Fehler beim Laden der Termine: $e';
+          _eventsErrorMessage =
+              AppLocalizations.of(context)!.eventLoadingError(e.toString());
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppColors.famkaRed,
-            content: Text('Fehler beim Laden der Termine: $e'),
+            content: Text(
+                AppLocalizations.of(context)!.eventLoadingError(e.toString())),
           ),
         );
       }
@@ -96,6 +102,106 @@ class _CalendarScreenState extends State<CalendarScreen> {
         setState(() {
           _isLoadingEvents = false;
         });
+      }
+    }
+  }
+
+  void _checkForOldEvents() {
+    // Define the cutoff date (14 days ago)
+    final DateTime cutoffDate =
+        DateTime.now().subtract(const Duration(days: 14));
+
+    // Find events older than the cutoff date
+    final List<SingleEvent> oldEvents = _allEvents
+        .where((event) => event.singleEventDate.isBefore(cutoffDate))
+        .toList();
+
+    if (oldEvents.isNotEmpty) {
+      // Show info about old events and offer to delete them
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 8),
+            content: Text(
+              AppLocalizations.of(context)!
+                  .oldEventsFoundMessage(oldEvents.length),
+            ),
+            action: SnackBarAction(
+              label: AppLocalizations.of(context)!.eventListDeleteButton,
+              textColor: Colors.white,
+              onPressed: () => _showDeleteOldEventsDialog(oldEvents),
+            ),
+          ),
+        );
+      });
+    }
+  }
+
+  void _showDeleteOldEventsDialog(List<SingleEvent> oldEvents) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.deleteOldEventsTitle),
+        content: Text(
+          AppLocalizations.of(context)!
+              .deleteOldEventsConfirmation(oldEvents.length),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(AppLocalizations.of(context)!.cancelButtonText),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _deleteOldEvents(oldEvents);
+            },
+            child: Text(AppLocalizations.of(context)!.eventListDeleteButton),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteOldEvents(List<SingleEvent> oldEvents) async {
+    try {
+      int deletedCount = 0;
+
+      for (final event in oldEvents) {
+        await widget.db.deleteEvent(event.groupId, event.singleEventId);
+        deletedCount++;
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!
+                  .oldEventsDeletedSuccess(deletedCount),
+            ),
+          ),
+        );
+
+        // Reload events after deletion
+        await _loadEvents();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.famkaRed,
+            content: Text(
+              AppLocalizations.of(context)!
+                  .oldEventsDeletionError(e.toString()),
+            ),
+          ),
+        );
       }
     }
   }
@@ -119,16 +225,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
             _allEvents.removeWhere((e) => e.singleEventId == eventId);
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Termin erfolgreich gelöscht.')),
+            SnackBar(
+                content:
+                    Text(AppLocalizations.of(context)!.eventDeletedSuccess)),
           );
           _loadEvents();
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               backgroundColor: AppColors.famkaRed,
-              content: Text('Fehler: Zu löschender Termin nicht gefunden.'),
+              content:
+                  Text(AppLocalizations.of(context)!.eventDeleteTargetNotFound),
             ),
           );
         }
@@ -138,7 +247,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppColors.famkaRed,
-            content: Text('Fehler beim Löschen des Termins: $e'),
+            content: Text(
+                AppLocalizations.of(context)!.eventDeletionError(e.toString())),
           ),
         );
       }
@@ -186,10 +296,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
         auth: widget.auth,
         onEventsRefreshed: _onEventsRefreshed,
       ),
-      const Center(
+      Center(
         child: Text(
-          'Hier könnte eine weitere Ansicht sein.',
-          style: TextStyle(fontSize: 24),
+          AppLocalizations.of(context)!.placeholderViewText,
+          style: const TextStyle(fontSize: 24),
         ),
       ),
     ];

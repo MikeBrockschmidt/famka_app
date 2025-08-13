@@ -392,6 +392,57 @@
   "appointmentLabel": "Termin",
   "galleryLabel": "Galerie",
   "piktogrammeLabe": "Piktogramme",
+  "gallerySourceCamera": "Kamera",
+  "gallerySourceGallery": "Galerie",
+  "timeAllDay": "Uhrzeit: Ganztägig",
+  "timeAt": "Uhrzeit: {time} Uhr",
+  "location": "Ort: {location}",
+  "description": "Beschreibung: {description}",
+  "noDescription": "Keine Beschreibung",
+  "participants": "Teilnehmer: {names}",
+  "appointmentsFor": "Termine für {name}",
+  "saveButton": "Speichern",
+  "closeButton": "Schließen",
+  "noChangesToSave": "Keine Änderungen zum Speichern.",
+  "descriptionUpdateSuccess": "Beschreibung erfolgreich aktualisiert.",
+  "descriptionUpdateError": "Fehler beim Aktualisieren der Beschreibung: {error}",
+  "imageLoadError": "Bild konnte nicht geladen werden",
+  
+  "@timeAt": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "@location": {
+    "placeholders": {
+      "location": {}
+    }
+  },
+  "@description": {
+    "placeholders": {
+      "description": {}
+    }
+  },
+  "@participants": {
+    "placeholders": {
+      "names": {}
+    }
+  },
+  "@appointmentsFor": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@descriptionUpdateError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "deleteImageTitle": "Bild löschen?",
+  "deleteImageDescription": "Möchten Sie dieses Bild wirklich aus der Galerie entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "deleteImageButton": "Löschen",
+  "cancelButton": "Abbrechen",
+  "imageUploadSuccessSelectNow": "Bild erfolgreich hochgeladen. Bitte auswählen.",
   "fortfahren": "Fortfahren",
   "ungueltigeEmail": "Ungültige E-Mail-Adresse",
   "vorname": "Vorname",
@@ -413,5 +464,92 @@
   "changesSaved": "Änderungen gespeichert!",
   "groupDataLoadError": "Fehler beim Laden der Gruppendaten oder Benutzer-ID: {error}",
   "groupLoadError": "Fehler: Gruppe konnte nicht geladen werden oder Benutzer-ID fehlt.",
-  "members": "Mitglieder"
+  "members": "Mitglieder",
+  "calendarEventsLoaded": "Kalender: Events für Gruppe {groupId} geladen: {count} Events",
+  "eventLoadingError": "Fehler beim Laden der Termine: {error}",
+  "eventDeletedSuccess": "Termin erfolgreich gelöscht.",
+  "eventDeleteTargetNotFound": "Fehler: Zu löschender Termin nicht gefunden.",
+  "eventDeletionError": "Fehler beim Löschen des Termins: {error}",
+  "placeholderViewText": "Hier könnte eine weitere Ansicht sein.",
+  "eventListLoading": "Starte Laden der Events...",
+  "eventListLoadingForGroup": "Lade Events für Gruppe {groupId}",
+  "eventListLoadingCount": "{count} Events geladen",
+  "eventListLoadingError": "Fehler beim Laden der Events: {error}",
+  "eventListNoEvents": "Keine Termine für diese Gruppe gefunden.",
+  "eventListTodayHeader": "HEUTE",
+  "eventListTomorrowHeader": "MORGEN",
+  "eventListDeleteConfirmTitle": "Termin löschen",
+  "eventListDeleteConfirmMessage": "Möchtest du \"{eventName}\" wirklich löschen?",
+  "eventListCancelButton": "Abbrechen",
+  "eventListDeleteButton": "Löschen",
+  "eventListDeletedSuccess": "Termin erfolgreich gelöscht.",
+  "eventListTimeFormat": "{time} Uhr",
+  "oldEventsFoundMessage": "Es wurden {count} alte Ereignisse gefunden. Möchten Sie diese löschen, um Speicherplatz zu sparen?",
+  "deleteOldEventsTitle": "Alte Ereignisse löschen",
+  "deleteOldEventsConfirmation": "Möchten Sie {count} Ereignisse löschen, die älter als 14 Tage sind? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "oldEventsDeletedSuccess": "{count} alte Ereignisse wurden erfolgreich gelöscht.",
+  "oldEventsDeletionError": "Fehler beim Löschen der alten Ereignisse: {error}",
+
+  "@oldEventsFoundMessage": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@deleteOldEventsConfirmation": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@oldEventsDeletedSuccess": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@oldEventsDeletionError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  
+  "@calendarEventsLoaded": {
+    "placeholders": {
+      "groupId": {},
+      "count": {}
+    }
+  },
+  "@eventLoadingError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@eventDeletionError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@eventListLoadingForGroup": {
+    "placeholders": {
+      "groupId": {}
+    }
+  },
+  "@eventListLoadingCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@eventListLoadingError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@eventListDeleteConfirmMessage": {
+    "placeholders": {
+      "eventName": {}
+    }
+  },
+  "@eventListTimeFormat": {
+    "placeholders": {
+      "time": {}
+    }
+  }
 }

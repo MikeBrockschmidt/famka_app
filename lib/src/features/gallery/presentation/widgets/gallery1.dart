@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famka_app/src/common/image_upload_service.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/item_data.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
@@ -101,7 +102,7 @@ class _GalleryState extends State<Gallery> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Bild löschen?',
+                    AppLocalizations.of(context)!.deleteImageTitle,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
@@ -109,10 +110,10 @@ class _GalleryState extends State<Gallery> {
                         ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Möchten Sie dieses Bild wirklich aus der Galerie entfernen? Diese Aktion kann nicht rückgängig gemacht werden.',
+                  Text(
+                    AppLocalizations.of(context)!.deleteImageDescription,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
@@ -124,15 +125,16 @@ class _GalleryState extends State<Gallery> {
                     children: [
                       GestureDetector(
                         onTap: () => Navigator.of(context).pop(true),
-                        child: const ButtonLinearGradient(
-                          buttonText: 'Löschen',
+                        child: ButtonLinearGradient(
+                          buttonText:
+                              AppLocalizations.of(context)!.deleteImageButton,
                         ),
                       ),
                       const SizedBox(height: 10),
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
                         child: Text(
-                          'Abbrechen',
+                          AppLocalizations.of(context)!.cancelButton,
                           style:
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                     color: Colors.grey.shade600,
@@ -179,9 +181,9 @@ class _GalleryState extends State<Gallery> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               backgroundColor: AppColors.famkaCyan,
-              content: Text('Bild erfolgreich gelöscht.'),
+              content: Text(AppLocalizations.of(context)!.imageDeletedSuccess),
             ),
           );
         }
@@ -190,7 +192,8 @@ class _GalleryState extends State<Gallery> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: AppColors.famkaRed,
-              content: Text('Fehler beim Löschen des Bildes: $e'),
+              content: Text(
+                  AppLocalizations.of(context)!.imageDeleteError(e.toString())),
             ),
           );
         }
@@ -230,7 +233,31 @@ class _GalleryState extends State<Gallery> {
     }
 
     try {
-      final String userId = await widget.db.getCurrentUserId();
+      // Vergewissern, dass der Benutzer angemeldet ist
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print('❌ Kein Benutzer angemeldet. Bitte zuerst anmelden.');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: AppColors.famkaRed,
+              content:
+                  Text('Sie müssen angemeldet sein, um Bilder hochzuladen.'),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Manchmal müssen wir das Auth-Token aktualisieren
+      try {
+        await user.getIdToken(true); // Token aktualisieren
+        print('✅ Auth-Token aktualisiert.');
+      } catch (e) {
+        print('❌ Fehler beim Aktualisieren des Auth-Tokens: $e');
+      }
+
+      final String userId = user.uid;
 
       final ImageUploadService uploadService = ImageUploadService();
       final String? uploadedImageUrl = await uploadService.pickAndUploadImage(
@@ -261,9 +288,10 @@ class _GalleryState extends State<Gallery> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               backgroundColor: AppColors.famkaCyan,
-              content: Text('Bild erfolgreich hochgeladen. Bitte auswählen.'),
+              content: Text(
+                  AppLocalizations.of(context)!.imageUploadSuccessSelectNow),
             ),
           );
         }
@@ -271,9 +299,9 @@ class _GalleryState extends State<Gallery> {
         print('Bild-Upload abgebrochen oder fehlgeschlagen.');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               backgroundColor: AppColors.famkaRed,
-              content: Text('Bild-Upload abgebrochen oder fehlgeschlagen.'),
+              content: Text(AppLocalizations.of(context)!.imageUploadAborted),
             ),
           );
         }
@@ -284,7 +312,8 @@ class _GalleryState extends State<Gallery> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppColors.famkaRed,
-            content: Text('Fehler beim Bild-Upload: $e'),
+            content: Text(
+                AppLocalizations.of(context)!.imageUploadError(e.toString())),
           ),
         );
       }
@@ -307,7 +336,7 @@ class _GalleryState extends State<Gallery> {
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.photo_library),
-                title: const Text('Galerie'),
+                title: Text(AppLocalizations.of(context)!.gallerySourceGallery),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickImage(ImageSource.gallery);
@@ -315,7 +344,7 @@ class _GalleryState extends State<Gallery> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo_camera),
-                title: const Text('Kamera'),
+                title: Text(AppLocalizations.of(context)!.gallerySourceCamera),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickImage(ImageSource.camera);

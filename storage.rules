@@ -1,0 +1,65 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Option 1: Nur authentifizierte Benutzer können ihre eigenen Dateien verwalten
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Option 2: Öffentliche Dateien (nur lesen für alle, schreiben nur für authentifizierte Benutzer)
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Option 3: Admin-basierte Berechtigung (erfordert Firestore-Datenbank)
+    match /admin/{allPaths=**} {
+      allow read, write: if request.auth != null && 
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Option 4: Nur bestimmte Dateitypen und Größenbeschränkungen
+    match /uploads/{userId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+                      request.auth.uid == userId &&
+                      resource.size < 5 * 1024 * 1024 && // Max 5MB
+                      request.resource.contentType.matches('image/.*');
+    }
+    
+    // Option 5: Zeitbasierte Berechtigung (z.B. nur während Arbeitszeiten)
+    match /temp/{allPaths=**} {
+      allow read, write: if request.auth != null && 
+                            request.time.hours() >= 8 && 
+                            request.time.hours() <= 18;
+    }
+    
+    // Option 6: Gruppen-basierte Berechtigung
+    match /groups/{groupId}/{allPaths=**} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid in firestore.get(/databases/(default)/documents/groups/$(groupId)).data.members;
+    }
+    
+    // Spezifische Regeln für bestehende App-Pfade
+    match /event_gallery_images/{userId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    match /profile_images/{userId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    match /group_images/{groupId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Fallback: Alles andere wird verweigert (wichtig für Sicherheit)
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

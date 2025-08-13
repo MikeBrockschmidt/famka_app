@@ -1121,8 +1121,8 @@ abstract class AppLocalizations {
   /// No description provided for @participants.
   ///
   /// In en, this message translates to:
-  /// **'Participants'**
-  String get participants;
+  /// **'Participants: {names}'**
+  String participants(Object names);
 
   /// No description provided for @menuLabel.
   ///
@@ -1153,6 +1153,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pictograms'**
   String get piktogrammeLabe;
+
+  /// No description provided for @gallerySourceCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get gallerySourceCamera;
+
+  /// No description provided for @gallerySourceGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallerySourceGallery;
+
+  /// No description provided for @timeAllDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Time: All-day'**
+  String get timeAllDay;
+
+  /// No description provided for @timeAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Time: {time}'**
+  String timeAt(Object time);
+
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location: {location}'**
+  String location(Object location);
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description: {description}'**
+  String description(Object description);
+
+  /// No description provided for @noDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No description'**
+  String get noDescription;
+
+  /// No description provided for @appointmentsFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointments for {name}'**
+  String appointmentsFor(Object name);
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveButton;
+
+  /// No description provided for @noChangesToSave.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes to save.'**
+  String get noChangesToSave;
+
+  /// No description provided for @descriptionUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Description successfully updated.'**
+  String get descriptionUpdateSuccess;
+
+  /// No description provided for @descriptionUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating description: {error}'**
+  String descriptionUpdateError(Object error);
+
+  /// No description provided for @imageLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Image could not be loaded'**
+  String get imageLoadError;
+
+  /// No description provided for @deleteImageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Image?'**
+  String get deleteImageTitle;
+
+  /// No description provided for @deleteImageDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to remove this image from the gallery? This action cannot be undone.'**
+  String get deleteImageDescription;
+
+  /// No description provided for @deleteImageButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteImageButton;
+
+  /// No description provided for @cancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelButton;
+
+  /// No description provided for @imageUploadSuccessSelectNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Image successfully uploaded. Please select it.'**
+  String get imageUploadSuccessSelectNow;
 
   /// No description provided for @passwordShowTooltip.
   ///
@@ -1273,12 +1381,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'/appointmentScreen'**
   String get appointmentScreenRoute;
-
-  /// No description provided for @saveButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get saveButton;
 
   /// No description provided for @logoutButton.
   ///
@@ -1543,6 +1645,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Members'**
   String get members;
+
+  /// No description provided for @calendarEventsLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar: Events for group {groupId} loaded: {count} events'**
+  String calendarEventsLoaded(Object groupId, Object count);
+
+  /// No description provided for @eventLoadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading events: {error}'**
+  String eventLoadingError(Object error);
+
+  /// No description provided for @eventDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Event successfully deleted.'**
+  String get eventDeletedSuccess;
+
+  /// No description provided for @eventDeleteTargetNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: Event to be deleted not found.'**
+  String get eventDeleteTargetNotFound;
+
+  /// No description provided for @eventDeletionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting event: {error}'**
+  String eventDeletionError(Object error);
+
+  /// No description provided for @placeholderViewText.
+  ///
+  /// In en, this message translates to:
+  /// **'This could be another view.'**
+  String get placeholderViewText;
+
+  /// No description provided for @eventListLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading events...'**
+  String get eventListLoading;
+
+  /// No description provided for @eventListLoadingForGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading events for group {groupId}'**
+  String eventListLoadingForGroup(Object groupId);
+
+  /// No description provided for @eventListLoadingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} events loaded'**
+  String eventListLoadingCount(Object count);
+
+  /// No description provided for @eventListLoadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading events: {error}'**
+  String eventListLoadingError(Object error);
+
+  /// No description provided for @eventListNoEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'No appointments found for this group.'**
+  String get eventListNoEvents;
+
+  /// No description provided for @eventListTodayHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY'**
+  String get eventListTodayHeader;
+
+  /// No description provided for @eventListTomorrowHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'TOMORROW'**
+  String get eventListTomorrowHeader;
+
+  /// No description provided for @eventListDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Appointment'**
+  String get eventListDeleteConfirmTitle;
+
+  /// No description provided for @eventListDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to delete \"{eventName}\"?'**
+  String eventListDeleteConfirmMessage(Object eventName);
+
+  /// No description provided for @eventListCancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get eventListCancelButton;
+
+  /// No description provided for @eventListDeleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get eventListDeleteButton;
+
+  /// No description provided for @eventListDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment successfully deleted.'**
+  String get eventListDeletedSuccess;
+
+  /// No description provided for @eventListTimeFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{time}'**
+  String eventListTimeFormat(Object time);
+
+  /// No description provided for @oldEventsFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count} old events. Would you like to delete them to save storage space?'**
+  String oldEventsFoundMessage(Object count);
+
+  /// No description provided for @deleteOldEventsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Old Events'**
+  String get deleteOldEventsTitle;
+
+  /// No description provided for @deleteOldEventsConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete {count} events that are older than 14 days? This action cannot be undone.'**
+  String deleteOldEventsConfirmation(Object count);
+
+  /// No description provided for @oldEventsDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} old events were successfully deleted.'**
+  String oldEventsDeletedSuccess(Object count);
+
+  /// No description provided for @oldEventsDeletionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting old events: {error}'**
+  String oldEventsDeletionError(Object error);
 }
 
 class _AppLocalizationsDelegate

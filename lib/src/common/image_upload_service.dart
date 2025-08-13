@@ -67,9 +67,30 @@ class ImageUploadService {
       final String fileName = p.basename(file.path);
       final String uploadPath = '$uploadPathPrefix/$userId/$fileName';
 
+      // Stellen Sie sicher, dass der Benutzer angemeldet ist und das Auth-Token aktuell ist
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        try {
+          // Token aktualisieren
+          await user.getIdToken(true);
+        } catch (e) {
+          print('❌ Fehler beim Aktualisieren des Auth-Tokens: $e');
+        }
+      }
+
       final ref = _storage.ref().child(uploadPath);
 
-      final uploadTask = ref.putFile(file);
+      // Metadaten hinzufügen (kann bei Berechtigungsproblemen helfen)
+      final metadata = SettableMetadata(
+        contentType: 'image/jpeg',
+        customMetadata: {
+          'userId': userId,
+          'uploadedAt': DateTime.now().toString(),
+        },
+      );
+
+      final uploadTask = ref.putFile(file, metadata);
+      print('Uploading file to $uploadPath');
       final snapshot = await uploadTask.whenComplete(() {});
 
       if (snapshot.state == TaskState.success) {

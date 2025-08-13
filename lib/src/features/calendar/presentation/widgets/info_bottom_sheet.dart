@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -40,6 +41,10 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
   @override
   void initState() {
     super.initState();
+    // Initialisiere Datumformatierung für verschiedene Sprachen
+    initializeDateFormatting('de', null);
+    initializeDateFormatting('en', null);
+
     _currentEvents = List.from(widget.eventsForPerson);
     _descriptionControllers = {};
     _isEditingDescription = {};
@@ -270,7 +275,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
               children: [
                 Icon(Icons.broken_image, size: 64, color: Colors.red),
                 SizedBox(height: 8),
-                Text('Bild konnte nicht geladen werden'),
+                Text("Image could not be loaded"),
               ],
             );
           },
@@ -319,8 +324,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           widget.onEventUpdated?.call(updatedEvent);
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Beschreibung erfolgreich aktualisiert.')),
+            SnackBar(
+                content: Text(
+                    AppLocalizations.of(context)!.descriptionUpdateSuccess)),
           );
         }
       } catch (e) {
@@ -328,7 +334,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Fehler beim Aktualisieren der Beschreibung: $e'),
+              content: Text(AppLocalizations.of(context)!
+                  .descriptionUpdateError(e.toString())),
               backgroundColor: AppColors.famkaRed,
             ),
           );
@@ -341,7 +348,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           _isEditingDescription[event.singleEventId] = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Keine Änderungen zum Speichern.')),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!.noChangesToSave)),
         );
       }
     }
@@ -367,7 +375,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
 
     if (!hasChanges) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Keine Änderungen zum Speichern.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.noChangesToSave)),
       );
     }
   }
@@ -399,8 +407,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                   onTap: () {
                     Navigator.of(dialogContext).pop(false);
                   },
-                  child: const ButtonLinearGradient(
-                    buttonText: 'Abbrechen',
+                  child: ButtonLinearGradient(
+                    buttonText: AppLocalizations.of(context)!.cancelButton,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -408,8 +416,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                   onTap: () {
                     Navigator.of(dialogContext).pop(true);
                   },
-                  child: const ButtonLinearGradient(
-                    buttonText: 'Löschen',
+                  child: ButtonLinearGradient(
+                    buttonText: AppLocalizations.of(context)!.deleteImageButton,
                   ),
                 ),
               ],
@@ -472,7 +480,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          DateFormat('dd. MMMM yyyy', 'de_DE')
+                          DateFormat('dd. MMMM yyyy',
+                                  Localizations.localeOf(context).languageCode)
                               .format(widget.date),
                           style: Theme.of(context)
                               .textTheme
@@ -483,7 +492,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                               ),
                         ),
                         Text(
-                          'Termine für ${widget.userName}',
+                          AppLocalizations.of(context)!
+                              .appointmentsFor(widget.userName),
                           style:
                               Theme.of(context).textTheme.titleLarge?.copyWith(
                                     color: AppColors.famkaGrey,
@@ -523,7 +533,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                             password: '',
                           ),
                         );
-                        return user.firstName ?? 'Unbekannt';
+                        return user.firstName;
                       }).toList();
 
                       return Padding(
@@ -569,15 +579,18 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                           const SizedBox(height: 4),
                                           Text(
                                             event.isAllDay
-                                                ? 'Uhrzeit: Ganztägig'
-                                                : 'Uhrzeit: ${DateFormat('HH:mm', 'de_DE').format(event.singleEventDate)} Uhr',
+                                                ? AppLocalizations.of(context)!
+                                                    .timeAllDay
+                                                : '${AppLocalizations.of(context)!.timeAt(DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(event.singleEventDate))}',
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyLarge,
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            'Ort: ${event.singleEventLocation}',
+                                            AppLocalizations.of(context)!
+                                                .location(
+                                                    event.singleEventLocation),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyLarge,
@@ -634,14 +647,21 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                         },
                                       )
                                     : Text(
-                                        'Beschreibung: ${event.singleEventDescription.isNotEmpty ? event.singleEventDescription : "Keine Beschreibung"}',
+                                        AppLocalizations.of(context)!
+                                            .description(event
+                                                    .singleEventDescription
+                                                    .isNotEmpty
+                                                ? event.singleEventDescription
+                                                : AppLocalizations.of(context)!
+                                                    .noDescription),
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyMedium,
                                       ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Teilnehmer: ${participantNames.join(', ')}',
+                                  AppLocalizations.of(context)!.participants(
+                                      participantNames.join(', ')),
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ],
@@ -662,8 +682,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                               await _saveAllDescriptions();
                               Navigator.pop(context);
                             },
-                            child: const ButtonLinearGradient(
-                              buttonText: 'Speichern',
+                            child: ButtonLinearGradient(
+                              buttonText:
+                                  AppLocalizations.of(context)!.saveButton,
                             ),
                           ),
                         ),
@@ -673,8 +694,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                             onTap: () {
                               Navigator.pop(context);
                             },
-                            child: const ButtonLinearGradient(
-                              buttonText: 'Schließen',
+                            child: ButtonLinearGradient(
+                              buttonText:
+                                  AppLocalizations.of(context)!.closeButton,
                             ),
                           ),
                         ),
