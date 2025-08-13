@@ -123,12 +123,11 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          // ColorRow3 im Hintergrund
           const Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: ColorRow3(),
+            child: ColorRow(),
           ),
           Positioned.fill(
             child: SafeArea(
@@ -173,7 +172,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 58),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: Container(
@@ -230,12 +229,18 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 30),
-                            InkWell(
-                              onTap: _createGroupAndNavigate,
-                              child: ButtonLinearGradient(
-                                  buttonText: AppLocalizations.of(context)!
-                                      .addOrJoinGroupCreateButton),
+                            const SizedBox(height: 26),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 20),
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: InkWell(
+                                  onTap: _createGroupAndNavigate,
+                                  child: ButtonLinearGradient(
+                                      buttonText: AppLocalizations.of(context)!
+                                          .addOrJoinGroupCreateButton),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -246,7 +251,6 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
               ),
             ),
           ),
-          // OnboardingProgress3 immer über allem
           Positioned(
             bottom: 70,
             left: 0,

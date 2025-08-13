@@ -64,6 +64,8 @@ class GroupMembersList extends StatelessWidget {
                               db: db,
                               currentUser: updatedUser,
                               auth: auth,
+                              isOwnProfile:
+                                  false, // Es ist nicht das eigene Profil
                             ),
                           ),
                         );

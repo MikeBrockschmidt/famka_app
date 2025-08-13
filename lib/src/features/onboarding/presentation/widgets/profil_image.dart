@@ -113,7 +113,6 @@ class _ProfilImageState extends State<ProfilImage> {
 
     try {
       final picker = ImagePicker();
-      // Define app localizations for the entire method
       final appLocalizations = AppLocalizations.of(context);
 
       final String? selectedSourceOrAssetPath =
@@ -306,7 +305,6 @@ class _ProfilImageState extends State<ProfilImage> {
           finalImageToUpload = File(croppedFile.path);
         }
 
-        // Note: This check might be unnecessary if finalImageToUpload can't be null
         if (finalImageToUpload == null) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(

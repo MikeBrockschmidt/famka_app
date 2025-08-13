@@ -63,7 +63,6 @@ class _CalendarGridState extends State<CalendarGrid> {
     super.initState();
     initializeDateFormatting('de_DE', null);
 
-    // Start date is now 14 days in the past
     _actualStartDate = DateTime(
       currentDate.year,
       currentDate.month,
@@ -381,7 +380,6 @@ class _CalendarGridState extends State<CalendarGrid> {
                                     (personIndex) {
                                   return GestureDetector(
                                     onTap: () async {
-                                      // Check if date is within range (not older than 14 days)
                                       final DateTime cutoffDate = DateTime.now()
                                           .subtract(const Duration(days: 14));
                                       final bool isWithinRange = date
@@ -525,27 +523,22 @@ class CalendarCellIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final userId = currentGroupMembers[personIndex].profilId;
 
-    // Check if date is within range (not older than 14 days)
     final DateTime cutoffDate =
         DateTime.now().subtract(const Duration(days: 14));
-    // Only show events for dates within the allowed range (not older than 14 days)
     final bool isWithinRange = date.isAfter(cutoffDate) ||
         date.isAtSameMomentAs(cutoffDate) ||
         date.isAfter(DateTime.now());
 
-    // Filter events based on date and user participation
     final eventsForPerson = allEvents.where((event) {
-      // First check if it's the same day
       final sameDay = event.singleEventDate.year == date.year &&
           event.singleEventDate.month == date.month &&
           event.singleEventDate.day == date.day;
 
-      // Then check if user is participating and date is within range
       return sameDay &&
           (event.acceptedMemberIds.contains(userId) ||
               event.invitedMemberIds.contains(userId) ||
               event.maybeMemberIds.contains(userId)) &&
-          isWithinRange; // Only include events within range
+          isWithinRange;
     }).toList();
 
     if (eventsForPerson.isEmpty) return const SizedBox.shrink();

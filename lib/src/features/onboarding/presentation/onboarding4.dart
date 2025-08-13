@@ -71,7 +71,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
     if (input == null || input.isEmpty) {
       return null;
     }
-    final phoneRegex = RegExp(r'^\+?\d{8,}$');
+    final phoneRegex = RegExp(r'^(\+|00)?[0-9 \-().]{8,}$');
     if (!phoneRegex.hasMatch(input)) {
       return AppLocalizations.of(context)!.invalidPhoneNumberError;
     }
@@ -97,7 +97,6 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
 
       await widget.db.updateUser(updatedUser);
 
-      // Now that all steps are complete, set the onboarding flag to true
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboardingComplete', true);
 

@@ -1,4 +1,3 @@
-// lib/src/features/onboarding/presentation/widgets/profil_onboarding.dart
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/onboarding2.dart';
@@ -144,7 +143,6 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
       await widget.db.createUser(newUser);
       widget.db.currentUser = newUser;
 
-      // Explicitly set onboarding flag to false to ensure we don't skip steps
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboardingComplete', false);
 

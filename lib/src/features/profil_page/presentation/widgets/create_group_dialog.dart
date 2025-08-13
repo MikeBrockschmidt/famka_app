@@ -124,7 +124,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Create Group', // TODO: Use l10n.createGroupTitle after adding it to localizations
+              'Create Group',
               style: theme.labelMedium?.copyWith(color: AppColors.famkaBlack),
             ),
           ],

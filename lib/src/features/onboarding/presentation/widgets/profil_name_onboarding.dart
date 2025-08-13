@@ -71,7 +71,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
 
   String? _validatePhoneNumber(String? input) {
     if (input == null || input.isEmpty) return null;
-    final phoneRegex = RegExp(r'^\+?\d{8,}$');
+    final phoneRegex = RegExp(r'^(\+|00)?[0-9 \-().]{8,}$');
     if (!phoneRegex.hasMatch(input)) {
       return AppLocalizations.of(context)!.ungueltigeTelefonnummer;
     }

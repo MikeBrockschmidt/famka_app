@@ -81,7 +81,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       print(AppLocalizations.of(context)!
           .calendarEventsLoaded(_displayGroup.groupId, _allEvents.length));
 
-      // Check for events older than 14 days
       _checkForOldEvents();
     } catch (e) {
       if (mounted) {
@@ -107,17 +106,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   void _checkForOldEvents() {
-    // Define the cutoff date (14 days ago)
     final DateTime cutoffDate =
         DateTime.now().subtract(const Duration(days: 14));
 
-    // Find events older than the cutoff date
     final List<SingleEvent> oldEvents = _allEvents
         .where((event) => event.singleEventDate.isBefore(cutoffDate))
         .toList();
 
     if (oldEvents.isNotEmpty) {
-      // Show info about old events and offer to delete them
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
@@ -188,7 +184,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
         );
 
-        // Reload events after deletion
         await _loadEvents();
       }
     } catch (e) {

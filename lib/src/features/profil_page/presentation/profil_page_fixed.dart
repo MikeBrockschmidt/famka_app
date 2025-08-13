@@ -21,14 +21,12 @@ class ProfilPage extends StatefulWidget {
   final DatabaseRepository db;
   final AuthRepository auth;
   final AppUser currentUser;
-  final bool isOwnProfile;
 
   const ProfilPage({
     super.key,
     required this.db,
     required this.auth,
     required this.currentUser,
-    this.isOwnProfile = true,
   });
 
   @override
@@ -62,49 +60,42 @@ class _ProfilPageState extends State<ProfilPage> {
   String? _initialMiscellaneous;
   String? _initialAvatarUrl;
 
-  bool get _isOwnProfile => widget.isOwnProfile;
-
-  AppUser get _profileUser => widget.currentUser;
-
   @override
   void initState() {
     super.initState();
-    _firstNameController.text = _profileUser.firstName;
-    _lastNameController.text = _profileUser.lastName;
-    _phoneNumberController.text = _profileUser.phoneNumber ?? '';
-    _emailController.text = _profileUser.email;
-    _miscellaneousController.text = _profileUser.miscellaneous ?? '';
+    _firstNameController.text = widget.currentUser.firstName;
+    _lastNameController.text = widget.currentUser.lastName;
+    _phoneNumberController.text = widget.currentUser.phoneNumber ?? '';
+    _emailController.text = widget.currentUser.email;
+    _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
     _currentProfileAvatarUrl =
-        _profileUser.avatarUrl ?? 'assets/fotos/default.jpg';
+        widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';
 
-    _initialFirstName = _profileUser.firstName;
-    _initialLastName = _profileUser.lastName;
-    _initialPhoneNumber = _profileUser.phoneNumber;
-    _initialEmail = _profileUser.email;
-    _initialMiscellaneous = _profileUser.miscellaneous;
-    _initialAvatarUrl = _profileUser.avatarUrl;
+    _initialFirstName = widget.currentUser.firstName;
+    _initialLastName = widget.currentUser.lastName;
+    _initialPhoneNumber = widget.currentUser.phoneNumber;
+    _initialEmail = widget.currentUser.email;
+    _initialMiscellaneous = widget.currentUser.miscellaneous;
+    _initialAvatarUrl = widget.currentUser.avatarUrl;
 
     _loadUserGroups();
 
-    if (_isOwnProfile) {
-      _firstNameController.addListener(_checkIfHasChanges);
-      _lastNameController.addListener(_checkIfHasChanges);
-      _phoneNumberController.addListener(_checkIfHasChanges);
-      _emailController.addListener(_checkIfHasChanges);
-      _miscellaneousController.addListener(_checkIfHasChanges);
-      _checkIfHasChanges();
-    }
+    _firstNameController.addListener(_checkIfHasChanges);
+    _lastNameController.addListener(_checkIfHasChanges);
+    _phoneNumberController.addListener(_checkIfHasChanges);
+    _emailController.addListener(_checkIfHasChanges);
+    _miscellaneousController.addListener(_checkIfHasChanges);
+
+    _checkIfHasChanges();
   }
 
   @override
   void dispose() {
-    if (_isOwnProfile) {
-      _firstNameController.removeListener(_checkIfHasChanges);
-      _lastNameController.removeListener(_checkIfHasChanges);
-      _phoneNumberController.removeListener(_checkIfHasChanges);
-      _emailController.removeListener(_checkIfHasChanges);
-      _miscellaneousController.removeListener(_checkIfHasChanges);
-    }
+    _firstNameController.removeListener(_checkIfHasChanges);
+    _lastNameController.removeListener(_checkIfHasChanges);
+    _phoneNumberController.removeListener(_checkIfHasChanges);
+    _emailController.removeListener(_checkIfHasChanges);
+    _miscellaneousController.removeListener(_checkIfHasChanges);
 
     _firstNameController.dispose();
     _lastNameController.dispose();
@@ -170,40 +161,16 @@ class _ProfilPageState extends State<ProfilPage> {
   Future<void> _launchPhoneCall(String phoneNumber) async {
     await Clipboard.setData(ClipboardData(text: phoneNumber));
     if (mounted) {
-      final snackBar = SnackBar(
-        backgroundColor: AppColors.famkaCyan,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        content: Container(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  'Telefonnummer $phoneNumber in die Zwischenablage kopiert',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              SizedBox(width: 10),
-              SizedBox(
-                width: 70,
-                height: 46,
-                child: ButtonLinearGradient(
-                  buttonText: 'OK',
-                ),
-              ),
-            ],
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text('Telefonnummer $phoneNumber in die Zwischenablage kopiert'),
+          action: SnackBarAction(
+            label: 'OK',
+            onPressed: () {},
           ),
         ),
-        action: SnackBarAction(
-          label: '',
-          onPressed: () {},
-          textColor: Colors.transparent,
-        ),
       );
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -489,8 +456,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 child: ProfilImage(
                   widget.db,
                   currentAvatarUrl: _currentProfileAvatarUrl,
-                  onAvatarSelected:
-                      _isOwnProfile ? _handleProfileAvatarSelected : null,
+                  onAvatarSelected: _handleProfileAvatarSelected,
                 ),
               ),
               const SizedBox(height: 11),
@@ -504,14 +470,13 @@ class _ProfilPageState extends State<ProfilPage> {
                     TextFormField(
                       controller: _firstNameController,
                       focusNode: _firstNameFocusNode,
-                      readOnly: !_isOwnProfile,
                       textInputAction: TextInputAction.next,
                       onFieldSubmitted: (value) {
                         FocusScope.of(context).requestFocus(_lastNameFocusNode);
                       },
                       validator: _validateName,
-                      decoration: InputDecoration(
-                        hintText: _isOwnProfile ? 'Vorname eingeben' : '',
+                      decoration: const InputDecoration(
+                        hintText: 'Vorname eingeben',
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -523,15 +488,14 @@ class _ProfilPageState extends State<ProfilPage> {
                       child: TextFormField(
                         controller: _lastNameController,
                         focusNode: _lastNameFocusNode,
-                        readOnly: !_isOwnProfile,
                         textInputAction: TextInputAction.next,
                         onFieldSubmitted: (value) {
                           FocusScope.of(context)
                               .requestFocus(_phoneNumberFocusNode);
                         },
                         validator: _validateName,
-                        decoration: InputDecoration(
-                          hintText: _isOwnProfile ? 'Nachname eingeben' : '',
+                        decoration: const InputDecoration(
+                          hintText: 'Nachname eingeben',
                           border: InputBorder.none,
                           isDense: true,
                           contentPadding: EdgeInsets.zero,
@@ -591,7 +555,6 @@ class _ProfilPageState extends State<ProfilPage> {
                                       child: TextFormField(
                                         controller: _phoneNumberController,
                                         focusNode: _phoneNumberFocusNode,
-                                        readOnly: !_isOwnProfile,
                                         keyboardType: TextInputType.phone,
                                         textInputAction: TextInputAction.next,
                                         onFieldSubmitted: (value) {
@@ -603,11 +566,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                         },
                                         validator: _validatePhoneNumber,
                                         decoration: InputDecoration(
-                                          hintText: _isOwnProfile
-                                              ? (AppLocalizations.of(context)
-                                                      ?.telefonnummerEingeben ??
-                                                  'Telefonnummer eingeben')
-                                              : '',
+                                          hintText: AppLocalizations.of(context)
+                                                  ?.telefonnummerEingeben ??
+                                              'Telefonnummer eingeben',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
                                           isDense: true,
@@ -628,7 +589,6 @@ class _ProfilPageState extends State<ProfilPage> {
                                       child: TextFormField(
                                         controller: _emailController,
                                         focusNode: _emailFocusNode,
-                                        readOnly: !_isOwnProfile,
                                         keyboardType:
                                             TextInputType.emailAddress,
                                         textInputAction: TextInputAction.next,
@@ -638,11 +598,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                         },
                                         validator: _validateEmail,
                                         decoration: InputDecoration(
-                                          hintText: _isOwnProfile
-                                              ? (AppLocalizations.of(context)
-                                                      ?.emailAdresseEingeben ??
-                                                  'E-Mail Adresse eingeben')
-                                              : '',
+                                          hintText: AppLocalizations.of(context)
+                                                  ?.emailAdresseEingeben ??
+                                              'E-Mail Adresse eingeben',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
                                           isDense: true,
@@ -663,19 +621,16 @@ class _ProfilPageState extends State<ProfilPage> {
                                       child: TextFormField(
                                         controller: _miscellaneousController,
                                         focusNode: _miscellaneousFocusNode,
-                                        readOnly: !_isOwnProfile,
                                         maxLines: null,
                                         textInputAction: TextInputAction.done,
                                         onFieldSubmitted: (value) {
                                           _miscellaneousFocusNode.unfocus();
-                                          if (_isOwnProfile) _saveUserData();
+                                          _saveUserData();
                                         },
                                         decoration: InputDecoration(
-                                          hintText: _isOwnProfile
-                                              ? (AppLocalizations.of(context)
-                                                      ?.zusaetzlicheInfos ??
-                                                  'Zusätzliche Infos')
-                                              : '',
+                                          hintText: AppLocalizations.of(context)
+                                                  ?.zusaetzlicheInfos ??
+                                              'Zusätzliche Infos',
                                           border: InputBorder.none,
                                           contentPadding: EdgeInsets.zero,
                                           isDense: true,
@@ -781,41 +736,39 @@ class _ProfilPageState extends State<ProfilPage> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          if (_isOwnProfile)
-                            Center(
-                              child: Opacity(
-                                opacity: _hasChanges ? 1.0 : 0.5,
-                                child: InkWell(
-                                  onTap: _hasChanges ? _saveUserData : null,
-                                  child: SizedBox(
-                                    width: 150,
-                                    height: 50,
-                                    child: ButtonLinearGradient(
-                                        buttonText: AppLocalizations.of(context)
-                                                ?.saveButton ??
-                                            'Speichern'),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (_isOwnProfile) const SizedBox(height: 10),
-                          if (_isOwnProfile)
-                            Center(
+                          Center(
+                            child: Opacity(
+                              opacity: _hasChanges ? 1.0 : 0.5,
                               child: InkWell(
-                                onTap: _logout,
-                                child: Text(
-                                  AppLocalizations.of(context)?.logoutButton ??
-                                      'Ausloggen',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall
-                                      ?.copyWith(
-                                        color: AppColors.famkaGrey,
-                                        decoration: TextDecoration.none,
-                                      ),
+                                onTap: _hasChanges ? _saveUserData : null,
+                                child: SizedBox(
+                                  width: 150,
+                                  height: 50,
+                                  child: ButtonLinearGradient(
+                                      buttonText: AppLocalizations.of(context)
+                                              ?.saveButton ??
+                                          'Speichern'),
                                 ),
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 10),
+                          Center(
+                            child: InkWell(
+                              onTap: _logout,
+                              child: Text(
+                                AppLocalizations.of(context)?.logoutButton ??
+                                    'Ausloggen',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: AppColors.famkaGrey,
+                                      decoration: TextDecoration.none,
+                                    ),
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 20),
                         ],
                       ),

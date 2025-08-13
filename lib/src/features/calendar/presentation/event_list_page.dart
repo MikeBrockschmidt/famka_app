@@ -43,28 +43,23 @@ class _EventListPageState extends State<EventListPage> {
   final ScrollController _scrollController = ScrollController();
   bool _initialScrollComplete = false;
 
-  // Für die Gruppierung der Events und das Scrolling zum heutigen Tag
   Map<String, List<SingleEvent>> groupedEvents = {};
   List<String> orderedHeaders = [];
 
-  // Für die Begrenzung auf 14 Tage
-  int _filteredEventsCount = 0; // Anzahl der herausgefilterten alten Events
+  int _filteredEventsCount = 0;
   bool _showOldEventsDeleteDialog = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialisiere Datumformatierung für verschiedene Sprachen
     initializeDateFormatting('de', null);
     initializeDateFormatting('en', null);
     _displayGroup = widget.currentGroup;
-    // Wir verzögern den Aufruf von _loadEvents() bis didChangeDependencies
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Hier kann sicher auf Inherited Widgets zugegriffen werden
     _loadEvents();
   }
 
@@ -74,16 +69,13 @@ class _EventListPageState extends State<EventListPage> {
     super.dispose();
   }
 
-  /// Prüft, ob zwei Daten am selben Tag sind (ignoriert die Uhrzeit)
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
   }
 
-  /// Baut ein Banner, das Informationen über gefilterte alte Events anzeigt
   Widget _buildOldEventsInfoBanner() {
-    // Wenn keine Events gefiltert wurden, zeige nichts an
     if (_filteredEventsCount <= 0) {
       return const SizedBox.shrink();
     }
@@ -111,9 +103,7 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  /// Zeigt einen Dialog an, der den Benutzer fragt, ob alte Events gelöscht werden sollen
   void _showDeleteOldEventsDialog() {
-    // Die cutoffDate ist 14 Tage in der Vergangenheit
     final DateTime cutoffDate =
         DateTime.now().subtract(const Duration(days: 14));
 
@@ -137,11 +127,9 @@ class _EventListPageState extends State<EventListPage> {
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                // Lade alle Events erneut
                 final List<SingleEvent> allEvents =
                     await widget.db.getEventsForGroup(_displayGroup.groupId);
 
-                // Zeige einen Ladeindikator
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -151,10 +139,8 @@ class _EventListPageState extends State<EventListPage> {
                   );
                 }
 
-                // Lösche die alten Events
                 await _deleteOldEvents(allEvents, cutoffDate);
 
-                // Lade die Events neu
                 await _loadEvents();
               },
               child: const Text('Löschen', style: TextStyle(color: Colors.red)),
@@ -165,10 +151,8 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  /// Löscht alle Events, die älter als das Cutoff-Datum sind
   Future<void> _deleteOldEvents(
       List<SingleEvent> allEvents, DateTime cutoffDate) async {
-    // Finde Events, die älter als das cutoffDate sind
     final List<SingleEvent> oldEvents = allEvents
         .where((event) =>
             event.singleEventDate.isBefore(cutoffDate) &&
@@ -202,7 +186,6 @@ class _EventListPageState extends State<EventListPage> {
       }
     }
 
-    // Informiere den Benutzer über das Ergebnis
     if (mounted) {
       String message = '';
       if (deletedCount > 0) {
@@ -221,75 +204,43 @@ class _EventListPageState extends State<EventListPage> {
     }
   }
 
-  /// Löscht Events, die älter als das angegebene Cutoff-Datum sind (automatisch)
   Future<void> _cleanupOldEvents(
       List<SingleEvent> allEvents, DateTime cutoffDate) async {
-    // In dieser Version führen wir keine automatische Löschung durch,
-    // sondern zeigen nur einen Hinweis an, dass alte Events ausgeblendet wurden.
-    // Der Benutzer kann sie über das Banner manuell löschen.
+    final List<SingleEvent> oldEvents = allEvents
+        .where((event) =>
+            event.singleEventDate.isBefore(cutoffDate) &&
+            !_isSameDay(event.singleEventDate, cutoffDate))
+        .toList();
 
-    // Die folgenden Zeilen sind auskommentiert, da wir die automatische Löschung nicht aktivieren.
-    /*
-    // Finde Events, die älter als das cutoffDate sind
-    final List<SingleEvent> oldEvents = allEvents.where((event) => 
-      event.singleEventDate.isBefore(cutoffDate) && 
-      !_isSameDay(event.singleEventDate, cutoffDate)
-    ).toList();
-    
     if (oldEvents.isNotEmpty) {
-      print('EventListPage: ${oldEvents.length} alte Events zum Löschen gefunden');
-      
-      for (var event in oldEvents) {
-        try {
-          await widget.db.deleteEvent(event.groupId, event.singleEventId);
-          print('EventListPage: Altes Event gelöscht - ${event.singleEventName} vom ${DateFormat('dd.MM.yyyy').format(event.singleEventDate)}');
-        } catch (e) {
-          print('EventListPage: Fehler beim Löschen des alten Events - $e');
-        }
-      }
-      
-      // Optional: Benachrichtige den Benutzer, dass alte Events aufgeräumt wurden
-      if (mounted && oldEvents.length > 3) {  // Nur anzeigen, wenn mehrere Events gelöscht wurden
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${oldEvents.length} alte Termine wurden automatisch gelöscht'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      print('EventListPage: ${oldEvents.length} alte Events gefunden');
+      setState(() {
+        _showOldEventsDeleteDialog = oldEvents.length > 10;
+      });
     }
-    */
   }
 
-  /// Scrollt zur "HEUTE"-Sektion in der ListView, falls vorhanden
   void _scrollToToday() {
     if (!mounted || _isLoading) return;
 
-    // Markiere, dass das initiale Scrollen durchgeführt wurde
     _initialScrollComplete = true;
 
     final localizations = AppLocalizations.of(context);
     if (localizations == null) return;
 
-    // Suche nach dem "HEUTE"-Header in den sortierten Headers
     final todayHeader = localizations.eventListTodayHeader;
     final todayIndex = orderedHeaders.indexOf(todayHeader);
 
     print('EventListPage: HEUTE-Header-Index: $todayIndex');
 
     if (todayIndex != -1) {
-      // In der sortierten Liste sollte der heutige Tag ganz oben sein (Index 0)
-      // Trotzdem berechnen wir die Position für den Fall, dass es nicht so ist
       double scrollPosition = 0;
 
-      // Für jeden Header vor "HEUTE" berechne die Höhe
       for (int i = 0; i < todayIndex; i++) {
         final header = orderedHeaders[i];
-        // Jeder Header hat etwa 50 Höhe + jeder Event in dieser Gruppe ca. 70
         scrollPosition += 50 + (groupedEvents[header]?.length ?? 0) * 70;
       }
 
-      // Scroll zur berechneten Position
       _scrollController.animateTo(
         scrollPosition,
         duration: const Duration(milliseconds: 500),
@@ -315,12 +266,10 @@ class _EventListPageState extends State<EventListPage> {
   }
 
   Future<void> _loadEvents() async {
-    // Überprüfen, ob der Kontext verfügbar ist, bevor auf Lokalisation zugegriffen wird
     AppLocalizations? localizations;
     try {
       localizations = AppLocalizations.of(context);
     } catch (e) {
-      // Kontext ist noch nicht bereit, verwende temporär Debug-Strings
       print('EventListPage: Kontext noch nicht bereit für Lokalisierung');
     }
 
@@ -344,19 +293,16 @@ class _EventListPageState extends State<EventListPage> {
           await widget.db.getEventsForGroup(_displayGroup.groupId);
 
       if (mounted) {
-        // Filtere Events der letzten 14 Tage und zukünftige Events
         final DateTime cutoffDate =
             DateTime.now().subtract(const Duration(days: 14));
 
         setState(() {
-          // Filtere Events der letzten 14 Tage und zukünftige Events
           _events = allEvents
               .where((event) =>
                   event.singleEventDate.isAfter(cutoffDate) ||
                   _isSameDay(event.singleEventDate, cutoffDate))
               .toList();
 
-          // Berechne die Anzahl der gefilterten Events
           _filteredEventsCount = allEvents.length - _events.length;
 
           _events
@@ -375,11 +321,8 @@ class _EventListPageState extends State<EventListPage> {
           }
         });
 
-        // Überprüfe, ob Events gelöscht werden sollten, die älter als 14 Tage sind
         _cleanupOldEvents(allEvents, cutoffDate);
 
-        // Nach dem Laden der Events und dem Aktualisieren der UI
-        // verzögern wir das Scrollen zum aktuellen Tag
         if (!_initialScrollComplete) {
           Future.delayed(const Duration(milliseconds: 300), () {
             _scrollToToday();
@@ -415,9 +358,7 @@ class _EventListPageState extends State<EventListPage> {
     AppLocalizations? localizations;
     try {
       localizations = AppLocalizations.of(context);
-    } catch (e) {
-      // Kontext ist noch nicht bereit
-    }
+    } catch (e) {}
 
     try {
       final SingleEvent deletedEvent = _events.firstWhere(
@@ -537,18 +478,15 @@ class _EventListPageState extends State<EventListPage> {
     final localizations = AppLocalizations.of(context)!;
     final String currentLocale = Localizations.localeOf(context).languageCode;
 
-    // Gruppiere Events nach Datum und behalte die Reihenfolge
     Map<String, List<SingleEvent>> groupedEvents = {};
     List<String> orderedHeaders = [];
 
-    // Heutige und morgige Daten für besondere Behandlung
     final today = DateTime.now();
     final tomorrow = today.add(const Duration(days: 1));
     final todayHeader = localizations.eventListTodayHeader;
     final tomorrowHeader = localizations.eventListTomorrowHeader;
     bool hasTodayHeader = false;
 
-    // Zuerst Events nach Datum gruppieren
     for (var event in _events) {
       final date = event.singleEventDate;
       String header;
@@ -575,19 +513,16 @@ class _EventListPageState extends State<EventListPage> {
       groupedEvents[header]!.add(event);
     }
 
-    // Sortiere die Events unter jedem Header nach Zeit
     groupedEvents.forEach((header, events) {
       events.sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
     });
 
-    // Sortiere die Headers nach Datum, aber HEUTE und MORGEN immer zuerst
     orderedHeaders.sort((a, b) {
       if (a == todayHeader) return -1;
       if (b == todayHeader) return 1;
       if (a == tomorrowHeader) return -1;
       if (b == tomorrowHeader) return 1;
 
-      // Für andere Headers, extrahiere das Datum aus einem Event
       final aEvents = groupedEvents[a]!;
       final bEvents = groupedEvents[b]!;
       if (aEvents.isNotEmpty && bEvents.isNotEmpty) {
@@ -597,9 +532,7 @@ class _EventListPageState extends State<EventListPage> {
       return 0;
     });
 
-    // Wenn das initiale Scrolling noch nicht erfolgt ist und wir einen HEUTE-Header haben
     if (!_initialScrollComplete && hasTodayHeader && !_isLoading && mounted) {
-      // Verzögere das Scrolling, damit das UI vorher gerendert werden kann
       Future.delayed(Duration(milliseconds: 100), () {
         _scrollToToday();
       });
@@ -631,7 +564,6 @@ class _EventListPageState extends State<EventListPage> {
             auth: widget.auth,
           ),
           const Divider(thickness: 0.4, height: 0.4, color: Colors.grey),
-          // Info-Banner für die 14-Tage-Begrenzung, wenn es gefilterte Events gibt
           _buildOldEventsInfoBanner(),
           Expanded(
             child: _isLoading

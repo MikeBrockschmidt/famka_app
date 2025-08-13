@@ -9,7 +9,6 @@ Future<DateTime?> selectAppointmentDate(
   required DateTime firstDate,
   required DateTime lastDate,
 }) async {
-  // Use the app's current locale instead of hardcoded German
   final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
 
   final DateTime? picked = await showDatePicker(
@@ -31,7 +30,6 @@ Future<DateTime?> selectAppointmentDate(
               borderRadius: BorderRadius.all(Radius.circular(16.0)),
             ),
             elevation: 8.0,
-            // Make dialog more compact
             alignment: Alignment.center,
           ),
           colorScheme: theme.colorScheme.copyWith(
@@ -46,7 +44,7 @@ Future<DateTime?> selectAppointmentDate(
             style: TextButton.styleFrom(
               foregroundColor: AppColors.famkaBlue,
               textStyle: textTheme.labelLarge?.copyWith(
-                fontSize: 14.0, // Smaller font size
+                fontSize: 14.0,
                 color: AppColors.famkaBlue,
                 fontWeight: FontWeight.w600,
               ),
@@ -54,40 +52,38 @@ Future<DateTime?> selectAppointmentDate(
           ),
           textTheme: textTheme.copyWith(
             titleLarge: textTheme.titleLarge?.copyWith(
-              fontSize: 16.0, // Smaller font size
+              fontSize: 16.0,
               fontWeight: FontWeight.bold,
               color: AppColors.famkaBlack,
             ),
             bodyLarge: textTheme.bodyLarge?.copyWith(
-              fontSize: 14.0, // Smaller font size
+              fontSize: 14.0,
               color: AppColors.famkaBlack,
             ),
             bodyMedium: textTheme.bodyMedium?.copyWith(
-              fontSize: 13.0, // Smaller font size
+              fontSize: 13.0,
               color: AppColors.famkaBlack,
             ),
             bodySmall: textTheme.bodySmall?.copyWith(
-              fontSize: 12.0, // Smaller font size
+              fontSize: 12.0,
               color: AppColors.famkaBlack,
             ),
             titleMedium: textTheme.titleMedium?.copyWith(
-              fontSize: 14.0, // Smaller font size
+              fontSize: 14.0,
               color: AppColors.famkaBlack,
             ),
             labelSmall: textTheme.labelSmall?.copyWith(
-              fontSize: 12.0, // Smaller font size
+              fontSize: 12.0,
               color: AppColors.famkaBlack,
             ),
             labelLarge: textTheme.labelLarge?.copyWith(
-              fontSize: 14.0, // Smaller font size
+              fontSize: 14.0,
               color: AppColors.famkaBlack,
               fontWeight: FontWeight.w500,
             ),
           ),
-          // Make calendar widget more compact
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        // Create a compact window-like appearance
         child: Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
@@ -97,11 +93,10 @@ Future<DateTime?> selectAppointmentDate(
           insetPadding:
               const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.85, // Limit width
+            width: MediaQuery.of(context).size.width * 0.85,
             constraints: BoxConstraints(
-              maxWidth: 360, // Maximum width for larger screens
-              maxHeight:
-                  MediaQuery.of(context).size.height * 0.7, // Limit height
+              maxWidth: 360,
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
             ),
             child: child,
           ),

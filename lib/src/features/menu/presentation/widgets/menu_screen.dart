@@ -228,9 +228,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   backgroundColor: AppColors.famkaYellow,
                   initiallyExpanded: expandedIndex == 1,
                   title: _buildTileTitle(
-                      context,
-                      AppLocalizations.of(context)!
-                          .calendarTitle), // Localized key for 'Kalender'
+                      context, AppLocalizations.of(context)!.calendarTitle),
                   onExpansionChanged: (isExpanded) =>
                       _handleExpansion(1, isExpanded),
                   children: [
@@ -278,9 +276,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   backgroundColor: AppColors.famkaYellow,
                   initiallyExpanded: expandedIndex == 2,
                   title: _buildTileTitle(
-                      context,
-                      AppLocalizations.of(context)!
-                          .groupsTitle), // Localized key for 'Gruppen'
+                      context, AppLocalizations.of(context)!.groupsTitle),
                   onExpansionChanged: (isExpanded) =>
                       _handleExpansion(2, isExpanded),
                   children: [

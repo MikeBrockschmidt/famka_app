@@ -54,7 +54,6 @@ class _AppointmentState extends State<Appointment> {
   bool _repeat = false;
   bool _reminder = false;
 
-  // Initialisiere mit null, um anzuzeigen, dass die Werte noch nicht gesetzt wurden
   String? _selectedRepeat;
   String? _selectedReminder;
 
@@ -81,7 +80,6 @@ class _AppointmentState extends State<Appointment> {
     }
     _numberOfRepeatsController.text = _numberOfRepeats.toString();
 
-    // Wir initialisieren die Werte nach dem ersten Build, wenn der Kontext verfügbar ist
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
@@ -488,7 +486,7 @@ class _AppointmentState extends State<Appointment> {
                       ),
                       AppSwitchRow(
                         leftIcon: Icons.timer_outlined,
-                        label: l10n.allDayLabel, // Replaces 'Ganzer Tag'
+                        label: l10n.allDayLabel,
                         value: _allDay,
                         onChanged: (val) => setState(() => _allDay = val),
                       ),

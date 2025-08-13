@@ -113,11 +113,10 @@ class _MainAppState extends State<MainApp> {
           );
         }
 
-        // Verwende LocaleProvider für die Spracheinstellung
         return Consumer<LocaleProvider>(
           builder: (context, localeProvider, child) {
             return MaterialApp(
-              locale: localeProvider.locale, // Verwende die Locale vom Provider
+              locale: localeProvider.locale,
               builder: DevicePreview.appBuilder,
               debugShowCheckedModeBanner: false,
               theme: appTheme,
@@ -147,7 +146,6 @@ class _MainAppState extends State<MainApp> {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
 
-      // Need to check if we're in the middle of onboarding
       return FutureBuilder<SharedPreferences>(
           future: SharedPreferences.getInstance(),
           builder: (context, snapshot) {
@@ -161,9 +159,7 @@ class _MainAppState extends State<MainApp> {
                 prefs?.getBool('onboardingComplete') ?? false;
 
             if (!onboardingComplete && _currentUserData != null) {
-              // User is in onboarding process - check if we have firstName/lastName set
               if (_currentUserData!.firstName.isEmpty) {
-                // User needs to continue onboarding - redirect to onboarding2
                 return Onboarding2Screen(
                   db: widget.db,
                   auth: widget.auth,
@@ -176,6 +172,7 @@ class _MainAppState extends State<MainApp> {
               db: widget.db,
               currentUser: _currentUserData!,
               auth: widget.auth,
+              isOwnProfile: true,
             );
           });
     }
