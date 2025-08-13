@@ -525,7 +525,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String imageUploadSuccess(String downloadUrl) {
-    return 'Bild erfolgreich hochgeladen: $downloadUrl';
+    return 'Bild erfolgreich hochgeladen und aktualisiert.';
   }
 
   @override
@@ -995,5 +995,64 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String oldEventsDeletionError(Object error) {
     return 'Fehler beim Löschen der alten Ereignisse: $error';
+  }
+
+  @override
+  String get selectImage => 'Bild auswählen';
+
+  @override
+  String get selectProfileImage => 'Profilbild auswählen';
+
+  @override
+  String get selectGroupImage => 'Gruppenbild auswählen';
+
+  @override
+  String get selectEventImage => 'Terminbild auswählen';
+
+  @override
+  String get selectFromGallery => 'Aus Galerie wählen';
+
+  @override
+  String get takePhoto => 'Foto aufnehmen';
+
+  @override
+  String get chooseFromStandard => 'Oder aus Standardbildern wählen:';
+
+  @override
+  String get cancelSelection => 'Abbrechen';
+
+  @override
+  String get imageSelectionCancelled => 'Bildauswahl abgebrochen.';
+
+  @override
+  String get standardImageSet => 'Bild erfolgreich als Standardbild gesetzt.';
+
+  @override
+  String get croppingCancelled => 'Zuschneiden abgebrochen.';
+
+  @override
+  String get processingError =>
+      'Fehler bei der Bildverarbeitung für den Upload.';
+
+  @override
+  String get noUserIdError =>
+      'Fehler: Keine Benutzer-ID verfügbar. Bitte melden Sie sich an.';
+
+  @override
+  String firebaseUploadError(Object error) {
+    return 'Fehler beim Upload zu Firebase Storage: $error';
+  }
+
+  @override
+  String unexpectedUploadError(Object error) {
+    return 'Unerwarteter Fehler beim Bild-Upload: $error';
+  }
+
+  @override
+  String get noImageSelected => 'Kein Bild ausgewählt.';
+
+  @override
+  String imagePickError(Object error) {
+    return 'Fehler bei der Bildauswahl oder Zuschneiden: $error';
   }
 }

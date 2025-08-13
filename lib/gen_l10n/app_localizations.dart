@@ -1013,7 +1013,7 @@ abstract class AppLocalizations {
   /// Success message when uploading an image
   ///
   /// In en, this message translates to:
-  /// **'Image successfully uploaded: {downloadUrl}'**
+  /// **'Image successfully uploaded and updated.'**
   String imageUploadSuccess(String downloadUrl);
 
   /// No description provided for @imageDeletedSuccess.
@@ -1789,6 +1789,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error deleting old events: {error}'**
   String oldEventsDeletionError(Object error);
+
+  /// No description provided for @selectImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Image'**
+  String get selectImage;
+
+  /// No description provided for @selectProfileImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Profile Image'**
+  String get selectProfileImage;
+
+  /// No description provided for @selectGroupImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Group Image'**
+  String get selectGroupImage;
+
+  /// No description provided for @selectEventImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Event Image'**
+  String get selectEventImage;
+
+  /// No description provided for @selectFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Select from Gallery'**
+  String get selectFromGallery;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get takePhoto;
+
+  /// No description provided for @chooseFromStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Or choose from standard images:'**
+  String get chooseFromStandard;
+
+  /// No description provided for @cancelSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelSelection;
+
+  /// No description provided for @imageSelectionCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Image selection cancelled.'**
+  String get imageSelectionCancelled;
+
+  /// No description provided for @standardImageSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Image successfully set as standard image.'**
+  String get standardImageSet;
+
+  /// No description provided for @croppingCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cropping cancelled.'**
+  String get croppingCancelled;
+
+  /// No description provided for @processingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error in image processing for upload.'**
+  String get processingError;
+
+  /// No description provided for @noUserIdError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: No user ID available. Please sign in.'**
+  String get noUserIdError;
+
+  /// No description provided for @firebaseUploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error uploading to Firebase Storage: {error}'**
+  String firebaseUploadError(Object error);
+
+  /// No description provided for @unexpectedUploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected error during image upload: {error}'**
+  String unexpectedUploadError(Object error);
+
+  /// No description provided for @noImageSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No image selected.'**
+  String get noImageSelected;
+
+  /// No description provided for @imagePickError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error in image selection or cropping: {error}'**
+  String imagePickError(Object error);
 }
 
 class _AppLocalizationsDelegate

@@ -2,6 +2,7 @@ import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
+import 'package:famka_app/src/features/onboarding/presentation/onboarding2.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:famka_app/src/providers/locale_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,6 +13,7 @@ import 'package:device_preview/device_preview.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainApp extends StatefulWidget {
   final DatabaseRepository db;
@@ -144,11 +146,38 @@ class _MainAppState extends State<MainApp> {
       if (_currentUserData == null) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
-      return ProfilPage(
-        db: widget.db,
-        currentUser: _currentUserData!,
-        auth: widget.auth,
-      );
+
+      // Need to check if we're in the middle of onboarding
+      return FutureBuilder<SharedPreferences>(
+          future: SharedPreferences.getInstance(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()));
+            }
+
+            final prefs = snapshot.data;
+            final bool onboardingComplete =
+                prefs?.getBool('onboardingComplete') ?? false;
+
+            if (!onboardingComplete && _currentUserData != null) {
+              // User is in onboarding process - check if we have firstName/lastName set
+              if (_currentUserData!.firstName.isEmpty) {
+                // User needs to continue onboarding - redirect to onboarding2
+                return Onboarding2Screen(
+                  db: widget.db,
+                  auth: widget.auth,
+                  user: _currentUserData!,
+                );
+              }
+            }
+
+            return ProfilPage(
+              db: widget.db,
+              currentUser: _currentUserData!,
+              auth: widget.auth,
+            );
+          });
     }
   }
 }

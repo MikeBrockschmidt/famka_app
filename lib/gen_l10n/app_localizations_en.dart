@@ -512,7 +512,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String imageUploadSuccess(String downloadUrl) {
-    return 'Image successfully uploaded: $downloadUrl';
+    return 'Image successfully uploaded and updated.';
   }
 
   @override
@@ -975,5 +975,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String oldEventsDeletionError(Object error) {
     return 'Error deleting old events: $error';
+  }
+
+  @override
+  String get selectImage => 'Select Image';
+
+  @override
+  String get selectProfileImage => 'Select Profile Image';
+
+  @override
+  String get selectGroupImage => 'Select Group Image';
+
+  @override
+  String get selectEventImage => 'Select Event Image';
+
+  @override
+  String get selectFromGallery => 'Select from Gallery';
+
+  @override
+  String get takePhoto => 'Take Photo';
+
+  @override
+  String get chooseFromStandard => 'Or choose from standard images:';
+
+  @override
+  String get cancelSelection => 'Cancel';
+
+  @override
+  String get imageSelectionCancelled => 'Image selection cancelled.';
+
+  @override
+  String get standardImageSet => 'Image successfully set as standard image.';
+
+  @override
+  String get croppingCancelled => 'Cropping cancelled.';
+
+  @override
+  String get processingError => 'Error in image processing for upload.';
+
+  @override
+  String get noUserIdError => 'Error: No user ID available. Please sign in.';
+
+  @override
+  String firebaseUploadError(Object error) {
+    return 'Error uploading to Firebase Storage: $error';
+  }
+
+  @override
+  String unexpectedUploadError(Object error) {
+    return 'Unexpected error during image upload: $error';
+  }
+
+  @override
+  String get noImageSelected => 'No image selected.';
+
+  @override
+  String imagePickError(Object error) {
+    return 'Error in image selection or cropping: $error';
   }
 }

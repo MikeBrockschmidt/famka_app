@@ -15,6 +15,7 @@ import 'package:famka_app/src/common/image_selection_context.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class ProfilImage extends StatefulWidget {
   final DatabaseRepository db;
@@ -82,16 +83,19 @@ class _ProfilImageState extends State<ProfilImage> {
   }
 
   String _getDialogTitle() {
+    final appLocalizations = AppLocalizations.of(context);
+    if (appLocalizations == null) return 'Select Image';
+
     switch (widget.contextType) {
       case ImageSelectionContext.profile:
-        return 'Profilbild auswählen';
+        return appLocalizations.selectProfileImage;
       case ImageSelectionContext.group:
-        return 'Gruppenbild auswählen';
+        return appLocalizations.selectGroupImage;
       case ImageSelectionContext.event:
-        return 'Eventbild auswählen';
+        return appLocalizations.selectEventImage;
       case ImageSelectionContext.other:
       default:
-        return 'Bild auswählen';
+        return appLocalizations.selectImage;
     }
   }
 
@@ -109,6 +113,8 @@ class _ProfilImageState extends State<ProfilImage> {
 
     try {
       final picker = ImagePicker();
+      // Define app localizations for the entire method
+      final appLocalizations = AppLocalizations.of(context);
 
       final String? selectedSourceOrAssetPath =
           await showModalBottomSheet<String?>(
@@ -128,14 +134,15 @@ class _ProfilImageState extends State<ProfilImage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.photo_library),
-                  title: const Text('Aus Galerie wählen'),
+                  title: Text(appLocalizations?.selectFromGallery ??
+                      'Select from Gallery'),
                   onTap: () {
                     Navigator.pop(context, 'gallery');
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.camera_alt),
-                  title: const Text('Foto aufnehmen'),
+                  title: Text(appLocalizations?.takePhoto ?? 'Take Photo'),
                   onTap: () {
                     Navigator.pop(context, 'camera');
                   },
@@ -146,7 +153,8 @@ class _ProfilImageState extends State<ProfilImage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16.0, vertical: 8.0),
                     child: Text(
-                      'Oder aus Standardbildern wählen:',
+                      appLocalizations?.chooseFromStandard ??
+                          'Or choose from standard images:',
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ),
@@ -169,7 +177,7 @@ class _ProfilImageState extends State<ProfilImage> {
                               backgroundImage: AssetImage(assetPath),
                               onBackgroundImageError: (exception, stackTrace) {
                                 debugPrint(
-                                    'Fehler beim Laden des Asset-Bildes $assetPath: $exception');
+                                    'Error loading asset image $assetPath: $exception');
                               },
                             ),
                           ),
@@ -186,7 +194,7 @@ class _ProfilImageState extends State<ProfilImage> {
                       Navigator.pop(context, null);
                     },
                     child: Text(
-                      'Abbrechen',
+                      appLocalizations?.cancelSelection ?? 'Cancel',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: AppColors.famkaGrey,
                           ),
@@ -203,7 +211,9 @@ class _ProfilImageState extends State<ProfilImage> {
       if (selectedSourceOrAssetPath == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Bildauswahl abgebrochen.')),
+            SnackBar(
+                content: Text(appLocalizations?.imageSelectionCancelled ??
+                    'Image selection cancelled.')),
           );
         }
         return;
@@ -225,8 +235,9 @@ class _ProfilImageState extends State<ProfilImage> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Bild erfolgreich als Standardbild gesetzt.')),
+            SnackBar(
+                content: Text(appLocalizations?.standardImageSet ??
+                    'Image successfully set as standard image.')),
           );
         }
         return;
@@ -259,7 +270,9 @@ class _ProfilImageState extends State<ProfilImage> {
         if (croppedFile == null) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Zuschneiden abgebrochen.')),
+              SnackBar(
+                  content: Text(appLocalizations?.croppingCancelled ??
+                      'Cropping cancelled.')),
             );
           }
           return;
@@ -293,12 +306,13 @@ class _ProfilImageState extends State<ProfilImage> {
           finalImageToUpload = File(croppedFile.path);
         }
 
+        // Note: This check might be unnecessary if finalImageToUpload can't be null
         if (finalImageToUpload == null) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content:
-                      Text('Fehler bei der Bildverarbeitung für den Upload.')),
+              SnackBar(
+                  content: Text(appLocalizations?.processingError ??
+                      'Error in image processing for upload.')),
             );
           }
           return;
@@ -308,9 +322,9 @@ class _ProfilImageState extends State<ProfilImage> {
         if (user == null) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text(
-                      'Fehler: Keine Benutzer-ID verfügbar. Bitte melden Sie sich an.')),
+              SnackBar(
+                  content: Text(appLocalizations?.noUserIdError ??
+                      'Error: No user ID available. Please sign in.')),
             );
           }
           return;
@@ -360,17 +374,16 @@ class _ProfilImageState extends State<ProfilImage> {
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content:
-                      Text('Bild erfolgreich hochgeladen und aktualisiert.')),
+              SnackBar(
+                  content: Text('Image successfully uploaded and updated.')),
             );
           }
         } on FirebaseException catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                    'Fehler beim Upload zu Firebase Storage: ${e.message}'),
+                content:
+                    Text('Error uploading to Firebase Storage: ${e.message}'),
                 backgroundColor: Colors.red,
               ),
             );
@@ -379,7 +392,7 @@ class _ProfilImageState extends State<ProfilImage> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Unerwarteter Fehler beim Bild-Upload: $e'),
+                content: Text('Unexpected error during image upload: $e'),
                 backgroundColor: Colors.red,
               ),
             );
@@ -388,7 +401,9 @@ class _ProfilImageState extends State<ProfilImage> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Kein Bild ausgewählt.')),
+            SnackBar(
+                content: Text(
+                    appLocalizations?.noImageSelected ?? 'No image selected.')),
           );
         }
       }
@@ -396,7 +411,7 @@ class _ProfilImageState extends State<ProfilImage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Fehler bei der Bildauswahl oder Zuschneiden: $e'),
+            content: Text('Error in image selection or cropping: $e'),
             backgroundColor: Colors.red,
           ),
         );

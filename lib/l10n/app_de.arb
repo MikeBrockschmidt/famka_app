@@ -489,6 +489,25 @@
   "deleteOldEventsConfirmation": "Möchten Sie {count} Ereignisse löschen, die älter als 14 Tage sind? Diese Aktion kann nicht rückgängig gemacht werden.",
   "oldEventsDeletedSuccess": "{count} alte Ereignisse wurden erfolgreich gelöscht.",
   "oldEventsDeletionError": "Fehler beim Löschen der alten Ereignisse: {error}",
+  
+  "selectImage": "Bild auswählen",
+  "selectProfileImage": "Profilbild auswählen",
+  "selectGroupImage": "Gruppenbild auswählen",
+  "selectEventImage": "Terminbild auswählen",
+  "selectFromGallery": "Aus Galerie wählen",
+  "takePhoto": "Foto aufnehmen",
+  "chooseFromStandard": "Oder aus Standardbildern wählen:",
+  "cancelSelection": "Abbrechen",
+  "imageSelectionCancelled": "Bildauswahl abgebrochen.",
+  "standardImageSet": "Bild erfolgreich als Standardbild gesetzt.",
+  "croppingCancelled": "Zuschneiden abgebrochen.",
+  "processingError": "Fehler bei der Bildverarbeitung für den Upload.",
+  "noUserIdError": "Fehler: Keine Benutzer-ID verfügbar. Bitte melden Sie sich an.",
+  "imageUploadSuccess": "Bild erfolgreich hochgeladen und aktualisiert.",
+  "firebaseUploadError": "Fehler beim Upload zu Firebase Storage: {error}",
+  "unexpectedUploadError": "Unerwarteter Fehler beim Bild-Upload: {error}",
+  "noImageSelected": "Kein Bild ausgewählt.",
+  "imagePickError": "Fehler bei der Bildauswahl oder Zuschneiden: {error}",
 
   "@oldEventsFoundMessage": {
     "placeholders": {

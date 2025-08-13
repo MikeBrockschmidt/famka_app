@@ -63,10 +63,10 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
-    _firstNameController.text = widget.currentUser.firstName ?? '';
-    _lastNameController.text = widget.currentUser.lastName ?? '';
+    _firstNameController.text = widget.currentUser.firstName;
+    _lastNameController.text = widget.currentUser.lastName;
     _phoneNumberController.text = widget.currentUser.phoneNumber ?? '';
-    _emailController.text = widget.currentUser.email ?? '';
+    _emailController.text = widget.currentUser.email;
     _miscellaneousController.text = widget.currentUser.miscellaneous ?? '';
     _currentProfileAvatarUrl =
         widget.currentUser.avatarUrl ?? 'assets/fotos/default.jpg';
@@ -112,14 +112,13 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   void _checkIfHasChanges() {
-    final bool newHasChanges =
-        _firstNameController.text != (_initialFirstName ?? '') ||
-            _lastNameController.text != (_initialLastName ?? '') ||
-            _phoneNumberController.text != (_initialPhoneNumber ?? '') ||
-            _emailController.text != (_initialEmail ?? '') ||
-            _miscellaneousController.text != (_initialMiscellaneous ?? '') ||
-            _currentProfileAvatarUrl !=
-                (_initialAvatarUrl ?? 'assets/fotos/default.jpg');
+    final bool newHasChanges = _firstNameController.text != _initialFirstName ||
+        _lastNameController.text != _initialLastName ||
+        _phoneNumberController.text != (_initialPhoneNumber ?? '') ||
+        _emailController.text != _initialEmail ||
+        _miscellaneousController.text != (_initialMiscellaneous ?? '') ||
+        _currentProfileAvatarUrl !=
+            (_initialAvatarUrl ?? 'assets/fotos/default.jpg');
 
     if (_hasChanges != newHasChanges) {
       setState(() {

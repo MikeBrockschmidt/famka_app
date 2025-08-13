@@ -504,6 +504,25 @@
   "deleteOldEventsConfirmation": "Do you want to delete {count} events that are older than 14 days? This action cannot be undone.",
   "oldEventsDeletedSuccess": "{count} old events were successfully deleted.",
   "oldEventsDeletionError": "Error deleting old events: {error}",
+  
+  "selectImage": "Select Image",
+  "selectProfileImage": "Select Profile Image",
+  "selectGroupImage": "Select Group Image",
+  "selectEventImage": "Select Event Image",
+  "selectFromGallery": "Select from Gallery",
+  "takePhoto": "Take Photo",
+  "chooseFromStandard": "Or choose from standard images:",
+  "cancelSelection": "Cancel",
+  "imageSelectionCancelled": "Image selection cancelled.",
+  "standardImageSet": "Image successfully set as standard image.",
+  "croppingCancelled": "Cropping cancelled.",
+  "processingError": "Error in image processing for upload.",
+  "noUserIdError": "Error: No user ID available. Please sign in.",
+  "imageUploadSuccess": "Image successfully uploaded and updated.",
+  "firebaseUploadError": "Error uploading to Firebase Storage: {error}",
+  "unexpectedUploadError": "Unexpected error during image upload: {error}",
+  "noImageSelected": "No image selected.",
+  "imagePickError": "Error in image selection or cropping: {error}",
 
   "@calendarEventsLoaded": {
     "placeholders": {

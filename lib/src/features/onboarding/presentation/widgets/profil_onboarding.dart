@@ -7,6 +7,8 @@ import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:famka_app/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilOnboarding extends StatefulWidget {
   final DatabaseRepository db;
@@ -57,17 +59,17 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Bitte Passwort eingeben.';
+      return AppLocalizations.of(context)!.passwordInputHint;
     }
-    if (value.length < 6) {
-      return 'Passwort muss mindestens 6 Zeichen lang sein.';
+    if (value.length < 8) {
+      return AppLocalizations.of(context)!.passwordValidationMinLength;
     }
     return null;
   }
 
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Bitte Passwort wiederholen.';
+      return AppLocalizations.of(context)!.passwordInputHint;
     }
     if (value != _passwordController.text) {
       return 'Passwörter stimmen nicht überein.';
@@ -77,10 +79,10 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Bitte E-Mail-Adresse eingeben.';
+      return AppLocalizations.of(context)!.emailValidationEmpty;
     }
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-      return 'Bitte eine gültige E-Mail-Adresse eingeben.';
+      return AppLocalizations.of(context)!.emailValidationInvalid;
     }
     return null;
   }
@@ -94,7 +96,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Bitte füllen Sie alle Felder korrekt aus.'),
+            content: Text(AppLocalizations.of(context)!.fillRequiredFields),
             backgroundColor: AppColors.famkaRed,
           ),
         );
@@ -112,7 +114,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Bitte geben Sie eine E-Mail-Adresse ein.'),
+            content: Text(AppLocalizations.of(context)!.emailValidationEmpty),
             backgroundColor: AppColors.famkaCyan,
           ),
         );
@@ -134,13 +136,17 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
         lastName: '',
         email: email,
         phoneNumber: null,
-        avatarUrl: 'assets/fotos/default.jpg',
+        avatarUrl: AppLocalizations.of(context)!.defaultAvatarPath,
         miscellaneous: null,
         password: '',
       );
 
       await widget.db.createUser(newUser);
       widget.db.currentUser = newUser;
+
+      // Explicitly set onboarding flag to false to ensure we don't skip steps
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('onboardingComplete', false);
 
       if (mounted) {
         Navigator.pushReplacement(
@@ -161,7 +167,8 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
       } else if (e.code == 'weak-password') {
         errorMessage = 'Das Passwort ist zu schwach.';
       } else {
-        errorMessage = 'Fehler bei der Registrierung: ${e.message}';
+        errorMessage =
+            AppLocalizations.of(context)!.loginFailedGeneric(e.message ?? '');
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -175,7 +182,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ein Fehler ist aufgetreten: $e'),
+            content: Text(AppLocalizations.of(context)!.unknownError),
             backgroundColor: AppColors.famkaRed,
           ),
         );
@@ -218,10 +225,12 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _emailController,
-                              decoration: const InputDecoration(
-                                labelText: 'E-Mail-Adresse',
-                                hintText: 'Gib deine E-Mail-Adresse ein',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!
+                                    .emailInputLabel,
+                                hintText: AppLocalizations.of(context)!
+                                    .emailInputHint,
+                                border: const OutlineInputBorder(),
                               ),
                               validator: _validateEmail,
                             ),
@@ -229,10 +238,12 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                             TextFormField(
                               controller: _passwordController,
                               obscureText: true,
-                              decoration: const InputDecoration(
-                                labelText: 'Passwort',
-                                hintText: 'Gib ein sicheres Passwort ein',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!
+                                    .passwordInputLabel,
+                                hintText: AppLocalizations.of(context)!
+                                    .passwordInputHint,
+                                border: const OutlineInputBorder(),
                               ),
                               validator: _validatePassword,
                             ),
@@ -240,9 +251,10 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                             TextFormField(
                               controller: _confirmPasswordController,
                               obscureText: true,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Passwort bestätigen',
-                                hintText: 'Passwort wiederholen',
+                                hintText: AppLocalizations.of(context)!
+                                    .passwordInputHint,
                                 border: OutlineInputBorder(),
                               ),
                               validator: _validateConfirmPassword,
@@ -256,7 +268,10 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                         child: InkWell(
                           onTap: _isLoading ? null : _saveNewUserAndNavigate,
                           child: ButtonLinearGradient(
-                            buttonText: _isLoading ? 'Lädt...' : 'Fortfhren',
+                            buttonText: _isLoading
+                                ? AppLocalizations.of(context)!
+                                    .manageMembersSavingButton
+                                : AppLocalizations.of(context)!.fortfahren,
                           ),
                         ),
                       ),

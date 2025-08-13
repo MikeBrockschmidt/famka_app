@@ -38,9 +38,9 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
   @override
   void initState() {
     super.initState();
-    _firstNameController.text = widget.user.firstName ?? '';
-    _lastNameController.text = widget.user.lastName ?? '';
-    _emailController.text = widget.user.email ?? '';
+    _firstNameController.text = widget.user.firstName;
+    _lastNameController.text = widget.user.lastName;
+    _emailController.text = widget.user.email;
     _phoneNumberController.text = widget.user.phoneNumber ?? '';
     _currentAvatarUrl = widget.user.avatarUrl;
   }

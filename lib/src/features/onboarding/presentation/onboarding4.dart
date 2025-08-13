@@ -62,8 +62,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
     }
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     if (!emailRegex.hasMatch(input)) {
-      return AppLocalizations.of(context)?.invalidEmailError ??
-          'Ungültige E-Mail Adresse';
+      return AppLocalizations.of(context)!.invalidEmailError;
     }
     return null;
   }
@@ -74,8 +73,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
     }
     final phoneRegex = RegExp(r'^\+?\d{8,}$');
     if (!phoneRegex.hasMatch(input)) {
-      return AppLocalizations.of(context)?.invalidPhoneNumberError ??
-          'Ungültige Telefonnummer (min. 8 Ziffern, nur Zahlen)';
+      return AppLocalizations.of(context)!.invalidPhoneNumberError;
     }
     return null;
   }
@@ -99,14 +97,14 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
 
       await widget.db.updateUser(updatedUser);
 
+      // Now that all steps are complete, set the onboarding flag to true
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboardingComplete', true);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)?.onboardingComplete ??
-                'Daten wurden gespeichert und Onboarding abgeschlossen.'),
+            content: Text(AppLocalizations.of(context)!.profileInfoSaved),
             backgroundColor: AppColors.famkaCyan,
           ),
         );
@@ -127,8 +125,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)?.checkInputsError ??
-              'Bitte überprüfen Sie Ihre Eingaben.'),
+          content: Text(AppLocalizations.of(context)!.fillRequiredFields),
           backgroundColor: AppColors.famkaCyan,
         ),
       );
@@ -148,7 +145,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
             child: SafeArea(
               child: Column(
                 children: [
-                  const HeadlineK(screenHead: 'Profil'),
+                  const HeadlineK(screenHead: 'Profile'),
                   const SizedBox(height: 20),
                   Center(
                     child: ProfilImage3(
@@ -166,7 +163,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '${widget.user.firstName ?? ''} ${widget.user.lastName ?? ''}',
+                        '${widget.user.firstName} ${widget.user.lastName}',
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ),
@@ -196,9 +193,8 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                       keyboardType: TextInputType.phone,
                                       validator: _validatePhoneNumber,
                                       decoration: InputDecoration(
-                                        hintText: AppLocalizations.of(context)
-                                                ?.enterPhoneNumber ??
-                                            'Telefonnummer eingeben',
+                                        hintText: AppLocalizations.of(context)!
+                                            .enterPhoneNumber,
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.zero,
                                       ),
@@ -219,9 +215,8 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                       keyboardType: TextInputType.emailAddress,
                                       validator: _validateEmail,
                                       decoration: InputDecoration(
-                                        hintText: AppLocalizations.of(context)
-                                                ?.enterEmailAddress ??
-                                            'E-Mail Adresse eingeben',
+                                        hintText: AppLocalizations.of(context)!
+                                            .enterEmailAddress,
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.zero,
                                       ),
@@ -241,9 +236,8 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                       controller: _miscellaneousController,
                                       maxLines: null,
                                       decoration: InputDecoration(
-                                        hintText: AppLocalizations.of(context)
-                                                ?.additionalInfo ??
-                                            'Zusätzliche Infos',
+                                        hintText: AppLocalizations.of(context)!
+                                            .additionalInfo,
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.zero,
                                       ),
@@ -271,11 +265,13 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                 alignment: Alignment.centerRight,
                                 child: InkWell(
                                   onTap: _saveUserData,
-                                  child: const SizedBox(
+                                  child: SizedBox(
                                     width: 150,
                                     height: 50,
                                     child: ButtonLinearGradient(
-                                        buttonText: 'Speichern'),
+                                        buttonText:
+                                            AppLocalizations.of(context)!
+                                                .saveButton),
                                   ),
                                 ),
                               ),
