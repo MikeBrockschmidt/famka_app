@@ -60,4 +60,5 @@ abstract class DatabaseRepository {
   Future<void> deleteEvent(String groupId, String eventId);
   Future<void> deleteSingleEvent(String eventId);
   Future<void> removeEventFromGroup(String groupId, String eventId);
+  Future<void> sendAppointmentNotification(SingleEvent event);
 }

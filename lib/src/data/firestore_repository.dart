@@ -510,6 +510,11 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           .doc(event.singleEventId)
           .set(event.toMap());
       print('✅ Event ${event.singleEventId} erfolgreich erstellt.');
+
+      // Wenn der Termin eine Erinnerung hat, sicherstellen dass die Benachrichtigung geplant wird
+      if (event.hasReminder == true && event.reminderOffset != null) {
+        await sendAppointmentNotification(event);
+      }
     } catch (e) {
       print('❌ Fehler beim Hinzufügen des Events: $e');
       rethrow;
@@ -589,7 +594,26 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
   }
 
   @override
-  Future<void> sendAppointmentNotification(SingleEvent event) async {}
+  Future<void> sendAppointmentNotification(SingleEvent event) async {
+    try {
+      if (event.hasReminder != true ||
+          event.reminderOffset == null ||
+          event.reminderOffset?.isEmpty == true) {
+        print('Keine Erinnerung für diesen Termin eingestellt.');
+        return;
+      }
+
+      // Die Erinnerung wird automatisch durch die Firebase Cloud Function
+      // "scheduleReminder" geplant, wenn das Event in Firestore erstellt wird.
+      // Wir müssen hier nichts weiter tun, außer sicherzustellen,
+      // dass die hasReminder und reminderOffset Felder korrekt gesetzt sind.
+
+      print('✅ Erinnerung für Termin ${event.singleEventName} wird geplant.');
+    } catch (e) {
+      print('❌ Fehler beim Planen der Terminerinnerung: $e');
+      rethrow;
+    }
+  }
 
   @override
   Future<void> createUserFromAppleSignIn({

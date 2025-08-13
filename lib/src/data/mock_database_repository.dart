@@ -255,6 +255,20 @@ class MockDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> createEvent(SingleEvent event) async {
     _events.add(event);
+
+    // Wenn eine Erinnerung gesetzt wurde, sendAppointmentNotification aufrufen
+    if (event.hasReminder == true && event.reminderOffset != null) {
+      await sendAppointmentNotification(event);
+    }
+
+    await Future.delayed(const Duration(milliseconds: 1));
+  }
+
+  @override
+  Future<void> sendAppointmentNotification(SingleEvent event) async {
+    // In der Mock-Implementierung geben wir nur eine Konsolenausgabe aus
+    print(
+        'Mock: Terminbenachrichtigung für ${event.singleEventName} wäre gesendet worden.');
     await Future.delayed(const Duration(milliseconds: 1));
   }
 

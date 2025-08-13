@@ -41,7 +41,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
   @override
   void initState() {
     super.initState();
-    // Initialisiere Datumformatierung für verschiedene Sprachen
     initializeDateFormatting('de', null);
     initializeDateFormatting('en', null);
 
@@ -541,6 +540,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                             horizontal: 16.0, vertical: 8.0),
                         child: Card(
                           elevation: 2,
+                          color: AppColors.famkaWhite,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -621,7 +621,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.delete_forever,
-                                              color: AppColors.famkaRed),
+                                              color: AppColors.famkaGrey),
                                           onPressed: () =>
                                               _confirmAndDeleteEvent(event),
                                         ),
