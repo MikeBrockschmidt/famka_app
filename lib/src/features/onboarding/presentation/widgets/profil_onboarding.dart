@@ -207,22 +207,23 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: Container(
-                padding: const EdgeInsets.fromLTRB(32, 110, 32, 28),
+                padding: const EdgeInsets.fromLTRB(32, 130, 32, 28),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 30.0),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 12),
                             TextFormField(
                               controller: _emailController,
                               decoration: InputDecoration(
@@ -283,7 +284,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
           ),
         ),
         Positioned(
-          top: -60,
+          top: -70,
           left: 0,
           right: 0,
           child: Center(

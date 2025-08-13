@@ -80,7 +80,7 @@ class _AppointmentState extends State<Appointment> {
       _groupMembersFuture = Future.value([]);
     }
     _numberOfRepeatsController.text = _numberOfRepeats.toString();
-    
+
     // Wir initialisieren die Werte nach dem ersten Build, wenn der Kontext verfügbar ist
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -581,26 +581,26 @@ class _AppointmentState extends State<Appointment> {
                               _selectedRepeat = val;
                             });
                           },
-                        numberOfRepeatsController: _numberOfRepeatsController,
-                        validateNumberOfRepeats: _validateNumberOfRepeats,
-                        onNumberOfRepeatsChanged: (value) {
-                          setState(() {
-                            _numberOfRepeats = int.tryParse(value) ?? 1;
-                          });
-                        },
-                        initialReminder: _reminder,
-                        onReminderChanged: (val) {
-                          setState(() {
-                            _reminder = val;
-                          });
-                        },
-                        initialSelectedReminder: _selectedReminder ?? '',
-                        onSelectedReminderChanged: (val) {
-                          setState(() {
-                            _selectedReminder = val;
-                          });
-                        },
-                      ),
+                          numberOfRepeatsController: _numberOfRepeatsController,
+                          validateNumberOfRepeats: _validateNumberOfRepeats,
+                          onNumberOfRepeatsChanged: (value) {
+                            setState(() {
+                              _numberOfRepeats = int.tryParse(value) ?? 1;
+                            });
+                          },
+                          initialReminder: _reminder,
+                          onReminderChanged: (val) {
+                            setState(() {
+                              _reminder = val;
+                            });
+                          },
+                          initialSelectedReminder: _selectedReminder ?? '',
+                          onSelectedReminderChanged: (val) {
+                            setState(() {
+                              _selectedReminder = val;
+                            });
+                          },
+                        ),
                       AppTextField(
                         leftIcon: Icons.description,
                         controller: _descriptionController,

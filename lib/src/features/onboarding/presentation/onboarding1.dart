@@ -45,7 +45,7 @@ class CustomScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const HeadlineK(screenHead: 'Profil'),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 100),
                   const SizedBox(height: 10),
                   ProfilOnboarding(
                     db: db,

@@ -245,7 +245,7 @@ abstract class AppLocalizations {
   /// No description provided for @newGroupTitle.
   ///
   /// In en, this message translates to:
-  /// **'Create New Group'**
+  /// **'Group'**
   String get newGroupTitle;
 
   /// No description provided for @enterGroupName.

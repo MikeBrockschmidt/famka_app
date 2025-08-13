@@ -6,27 +6,45 @@ Future<TimeOfDay?> selectAppointmentTime(
   BuildContext context, {
   required TimeOfDay initialTime,
 }) async {
+  // Get the app's current locale for consistency
+  // Note: showTimePicker doesn't have a locale parameter like showDatePicker
+
   final TimeOfDay? picked = await showTimePicker(
     context: context,
     initialTime: initialTime,
     builder: (context, child) {
+      final theme = Theme.of(context);
+      final textTheme = theme.textTheme;
+
       return Theme(
-        data: Theme.of(context).copyWith(
+        data: theme.copyWith(
+          dialogBackgroundColor: AppColors.famkaWhite,
           dialogTheme: const DialogThemeData(
             backgroundColor: AppColors.famkaWhite,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16.0)),
+            ),
+            elevation: 8.0,
+            // Make dialog more compact
+            alignment: Alignment.center,
           ),
           canvasColor: AppColors.famkaWhite,
-          colorScheme: Theme.of(context).colorScheme.copyWith(
-                primary: AppColors.famkaCyan,
-                onPrimary: AppColors.famkaWhite,
-                surface: AppColors.famkaWhite,
-                onSurface: AppColors.famkaBlack,
-                secondary: AppColors.famkaYellow,
-                onSecondary: AppColors.famkaBlack,
-              ),
+          colorScheme: theme.colorScheme.copyWith(
+            primary: AppColors.famkaCyan,
+            onPrimary: AppColors.famkaWhite,
+            surface: AppColors.famkaWhite,
+            onSurface: AppColors.famkaBlack,
+            secondary: AppColors.famkaYellow,
+            onSecondary: AppColors.famkaBlack,
+          ),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.famkaCyan,
+              foregroundColor: AppColors.famkaBlue,
+              textStyle: textTheme.labelLarge?.copyWith(
+                fontSize: 14.0, // Smaller font size
+                color: AppColors.famkaBlue,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           timePickerTheme: TimePickerThemeData(
@@ -39,39 +57,87 @@ Future<TimeOfDay?> selectAppointmentTime(
             dialHandColor: AppColors.famkaYellow,
             dialTextColor: AppColors.famkaBlack,
             entryModeIconColor: AppColors.famkaCyan,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16.0)),
+            ),
+            // Make time picker more compact
+            hourMinuteShape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            ),
+            dayPeriodShape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            ),
+            dayPeriodBorderSide: const BorderSide(color: AppColors.famkaCyan),
+            hourMinuteTextStyle: const TextStyle(
+              fontSize: 40.0, // Smaller hour/minute text
+              fontWeight: FontWeight.bold,
+            ),
+            dayPeriodTextStyle: const TextStyle(
+              fontSize: 12.0, // Smaller AM/PM text
+            ),
+            helpTextStyle: const TextStyle(
+              fontSize: 12.0, // Smaller help text
+            ),
           ),
-          textTheme: Theme.of(context).textTheme.copyWith(
-                displayLarge: Theme.of(context)
-                    .textTheme
-                    .displayLarge
-                    ?.copyWith(fontSize: 48.0, color: AppColors.famkaBlack),
-                headlineMedium: Theme.of(context)
-                    .textTheme
-                    .headlineMedium
-                    ?.copyWith(fontSize: 28.0, color: AppColors.famkaBlack),
-                bodyLarge: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: AppColors.famkaBlack),
-                bodyMedium: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: AppColors.famkaBlack),
-                titleMedium: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: AppColors.famkaBlack),
-                labelSmall: Theme.of(context)
-                    .textTheme
-                    .labelSmall
-                    ?.copyWith(color: AppColors.famkaBlack),
-                labelLarge: Theme.of(context)
-                    .textTheme
-                    .labelLarge
-                    ?.copyWith(fontSize: 16.0, color: AppColors.famkaCyan),
-              ),
+          textTheme: textTheme.copyWith(
+            titleLarge: textTheme.titleLarge?.copyWith(
+              fontSize: 16.0, // Smaller font size
+              fontWeight: FontWeight.bold,
+              color: AppColors.famkaBlack,
+            ),
+            bodyLarge: textTheme.bodyLarge?.copyWith(
+              fontSize: 14.0, // Smaller font size
+              color: AppColors.famkaBlack,
+            ),
+            bodyMedium: textTheme.bodyMedium?.copyWith(
+              fontSize: 13.0, // Smaller font size
+              color: AppColors.famkaBlack,
+            ),
+            bodySmall: textTheme.bodySmall?.copyWith(
+              fontSize: 12.0, // Smaller font size
+              color: AppColors.famkaBlack,
+            ),
+            titleMedium: textTheme.titleMedium?.copyWith(
+              fontSize: 14.0, // Smaller font size
+              color: AppColors.famkaBlack,
+            ),
+            labelSmall: textTheme.labelSmall?.copyWith(
+              fontSize: 12.0, // Smaller font size
+              color: AppColors.famkaBlack,
+            ),
+            labelLarge: textTheme.labelLarge?.copyWith(
+              fontSize: 14.0, // Smaller font size
+              color: AppColors.famkaBlack,
+              fontWeight: FontWeight.w500,
+            ),
+            displayLarge: textTheme.displayLarge?.copyWith(
+                fontSize: 40.0, // Smaller dial text
+                color: AppColors.famkaBlack),
+            headlineMedium: textTheme.headlineMedium?.copyWith(
+                fontSize: 24.0, // Smaller headline
+                color: AppColors.famkaBlack),
+          ),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        child: child!,
+        // Create a compact window-like appearance
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 8.0,
+          backgroundColor: AppColors.famkaWhite,
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85, // Limit width
+            constraints: BoxConstraints(
+              maxWidth: 340, // Maximum width for larger screens
+              maxHeight:
+                  MediaQuery.of(context).size.height * 0.6, // Limit height
+            ),
+            child: child,
+          ),
+        ),
       );
     },
   );

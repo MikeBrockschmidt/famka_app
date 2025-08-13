@@ -161,6 +161,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 20),
               Center(
                 child: GestureDetector(
                   onTap: () => _handleAvatarSelected(""),
@@ -186,7 +187,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 55),
               ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
@@ -279,6 +280,9 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                           controller: _phoneNumberController,
                           keyboardType: TextInputType.phone,
                           validator: _validatePhoneNumber,
+                          onTapOutside: (_) {
+                            FocusScope.of(context).unfocus();
+                          },
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!
                                 .telefonnummerOptional,

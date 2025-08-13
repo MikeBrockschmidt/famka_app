@@ -4,6 +4,7 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/common/color_row.dart';
 import 'package:famka_app/src/features/login/presentation/widgets/login_window.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatelessWidget {
   // Atribute
@@ -24,20 +25,26 @@ class LoginScreen extends StatelessWidget {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          HeadlineK(screenHead: 'famka'),
-          Padding(
-            padding: EdgeInsets.only(left: 28, top: 130),
-            child: Text(
-              'Login',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
+        children: [
+          const HeadlineK(
+            screenHead: 'famka',
+            showLanguageSwitch: true,
           ),
-          Expanded(child: SizedBox()),
+          Padding(
+            padding: const EdgeInsets.only(left: 28, top: 130),
+            child: Builder(builder: (context) {
+              final l10n = AppLocalizations.of(context)!;
+              return Text(
+                l10n.loginScreenTitle,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              );
+            }),
+          ),
+          const Expanded(child: SizedBox()),
         ],
       ),
       bottomNavigationBar: Stack(

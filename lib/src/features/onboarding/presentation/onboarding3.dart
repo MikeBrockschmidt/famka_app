@@ -1,4 +1,7 @@
+import 'package:famka_app/src/common/color_row.dart';
+import 'package:famka_app/src/common/color_row1.dart';
 import 'package:famka_app/src/common/color_row2.dart';
+import 'package:famka_app/src/common/color_row3.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -120,6 +123,13 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
+          // ColorRow3 im Hintergrund
+          const Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: ColorRow3(),
+          ),
           Positioned.fill(
             child: SafeArea(
               child: Column(
@@ -137,52 +147,87 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
                           children: [
                             const SizedBox(height: 40),
                             Center(
-                              child: ProfilImage(
-                                widget.db,
-                                currentAvatarUrl: _groupAvatarUrl,
-                                onAvatarSelected: _handleGroupAvatarSelected,
-                                contextType: ImageSelectionContext.group,
+                              child: GestureDetector(
+                                onTap: () => _handleGroupAvatarSelected(""),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height: 150,
+                                      width: 150,
+                                      child: ProfilImage(
+                                        widget.db,
+                                        currentAvatarUrl: _groupAvatarUrl,
+                                        onAvatarSelected:
+                                            _handleGroupAvatarSelected,
+                                        contextType:
+                                            ImageSelectionContext.group,
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.camera_alt,
+                                      size: 48,
+                                      color: Colors.white30,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             const SizedBox(height: 20),
-                            TextFormField(
-                              controller: _groupNameController,
-                              decoration: InputDecoration(
-                                labelText: AppLocalizations.of(context)!
-                                    .addOrJoinGroupTitle,
-                                hintText: AppLocalizations.of(context)!
-                                    .addOrJoinGroupCreateHint,
-                                border: const OutlineInputBorder(),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return AppLocalizations.of(context)!
-                                      .addOrJoinGroupGroupNameEmpty;
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _groupLocationController,
-                              decoration: InputDecoration(
-                                labelText:
-                                    "${AppLocalizations.of(context)!.groupLocation} (optional)",
-                                hintText: AppLocalizations.of(context)!
-                                    .addOrJoinGroupLocationHint,
-                                border: const OutlineInputBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _groupDescriptionController,
-                              maxLines: 3,
-                              decoration: InputDecoration(
-                                labelText:
-                                    "${AppLocalizations.of(context)!.groupDescription} (optional)",
-                                hintText: AppLocalizations.of(context)!
-                                    .addOrJoinGroupDescriptionHint,
-                                border: const OutlineInputBorder(),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Column(
+                                  children: [
+                                    TextFormField(
+                                      controller: _groupNameController,
+                                      decoration: InputDecoration(
+                                        labelText: AppLocalizations.of(context)!
+                                            .addOrJoinGroupTitle,
+                                        hintText: AppLocalizations.of(context)!
+                                            .addOrJoinGroupCreateHint,
+                                        border: const OutlineInputBorder(),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.trim().isEmpty) {
+                                          return AppLocalizations.of(context)!
+                                              .addOrJoinGroupGroupNameEmpty;
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 12),
+                                    TextFormField(
+                                      controller: _groupLocationController,
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            "${AppLocalizations.of(context)!.groupLocation} (optional)",
+                                        hintText: AppLocalizations.of(context)!
+                                            .addOrJoinGroupLocationHint,
+                                        border: const OutlineInputBorder(),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    TextFormField(
+                                      controller: _groupDescriptionController,
+                                      maxLines: 3,
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            "${AppLocalizations.of(context)!.groupDescription} (optional)",
+                                        hintText: AppLocalizations.of(context)!
+                                            .addOrJoinGroupDescriptionHint,
+                                        border: const OutlineInputBorder(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             const SizedBox(height: 30),
@@ -201,12 +246,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
               ),
             ),
           ),
-          const Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: ColorRow2(),
-          ),
+          // OnboardingProgress3 immer über allem
           Positioned(
             bottom: 70,
             left: 0,

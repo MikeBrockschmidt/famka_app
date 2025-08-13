@@ -27,7 +27,7 @@
   "copyButton": "Copy",
   "menuTitle": "Menu",
 
-  "newGroupTitle": "Create New Group",
+  "newGroupTitle": "Group",
   "enterGroupName": "Please enter a group name.",
   "groupCreatedSuccess": "Group \"{groupName}\" successfully created!",
   "createGroupError": "Error creating group: {error}",

@@ -526,6 +526,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                           FocusScope.of(context)
                                               .requestFocus(_emailFocusNode);
                                         },
+                                        onTapOutside: (_) {
+                                          FocusScope.of(context).unfocus();
+                                        },
                                         validator: _validatePhoneNumber,
                                         decoration: InputDecoration(
                                           hintText: AppLocalizations.of(context)

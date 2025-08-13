@@ -33,7 +33,7 @@ class Onboarding2Screen extends StatelessWidget {
           ),
           Positioned.fill(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 150),
+              padding: const EdgeInsets.only(bottom: 100),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
