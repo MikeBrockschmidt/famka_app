@@ -1,5 +1,5 @@
 {
-  "@@locale": "de",
+  "@@locale": "de_Temp",
   "addOrJoinGroupRequiredFieldError": "Bitte füllen Sie alle erforderlichen Felder aus.",
   "addOrJoinGroupTitle": "Gruppe erstellen",
   "addOrJoinGroupCreateHint": "Gruppenname eingeben", 

@@ -95,7 +95,8 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('de'),
-    Locale('en')
+    Locale('en'),
+    Locale.fromSubtags(languageCode: 'de', scriptCode: 'Temp')
   ];
 
   /// No description provided for @addOrJoinGroupRequiredFieldError.
@@ -1959,6 +1960,18 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+script codes are specified.
+  switch (locale.languageCode) {
+    case 'de':
+      {
+        switch (locale.scriptCode) {
+          case 'Temp':
+            return AppLocalizationsDeTemp();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'de':

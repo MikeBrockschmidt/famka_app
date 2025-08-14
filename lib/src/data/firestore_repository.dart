@@ -177,9 +177,12 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
       Map<String, Map<String, dynamic>> passiveMembersData) async {
     final List<AppUser> members = [];
     for (final memberId in memberIds) {
-      final member = await getUserAsync(memberId);
-      if (member != null) {
+      // Überprüfen, ob der Benutzer existiert (nicht mehr in getUserAsync, da wir vorher schon validiert haben)
+      final doc = await _firestore.collection('users').doc(memberId).get();
+      if (doc.exists) {
+        final member = AppUser.fromMap(doc.data()!);
         members.add(member);
+        print('✅ Benutzer $memberId erfolgreich abgerufen.');
       } else {
         if (passiveMembersData.containsKey(memberId)) {
           final passiveData = passiveMembersData[memberId]!;
@@ -196,9 +199,10 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
           );
           members.add(dummyPassiveUser);
         } else {
+          // Wir erstellen einen temporären Dummy-Benutzer, aber merken uns, dass wir diese ID später bereinigen sollten
           final dummyPassiveUser = AppUser(
             profilId: memberId,
-            firstName: 'Passives Mitglied',
+            firstName: 'Gelöschter Nutzer',
             lastName: '(ID: ${memberId.substring(0, 4)}...)',
             email: '',
             phoneNumber: '',
@@ -207,6 +211,7 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
             miscellaneous: null,
           );
           members.add(dummyPassiveUser);
+          print('⚠️ Ungültige Benutzer-ID gefunden: $memberId - sollte bereinigt werden');
         }
       }
     }
@@ -259,6 +264,29 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
         List<String> memberIds =
             List<String>.from(groupData['groupMemberIds'] ?? []);
 
+        // Bereinigen der Mitgliederliste - entferne nicht mehr existierende Benutzer
+        List<String> validMemberIds = [];
+        bool membersChanged = false;
+        
+        for (final memberId in memberIds) {
+          final userExists = await _userExists(memberId);
+          if (userExists) {
+            validMemberIds.add(memberId);
+          } else {
+            // Benutzer existiert nicht mehr
+            membersChanged = true;
+            print('⚠️ Benutzer $memberId existiert nicht mehr und wird aus Gruppe ${groupData['name']} entfernt');
+          }
+        }
+        
+        // Aktualisiere die Gruppe, wenn sich die Mitgliederliste geändert hat
+        if (membersChanged) {
+          await _firestore.collection('groups').doc(doc.id).update({
+            'groupMemberIds': validMemberIds,
+          });
+          print('✅ Mitgliederliste für Gruppe ${groupData['name']} aktualisiert');
+        }
+
         final Map<String, dynamic> passiveMembersDataRaw =
             groupData['passiveMembersData'] ?? {};
         final Map<String, Map<String, dynamic>> extractedPassiveMembersData =
@@ -270,7 +298,7 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
         });
 
         final List<AppUser> members = await _fetchGroupMembersAndPassive(
-            memberIds, extractedPassiveMembersData);
+            validMemberIds, extractedPassiveMembersData);
         groups.add(Group.fromMap(groupData, members));
       }
       print('✅ Gruppen für Benutzer $userId erfolgreich abgerufen.');
@@ -278,6 +306,17 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
     } catch (e) {
       print('❌ Fehler beim Abrufen der Gruppen für Benutzer $userId: $e');
       return [];
+    }
+  }
+  
+  // Hilfsmethode zum Überprüfen, ob ein Benutzer existiert
+  Future<bool> _userExists(String userId) async {
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      return doc.exists;
+    } catch (e) {
+      print('❌ Fehler beim Überprüfen der Existenz von Benutzer $userId: $e');
+      return false;
     }
   }
 

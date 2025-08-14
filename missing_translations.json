@@ -4,5 +4,12 @@
     "hidePasswordTooltip",
     "errorCreatingGroup",
     "ungueltigeTelefonnummer"
+  ],
+
+  "de_Temp": [
+    "showPasswordTooltip",
+    "hidePasswordTooltip",
+    "errorCreatingGroup",
+    "ungueltigeTelefonnummer"
   ]
 }
