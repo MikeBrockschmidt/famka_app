@@ -220,6 +220,8 @@ class _CustomScreenState extends State<Menu> {
                     ExpansionTile(
                       key: Key('tile_1_${expandedIndex == 1}'),
                       backgroundColor: AppColors.famkaYellow,
+                      iconColor: AppColors.famkaBlack,
+                      collapsedIconColor: AppColors.famkaBlack,
                       initiallyExpanded: expandedIndex == 1,
                       title: _buildTileTitle(context, 'Kalender'),
                       onExpansionChanged: (isExpanded) =>
@@ -269,6 +271,8 @@ class _CustomScreenState extends State<Menu> {
                     ExpansionTile(
                       key: Key('tile_2_${expandedIndex == 2}'),
                       backgroundColor: AppColors.famkaYellow,
+                      iconColor: AppColors.famkaBlack,
+                      collapsedIconColor: AppColors.famkaBlack,
                       initiallyExpanded: expandedIndex == 2,
                       title: _buildTileTitle(context, 'Gruppen'),
                       onExpansionChanged: (isExpanded) =>
@@ -322,6 +326,8 @@ class _CustomScreenState extends State<Menu> {
                     ExpansionTile(
                       key: Key('tile_3_${expandedIndex == 3}'),
                       backgroundColor: AppColors.famkaYellow,
+                      iconColor: AppColors.famkaBlack,
+                      collapsedIconColor: AppColors.famkaBlack,
                       initiallyExpanded: expandedIndex == 3,
                       title: _buildTileTitle(context, 'Einladen'),
                       onExpansionChanged: (isExpanded) =>

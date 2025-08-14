@@ -44,11 +44,19 @@ class MenuSubContainer1LinesLanguage extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           l10n.languageSettingTitle,
-                          style: Theme.of(context).textTheme.labelMedium,
+                          style:
+                              Theme.of(context).textTheme.labelMedium?.copyWith(
+                                    fontSize: 18, // Schriftgröße reduziert
+                                    height: 0.9, // Zeilenhöhe reduzieren
+                                  ),
+                          overflow: TextOverflow.ellipsis, // Vermeidet Umbrüche
                         ),
+                        const SizedBox(
+                            height: 2), // Reduzierter vertikaler Abstand
                         Text(
                           localeProvider.isEnglish
                               ? l10n.languageEnglish

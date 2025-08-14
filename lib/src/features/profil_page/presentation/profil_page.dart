@@ -171,35 +171,21 @@ class _ProfilPageState extends State<ProfilPage> {
     await Clipboard.setData(ClipboardData(text: phoneNumber));
     if (mounted) {
       final snackBar = SnackBar(
-        backgroundColor: AppColors.famkaCyan,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        content: Container(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  'Telefonnummer $phoneNumber in die Zwischenablage kopiert',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              SizedBox(width: 10),
-              SizedBox(
-                width: 70,
-                height: 46,
-                child: ButtonLinearGradient(
-                  buttonText: 'OK',
-                ),
-              ),
-            ],
-          ),
+        backgroundColor: AppColors.famkaCyan.withOpacity(0.9),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        duration: const Duration(seconds: 2),
+        content: Text(
+          'Telefonnummer $phoneNumber in die Zwischenablage kopiert',
+          style: const TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
-          label: '',
-          onPressed: () {},
-          textColor: Colors.transparent,
+          label: 'OK',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
         ),
       );
 

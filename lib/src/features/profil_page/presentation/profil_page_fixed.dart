@@ -163,11 +163,21 @@ class _ProfilPageState extends State<ProfilPage> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Telefonnummer $phoneNumber in die Zwischenablage kopiert'),
+          backgroundColor: AppColors.famkaCyan.withOpacity(0.9),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          duration: const Duration(seconds: 2),
+          content: Text(
+            'Telefonnummer $phoneNumber in die Zwischenablage kopiert',
+            style: const TextStyle(color: Colors.white),
+          ),
           action: SnackBarAction(
             label: 'OK',
-            onPressed: () {},
+            textColor: Colors.white,
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
           ),
         ),
       );

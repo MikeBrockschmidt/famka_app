@@ -11,6 +11,10 @@ final ThemeData appTheme = ThemeData(
     onSurface: AppColors.famkaBlack,
     error: AppColors.famkaRed,
   ),
+  expansionTileTheme: ExpansionTileThemeData(
+    iconColor: AppColors.famkaBlack,
+    collapsedIconColor: AppColors.famkaBlack,
+  ),
   switchTheme: SwitchThemeData(
     thumbColor:
         MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
@@ -33,7 +37,7 @@ final ThemeData appTheme = ThemeData(
     headlineLarge: TextStyle(
       fontFamily: 'SFProDisplayHeavy',
       fontWeight: FontWeight.w300,
-      fontSize: 44,
+      fontSize: 40,
       color: Colors.black,
     ),
     headlineMedium: TextStyle(
@@ -57,13 +61,13 @@ final ThemeData appTheme = ThemeData(
     labelMedium: TextStyle(
       fontFamily: 'SFProDisplay',
       fontWeight: FontWeight.w600,
-      fontSize: 21,
+      fontSize: 18,
       color: Colors.black,
     ),
     labelLarge: TextStyle(
       fontFamily: 'SFProDisplay',
       fontWeight: FontWeight.w900,
-      fontSize: 44,
+      fontSize: 40,
       color: Colors.black,
     ),
     bodySmall: TextStyle(
