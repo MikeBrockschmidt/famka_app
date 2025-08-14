@@ -88,52 +88,77 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
     });
 
     try {
+      print('🔵 SPEICHERE ÄNDERUNGEN:');
+      print(
+          '🔵 Originale Mitglieder: ${widget.group.groupMembers.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
+      print(
+          '🔵 Bearbeitete Mitglieder: ${_currentGroupMembersEditable.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
+      print(
+          '🔵 Neue Mitglieder: ${_selectedNewUsers.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
+
+      // Mitglieder identifizieren, die entfernt wurden
       final membersToRemove = widget.group.groupMembers.where(
           (originalMember) => !_currentGroupMembersEditable.any(
               (editedMember) =>
                   editedMember.profilId == originalMember.profilId));
+
+      print(
+          '🔵 Zu entfernende Mitglieder: ${membersToRemove.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
+
+      // Mitglieder nacheinander entfernen
       for (var member in membersToRemove) {
+        print(
+            '🔵 Entferne Mitglied: ${member.firstName} ${member.lastName} (${member.profilId})');
         await widget.db
             .removeUserFromGroup(member.profilId, widget.group.groupId);
+
+        // Kurze Pause um sicherzustellen, dass die Änderung durchgeführt wurde
+        await Future.delayed(const Duration(milliseconds: 100));
       }
 
+      // Neue Gruppe abrufen nach dem Entfernen der Mitglieder
+      final updatedGroupAfterRemove =
+          await widget.db.getGroupAsync(widget.group.groupId);
+      if (updatedGroupAfterRemove != null) {
+        print(
+            '🔵 Gruppenmitglieder nach dem Entfernen: ${updatedGroupAfterRemove.groupMembers.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
+      }
+
+      // Neue Mitglieder hinzufügen
       for (var user in _selectedNewUsers) {
         UserRole assignedRole;
         if (user.email.isEmpty && (user.phoneNumber?.isEmpty ?? true)) {
           assignedRole = UserRole.passiveMember;
+          print(
+              '🔵 Füge passives Mitglied hinzu: ${user.firstName} ${user.lastName} (${user.profilId})');
         } else {
           assignedRole = UserRole.member;
+          print(
+              '🔵 Füge aktives Mitglied hinzu: ${user.firstName} ${user.lastName} (${user.profilId})');
         }
         await widget.db
             .addUserToGroup(user, widget.group.groupId, assignedRole);
       }
 
-      final updatedGroupMembers =
-          List<AppUser>.from(_currentGroupMembersEditable)
-            ..addAll(_selectedNewUsers);
+      // Überprüfen ob wir die Gruppe nochmals aktualisieren müssen
+      final Group? updatedGroupFromDB =
+          await widget.db.getGroupAsync(widget.group.groupId);
+      if (updatedGroupFromDB != null) {
+        print('🔵 GRUPPE NACH ALLEN ÄNDERUNGEN:');
+        print(
+            '🔵 - Mitglieder IDs: ${updatedGroupFromDB.groupMembers.map((m) => m.profilId).toList()}');
+        print(
+            '🔵 - Passive Mitglieder Daten: ${updatedGroupFromDB.passiveMembersData.keys.toList()}');
 
-      final Map<String, UserRole> updatedUserRoles =
-          Map.from(widget.group.userRoles);
-
-      for (var user in _selectedNewUsers) {
-        final UserRole assignedRole;
-        if (user.email.isEmpty && (user.phoneNumber?.isEmpty ?? true)) {
-          assignedRole = UserRole.passiveMember;
-        } else {
-          assignedRole = UserRole.member;
+        // Sicherstellen, dass entfernte Mitglieder nicht mehr in den passiveMembersData sind
+        for (var member in membersToRemove) {
+          if (updatedGroupFromDB.passiveMembersData
+              .containsKey(member.profilId)) {
+            print(
+                '🔵 WARNUNG: Entferntes Mitglied ${member.profilId} ist immer noch in passiveMembersData!');
+          }
         }
-        updatedUserRoles[user.profilId] = assignedRole;
       }
-
-      for (var member in membersToRemove) {
-        updatedUserRoles.remove(member.profilId);
-      }
-
-      final updatedGroup = widget.group.copyWith(
-        groupMembers: updatedGroupMembers,
-        userRoles: updatedUserRoles,
-      );
-      await widget.db.updateGroup(updatedGroup);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -145,7 +170,7 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
       );
       Navigator.of(context).pop();
     } catch (e) {
-      print('Error saving changes: $e');
+      print('❌ Fehler beim Speichern der Änderungen: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -165,16 +190,9 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.famkaWhite,
       appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.manageMembersTitle,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: AppColors.famkaBlack,
-                height: 1.0,
-              ),
-        ),
-        backgroundColor: AppColors.famkaYellow,
+        title: Text(AppLocalizations.of(context)!.manageMembersTitle),
+        backgroundColor: AppColors.famkaBlue,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

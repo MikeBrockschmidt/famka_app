@@ -55,6 +55,14 @@ class Group {
       });
     }
 
+    // Debug-Ausgabe für die passiven Mitglieder
+    print(
+        'Group.fromMap: ${map['groupName']} - ${extractedPassiveMembersData.length} passive members');
+    extractedPassiveMembersData.forEach((key, value) {
+      print(
+          'Passive member data: $key - ${value['firstName']} ${value['lastName']}');
+    });
+
     return Group(
       groupId: map['groupId'] as String,
       groupName: map['groupName'] as String,

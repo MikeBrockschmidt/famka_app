@@ -21,6 +21,7 @@ import 'package:famka_app/src/features/group_page/presentation/widgets/group_hea
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_details.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_section.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/save_button.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/debug_tool.dart';
 
 class GroupPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -271,6 +272,9 @@ class _GroupPageState extends State<GroupPage> {
     );
 
     if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
       await _loadGroupAndUserData();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -295,10 +299,26 @@ class _GroupPageState extends State<GroupPage> {
     if (_currentGroup == null || _currentUserId == null) {
       return false;
     }
-    final bool isAdmin =
+
+    // Der Ersteller der Gruppe ist IMMER Admin
+    final bool isCreator = _currentGroup!.creatorId == _currentUserId;
+
+    // Zusätzlich prüfen wir, ob der Benutzer in der userRoles Map als Admin eingetragen ist
+    final bool isRoleAdmin =
         _currentGroup!.userRoles[_currentUserId] == UserRole.admin;
-    debugPrint('Is current user admin for this group (inside check): $isAdmin');
-    return isAdmin;
+
+    // Ausführliche Debug-Ausgabe
+    debugPrint('ADMIN CHECK DETAILS:');
+    debugPrint('- Current User ID: $_currentUserId');
+    debugPrint('- Group Creator ID: ${_currentGroup!.creatorId}');
+    debugPrint('- Is Creator: $isCreator');
+    debugPrint(
+        '- User Role from Map: ${_currentGroup!.userRoles[_currentUserId]}');
+    debugPrint('- Is Role Admin: $isRoleAdmin');
+    debugPrint('- Final result: ${isCreator || isRoleAdmin}');
+
+    // Der Benutzer ist Admin, wenn er entweder der Ersteller ist ODER in der userRoles Map als Admin eingetragen ist
+    return isCreator || isRoleAdmin;
   }
 
   void _showGroupIdDialog() {
@@ -310,6 +330,17 @@ class _GroupPageState extends State<GroupPage> {
           groupName: _currentGroup!.groupName,
           groupId: _currentGroup!.groupId,
         );
+      },
+    );
+  }
+
+  // Debug-Tool zum direkten Entfernen von Mitgliedern
+  void _showDebugTool() {
+    if (_currentGroup == null) return;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return DebugTool(groupId: _currentGroup!.groupId);
       },
     );
   }
