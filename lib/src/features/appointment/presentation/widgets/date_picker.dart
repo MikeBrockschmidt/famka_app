@@ -16,9 +16,9 @@ Future<DateTime?> selectAppointmentDate(
 }) async {
   // Initialize date formatting for German locale
   await initializeDateFormatting('de_DE');
-  
+
   final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
-  
+
   // Variable to track the currently selected date
   DateTime selectedDate = initialDate;
   // Format für den Header
@@ -28,7 +28,7 @@ Future<DateTime?> selectAppointmentDate(
 
   // Create a completer to handle custom button actions
   final completer = Completer<DateTime?>();
-  
+
   // Show the date picker dialog
   showDialog(
     context: context,
@@ -36,11 +36,11 @@ Future<DateTime?> selectAppointmentDate(
       return Theme(
         data: Theme.of(context).copyWith(
           colorScheme: Theme.of(context).colorScheme.copyWith(
-            primary: AppColors.famkaCyan,
-            onPrimary: AppColors.famkaWhite,
-            surface: AppColors.famkaWhite,
-            onSurface: AppColors.famkaBlack,
-          ),
+                primary: AppColors.famkaCyan,
+                onPrimary: AppColors.famkaWhite,
+                surface: AppColors.famkaWhite,
+                onSurface: AppColors.famkaBlack,
+              ),
           dialogBackgroundColor: AppColors.famkaWhite,
           textTheme: appTheme.textTheme,
         ),
@@ -56,21 +56,24 @@ Future<DateTime?> selectAppointmentDate(
               StatefulBuilder(
                 builder: (BuildContext context, StateSetter setHeaderState) {
                   headerSetState = setHeaderState;
-                  
+
                   // Format the date based on the locale
                   String formattedDate = "";
                   if (locale == 'de') {
                     // For German, format day name and day number with dot
-                    String dayName = DateFormat('EEEE', 'de_DE').format(selectedDate);
+                    String dayName =
+                        DateFormat('EEEE', 'de_DE').format(selectedDate);
                     // Capitalize first letter
-                    dayName = dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
+                    dayName = dayName.substring(0, 1).toUpperCase() +
+                        dayName.substring(1);
                     formattedDate = "$dayName, ${selectedDate.day}.";
                   } else {
                     // For English, format day name and day number
-                    String dayName = DateFormat('EEEE', 'en_US').format(selectedDate);
+                    String dayName =
+                        DateFormat('EEEE', 'en_US').format(selectedDate);
                     formattedDate = "$dayName, ${selectedDate.day}";
                   }
-                  
+
                   return Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -142,7 +145,6 @@ Future<DateTime?> selectAppointmentDate(
       );
     },
   );
-  
-  // Return the future that will be completed when a button is pressed
+
   return completer.future;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:famka_app/src/theme/color_theme.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({
@@ -107,6 +108,10 @@ class AppSwitchRow extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
+            activeColor: AppColors.famkaCyan,
+            activeTrackColor: AppColors.famkaCyan.withOpacity(0.5),
+            inactiveThumbColor: AppColors.famkaWhite,
+            inactiveTrackColor: AppColors.famkaGrey,
           ),
         ],
       ),
@@ -162,6 +167,9 @@ class AppDropdownRow extends StatelessWidget {
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               ),
+              dropdownColor: AppColors.famkaWhite,
+              iconEnabledColor: AppColors.famkaCyan,
+              style: TextStyle(color: Colors.black),
               items: items.map((String item) {
                 return DropdownMenuItem<String>(
                   value: item,

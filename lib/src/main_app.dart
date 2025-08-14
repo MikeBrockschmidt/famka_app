@@ -5,6 +5,7 @@ import 'package:famka_app/src/features/login/presentation/login_screen.dart';
 import 'package:famka_app/src/features/onboarding/presentation/onboarding2.dart';
 import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
 import 'package:famka_app/src/providers/locale_provider.dart';
+import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/font_theme.dart';
@@ -107,8 +108,11 @@ class _MainAppState extends State<MainApp> {
             _isLoadingUserData) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            home: const Scaffold(
-                body: Center(child: CircularProgressIndicator())),
+            home: Scaffold(
+                backgroundColor: AppColors.famkaWhite,
+                body: Center(
+                    child:
+                        CircularProgressIndicator(color: AppColors.famkaCyan))),
             theme: appTheme,
           );
         }
@@ -143,15 +147,21 @@ class _MainAppState extends State<MainApp> {
       return LoginScreen(widget.db, widget.auth);
     } else {
       if (_currentUserData == null) {
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        return Scaffold(
+            backgroundColor: AppColors.famkaWhite,
+            body: Center(
+                child: CircularProgressIndicator(color: AppColors.famkaCyan)));
       }
 
       return FutureBuilder<SharedPreferences>(
           future: SharedPreferences.getInstance(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()));
+              return Scaffold(
+                  backgroundColor: AppColors.famkaWhite,
+                  body: Center(
+                      child: CircularProgressIndicator(
+                          color: AppColors.famkaCyan)));
             }
 
             final prefs = snapshot.data;

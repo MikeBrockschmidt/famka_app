@@ -295,6 +295,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInWithAppleTooltip => 'Sign in with Apple';
 
   @override
+  String get appleLoginNewUserCreated => 'New Apple user profile created.';
+
+  @override
+  String get appleLoginSuccess => 'Apple user logged in successfully.';
+
+  @override
+  String appleLoginExistingUser(Object uid) {
+    return 'Apple user found in Firestore: $uid';
+  }
+
+  @override
+  String get appleLoginFailedFirestoreLoad =>
+      'Error: Could not load user data after creation.';
+
+  @override
+  String get appleLoginFailedDifferentCredential =>
+      'An account already exists with this email but with a different sign-in method.';
+
+  @override
+  String get appleLoginAborted => 'Apple login aborted by user.';
+
+  @override
+  String appleLoginUnexpectedError(String error) {
+    return 'Unexpected Apple login error: $error';
+  }
+
+  @override
+  String get appleLoginUnsupportedPlatform =>
+      'Apple Sign-In is only supported on iOS devices.';
+
+  @override
   String get showPasswordTooltip => 'Show password';
 
   @override

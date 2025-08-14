@@ -608,6 +608,54 @@ abstract class AppLocalizations {
   /// **'Sign in with Apple'**
   String get signInWithAppleTooltip;
 
+  /// No description provided for @appleLoginNewUserCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'New Apple user profile created.'**
+  String get appleLoginNewUserCreated;
+
+  /// No description provided for @appleLoginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple user logged in successfully.'**
+  String get appleLoginSuccess;
+
+  /// Existing Apple user found
+  ///
+  /// In en, this message translates to:
+  /// **'Apple user found in Firestore: {uid}'**
+  String appleLoginExistingUser(Object uid);
+
+  /// No description provided for @appleLoginFailedFirestoreLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: Could not load user data after creation.'**
+  String get appleLoginFailedFirestoreLoad;
+
+  /// No description provided for @appleLoginFailedDifferentCredential.
+  ///
+  /// In en, this message translates to:
+  /// **'An account already exists with this email but with a different sign-in method.'**
+  String get appleLoginFailedDifferentCredential;
+
+  /// No description provided for @appleLoginAborted.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple login aborted by user.'**
+  String get appleLoginAborted;
+
+  /// Unexpected error during Apple login
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected Apple login error: {error}'**
+  String appleLoginUnexpectedError(String error);
+
+  /// No description provided for @appleLoginUnsupportedPlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Sign-In is only supported on iOS devices.'**
+  String get appleLoginUnsupportedPlatform;
+
   /// No description provided for @showPasswordTooltip.
   ///
   /// In en, this message translates to:

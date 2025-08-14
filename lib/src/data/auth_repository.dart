@@ -7,4 +7,5 @@ abstract class AuthRepository {
   Future<void> signOut();
   Stream<User?> authStateChanges();
   Future<UserCredential> signInWithGoogle();
+  Future<UserCredential> signInWithApple();
 }

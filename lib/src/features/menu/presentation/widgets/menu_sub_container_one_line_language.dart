@@ -61,9 +61,10 @@ class MenuSubContainer1LinesLanguage extends StatelessWidget {
                   Switch(
                     value: localeProvider.isEnglish,
                     onChanged: (value) => localeProvider.toggleLanguage(),
-                    activeColor: AppColors.famkaGreen,
-                    inactiveThumbColor: AppColors.famkaRed,
-                    inactiveTrackColor: AppColors.famkaRed.withOpacity(0.5),
+                    activeColor: AppColors.famkaCyan,
+                    activeTrackColor: AppColors.famkaCyan.withOpacity(0.5),
+                    inactiveThumbColor: AppColors.famkaWhite,
+                    inactiveTrackColor: AppColors.famkaGrey,
                   ),
                 ],
               ),

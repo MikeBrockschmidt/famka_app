@@ -1,6 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'dart:io' show Platform;
+import 'dart:math' show Random;
+import 'dart:convert' show utf8;
+import 'package:crypto/crypto.dart' show sha256;
 
 class FirebaseAuthRepository implements AuthRepository {
   @override
@@ -42,5 +47,67 @@ class FirebaseAuthRepository implements AuthRepository {
     final credential =
         GoogleAuthProvider.credential(idToken: googleAuth.idToken);
     return FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  @override
+  Future<UserCredential> signInWithApple() async {
+    // Für nicht-iOS Plattformen eine Fehlermeldung werfen
+    if (!Platform.isIOS) {
+      throw FirebaseAuthException(
+        code: 'unsupported_platform',
+        message: 'Apple Sign-In is only supported on iOS devices.',
+      );
+    }
+
+    // Apple Sign-In Prozess starten
+    final rawNonce = generateNonce();
+    final nonce = sha256ofString(rawNonce);
+
+    // Apple Sign-In anfordern
+    final appleCredential = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+      nonce: nonce,
+    );
+
+    // OAuthCredential für Firebase erstellen
+    final oauthCredential = OAuthProvider('apple.com').credential(
+      idToken: appleCredential.identityToken,
+      rawNonce: rawNonce,
+    );
+
+    // Mit Firebase authentifizieren
+    final userCredential =
+        await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+
+    // Wenn es ein neuer Benutzer ist und Name verfügbar ist, aktualisiere das Profil
+    final firebaseUser = userCredential.user;
+    if (userCredential.additionalUserInfo?.isNewUser == true &&
+        firebaseUser != null &&
+        (appleCredential.givenName != null ||
+            appleCredential.familyName != null)) {
+      await firebaseUser.updateDisplayName(
+          '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}');
+    }
+
+    return userCredential;
+  }
+
+  // Hilfsfunktionen für Apple Sign-In
+  String generateNonce([int length = 32]) {
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
+        .join();
+  }
+
+  /// SHA256 hash des [input] String
+  String sha256ofString(String input) {
+    final bytes = utf8.encode(input);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
   }
 }

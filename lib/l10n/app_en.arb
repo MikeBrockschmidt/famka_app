@@ -100,6 +100,14 @@
   "signInWithGoogleTooltip": "Sign in with Google",
   "signInWithAppleNotImplemented": "Apple login not yet implemented.",
   "signInWithAppleTooltip": "Sign in with Apple",
+  "appleLoginNewUserCreated": "New Apple user profile created.",
+  "appleLoginSuccess": "Apple user logged in successfully.",
+  "appleLoginExistingUser": "Apple user found in Firestore: {uid}",
+  "appleLoginFailedFirestoreLoad": "Error: Could not load user data after creation.",
+  "appleLoginFailedDifferentCredential": "An account already exists with this email but with a different sign-in method.",
+  "appleLoginAborted": "Apple login aborted by user.",
+  "appleLoginUnexpectedError": "Unexpected Apple login error: {error}",
+  "appleLoginUnsupportedPlatform": "Apple Sign-In is only supported on iOS devices.",
   "showPasswordTooltip": "Show password",
   "hidePasswordTooltip": "Hide password",
 
@@ -328,6 +336,22 @@
     "placeholders": {
       "uid": {
         "type": "Object"
+      }
+    }
+  },
+  "@appleLoginExistingUser": {
+    "description": "Existing Apple user found",
+    "placeholders": {
+      "uid": {
+        "type": "Object"
+      }
+    }
+  },
+  "@appleLoginUnexpectedError": {
+    "description": "Unexpected error during Apple login",
+    "placeholders": {
+      "error": {
+        "type": "String"
       }
     }
   },

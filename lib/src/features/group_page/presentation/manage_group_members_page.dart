@@ -165,9 +165,16 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.famkaWhite,
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.manageMembersTitle),
-        backgroundColor: AppColors.famkaBlue,
+        title: Text(
+          AppLocalizations.of(context)!.manageMembersTitle,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: AppColors.famkaBlack,
+                height: 1.0,
+              ),
+        ),
+        backgroundColor: AppColors.famkaYellow,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

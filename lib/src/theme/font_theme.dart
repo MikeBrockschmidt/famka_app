@@ -1,6 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:famka_app/src/theme/color_theme.dart';
 
 final ThemeData appTheme = ThemeData(
+  colorScheme: ColorScheme.light(
+    primary: AppColors.famkaCyan,
+    secondary: AppColors.famkaYellow,
+    onSecondary: AppColors.famkaBlack,
+    background: AppColors.famkaWhite,
+    surface: AppColors.famkaWhite,
+    onSurface: AppColors.famkaBlack,
+    error: AppColors.famkaRed,
+  ),
+  switchTheme: SwitchThemeData(
+    thumbColor:
+        MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+      if (states.contains(MaterialState.selected)) {
+        return AppColors.famkaCyan;
+      }
+      return AppColors.famkaWhite;
+    }),
+    trackColor:
+        MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+      if (states.contains(MaterialState.selected)) {
+        return AppColors.famkaCyan.withOpacity(0.5);
+      }
+      return AppColors.famkaGrey;
+    }),
+  ),
+  scaffoldBackgroundColor: AppColors.famkaWhite,
+  dialogBackgroundColor: AppColors.famkaWhite,
   textTheme: TextTheme(
     headlineLarge: TextStyle(
       fontFamily: 'SFProDisplayHeavy',

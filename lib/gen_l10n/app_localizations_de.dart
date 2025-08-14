@@ -304,6 +304,37 @@ class AppLocalizationsDe extends AppLocalizations {
   String get signInWithAppleTooltip => 'Mit Apple anmelden';
 
   @override
+  String get appleLoginNewUserCreated => 'Neues Apple-Benutzerprofil erstellt.';
+
+  @override
+  String get appleLoginSuccess => 'Apple-Benutzer erfolgreich angemeldet.';
+
+  @override
+  String appleLoginExistingUser(Object uid) {
+    return 'Apple-Benutzer in Firestore gefunden: $uid';
+  }
+
+  @override
+  String get appleLoginFailedFirestoreLoad =>
+      'Fehler: Benutzerdaten konnten nach der Erstellung nicht geladen werden.';
+
+  @override
+  String get appleLoginFailedDifferentCredential =>
+      'Ein Konto mit dieser E-Mail-Adresse existiert bereits, aber mit einer anderen Anmeldemethode.';
+
+  @override
+  String get appleLoginAborted => 'Apple-Anmeldung abgebrochen.';
+
+  @override
+  String appleLoginUnexpectedError(String error) {
+    return 'Unerwarteter Fehler bei der Apple-Anmeldung: $error';
+  }
+
+  @override
+  String get appleLoginUnsupportedPlatform =>
+      'Apple-Anmeldung wird nur auf iOS-Geräten unterstützt.';
+
+  @override
   String get showPasswordTooltip => 'Show password';
 
   @override
