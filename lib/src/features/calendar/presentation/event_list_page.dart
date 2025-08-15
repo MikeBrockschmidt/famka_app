@@ -38,6 +38,7 @@ class _EventListPageState extends State<EventListPage> {
   late Group _displayGroup;
   List<SingleEvent> _events = [];
   bool _isLoading = true;
+  bool _showLoadingIndicator = false;
   String? _errorMessage;
   final ScrollController _scrollController = ScrollController();
   bool _initialScrollComplete = false;
@@ -259,6 +260,8 @@ class _EventListPageState extends State<EventListPage> {
         widget.currentUser.profilId != oldWidget.currentUser.profilId) {
       setState(() {
         _displayGroup = widget.currentGroup;
+        _isLoading = true;
+        _showLoadingIndicator = false;
       });
       _loadEvents();
     }
@@ -274,9 +277,21 @@ class _EventListPageState extends State<EventListPage> {
 
     print(
         'EventListPage: ${localizations?.eventListLoading ?? "Starte Laden der Events..."}');
+
+    // Show loading indicator only after a delay to avoid flashing
     setState(() {
       _isLoading = true;
+      _showLoadingIndicator = false;
       _errorMessage = null;
+    });
+
+    // Delay showing the loading indicator to avoid flashing for quick loads
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted && _isLoading) {
+        setState(() {
+          _showLoadingIndicator = true;
+        });
+      }
     });
 
     try {
@@ -296,6 +311,8 @@ class _EventListPageState extends State<EventListPage> {
             DateTime.now().subtract(const Duration(days: 14));
 
         setState(() {
+          _isLoading = false;
+          _showLoadingIndicator = false;
           _events = allEvents
               .where((event) =>
                   event.singleEventDate.isAfter(cutoffDate) ||
@@ -323,7 +340,7 @@ class _EventListPageState extends State<EventListPage> {
         _cleanupOldEvents(allEvents, cutoffDate);
 
         if (!_initialScrollComplete) {
-          Future.delayed(const Duration(milliseconds: 300), () {
+          Future.delayed(const Duration(milliseconds: 100), () {
             _scrollToToday();
           });
         }
@@ -341,13 +358,9 @@ class _EventListPageState extends State<EventListPage> {
       print(errorMsg);
       if (mounted) {
         setState(() {
-          _errorMessage = errorStateMsg;
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
           _isLoading = false;
+          _showLoadingIndicator = false;
+          _errorMessage = errorStateMsg;
         });
       }
     }
@@ -541,8 +554,10 @@ class _EventListPageState extends State<EventListPage> {
       if (mounted) {
         setState(() {
           _displayGroup = updatedGroup;
-          _loadEvents();
+          _isLoading = true;
+          _showLoadingIndicator = false;
         });
+        _loadEvents();
       }
     }
 
@@ -565,7 +580,7 @@ class _EventListPageState extends State<EventListPage> {
           const Divider(thickness: 0.4, height: 0.4, color: Colors.grey),
           _buildOldEventsInfoBanner(),
           Expanded(
-            child: _isLoading
+            child: _showLoadingIndicator
                 ? const Center(child: CircularProgressIndicator())
                 : _errorMessage != null
                     ? Center(
@@ -681,23 +696,31 @@ class _EventListPageState extends State<EventListPage> {
                                                 ),
                                               ),
                                               IconButton(
-                                                icon: Icon(Icons.info_outline, 
-                                                     color: AppColors.famkaBlue),
+                                                icon: Icon(Icons.info_outline,
+                                                    color: AppColors.famkaBlue),
                                                 onPressed: () async {
-                                                  await showModalBottomSheet<bool>(
+                                                  await showModalBottomSheet<
+                                                      bool>(
                                                     context: context,
                                                     isScrollControlled: true,
                                                     builder: (context) {
                                                       return InfoBottomSheet(
-                                                        date: event.singleEventDate,
-                                                        userName:
-                                                            widget.currentUser.firstName,
-                                                        eventsForPerson: [event],
+                                                        date: event
+                                                            .singleEventDate,
+                                                        userName: widget
+                                                            .currentUser
+                                                            .firstName,
+                                                        eventsForPerson: [
+                                                          event
+                                                        ],
                                                         currentGroupMembers:
-                                                            _displayGroup.groupMembers,
+                                                            _displayGroup
+                                                                .groupMembers,
                                                         db: widget.db,
-                                                        onEventDeleted: _onEventDeleted,
-                                                        onEventUpdated: (updatedEvent) {
+                                                        onEventDeleted:
+                                                            _onEventDeleted,
+                                                        onEventUpdated:
+                                                            (updatedEvent) {
                                                           _loadEvents();
                                                         },
                                                       );

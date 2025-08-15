@@ -503,6 +503,8 @@ class _LoginWindowState extends State<LoginWindow> {
                               }
                             } on FirebaseAuthException catch (e) {
                               String message;
+                              debugPrint('Apple Sign-In FirebaseAuthException: ${e.code} - ${e.message}');
+                              
                               if (e.code ==
                                   'account-exists-with-different-credential') {
                                 message =
@@ -512,31 +514,36 @@ class _LoginWindowState extends State<LoginWindow> {
                               } else if (e.code == 'canceled' ||
                                   e.code == 'ABORTED_BY_USER') {
                                 message = l10n.appleLoginAborted;
+                              } else if (e.code == 'missing-identity-token') {
+                                message = 'Apple Sign-In Fehler: Kein Identity Token empfangen. Bitte versuchen Sie es erneut.';
+                              } else if (e.code == 'apple-signin-error') {
+                                message = 'Apple Sign-In Fehler: ${e.message}';
+                              } else if (e.code == 'invalid-credential') {
+                                message = 'Apple Sign-In Fehler: Ungültige Anmeldedaten. Möglicherweise ein Konfigurationsproblem.';
                               } else {
-                                message = l10n.googleLoginUnexpectedError(
-                                    e.message ?? e.code);
+                                message = 'Apple Sign-In Fehler: ${e.message ?? e.code}';
                               }
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(message),
                                     backgroundColor: AppColors.famkaRed,
+                                    duration: const Duration(seconds: 5),
                                   ),
                                 );
                               }
                             } catch (e) {
+                              debugPrint('Apple Sign-In Unexpected Error: $e');
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                        l10n.googleLoginUnexpectedError(
-                                            e.toString())),
+                                        'Unerwarteter Fehler bei der Apple-Anmeldung: $e'),
                                     backgroundColor: AppColors.famkaRed,
+                                    duration: const Duration(seconds: 5),
                                   ),
                                 );
                               }
-                              debugPrint(l10n
-                                  .googleLoginUnexpectedError(e.toString()));
                             }
                           },
                           tooltip: l10n.signInWithAppleTooltip,
