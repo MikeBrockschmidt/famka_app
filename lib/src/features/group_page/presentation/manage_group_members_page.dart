@@ -152,14 +152,17 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
       }
 
       // Reihenfolge speichern - wichtig!
-      final newMemberOrder = _currentGroupMembersEditable.map((member) => member.profilId).toList();
+      final newMemberOrder = _currentGroupMembersEditable
+          .map((member) => member.profilId)
+          .toList();
       // Neue Mitglieder hinzufügen zur Reihenfolge
       for (var user in _selectedNewUsers) {
         newMemberOrder.add(user.profilId);
       }
-      
+
       print('🔵 Speichere neue Mitglieder-Reihenfolge: $newMemberOrder');
-      await widget.db.updateGroupMemberOrder(widget.group.groupId, newMemberOrder);
+      await widget.db
+          .updateGroupMemberOrder(widget.group.groupId, newMemberOrder);
 
       // Überprüfen ob wir die Gruppe nochmals aktualisieren müssen
       final Group? updatedGroupFromDB =
@@ -217,20 +220,22 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    '${AppLocalizations.of(context)!.manageMembersCurrentTitle}:',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.famkaBlack,
-                        ),
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      '${AppLocalizations.of(context)!.manageMembersCurrentTitle}:',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: AppColors.famkaBlack,
+                          ),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: ReorderableListView.builder(
+                  ReorderableListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: _currentGroupMembersEditable.length,
                     onReorder: (int oldIndex, int newIndex) {
                       setState(() {
@@ -329,30 +334,30 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                       );
                     },
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 40.0, top: 20.0),
-                  child: Center(
-                    child: Opacity(
-                      opacity: _hasChanges && !_isLoading ? 1.0 : 0.5,
-                      child: InkWell(
-                        onTap: _hasChanges && !_isLoading ? _saveChanges : null,
-                        child: SizedBox(
-                          width: 200,
-                          height: 50,
-                          child: ButtonLinearGradient(
-                            buttonText: _isLoading
-                                ? AppLocalizations.of(context)!
-                                    .manageMembersSavingButton
-                                : AppLocalizations.of(context)!
-                                    .manageMembersSaveChangesButton,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 40.0, top: 20.0),
+                    child: Center(
+                      child: Opacity(
+                        opacity: _hasChanges && !_isLoading ? 1.0 : 0.5,
+                        child: InkWell(
+                          onTap: _hasChanges && !_isLoading ? _saveChanges : null,
+                          child: SizedBox(
+                            width: 200,
+                            height: 50,
+                            child: ButtonLinearGradient(
+                              buttonText: _isLoading
+                                  ? AppLocalizations.of(context)!
+                                      .manageMembersSavingButton
+                                  : AppLocalizations.of(context)!
+                                      .manageMembersSaveChangesButton,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
     );
   }
