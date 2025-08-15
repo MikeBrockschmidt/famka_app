@@ -28,15 +28,18 @@ class CalendarAvatarScrollRow extends StatelessWidget {
     }
 
     // Hole die korrekte Reihenfolge aus der Gruppe
-    final memberOrder = currentGroup!.toMap()['groupMemberIds'] as List<dynamic>?;
+    final memberOrder =
+        currentGroup!.toMap()['groupMemberIds'] as List<dynamic>?;
     if (memberOrder == null || memberOrder.isEmpty) {
       return groupMembers;
     }
 
     // Sortiere die Mitglieder entsprechend der gespeicherten Reihenfolge
     final sortedMembers = <AppUser>[];
-    final memberMap = {for (var member in groupMembers) member.profilId: member};
-    
+    final memberMap = {
+      for (var member in groupMembers) member.profilId: member
+    };
+
     // Füge Mitglieder in der korrekten Reihenfolge hinzu
     for (final memberId in memberOrder) {
       final member = memberMap[memberId];
@@ -44,21 +47,21 @@ class CalendarAvatarScrollRow extends StatelessWidget {
         sortedMembers.add(member);
       }
     }
-    
+
     // Füge alle übrigen Mitglieder hinzu, die nicht in der Reihenfolge-Liste sind
     for (final member in groupMembers) {
       if (!sortedMembers.any((m) => m.profilId == member.profilId)) {
         sortedMembers.add(member);
       }
     }
-    
+
     return sortedMembers;
   }
 
   @override
   Widget build(BuildContext context) {
     final sortedMembers = _sortedGroupMembers;
-    
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       controller: horizontalScrollControllerTop,

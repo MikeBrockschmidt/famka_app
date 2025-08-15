@@ -340,7 +340,8 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
                       child: Opacity(
                         opacity: _hasChanges && !_isLoading ? 1.0 : 0.5,
                         child: InkWell(
-                          onTap: _hasChanges && !_isLoading ? _saveChanges : null,
+                          onTap:
+                              _hasChanges && !_isLoading ? _saveChanges : null,
                           child: SizedBox(
                             width: 200,
                             height: 50,

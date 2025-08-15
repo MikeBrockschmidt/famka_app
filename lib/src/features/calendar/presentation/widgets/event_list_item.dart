@@ -280,7 +280,7 @@ class EventListItem extends StatelessWidget {
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete,
-                                        color: AppColors.famkaBlack),
+                                        color: AppColors.famkaGrey),
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                       onDeleteEvent?.call(event);

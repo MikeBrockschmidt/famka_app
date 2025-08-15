@@ -1,5 +1,4 @@
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
-import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
@@ -406,7 +405,7 @@ class _EventListPageState extends State<EventListPage> {
           eventName.isNotEmpty ? eventName[0].toUpperCase() : '?',
           style: TextStyle(
             fontSize: size * 0.5,
-            color: AppColors.famkaBlack,
+            color: AppColors.famkaGreen,
           ),
         ),
       );
@@ -435,7 +434,7 @@ class _EventListPageState extends State<EventListPage> {
         return Icon(
           IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
           size: size * 0.9,
-          color: AppColors.famkaBlack,
+          color: AppColors.famkaGrey,
         );
       }
     } else if (eventUrl.startsWith('image:')) {
@@ -682,91 +681,29 @@ class _EventListPageState extends State<EventListPage> {
                                                 ),
                                               ),
                                               IconButton(
-                                                icon: const Icon(Icons.delete),
+                                                icon: Icon(Icons.info_outline, 
+                                                     color: AppColors.famkaBlue),
                                                 onPressed: () async {
-                                                  final bool? confirm =
-                                                      await showDialog<bool>(
+                                                  await showModalBottomSheet<bool>(
                                                     context: context,
-                                                    builder: (BuildContext
-                                                        dialogContext) {
-                                                      return AlertDialog(
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(20),
-                                                        ),
-                                                        title: Text(
-                                                          localizations
-                                                              .eventListDeleteConfirmTitle,
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                        content: Text(
-                                                          localizations
-                                                              .eventListDeleteConfirmMessage(
-                                                                  event
-                                                                      .singleEventName),
-                                                          style:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .black87),
-                                                        ),
-                                                        contentPadding:
-                                                            const EdgeInsets
-                                                                .fromLTRB(
-                                                                24, 20, 24, 0),
-                                                        actionsPadding:
-                                                            const EdgeInsets
-                                                                .fromLTRB(
-                                                                16, 8, 16, 16),
-                                                        actions: <Widget>[
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .stretch,
-                                                            children: [
-                                                              GestureDetector(
-                                                                onTap: () =>
-                                                                    Navigator.of(
-                                                                            dialogContext)
-                                                                        .pop(
-                                                                            false),
-                                                                child:
-                                                                    ButtonLinearGradient(
-                                                                  buttonText:
-                                                                      localizations
-                                                                          .eventListCancelButton,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                  height: 12),
-                                                              GestureDetector(
-                                                                onTap: () =>
-                                                                    Navigator.of(
-                                                                            dialogContext)
-                                                                        .pop(
-                                                                            true),
-                                                                child:
-                                                                    ButtonLinearGradient(
-                                                                  buttonText:
-                                                                      localizations
-                                                                          .eventListDeleteButton,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
+                                                    isScrollControlled: true,
+                                                    builder: (context) {
+                                                      return InfoBottomSheet(
+                                                        date: event.singleEventDate,
+                                                        userName:
+                                                            widget.currentUser.firstName,
+                                                        eventsForPerson: [event],
+                                                        currentGroupMembers:
+                                                            _displayGroup.groupMembers,
+                                                        db: widget.db,
+                                                        onEventDeleted: _onEventDeleted,
+                                                        onEventUpdated: (updatedEvent) {
+                                                          _loadEvents();
+                                                        },
                                                       );
                                                     },
                                                   );
-
-                                                  if (confirm == true) {
-                                                    await _onEventDeleted(
-                                                        event.singleEventId);
-                                                  }
+                                                  await _loadEvents();
                                                 },
                                               ),
                                             ],

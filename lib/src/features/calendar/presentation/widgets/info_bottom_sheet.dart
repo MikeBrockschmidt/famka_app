@@ -694,9 +694,15 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                             onTap: () {
                               Navigator.pop(context);
                             },
-                            child: ButtonLinearGradient(
-                              buttonText:
-                                  AppLocalizations.of(context)!.closeButton,
+                            child: Center(
+                              child: Text(
+                                AppLocalizations.of(context)!.closeButton,
+                                style: TextStyle(
+                                  color: AppColors.famkaGrey,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
                           ),
                         ),
