@@ -1149,6 +1149,30 @@ abstract class AppLocalizations {
   /// **'Save Changes'**
   String get manageMembersSaveChangesButton;
 
+  /// No description provided for @manageMembersRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Member'**
+  String get manageMembersRemoveTitle;
+
+  /// Confirmation message when removing a member
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to remove {memberName} from the group?'**
+  String manageMembersRemoveConfirmation(String memberName);
+
+  /// No description provided for @manageMembersRemoveCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get manageMembersRemoveCancel;
+
+  /// No description provided for @manageMembersRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get manageMembersRemoveConfirm;
+
   /// No description provided for @deleteAppointment.
   ///
   /// In en, this message translates to:

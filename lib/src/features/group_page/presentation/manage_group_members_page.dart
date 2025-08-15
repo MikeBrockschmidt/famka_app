@@ -7,6 +7,7 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/common/image_utils.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
+import 'package:famka_app/src/features/group_page/presentation/widgets/remove_member_dialog.dart';
 
 class ManageGroupMembersPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -74,10 +75,20 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
   }
 
   void _removeMember(AppUser member) {
-    setState(() {
-      _currentGroupMembersEditable.remove(member);
-      _hasChanges = true;
-    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return RemoveMemberDialog(
+          member: member,
+          onConfirm: () {
+            setState(() {
+              _currentGroupMembersEditable.remove(member);
+              _hasChanges = true;
+            });
+          },
+        );
+      },
+    );
   }
 
   Future<void> _saveChanges() async {

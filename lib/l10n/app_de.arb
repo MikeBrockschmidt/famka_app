@@ -183,6 +183,10 @@
   "manageMembersNoEmailPhone": "Keine E-Mail/Telefonnummer",
   "manageMembersSavingButton": "Wird gespeichert...",
   "manageMembersSaveChangesButton": "Änderungen speichern",
+  "manageMembersRemoveTitle": "Mitglied entfernen",
+  "manageMembersRemoveConfirmation": "Möchten Sie {memberName} wirklich aus der Gruppe entfernen?",
+  "manageMembersRemoveCancel": "Abbrechen",
+  "manageMembersRemoveConfirm": "Entfernen",
 
   "galleryLabel": "Piktogramme",
 
@@ -190,6 +194,14 @@
     "description": "Fehlermeldung beim Aktualisieren der Mitglieder",
     "placeholders": {
       "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@manageMembersRemoveConfirmation": {
+    "description": "Bestätigungsnachricht beim Entfernen eines Mitglieds",
+    "placeholders": {
+      "memberName": {
         "type": "String"
       }
     }

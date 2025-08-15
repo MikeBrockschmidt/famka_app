@@ -610,6 +610,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get manageMembersSaveChangesButton => 'Änderungen speichern';
 
   @override
+  String get manageMembersRemoveTitle => 'Mitglied entfernen';
+
+  @override
+  String manageMembersRemoveConfirmation(String memberName) {
+    return 'Möchten Sie $memberName wirklich aus der Gruppe entfernen?';
+  }
+
+  @override
+  String get manageMembersRemoveCancel => 'Abbrechen';
+
+  @override
+  String get manageMembersRemoveConfirm => 'Entfernen';
+
+  @override
   String get deleteAppointment => 'Termin löschen';
 
   @override

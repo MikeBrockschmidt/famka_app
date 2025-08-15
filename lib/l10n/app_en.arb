@@ -204,6 +204,10 @@
   "manageMembersNoEmailPhone": "No email/phone number",
   "manageMembersSavingButton": "Saving...",
   "manageMembersSaveChangesButton": "Save Changes",
+  "manageMembersRemoveTitle": "Remove Member",
+  "manageMembersRemoveConfirmation": "Do you really want to remove {memberName} from the group?",
+  "manageMembersRemoveCancel": "Cancel",
+  "manageMembersRemoveConfirm": "Remove",
 
   "deleteAppointment": "Delete Appointment",
   "confirmDeleteAppointment": "Do you really want to delete \"{eventName}\" permanently?",
@@ -271,6 +275,14 @@
     "description": "Error message when updating members",
     "placeholders": {
       "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@manageMembersRemoveConfirmation": {
+    "description": "Confirmation message when removing a member",
+    "placeholders": {
+      "memberName": {
         "type": "String"
       }
     }

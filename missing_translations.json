@@ -10,6 +10,10 @@
     "showPasswordTooltip",
     "hidePasswordTooltip",
     "errorCreatingGroup",
+    "manageMembersRemoveTitle",
+    "manageMembersRemoveConfirmation",
+    "manageMembersRemoveCancel",
+    "manageMembersRemoveConfirm",
     "ungueltigeTelefonnummer"
   ]
 }

@@ -595,6 +595,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageMembersSaveChangesButton => 'Save Changes';
 
   @override
+  String get manageMembersRemoveTitle => 'Remove Member';
+
+  @override
+  String manageMembersRemoveConfirmation(String memberName) {
+    return 'Do you really want to remove $memberName from the group?';
+  }
+
+  @override
+  String get manageMembersRemoveCancel => 'Cancel';
+
+  @override
+  String get manageMembersRemoveConfirm => 'Remove';
+
+  @override
   String get deleteAppointment => 'Delete Appointment';
 
   @override
