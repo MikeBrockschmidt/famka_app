@@ -24,10 +24,11 @@ Widget buildEventIcon({
       style: TextStyle(fontSize: size),
     );
   } else if (eventUrl.startsWith('icon:')) {
-    final codePoint = int.tryParse(eventUrl.replaceFirst('icon:', '')) ?? 0;
+    // Use a constant icon instead of dynamic IconData for tree shaking
     return Icon(
-      IconData(codePoint, fontFamily: 'MaterialIcons'),
+      Icons.category,
       size: size,
+      color: Colors.grey,
     );
   } else if (eventUrl.startsWith('image:')) {
     final assetPath = eventUrl.replaceFirst('image:', '');

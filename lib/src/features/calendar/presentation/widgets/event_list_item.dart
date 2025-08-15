@@ -60,7 +60,7 @@ class EventListItem extends StatelessWidget {
           'Debug: eventUrl ist icon:. Code-Punkt-String: "$iconCodePointString", geparsed: $iconCodePoint');
       if (iconCodePoint != null) {
         return Icon(
-          IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
+          Icons.category, // Use constant icon
           size: size,
           color: Colors.black,
         );

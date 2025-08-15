@@ -445,7 +445,7 @@ class _EventListPageState extends State<EventListPage> {
       final iconCodePoint = int.tryParse(eventUrl.substring(5));
       if (iconCodePoint != null) {
         return Icon(
-          IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
+          Icons.category, // Fallback to a constant icon
           size: size * 0.9,
           color: AppColors.famkaGrey,
         );

@@ -219,7 +219,7 @@ class _CalendarGridState extends State<CalendarGrid> {
       final iconCodePoint = int.tryParse(eventUrl.substring(5));
       if (iconCodePoint != null) {
         return Icon(
-          IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
+          Icons.category, // Use constant icon
           size: size * 0.9,
           color: AppColors.famkaBlack,
         );

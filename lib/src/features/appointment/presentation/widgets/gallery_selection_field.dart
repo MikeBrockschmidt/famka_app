@@ -77,7 +77,7 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
       if (iconCodePoint != null) {
         return Center(
           child: Icon(
-            IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
+            Icons.category, // Use constant icon
             size: 28,
             color: AppColors.famkaGreen,
           ),
