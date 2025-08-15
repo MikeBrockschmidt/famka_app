@@ -276,6 +276,7 @@ class _CalendarGridState extends State<CalendarGrid> {
                       horizontalScrollControllerTop:
                           _avatarHorizontalScrollController,
                       groupMembers: currentGroupMembers,
+                      currentGroup: widget.currentGroup,
                       personColumnWidth: personColumnWidth,
                       scrollPhysics: const NeverScrollableScrollPhysics(),
                     ),

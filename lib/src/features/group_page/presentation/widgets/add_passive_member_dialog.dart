@@ -133,13 +133,8 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: 'Passives Mitglied\n'),
-                  TextSpan(text: 'hinzufügen'),
-                ],
-              ),
+            Text(
+              AppLocalizations.of(context)!.addPassiveMemberTitle,
               textAlign: TextAlign.center,
               style: theme.labelMedium?.copyWith(
                 color: AppColors.famkaBlack,
