@@ -44,6 +44,7 @@ abstract class DatabaseRepository {
   Future<void> addUserToGroup(AppUser user, String groupId, UserRole role);
   Future<void> removeUserFromGroup(String userId, String groupId);
   Future<void> leaveGroup(String groupId, String userId);
+  Future<void> updateGroupMemberOrder(String groupId, List<String> newMemberOrder);
 
   Future<List<Group>> getAllGroups();
 

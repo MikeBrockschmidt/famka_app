@@ -140,6 +140,16 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
             .addUserToGroup(user, widget.group.groupId, assignedRole);
       }
 
+      // Reihenfolge speichern - wichtig!
+      final newMemberOrder = _currentGroupMembersEditable.map((member) => member.profilId).toList();
+      // Neue Mitglieder hinzufügen zur Reihenfolge
+      for (var user in _selectedNewUsers) {
+        newMemberOrder.add(user.profilId);
+      }
+      
+      print('🔵 Speichere neue Mitglieder-Reihenfolge: $newMemberOrder');
+      await widget.db.updateGroupMemberOrder(widget.group.groupId, newMemberOrder);
+
       // Überprüfen ob wir die Gruppe nochmals aktualisieren müssen
       final Group? updatedGroupFromDB =
           await widget.db.getGroupAsync(widget.group.groupId);

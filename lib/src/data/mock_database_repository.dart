@@ -484,4 +484,16 @@ class MockDatabaseRepository implements DatabaseRepository {
     // TODO: implement saveUserFCMToken
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> updateGroupMemberOrder(String groupId, List<String> newMemberOrder) async {
+    final groupIndex = _groups.indexWhere((g) => g.groupId == groupId);
+    if (groupIndex != -1) {
+      // Update the member order in the mock group
+      // This is a simplified implementation for mock data
+      print('Mock: Updating member order for group $groupId');
+      print('Mock: New order: $newMemberOrder');
+    }
+    await Future.delayed(const Duration(milliseconds: 1));
+  }
 }
