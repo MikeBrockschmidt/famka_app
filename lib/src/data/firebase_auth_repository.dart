@@ -64,8 +64,6 @@ class FirebaseAuthRepository implements AuthRepository {
       final rawNonce = generateNonce();
       final nonce = sha256ofString(rawNonce);
 
-      print('FirebaseAuthRepository: Starting Apple Sign-In with nonce: ${nonce.substring(0, 8)}...');
-
       // Apple Sign-In anfordern
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -74,13 +72,6 @@ class FirebaseAuthRepository implements AuthRepository {
         ],
         nonce: nonce,
       );
-
-      print('FirebaseAuthRepository: Apple credential received, identityToken: ${appleCredential.identityToken?.substring(0, 20)}...');
-      print('FirebaseAuthRepository: Apple credential authorizationCode: ${appleCredential.authorizationCode.substring(0, 20)}...');
-      print('FirebaseAuthRepository: Apple credential userIdentifier: ${appleCredential.userIdentifier}');
-      print('FirebaseAuthRepository: Apple credential email: ${appleCredential.email}');
-      print('FirebaseAuthRepository: Apple credential givenName: ${appleCredential.givenName}');
-      print('FirebaseAuthRepository: Apple credential familyName: ${appleCredential.familyName}');
 
       // Validierung der Apple Credentials
       if (appleCredential.identityToken == null) {
@@ -97,16 +88,9 @@ class FirebaseAuthRepository implements AuthRepository {
         accessToken: appleCredential.authorizationCode,
       );
 
-      print('FirebaseAuthRepository: Created OAuth credential, attempting Firebase sign-in...');
-      print('FirebaseAuthRepository: OAuth credential providerId: ${oauthCredential.providerId}');
-      print('FirebaseAuthRepository: OAuth credential signInMethod: ${oauthCredential.signInMethod}');
-      print('FirebaseAuthRepository: Raw nonce length: ${rawNonce.length}');
-
       // Mit Firebase authentifizieren
       final userCredential =
           await FirebaseAuth.instance.signInWithCredential(oauthCredential);
-
-      print('FirebaseAuthRepository: Firebase sign-in successful for user: ${userCredential.user?.uid}');
 
       // Wenn es ein neuer Benutzer ist und Name verfügbar ist, aktualisiere das Profil
       final firebaseUser = userCredential.user;
@@ -117,22 +101,18 @@ class FirebaseAuthRepository implements AuthRepository {
         final displayName = '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'.trim();
         if (displayName.isNotEmpty) {
           await firebaseUser.updateDisplayName(displayName);
-          print('FirebaseAuthRepository: Updated display name to: $displayName');
         }
       }
 
       return userCredential;
     } on SignInWithAppleAuthorizationException catch (e) {
-      print('FirebaseAuthRepository: Apple authorization error: ${e.code} - ${e.message}');
       throw FirebaseAuthException(
         code: e.code.toString(),
         message: 'Apple Sign-In authorization failed: ${e.message}',
       );
-    } on FirebaseAuthException catch (e) {
-      print('FirebaseAuthRepository: Firebase auth error: ${e.code} - ${e.message}');
+    } on FirebaseAuthException {
       rethrow;
     } catch (e) {
-      print('FirebaseAuthRepository: Unexpected Apple Sign-In error: $e');
       throw FirebaseAuthException(
         code: 'apple-signin-error',
         message: 'Apple Sign-In failed: $e',
@@ -145,18 +125,14 @@ class FirebaseAuthRepository implements AuthRepository {
     const charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
-    final result = List.generate(length, (_) => charset[random.nextInt(charset.length)])
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
         .join();
-    print('FirebaseAuthRepository: Generated nonce with length: ${result.length}');
-    return result;
   }
 
   /// SHA256 hash des [input] String
   String sha256ofString(String input) {
     final bytes = utf8.encode(input);
     final digest = sha256.convert(bytes);
-    final result = digest.toString();
-    print('FirebaseAuthRepository: SHA256 hash generated, length: ${result.length}');
-    return result;
+    return digest.toString();
   }
 }
