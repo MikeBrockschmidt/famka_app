@@ -39,6 +39,9 @@ class GroupDetails extends StatelessWidget {
                 child: TextField(
                   controller: locationController,
                   focusNode: locationFocusNode,
+                  onTapOutside: (_) {
+                    FocusScope.of(context).unfocus();
+                  },
                   textInputAction: TextInputAction.done,
                   onSubmitted: (value) {
                     locationFocusNode.unfocus();
@@ -71,6 +74,9 @@ class GroupDetails extends StatelessWidget {
                 child: TextField(
                   controller: descriptionController,
                   focusNode: descriptionFocusNode,
+                  onTapOutside: (_) {
+                    FocusScope.of(context).unfocus();
+                  },
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.done,

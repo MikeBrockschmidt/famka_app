@@ -165,6 +165,9 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
               const SizedBox(height: 32),
               TextFormField(
                 controller: _firstNameController,
+                onTapOutside: (_) {
+                  FocusScope.of(context).unfocus();
+                },
                 decoration: _inputDecoration(
                     AppLocalizations.of(context)!
                         .addPassiveMemberFirstNameLabel,
@@ -180,6 +183,9 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _lastNameController,
+                onTapOutside: (_) {
+                  FocusScope.of(context).unfocus();
+                },
                 decoration: _inputDecoration(
                     AppLocalizations.of(context)!.addPassiveMemberLastNameLabel,
                     theme),

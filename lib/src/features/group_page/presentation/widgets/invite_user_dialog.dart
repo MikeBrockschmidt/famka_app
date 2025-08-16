@@ -41,6 +41,9 @@ class _InviteUserDialogState extends State<InviteUserDialog> {
           const SizedBox(height: 16),
           TextField(
             controller: _inviteeIdController,
+            onTapOutside: (_) {
+              FocusScope.of(context).unfocus();
+            },
             decoration: InputDecoration(
               hintText: l10n.userProfileIdHint,
               border: OutlineInputBorder(

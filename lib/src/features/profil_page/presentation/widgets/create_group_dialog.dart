@@ -146,16 +146,25 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
             const SizedBox(height: 32),
             TextField(
               controller: _nameController,
+              onTapOutside: (_) {
+                FocusScope.of(context).unfocus();
+              },
               decoration: _inputDecoration(l10n.groupNameLabel, theme),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _locationController,
+              onTapOutside: (_) {
+                FocusScope.of(context).unfocus();
+              },
               decoration: _inputDecoration(l10n.locationLabel, theme),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _descriptionController,
+              onTapOutside: (_) {
+                FocusScope.of(context).unfocus();
+              },
               decoration: _inputDecoration(l10n.descriptionLabel, theme),
               maxLines: 3,
             ),

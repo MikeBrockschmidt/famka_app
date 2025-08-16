@@ -212,6 +212,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                         children: [
                           TextFormField(
                             controller: _firstNameController,
+                            onTapOutside: (_) {
+                              FocusScope.of(context).unfocus();
+                            },
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             validator: _validateName,
@@ -228,6 +231,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _lastNameController,
+                            onTapOutside: (_) {
+                              FocusScope.of(context).unfocus();
+                            },
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             validator: _validateName,
@@ -244,6 +250,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _emailController,
+                            onTapOutside: (_) {
+                              FocusScope.of(context).unfocus();
+                            },
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             validator: _validateEmail,
@@ -260,6 +269,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _passwordController,
+                            onTapOutside: (_) {
+                              FocusScope.of(context).unfocus();
+                            },
                             obscureText: _isObscured,
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
@@ -289,6 +301,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _passwordRepeatController,
+                            onTapOutside: (_) {
+                              FocusScope.of(context).unfocus();
+                            },
                             obscureText: _isObscured,
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,

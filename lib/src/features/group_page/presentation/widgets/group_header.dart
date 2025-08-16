@@ -69,6 +69,9 @@ class GroupHeader extends StatelessWidget {
                       child: TextField(
                         controller: groupNameController,
                         focusNode: groupNameFocusNode,
+                        onTapOutside: (_) {
+                          FocusScope.of(context).unfocus();
+                        },
                         textInputAction: TextInputAction.done,
                         onSubmitted: (value) {
                           groupNameFocusNode.unfocus();

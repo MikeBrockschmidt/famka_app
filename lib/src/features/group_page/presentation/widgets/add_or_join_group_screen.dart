@@ -224,6 +224,9 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
               const SizedBox(height: 24),
               TextFormField(
                 controller: _newGroupNameController,
+                onTapOutside: (_) {
+                  FocusScope.of(context).unfocus();
+                },
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.groupName,
                   hintText:
@@ -241,6 +244,9 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _newGroupDescriptionController,
+                onTapOutside: (_) {
+                  FocusScope.of(context).unfocus();
+                },
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.groupDescription,
                   hintText: AppLocalizations.of(context)!
@@ -252,6 +258,9 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _newGroupLocationController,
+                onTapOutside: (_) {
+                  FocusScope.of(context).unfocus();
+                },
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.groupLocation,
                   hintText:

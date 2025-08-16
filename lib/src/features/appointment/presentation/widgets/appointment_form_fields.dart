@@ -54,6 +54,9 @@ class AppTextField extends StatelessWidget {
             padding: const EdgeInsets.only(left: 32),
             child: TextFormField(
               controller: controller,
+              onTapOutside: (_) {
+                FocusScope.of(context).unfocus();
+              },
               decoration: InputDecoration(
                 hintText: hint,
                 border: const OutlineInputBorder(),
