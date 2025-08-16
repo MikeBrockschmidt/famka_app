@@ -82,6 +82,7 @@ class _LoginWindowState extends State<LoginWindow> {
               db: widget.db,
               currentUser: currentUser,
               auth: widget.auth,
+              isOwnProfile: true,
             ),
           ),
         );

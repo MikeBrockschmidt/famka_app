@@ -150,6 +150,7 @@ class _RegisterWindowState extends State<RegisterWindow> {
                 db: widget.db,
                 currentUser: newUser,
                 auth: widget.auth,
+                isOwnProfile: true,
               ),
             ),
           );

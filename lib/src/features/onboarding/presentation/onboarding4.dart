@@ -117,6 +117,7 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
               db: widget.db,
               currentUser: updatedUser,
               auth: widget.auth,
+              isOwnProfile: true,
             ),
           ),
         );

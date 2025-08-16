@@ -794,7 +794,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                 ),
                               ),
                             ),
-                          if (_isOwnProfile) const SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           if (_isOwnProfile)
                             Center(
                               child: InkWell(

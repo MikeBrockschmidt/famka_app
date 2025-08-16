@@ -178,6 +178,7 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
                               db: widget.db,
                               auth: widget.auth,
                               currentUser: widget.currentUser,
+                              isOwnProfile: true,
                             ),
                           ),
                         );
