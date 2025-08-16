@@ -689,8 +689,6 @@ class _ProfilPageState extends State<ProfilPage> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Divider(
-                              thickness: 0.3, height: 1, color: Colors.black),
                           const SizedBox(height: 20),
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,

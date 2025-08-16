@@ -133,13 +133,25 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              AppLocalizations.of(context)!.addPassiveMemberTitle,
-              textAlign: TextAlign.center,
-              style: theme.labelMedium?.copyWith(
-                color: AppColors.famkaBlack,
-                height: 1.1, // Reduced line height for closer spacing
-              ),
+            Column(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.addPassiveMemberTitle.split(' ').take(2).join(' '),
+                  textAlign: TextAlign.center,
+                  style: theme.labelMedium?.copyWith(
+                    color: AppColors.famkaBlack,
+                    height: 1.1,
+                  ),
+                ),
+                Text(
+                  AppLocalizations.of(context)!.addPassiveMemberTitle.split(' ').skip(2).join(' '),
+                  textAlign: TextAlign.center,
+                  style: theme.labelMedium?.copyWith(
+                    color: AppColors.famkaBlack,
+                    height: 1.1,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

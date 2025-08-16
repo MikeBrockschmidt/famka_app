@@ -597,7 +597,6 @@ class _GroupPageState extends State<GroupPage> {
                           members: _currentGroup!.groupMembers,
                         ),
                         const SizedBox(height: 8),
-                        const Divider(height: 1, color: Colors.grey),
                         SaveButton(
                           hasChanges: _hasChanges,
                           onSave: _saveGroupChanges,
