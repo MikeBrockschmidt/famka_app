@@ -76,6 +76,11 @@ class FirebaseAuthRepository implements AuthRepository {
       );
 
       print('FirebaseAuthRepository: Apple credential received, identityToken: ${appleCredential.identityToken?.substring(0, 20)}...');
+      print('FirebaseAuthRepository: Apple credential authorizationCode: ${appleCredential.authorizationCode.substring(0, 20)}...');
+      print('FirebaseAuthRepository: Apple credential userIdentifier: ${appleCredential.userIdentifier}');
+      print('FirebaseAuthRepository: Apple credential email: ${appleCredential.email}');
+      print('FirebaseAuthRepository: Apple credential givenName: ${appleCredential.givenName}');
+      print('FirebaseAuthRepository: Apple credential familyName: ${appleCredential.familyName}');
 
       // Validierung der Apple Credentials
       if (appleCredential.identityToken == null) {
@@ -89,9 +94,13 @@ class FirebaseAuthRepository implements AuthRepository {
       final oauthCredential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
         rawNonce: rawNonce,
+        accessToken: appleCredential.authorizationCode,
       );
 
       print('FirebaseAuthRepository: Created OAuth credential, attempting Firebase sign-in...');
+      print('FirebaseAuthRepository: OAuth credential providerId: ${oauthCredential.providerId}');
+      print('FirebaseAuthRepository: OAuth credential signInMethod: ${oauthCredential.signInMethod}');
+      print('FirebaseAuthRepository: Raw nonce length: ${rawNonce.length}');
 
       // Mit Firebase authentifizieren
       final userCredential =
