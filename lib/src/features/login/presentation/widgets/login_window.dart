@@ -144,6 +144,9 @@ class _LoginWindowState extends State<LoginWindow> {
                         controller: _emailOrPhoneController,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: validateEmailOrPhone,
+                        onTapOutside: (_) {
+                          FocusScope.of(context).unfocus();
+                        },
                         decoration: InputDecoration(
                           labelText: l10n.emailInputLabel,
                           hintText: l10n.emailInputHint,
@@ -169,6 +172,9 @@ class _LoginWindowState extends State<LoginWindow> {
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             validator: (value) => validatePassword(value),
+                            onTapOutside: (_) {
+                              FocusScope.of(context).unfocus();
+                            },
                             decoration: InputDecoration(
                               suffixIcon: IconButton(
                                 onPressed: () {
@@ -467,7 +473,8 @@ class _LoginWindowState extends State<LoginWindow> {
                                 }
 
                                 // Setze Onboarding als abgeschlossen für neue Apple-Nutzer
-                                final prefs = await SharedPreferences.getInstance();
+                                final prefs =
+                                    await SharedPreferences.getInstance();
                                 await prefs.setBool('onboardingComplete', true);
                               } else {
                                 debugPrint(
@@ -480,7 +487,8 @@ class _LoginWindowState extends State<LoginWindow> {
                                 }
 
                                 // Setze Onboarding als abgeschlossen für bestehende Apple-Nutzer
-                                final prefs = await SharedPreferences.getInstance();
+                                final prefs =
+                                    await SharedPreferences.getInstance();
                                 await prefs.setBool('onboardingComplete', true);
                               }
 

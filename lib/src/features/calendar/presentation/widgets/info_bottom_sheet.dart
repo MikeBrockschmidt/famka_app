@@ -411,12 +411,17 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () {
+                TextButton(
+                  onPressed: () {
                     Navigator.of(dialogContext).pop(true);
                   },
-                  child: ButtonLinearGradient(
-                    buttonText: AppLocalizations.of(context)!.deleteImageButton,
+                  child: Text(
+                    AppLocalizations.of(context)!.deleteImageButton,
+                    style: TextStyle(
+                      color: AppColors.famkaGrey,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],

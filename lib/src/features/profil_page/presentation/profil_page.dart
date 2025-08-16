@@ -495,6 +495,9 @@ class _ProfilPageState extends State<ProfilPage> {
                       onFieldSubmitted: (value) {
                         FocusScope.of(context).requestFocus(_lastNameFocusNode);
                       },
+                      onTapOutside: (_) {
+                        FocusScope.of(context).unfocus();
+                      },
                       validator: _validateName,
                       decoration: InputDecoration(
                         hintText: _isOwnProfile ? 'Vorname eingeben' : '',
@@ -514,6 +517,9 @@ class _ProfilPageState extends State<ProfilPage> {
                         onFieldSubmitted: (value) {
                           FocusScope.of(context)
                               .requestFocus(_phoneNumberFocusNode);
+                        },
+                        onTapOutside: (_) {
+                          FocusScope.of(context).unfocus();
                         },
                         validator: _validateName,
                         decoration: InputDecoration(
@@ -622,6 +628,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                           FocusScope.of(context).requestFocus(
                                               _miscellaneousFocusNode);
                                         },
+                                        onTapOutside: (_) {
+                                          FocusScope.of(context).unfocus();
+                                        },
                                         validator: _validateEmail,
                                         decoration: InputDecoration(
                                           hintText: _isOwnProfile
@@ -655,6 +664,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                         onFieldSubmitted: (value) {
                                           _miscellaneousFocusNode.unfocus();
                                           if (_isOwnProfile) _saveUserData();
+                                        },
+                                        onTapOutside: (_) {
+                                          FocusScope.of(context).unfocus();
                                         },
                                         decoration: InputDecoration(
                                           hintText: _isOwnProfile
