@@ -98,7 +98,9 @@ class FirebaseAuthRepository implements AuthRepository {
           firebaseUser != null &&
           (appleCredential.givenName != null ||
               appleCredential.familyName != null)) {
-        final displayName = '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'.trim();
+        final displayName =
+            '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'
+                .trim();
         if (displayName.isNotEmpty) {
           await firebaseUser.updateDisplayName(displayName);
         }

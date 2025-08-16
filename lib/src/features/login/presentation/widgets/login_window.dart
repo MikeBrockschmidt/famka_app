@@ -9,6 +9,7 @@ import 'package:famka_app/src/features/onboarding/presentation/widgets/onboardin
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 
 class LoginWindow extends StatefulWidget {
@@ -464,6 +465,10 @@ class _LoginWindowState extends State<LoginWindow> {
                                             l10n.appleLoginNewUserCreated)),
                                   );
                                 }
+
+                                // Setze Onboarding als abgeschlossen für neue Apple-Nutzer
+                                final prefs = await SharedPreferences.getInstance();
+                                await prefs.setBool('onboardingComplete', true);
                               } else {
                                 debugPrint(
                                     'Bestehender Apple-Nutzer gefunden in Firestore: ${firebaseUser.uid}');
@@ -473,6 +478,10 @@ class _LoginWindowState extends State<LoginWindow> {
                                         content: Text(l10n.appleLoginSuccess)),
                                   );
                                 }
+
+                                // Setze Onboarding als abgeschlossen für bestehende Apple-Nutzer
+                                final prefs = await SharedPreferences.getInstance();
+                                await prefs.setBool('onboardingComplete', true);
                               }
 
                               widget.db.currentUser = currentUser;
@@ -503,8 +512,9 @@ class _LoginWindowState extends State<LoginWindow> {
                               }
                             } on FirebaseAuthException catch (e) {
                               String message;
-                              debugPrint('Apple Sign-In FirebaseAuthException: ${e.code} - ${e.message}');
-                              
+                              debugPrint(
+                                  'Apple Sign-In FirebaseAuthException: ${e.code} - ${e.message}');
+
                               if (e.code ==
                                   'account-exists-with-different-credential') {
                                 message =
@@ -515,13 +525,16 @@ class _LoginWindowState extends State<LoginWindow> {
                                   e.code == 'ABORTED_BY_USER') {
                                 message = l10n.appleLoginAborted;
                               } else if (e.code == 'missing-identity-token') {
-                                message = 'Apple Sign-In Fehler: Kein Identity Token empfangen. Bitte versuchen Sie es erneut.';
+                                message =
+                                    'Apple Sign-In Fehler: Kein Identity Token empfangen. Bitte versuchen Sie es erneut.';
                               } else if (e.code == 'apple-signin-error') {
                                 message = 'Apple Sign-In Fehler: ${e.message}';
                               } else if (e.code == 'invalid-credential') {
-                                message = 'Apple Sign-In Fehler: Ungültige Anmeldedaten. Möglicherweise ein Konfigurationsproblem.';
+                                message =
+                                    'Apple Sign-In Fehler: Ungültige Anmeldedaten. Möglicherweise ein Konfigurationsproblem.';
                               } else {
-                                message = 'Apple Sign-In Fehler: ${e.message ?? e.code}';
+                                message =
+                                    'Apple Sign-In Fehler: ${e.message ?? e.code}';
                               }
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
