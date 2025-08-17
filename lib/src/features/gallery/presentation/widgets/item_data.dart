@@ -53,6 +53,7 @@ class GalleryData {
     );
   }
 
+/*
   static List<GalleryItem> getDynamicIconsGalleryItems() {
     final icons = [
       Icons.sports_basketball,
@@ -200,6 +201,7 @@ class GalleryData {
       },
     );
   }
+*/
 
   static List<GalleryItem> getDynamicEmojisGalleryItems() {
     final emojis = [

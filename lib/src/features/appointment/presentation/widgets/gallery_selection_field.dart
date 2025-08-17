@@ -5,6 +5,30 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 
+// Mapping von Icon-Namen zu Material-Icons
+const Map<String, IconData> galleryIconMap = {
+  'calendar': Icons.calendar_today,
+  'person': Icons.person,
+  'group': Icons.group,
+  'star': Icons.star,
+  'favorite': Icons.favorite,
+  'work': Icons.work,
+  'school': Icons.school,
+  'pets': Icons.pets,
+  'music': Icons.music_note,
+  'sports': Icons.sports_soccer,
+  'travel': Icons.flight,
+  'shopping': Icons.shopping_cart,
+  'food': Icons.restaurant,
+  'home': Icons.home,
+  'settings': Icons.settings,
+  'lock': Icons.lock,
+  'map': Icons.map,
+  'phone': Icons.phone,
+  'email': Icons.email,
+  // ...weitere Zuordnungen nach Bedarf
+};
+
 class GallerySelectionField extends StatefulWidget {
   const GallerySelectionField({
     super.key,
@@ -72,17 +96,15 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
         ),
       );
     } else if (_selectedGalleryItemContent!.startsWith('icon:')) {
-      final iconCodePoint =
-          int.tryParse(_selectedGalleryItemContent!.substring(5));
-      if (iconCodePoint != null) {
-        return Center(
-          child: Icon(
-            Icons.category, // Use constant icon
-            size: 28,
-            color: AppColors.famkaGreen,
-          ),
-        );
-      }
+      final iconName = _selectedGalleryItemContent!.substring(5);
+      final iconData = galleryIconMap[iconName] ?? Icons.help_outline;
+      return Center(
+        child: Icon(
+          iconData,
+          size: 28,
+          color: AppColors.famkaGreen,
+        ),
+      );
     } else if (_selectedGalleryItemContent!.startsWith('image:')) {
       final imageUrl = _selectedGalleryItemContent!.substring(6);
       return Image.asset(
