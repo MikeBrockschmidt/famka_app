@@ -219,9 +219,9 @@ class _CalendarGridState extends State<CalendarGrid> {
       final iconCodePoint = int.tryParse(eventUrl.substring(5));
       if (iconCodePoint != null) {
         return Icon(
-          Icons.category, // Use constant icon
+          IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
           size: size * 0.9,
-          color: AppColors.famkaBlack,
+          color: AppColors.famkaGreen,
         );
       }
     } else if (eventUrl.startsWith('image:')) {

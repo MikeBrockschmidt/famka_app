@@ -100,9 +100,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
       final iconCodePoint = int.tryParse(eventUrl.substring(5));
       if (iconCodePoint != null) {
         iconWidget = Icon(
-          Icons.category, // Fallback to a constant icon
+          IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
           size: size * 0.9,
-          color: AppColors.famkaBlack,
+          color: AppColors.famkaGreen,
         );
       } else {
         iconWidget =

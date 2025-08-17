@@ -60,9 +60,9 @@ class EventListItem extends StatelessWidget {
           'Debug: eventUrl ist icon:. Code-Punkt-String: "$iconCodePointString", geparsed: $iconCodePoint');
       if (iconCodePoint != null) {
         return Icon(
-          Icons.category, // Use constant icon
+          IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
           size: size,
-          color: Colors.black,
+          color: AppColors.famkaGreen,
         );
       } else {
         debugPrint(
@@ -242,10 +242,8 @@ class EventListItem extends StatelessWidget {
                               password: '',
                             ),
                           );
-                          return user.firstName ?? 'Unbekannt';
+                          return user.firstName;
                         }).toList();
-
-                        final bool isAllDayEvent = false;
                         String dateDisplay = DateFormat('dd.MM.yyyy')
                             .format(event.singleEventDate);
                         dateDisplay +=

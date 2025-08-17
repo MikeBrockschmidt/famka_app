@@ -77,7 +77,7 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
       if (iconCodePoint != null) {
         return Center(
           child: Icon(
-            Icons.category, // Use constant icon
+            IconData(iconCodePoint, fontFamily: 'MaterialIcons'),
             size: 28,
             color: AppColors.famkaGreen,
           ),
@@ -87,6 +87,14 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
       final imageUrl = _selectedGalleryItemContent!.substring(6);
       return Image.asset(
         imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.broken_image, color: Colors.red);
+        },
+      );
+    } else if (_selectedGalleryItemContent!.startsWith('assets/')) {
+      return Image.asset(
+        _selectedGalleryItemContent!,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return const Icon(Icons.broken_image, color: Colors.red);
