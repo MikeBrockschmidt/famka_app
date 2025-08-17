@@ -8,6 +8,7 @@ import 'package:famka_app/src/features/appointment/presentation/widgets/appointm
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/calendar/presentation/event_list_page.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class BottomNavigationThreeList extends StatefulWidget {
   final DatabaseRepository db;
@@ -225,6 +226,7 @@ class _BottomNavigationThreeCalendarState
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: 90,
       color: widget.backgroundColor,
@@ -234,7 +236,7 @@ class _BottomNavigationThreeCalendarState
           _buildNavItem(
             context,
             icon: Icons.menu,
-            label: 'Menü',
+            label: l10n.menuLabel,
             isActive: _selectedIndex == 0,
             onTap: () => _onItemTapped(0),
             selectedItemColor: widget.selectedItemColor,
@@ -244,7 +246,7 @@ class _BottomNavigationThreeCalendarState
           _buildNavItem(
             context,
             icon: Icons.list_outlined,
-            label: 'Liste',
+            label: l10n.calendarLabel, // fallback to calendarLabel for list
             isActive: _selectedIndex == 1,
             onTap: () => _onItemTapped(1),
             selectedItemColor: widget.selectedItemColor,
@@ -254,7 +256,7 @@ class _BottomNavigationThreeCalendarState
           _buildNavItem(
             context,
             icon: Icons.add_box_outlined,
-            label: 'Termin',
+            label: l10n.appointmentLabel,
             isActive: _selectedIndex == 2,
             onTap: () => _onItemTapped(2),
             selectedItemColor: widget.selectedItemColor,

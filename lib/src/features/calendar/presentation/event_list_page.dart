@@ -746,6 +746,7 @@ class _EventListPageState extends State<EventListPage> {
             currentUser: widget.currentUser,
             initialIndex: 1,
             auth: widget.auth,
+            locale: Localizations.localeOf(context),
           ),
         ],
       ),

@@ -20,6 +20,7 @@ class BottomNavigationThreeCalendar extends StatefulWidget {
   final Color selectedItemColor;
   final Color unselectedItemColor;
   final bool showLabel;
+  final Locale? locale;
 
   const BottomNavigationThreeCalendar(
     this.db, {
@@ -32,6 +33,7 @@ class BottomNavigationThreeCalendar extends StatefulWidget {
     this.unselectedItemColor = Colors.black,
     this.showLabel = true,
     required this.auth,
+    this.locale,
   });
 
   @override
@@ -186,13 +188,19 @@ class _BottomNavigationThreeCalendarState
   Future<void> _navigateToAppointment() async {
     if (_currentActiveGroup == null) return;
 
+    // Hole die eingeloggte User-ID und das User-Objekt
+    final String currentUserId = await widget.db.getCurrentUserId();
+    final AppUser? realCurrentUser =
+        await widget.db.getUserAsync(currentUserId);
+    if (realCurrentUser == null) return;
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         settings: const RouteSettings(name: '/appointmentScreen'),
         builder: (context) => Appointment(
           widget.db,
-          currentUser: widget.currentUser!,
+          currentUser: realCurrentUser,
           currentGroup: _currentActiveGroup!,
           auth: widget.auth,
         ),
@@ -277,6 +285,10 @@ class _BottomNavigationThreeCalendarState
     final bool enableNavigation = _currentActiveGroup != null;
     final Color disabledColor = widget.unselectedItemColor.withOpacity(0.4);
 
+    final l10n = AppLocalizations.of(context)!;
+
+    // The locale parameter is only used to trigger a rebuild when the locale changes.
+    // All lookups use AppLocalizations.of(context) which is already locale-aware.
     return Container(
       height: 90,
       color: widget.backgroundColor,
@@ -286,7 +298,7 @@ class _BottomNavigationThreeCalendarState
           _buildNavItem(
             context,
             icon: Icons.menu,
-            label: AppLocalizations.of(context)?.menuLabel ?? 'Menu',
+            label: l10n.menuLabel,
             isActive: _selectedIndex == 0,
             onTap: () => _onItemTapped(0),
             selectedItemColor: widget.selectedItemColor,
@@ -296,7 +308,7 @@ class _BottomNavigationThreeCalendarState
           _buildNavItem(
             context,
             icon: Icons.calendar_month,
-            label: AppLocalizations.of(context)?.calendarLabel ?? 'Calendar',
+            label: l10n.calendarLabel,
             isActive: _selectedIndex == 1 && enableNavigation,
             onTap: enableNavigation ? () => _onItemTapped(1) : null,
             selectedItemColor: widget.selectedItemColor,
@@ -307,8 +319,7 @@ class _BottomNavigationThreeCalendarState
           _buildNavItem(
             context,
             icon: Icons.add_box_outlined,
-            label:
-                AppLocalizations.of(context)?.appointmentLabel ?? 'Appointment',
+            label: l10n.appointmentLabel,
             isActive: _selectedIndex == 2 && enableNavigation,
             onTap: enableNavigation ? () => _onItemTapped(2) : null,
             selectedItemColor: widget.selectedItemColor,

@@ -55,7 +55,8 @@ class GroupMembersList extends StatelessWidget {
                     onTap: () async {
                       final AppUser? updatedUser =
                           await db.getUserAsync(member.profilId);
-                      final String? realCurrentUserId = await db.getCurrentUserId();
+                      final String? realCurrentUserId =
+                          await db.getCurrentUserId();
                       if (updatedUser != null) {
                         Navigator.push(
                           context,
@@ -64,7 +65,8 @@ class GroupMembersList extends StatelessWidget {
                               db: db,
                               currentUser: updatedUser,
                               auth: auth,
-                              isOwnProfile: updatedUser.profilId == realCurrentUserId,
+                              isOwnProfile:
+                                  updatedUser.profilId == realCurrentUserId,
                             ),
                           ),
                         );

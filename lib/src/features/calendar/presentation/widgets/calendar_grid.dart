@@ -248,8 +248,9 @@ class _CalendarGridState extends State<CalendarGrid> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
     final monthName =
-        DateFormat('MMMM y', 'de_DE').format(currentTopDate).toUpperCase();
+        DateFormat('MMMM y', locale).format(currentTopDate).toUpperCase();
 
     return Container(
       color: Colors.white,
@@ -327,7 +328,7 @@ class _CalendarGridState extends State<CalendarGrid> {
                           final date =
                               _actualStartDate.add(Duration(days: index));
                           final dayText =
-                              DateFormat('dd. EEE', 'de_DE').format(date);
+                              DateFormat('dd. EEE', locale).format(date);
                           final dayParts = dayText.split('.');
                           final datePart = dayParts[0];
                           final weekDayPart = dayParts[1].trim().toUpperCase();

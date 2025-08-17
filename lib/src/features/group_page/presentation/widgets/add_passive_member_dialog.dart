@@ -136,7 +136,11 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
             Column(
               children: [
                 Text(
-                  AppLocalizations.of(context)!.addPassiveMemberTitle.split(' ').take(2).join(' '),
+                  AppLocalizations.of(context)!
+                      .addPassiveMemberTitle
+                      .split(' ')
+                      .take(2)
+                      .join(' '),
                   textAlign: TextAlign.center,
                   style: theme.labelMedium?.copyWith(
                     color: AppColors.famkaBlack,
@@ -144,7 +148,11 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
                   ),
                 ),
                 Text(
-                  AppLocalizations.of(context)!.addPassiveMemberTitle.split(' ').skip(2).join(' '),
+                  AppLocalizations.of(context)!
+                      .addPassiveMemberTitle
+                      .split(' ')
+                      .skip(2)
+                      .join(' '),
                   textAlign: TextAlign.center,
                   style: theme.labelMedium?.copyWith(
                     color: AppColors.famkaBlack,
