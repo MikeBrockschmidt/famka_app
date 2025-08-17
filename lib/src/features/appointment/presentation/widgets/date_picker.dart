@@ -114,13 +114,18 @@ Future<DateTime?> selectAppointmentDate(
                 child: Row(
                   children: [
                     Expanded(
-                      child: GestureDetector(
-                        onTap: () {
+                      child: TextButton(
+                        onPressed: () {
                           Navigator.pop(context);
                           completer.complete(null);
                         },
-                        child: ButtonLinearGradient(
-                          buttonText: 'Abbrechen',
+                        child: Text(
+                          'Abbrechen',
+                          style: TextStyle(
+                            color: AppColors.famkaGrey,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
