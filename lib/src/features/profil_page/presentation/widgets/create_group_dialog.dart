@@ -147,7 +147,9 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
             TextField(
               controller: _nameController,
               onTapOutside: (_) {
-                FocusScope.of(context).unfocus();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      FocusScope.of(context).unfocus();
+                    });
               },
               decoration: _inputDecoration(l10n.groupNameLabel, theme),
             ),
@@ -155,7 +157,9 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
             TextField(
               controller: _locationController,
               onTapOutside: (_) {
-                FocusScope.of(context).unfocus();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      FocusScope.of(context).unfocus();
+                    });
               },
               decoration: _inputDecoration(l10n.locationLabel, theme),
             ),
@@ -163,7 +167,9 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
             TextField(
               controller: _descriptionController,
               onTapOutside: (_) {
-                FocusScope.of(context).unfocus();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      FocusScope.of(context).unfocus();
+                    });
               },
               decoration: _inputDecoration(l10n.descriptionLabel, theme),
               maxLines: 3,

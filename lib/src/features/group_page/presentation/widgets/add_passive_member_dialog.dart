@@ -186,7 +186,9 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
               TextFormField(
                 controller: _firstNameController,
                 onTapOutside: (_) {
-                  FocusScope.of(context).unfocus();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) FocusScope.of(context).unfocus();
+                  });
                 },
                 decoration: _inputDecoration(
                     AppLocalizations.of(context)!
@@ -204,7 +206,9 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
               TextFormField(
                 controller: _lastNameController,
                 onTapOutside: (_) {
-                  FocusScope.of(context).unfocus();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) FocusScope.of(context).unfocus();
+                  });
                 },
                 decoration: _inputDecoration(
                     AppLocalizations.of(context)!.addPassiveMemberLastNameLabel,
