@@ -16,6 +16,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -24,10 +25,10 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.famka_app"
+    applicationId = "de.brockschmidt.famka"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdkVersion flutter.minSdkVersion
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -47,7 +48,8 @@ flutter {
 }
 
 dependencies {
-  // ...
+    // ...
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 
   // Import the Firebase BoM
   implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
