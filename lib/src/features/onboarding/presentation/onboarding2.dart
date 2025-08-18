@@ -38,14 +38,14 @@ class Onboarding2Screen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const HeadlineK(screenHead: 'Profil'),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 1),
                   ProfilNameOnboarding(db: db, auth: auth, user: user),
                 ],
               ),
             ),
           ),
           Positioned(
-            bottom: 70,
+            bottom: 60,
             left: 0,
             right: 0,
             child: OnboardingProgress2(db, auth),

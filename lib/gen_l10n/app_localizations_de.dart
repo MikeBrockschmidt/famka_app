@@ -91,7 +91,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get menuTitle => 'Menü';
 
   @override
-  String get newGroupTitle => 'Neue Gruppe erstellen';
+  String get newGroupTitle => 'Gruppe';
 
   @override
   String get enterGroupName => 'Bitte geben Sie einen Gruppennamen ein.';

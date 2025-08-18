@@ -138,7 +138,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.only(
-                          bottom: 100, left: 16, right: 16),
+                          bottom: 60, left: 16, right: 16),
                       child: Form(
                         key: _formKey,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -152,7 +152,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
                                   alignment: Alignment.center,
                                   children: [
                                     SizedBox(
-                                      height: 150,
+                                      height: 130,
                                       width: 150,
                                       child: ProfilImage(
                                         widget.db,
@@ -252,7 +252,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
             ),
           ),
           Positioned(
-            bottom: 70,
+            bottom: 60,
             left: 0,
             right: 0,
             child: OnboardingProgress3(widget.db, widget.auth),

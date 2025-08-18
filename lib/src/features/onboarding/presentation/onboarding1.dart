@@ -19,7 +19,7 @@ class CustomScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double bottomReservedSpace = 120.0;
+    const double bottomReservedSpace = 100.0;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -41,19 +41,21 @@ class CustomScreen extends StatelessWidget {
           Positioned.fill(
             bottom: bottomReservedSpace,
             child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const HeadlineK(screenHead: 'Profil'),
-                  const SizedBox(height: 100),
-                  const SizedBox(height: 10),
-                  ProfilOnboarding(
-                    db: db,
-                    auth: auth,
-                    initialEmail: initialEmail,
-                    initialPassword: initialPassword,
-                  ),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const HeadlineK(screenHead: 'Profil'),
+                    const SizedBox(height: 100),
+                    const SizedBox(height: 10),
+                    ProfilOnboarding(
+                      db: db,
+                      auth: auth,
+                      initialEmail: initialEmail,
+                      initialPassword: initialPassword,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

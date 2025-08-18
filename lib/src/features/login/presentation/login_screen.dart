@@ -1,3 +1,4 @@
+// lib/src/features/login/presentation/login_screen.dart
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -7,15 +8,14 @@ import 'package:famka_app/src/features/login/presentation/widgets/login_window.d
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatelessWidget {
-  // Atribute
   final DatabaseRepository db;
   final AuthRepository auth;
 
-  // Konstrukter
   const LoginScreen(this.db, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -23,59 +23,52 @@ class LoginScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
         children: [
-          const HeadlineK(
-            screenHead: 'famka',
-            showLanguageSwitch: true,
+          // 1. Der bunte Hintergrund, der am unteren Rand fixiert ist
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: ColorRow(),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 28, top: 130),
-            child: Builder(builder: (context) {
-              final l10n = AppLocalizations.of(context)!;
-              return Text(
-                l10n.loginScreenTitle,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+
+          // 2. Das gesamte scrollbare UI, das über dem Hintergrund liegt
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const HeadlineK(
+                  screenHead: 'famka',
+                  showLanguageSwitch: true,
                 ),
-              );
-            }),
+                Padding(
+                  // Den oberen Abstand (Padding) reduzieren, um den Text höher zu setzen
+                  padding: const EdgeInsets.only(left: 28, top: 60),
+                  child: Text(
+                    l10n.loginScreenTitle,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                // Spacer, um das LoginWindow nach unten zu drücken
+                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+
+                // Das LoginWindow mit seiner eigenen Höhenbeschränkung
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: LoginWindow(db, auth),
+                ),
+
+                // Ein Platzhalter, der sicherstellt, dass der Inhalt nicht
+                // hinter der ColorRow verschwindet, wenn gescrollt wird.
+                SizedBox(height: 150),
+              ],
+            ),
           ),
-          const Expanded(child: SizedBox()),
         ],
       ),
-      bottomNavigationBar: Stack(
-        children: [
-          ColorRow(),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: CustomBottomNavigationBar(),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: LoginWindow(db, auth),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomBottomNavigationBar extends StatelessWidget {
-  const CustomBottomNavigationBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [],
     );
   }
 }

@@ -24,7 +24,7 @@
   "shareGroupIdInstruction": "Teile diese Gruppen-ID mit deinen Freunden!",
   "groupIdCopied": "Gruppen-ID wurde kopiert!",
   
-  "newGroupTitle": "Neue Gruppe erstellen",
+  "newGroupTitle": "Gruppe",
   "enterGroupName": "Bitte geben Sie einen Gruppennamen ein.",
   "groupCreatedSuccess": "Gruppe „{groupName}" erfolgreich erstellt!",
   "createGroupError": "Fehler beim Erstellen der Gruppe: {error}",
