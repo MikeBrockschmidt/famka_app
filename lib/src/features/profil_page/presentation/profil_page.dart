@@ -1,5 +1,6 @@
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
+import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
 import 'package:famka_app/src/common/bottom_navigation.dart';
 import 'package:famka_app/src/common/headline_p.dart';
 import 'package:famka_app/src/common/profil_avatar_row.dart';
@@ -275,6 +276,18 @@ class _ProfilPageState extends State<ProfilPage> {
               backgroundColor: AppColors.famkaCyan,
             ),
           );
+          // Nach dem Speichern zur Kalenderseite navigieren und User aktualisiert übergeben
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CalendarScreen(
+                widget.db,
+                currentGroup: widget.db.currentGroup!,
+                currentUser: updatedUser,
+                auth: widget.auth,
+              ),
+            ),
+          );
         }
       } catch (e) {
         if (mounted) {
@@ -496,7 +509,9 @@ class _ProfilPageState extends State<ProfilPage> {
                         FocusScope.of(context).requestFocus(_lastNameFocusNode);
                       },
                       onTapOutside: (_) {
-                        FocusScope.of(context).unfocus();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) FocusScope.of(context).unfocus();
+                        });
                       },
                       validator: _validateName,
                       decoration: InputDecoration(
@@ -519,7 +534,9 @@ class _ProfilPageState extends State<ProfilPage> {
                               .requestFocus(_phoneNumberFocusNode);
                         },
                         onTapOutside: (_) {
-                          FocusScope.of(context).unfocus();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) FocusScope.of(context).unfocus();
+                          });
                         },
                         validator: _validateName,
                         decoration: InputDecoration(
@@ -591,7 +608,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                               .requestFocus(_emailFocusNode);
                                         },
                                         onTapOutside: (_) {
-                                          FocusScope.of(context).unfocus();
+                                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                                            if (mounted) FocusScope.of(context).unfocus();
+                                          });
                                         },
                                         validator: _validatePhoneNumber,
                                         decoration: InputDecoration(
@@ -629,7 +648,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                               _miscellaneousFocusNode);
                                         },
                                         onTapOutside: (_) {
-                                          FocusScope.of(context).unfocus();
+                                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                                            if (mounted) FocusScope.of(context).unfocus();
+                                          });
                                         },
                                         validator: _validateEmail,
                                         decoration: InputDecoration(
@@ -666,7 +687,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                           if (_isOwnProfile) _saveUserData();
                                         },
                                         onTapOutside: (_) {
-                                          FocusScope.of(context).unfocus();
+                                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                                            if (mounted) FocusScope.of(context).unfocus();
+                                          });
                                         },
                                         decoration: InputDecoration(
                                           hintText: _isOwnProfile

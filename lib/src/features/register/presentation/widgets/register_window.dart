@@ -214,7 +214,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           TextFormField(
                             controller: _firstNameController,
                             onTapOutside: (_) {
-                              FocusScope.of(context).unfocus();
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                FocusScope.of(context).unfocus();
+                              });
                             },
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
@@ -233,7 +235,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           TextFormField(
                             controller: _lastNameController,
                             onTapOutside: (_) {
-                              FocusScope.of(context).unfocus();
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                FocusScope.of(context).unfocus();
+                              });
                             },
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
@@ -252,7 +256,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           TextFormField(
                             controller: _emailController,
                             onTapOutside: (_) {
-                              FocusScope.of(context).unfocus();
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                FocusScope.of(context).unfocus();
+                              });
                             },
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
@@ -271,7 +277,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           TextFormField(
                             controller: _passwordController,
                             onTapOutside: (_) {
-                              FocusScope.of(context).unfocus();
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                FocusScope.of(context).unfocus();
+                              });
                             },
                             obscureText: _isObscured,
                             autovalidateMode:
@@ -303,7 +311,9 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           TextFormField(
                             controller: _passwordRepeatController,
                             onTapOutside: (_) {
-                              FocusScope.of(context).unfocus();
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                FocusScope.of(context).unfocus();
+                              });
                             },
                             obscureText: _isObscured,
                             autovalidateMode:

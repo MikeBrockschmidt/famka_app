@@ -193,7 +193,9 @@ class _Onboarding4ScreenState extends State<Onboarding4> {
                                       keyboardType: TextInputType.phone,
                                       validator: _validatePhoneNumber,
                                       onTapOutside: (_) {
-                                        FocusScope.of(context).unfocus();
+                                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                                          FocusScope.of(context).unfocus();
+                                        });
                                       },
                                       decoration: InputDecoration(
                                         hintText: AppLocalizations.of(context)!

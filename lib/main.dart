@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:famka_app/firebase_options.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -20,64 +21,76 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    // ignore: avoid_print
+    print('FlutterError: ' + details.exceptionAsString());
+    if (details.stack != null) print(details.stack);
+  };
+  runZonedGuarded(() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  final AuthRepository auth = FirebaseAuthRepository();
-  final DatabaseRepository db = FirestoreDatabaseRepository();
+    final AuthRepository auth = FirebaseAuthRepository();
+    final DatabaseRepository db = FirestoreDatabaseRepository();
 
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  const String userIdKey = 'last_logged_in_user_id';
-  final String? storedUserId = prefs.getString(userIdKey);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    const String userIdKey = 'last_logged_in_user_id';
+    final String? storedUserId = prefs.getString(userIdKey);
 
-  if (storedUserId != null && storedUserId.isNotEmpty) {
-    print('ℹ️ Gefundene Benutzer-ID in SharedPreferences: $storedUserId');
-    bool userStillExists = false;
+    if (storedUserId != null && storedUserId.isNotEmpty) {
+      print('ℹ️ Gefundene Benutzer-ID in SharedPreferences: $storedUserId');
+      bool userStillExists = false;
 
-    try {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null && currentUser.uid == storedUserId) {
-        final DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(storedUserId)
-            .get();
-        if (userDoc.exists) {
-          userStillExists = true;
-          print(
-              '✅ Benutzer $storedUserId in Firebase Auth und Firestore gefunden.');
+      try {
+        User? currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null && currentUser.uid == storedUserId) {
+          final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(storedUserId)
+              .get();
+          if (userDoc.exists) {
+            userStillExists = true;
+            print(
+                '✅ Benutzer $storedUserId in Firebase Auth und Firestore gefunden.');
+          } else {
+            print(
+                '⚠️ Benutzer $storedUserId in Firebase Auth gefunden, aber Firestore-Dokument fehlt.');
+          }
         } else {
           print(
-              '⚠️ Benutzer $storedUserId in Firebase Auth gefunden, aber Firestore-Dokument fehlt.');
+              '❌ Gespeicherte ID $storedUserId stimmt nicht mit aktuellem Firebase-Benutzer überein oder kein Benutzer angemeldet.');
         }
-      } else {
-        print(
-            '❌ Gespeicherte ID $storedUserId stimmt nicht mit aktuellem Firebase-Benutzer überein oder kein Benutzer angemeldet.');
+      } catch (e, stack) {
+        print('❌ Fehler beim Überprüfen der Benutzer-ID in Firebase: $e');
+        print(stack);
+        userStillExists = false;
       }
-    } catch (e) {
-      print('❌ Fehler beim Überprüfen der Benutzer-ID in Firebase: $e');
-      userStillExists = false;
+
+      if (!userStillExists) {
+        await prefs.remove(userIdKey);
+        print(
+            '🗑️ Ungültiger Benutzer $storedUserId aus SharedPreferences entfernt.');
+      }
+    } else {
+      print('ℹ️ Keine Benutzer-ID in SharedPreferences gefunden.');
     }
 
-    if (!userStillExists) {
-      await prefs.remove(userIdKey);
-      print(
-          '🗑️ Ungültiger Benutzer $storedUserId aus SharedPreferences entfernt.');
-    }
-  } else {
-    print('ℹ️ Keine Benutzer-ID in SharedPreferences gefunden.');
-  }
-
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => LocaleProvider(),
-      child: MainApp(db, auth),
-    ),
-  );
+    runApp(
+      ChangeNotifierProvider(
+        create: (_) => LocaleProvider(),
+        child: MainApp(db, auth),
+      ),
+    );
+  }, (error, stack) {
+    print('Uncaught Dart error: $error');
+    print(stack);
+  });
 }
 
 class MyApp extends StatelessWidget {

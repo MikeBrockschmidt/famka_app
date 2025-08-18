@@ -281,7 +281,9 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
                           keyboardType: TextInputType.phone,
                           validator: _validatePhoneNumber,
                           onTapOutside: (_) {
-                            FocusScope.of(context).unfocus();
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              FocusScope.of(context).unfocus();
+                            });
                           },
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!

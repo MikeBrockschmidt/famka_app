@@ -146,7 +146,9 @@ class _LoginWindowState extends State<LoginWindow> {
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: validateEmailOrPhone,
                         onTapOutside: (_) {
-                          FocusScope.of(context).unfocus();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            FocusScope.of(context).unfocus();
+                          });
                         },
                         decoration: InputDecoration(
                           labelText: l10n.emailInputLabel,
@@ -174,7 +176,9 @@ class _LoginWindowState extends State<LoginWindow> {
                                 AutovalidateMode.onUserInteraction,
                             validator: (value) => validatePassword(value),
                             onTapOutside: (_) {
-                              FocusScope.of(context).unfocus();
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                FocusScope.of(context).unfocus();
+                              });
                             },
                             decoration: InputDecoration(
                               suffixIcon: IconButton(

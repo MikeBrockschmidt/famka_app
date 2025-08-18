@@ -24,10 +24,7 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -51,6 +48,14 @@ class DefaultFirebaseOptions {
         );
     }
   }
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyC37xVX2xNgYw3vg324cDugBIZu3FKF6VE',
+    appId: '1:616611076821:android:4cfe00c2f699c451cfe05c',
+    messagingSenderId: '616611076821',
+    projectId: 'famka-app-free-storage',
+    storageBucket: 'famka-app-free-storage.firebasestorage.app',
+  );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDwQDlQpHl0AGSwLjx6MtuVbKLFHQmE0-8',

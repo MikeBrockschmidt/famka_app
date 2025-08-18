@@ -55,7 +55,9 @@ class AppTextField extends StatelessWidget {
             child: TextFormField(
               controller: controller,
               onTapOutside: (_) {
-                FocusScope.of(context).unfocus();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  FocusScope.of(context).unfocus();
+                });
               },
               decoration: InputDecoration(
                 hintText: hint,

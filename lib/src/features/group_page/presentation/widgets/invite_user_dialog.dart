@@ -42,7 +42,9 @@ class _InviteUserDialogState extends State<InviteUserDialog> {
           TextField(
             controller: _inviteeIdController,
             onTapOutside: (_) {
-              FocusScope.of(context).unfocus();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) FocusScope.of(context).unfocus();
+              });
             },
             decoration: InputDecoration(
               hintText: l10n.userProfileIdHint,

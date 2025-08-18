@@ -204,8 +204,8 @@ class _GalleryState extends State<Gallery> {
   void _updateGalleryData() {
     final List<GalleryItem> dynamicImages =
         GalleryData.getDynamicImagesGalleryItems();
-    final List<GalleryItem> dynamicIcons =
-        GalleryData.getDynamicIconsGalleryItems();
+    // final List<GalleryItem> dynamicIcons =
+    //     GalleryData.getDynamicIconsGalleryItems();
     final List<GalleryItem> dynamicEmojis =
         GalleryData.getDynamicEmojisGalleryItems();
 
@@ -216,7 +216,7 @@ class _GalleryState extends State<Gallery> {
           ...GalleryData.fixedThumbnails,
           ..._uploadedImages,
           ...dynamicImages,
-          ...dynamicIcons,
+          // ...dynamicIcons,
           ...dynamicEmojis,
         ];
       });

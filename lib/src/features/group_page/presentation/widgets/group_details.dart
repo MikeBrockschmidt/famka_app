@@ -40,7 +40,9 @@ class GroupDetails extends StatelessWidget {
                   controller: locationController,
                   focusNode: locationFocusNode,
                   onTapOutside: (_) {
-                    FocusScope.of(context).unfocus();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      FocusScope.of(context).unfocus();
+                    });
                   },
                   textInputAction: TextInputAction.done,
                   onSubmitted: (value) {
@@ -75,7 +77,9 @@ class GroupDetails extends StatelessWidget {
                   controller: descriptionController,
                   focusNode: descriptionFocusNode,
                   onTapOutside: (_) {
-                    FocusScope.of(context).unfocus();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      FocusScope.of(context).unfocus();
+                    });
                   },
                   maxLines: null,
                   keyboardType: TextInputType.multiline,

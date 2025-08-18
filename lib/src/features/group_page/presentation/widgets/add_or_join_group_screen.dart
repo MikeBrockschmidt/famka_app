@@ -226,7 +226,9 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
               TextFormField(
                 controller: _newGroupNameController,
                 onTapOutside: (_) {
-                  FocusScope.of(context).unfocus();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) FocusScope.of(context).unfocus();
+                  });
                 },
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.groupName,
@@ -246,7 +248,9 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
               TextFormField(
                 controller: _newGroupDescriptionController,
                 onTapOutside: (_) {
-                  FocusScope.of(context).unfocus();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) FocusScope.of(context).unfocus();
+                  });
                 },
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.groupDescription,
@@ -260,7 +264,9 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
               TextFormField(
                 controller: _newGroupLocationController,
                 onTapOutside: (_) {
-                  FocusScope.of(context).unfocus();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) FocusScope.of(context).unfocus();
+                  });
                 },
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.groupLocation,

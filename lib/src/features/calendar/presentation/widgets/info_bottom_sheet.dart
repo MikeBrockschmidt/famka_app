@@ -97,17 +97,12 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         ),
       );
     } else if (eventUrl.startsWith('icon:')) {
-      final iconCodePoint = int.tryParse(eventUrl.substring(5));
-      if (iconCodePoint != null) {
-        iconWidget = Icon(
-          Icons.category, // Fallback to a constant icon
-          size: size * 0.9,
-          color: AppColors.famkaBlack,
-        );
-      } else {
-        iconWidget =
-            Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
-      }
+      // Use a constant icon for all 'icon:' entries
+      iconWidget = Icon(
+        Icons.category,
+        size: size * 0.9,
+        color: AppColors.famkaGreen,
+      );
     } else if (eventUrl.startsWith('image:')) {
       final actualImageUrl = eventUrl.substring(6);
       if (actualImageUrl.startsWith('http://') ||
