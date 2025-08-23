@@ -80,8 +80,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       });
       print(AppLocalizations.of(context)!
           .calendarEventsLoaded(_displayGroup.groupId, _allEvents.length));
-
-      _checkForOldEvents();
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -105,102 +103,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
-  void _checkForOldEvents() {
-    final DateTime cutoffDate =
-        DateTime.now().subtract(const Duration(days: 14));
-
-    final List<SingleEvent> oldEvents = _allEvents
-        .where((event) => event.singleEventDate.isBefore(cutoffDate))
-        .toList();
-
-    if (oldEvents.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.orange,
-            duration: const Duration(seconds: 8),
-            content: Text(
-              AppLocalizations.of(context)!
-                  .oldEventsFoundMessage(oldEvents.length),
-            ),
-            action: SnackBarAction(
-              label: AppLocalizations.of(context)!.eventListDeleteButton,
-              textColor: Colors.white,
-              onPressed: () => _showDeleteOldEventsDialog(oldEvents),
-            ),
-          ),
-        );
-      });
-    }
-  }
-
-  void _showDeleteOldEventsDialog(List<SingleEvent> oldEvents) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.deleteOldEventsTitle),
-        content: Text(
-          AppLocalizations.of(context)!
-              .deleteOldEventsConfirmation(oldEvents.length),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(AppLocalizations.of(context)!.cancelButtonText),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _deleteOldEvents(oldEvents);
-            },
-            child: Text(AppLocalizations.of(context)!.eventListDeleteButton),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _deleteOldEvents(List<SingleEvent> oldEvents) async {
-    try {
-      int deletedCount = 0;
-
-      for (final event in oldEvents) {
-        await widget.db.deleteEvent(event.groupId, event.singleEventId);
-        deletedCount++;
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!
-                  .oldEventsDeletedSuccess(deletedCount),
-            ),
-          ),
-        );
-
-        await _loadEvents();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.famkaRed,
-            content: Text(
-              AppLocalizations.of(context)!
-                  .oldEventsDeletionError(e.toString()),
-            ),
-          ),
-        );
-      }
-    }
-  }
-
   void _onEventsRefreshed() {
     print('CalendarScreen: _onEventsRefreshed aufgerufen, lade Events neu.');
     _loadEvents();
@@ -215,30 +117,45 @@ class _CalendarScreenState extends State<CalendarScreen> {
       if (deletedEvent != null) {
         await widget.db
             .deleteEvent(deletedEvent.groupId, deletedEvent.singleEventId);
-        if (mounted) {
+        try {
+          final List<SingleEvent> fetchedEvents =
+              await widget.db.getEventsForGroup(_displayGroup.groupId);
+
           setState(() {
-            _allEvents.removeWhere((e) => e.singleEventId == eventId);
+            _allEvents = fetchedEvents;
+            _allEvents
+                .sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content:
-                    Text(AppLocalizations.of(context)!.eventDeletedSuccess)),
-          );
-          _loadEvents();
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: AppColors.famkaRed,
-              content:
-                  Text(AppLocalizations.of(context)!.eventDeleteTargetNotFound),
-            ),
-          );
+          print(AppLocalizations.of(context)!
+              .calendarEventsLoaded(_displayGroup.groupId, _allEvents.length));
+        } catch (e) {
+          if (mounted) {
+            setState(() {
+              _eventsErrorMessage =
+                  AppLocalizations.of(context)!.eventLoadingError(e.toString());
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: AppColors.famkaRed,
+                content: Text(AppLocalizations.of(context)!
+                    .eventLoadingError(e.toString())),
+              ),
+            );
+          }
+        } finally {
+          if (mounted) {
+            setState(() {
+              _isLoadingEvents = false;
+            });
+          }
         }
       }
     } catch (e) {
       if (mounted) {
+        setState(() {
+          _eventsErrorMessage =
+              AppLocalizations.of(context)!.eventDeletionError(e.toString());
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppColors.famkaRed,
@@ -247,7 +164,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
         );
       }
-      await _loadEvents();
     }
   }
 
@@ -258,12 +174,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _loadEvents();
       });
     }
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
   }
 
   @override
@@ -278,6 +188,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 )
               : CalendarGrid(
                   widget.db,
+                  auth: widget.auth,
                   currentGroup: _displayGroup,
                   currentUser: widget.currentUser,
                   allEvents: _allEvents,

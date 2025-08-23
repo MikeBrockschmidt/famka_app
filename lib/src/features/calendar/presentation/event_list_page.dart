@@ -35,6 +35,11 @@ class EventListPage extends StatefulWidget {
 }
 
 class _EventListPageState extends State<EventListPage> {
+  // Hilfsmethode: Vergleicht, ob zwei DateTime-Objekte am selben Tag liegen
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   late Group _displayGroup;
   List<SingleEvent> _events = [];
   bool _isLoading = true;
@@ -47,7 +52,6 @@ class _EventListPageState extends State<EventListPage> {
   List<String> orderedHeaders = [];
 
   int _filteredEventsCount = 0;
-  bool _showOldEventsDeleteDialog = false;
 
   @override
   void initState() {
@@ -61,6 +65,16 @@ class _EventListPageState extends State<EventListPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadEvents();
+    _deleteOldEventsIfNeeded();
+  }
+
+  void _deleteOldEventsIfNeeded() async {
+    final DateTime cutoffDate =
+        DateTime.now().subtract(const Duration(days: 14));
+    final List<SingleEvent> allEvents =
+        await widget.db.getEventsForGroup(_displayGroup.groupId);
+    await _deleteOldEvents(allEvents, cutoffDate);
+    await _loadEvents();
   }
 
   @override
@@ -68,88 +82,7 @@ class _EventListPageState extends State<EventListPage> {
     _scrollController.dispose();
     super.dispose();
   }
-
-  bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
-  }
-
-  Widget _buildOldEventsInfoBanner() {
-    if (_filteredEventsCount <= 0) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      width: double.infinity,
-      color: Colors.amber.shade100,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(Icons.info_outline, color: Colors.amber.shade800),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Ereignisse älter als 14 Tage (insgesamt $_filteredEventsCount) werden ausgeblendet',
-              style: TextStyle(fontSize: 12, color: Colors.amber.shade800),
-            ),
-          ),
-          TextButton(
-            onPressed: _showDeleteOldEventsDialog,
-            child: const Text('Löschen', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteOldEventsDialog() {
-    final DateTime cutoffDate =
-        DateTime.now().subtract(const Duration(days: 14));
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Alte Ereignisse löschen?'),
-          content: Text(
-            'Möchtest du alle Ereignisse löschen, die älter als 14 Tage sind? '
-            'Dies würde $_filteredEventsCount Ereignisse betreffen.\n\n'
-            'Diese Aktion kann nicht rückgängig gemacht werden!',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Abbrechen'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                final List<SingleEvent> allEvents =
-                    await widget.db.getEventsForGroup(_displayGroup.groupId);
-
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Lösche alte Ereignisse...'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-
-                await _deleteOldEvents(allEvents, cutoffDate);
-
-                await _loadEvents();
-              },
-              child: const Text('Löschen', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // Dialog entfernt: Alte Events werden automatisch gelöscht
 
   Future<void> _deleteOldEvents(
       List<SingleEvent> allEvents, DateTime cutoffDate) async {
@@ -214,9 +147,7 @@ class _EventListPageState extends State<EventListPage> {
 
     if (oldEvents.isNotEmpty) {
       print('EventListPage: ${oldEvents.length} alte Events gefunden');
-      setState(() {
-        _showOldEventsDeleteDialog = oldEvents.length > 10;
-      });
+      // Hinweis: Info-Banner für gelöschte alte Events wird über _filteredEventsCount gesteuert
     }
   }
 
@@ -578,7 +509,6 @@ class _EventListPageState extends State<EventListPage> {
             auth: widget.auth,
           ),
           const Divider(thickness: 0.4, height: 0.4, color: Colors.grey),
-          _buildOldEventsInfoBanner(),
           Expanded(
             child: _showLoadingIndicator
                 ? const Center(child: CircularProgressIndicator())

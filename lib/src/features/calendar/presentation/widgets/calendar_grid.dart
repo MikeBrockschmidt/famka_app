@@ -10,9 +10,11 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class CalendarGrid extends StatefulWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
   final Group? currentGroup;
   final AppUser? currentUser;
   final List<SingleEvent> allEvents;
@@ -21,6 +23,7 @@ class CalendarGrid extends StatefulWidget {
 
   const CalendarGrid(
     this.db, {
+    required this.auth,
     super.key,
     this.currentGroup,
     this.currentUser,
@@ -274,6 +277,7 @@ class _CalendarGridState extends State<CalendarGrid> {
                   Expanded(
                     child: CalendarAvatarScrollRow(
                       widget.db,
+                      auth: widget.auth,
                       horizontalScrollControllerTop:
                           _avatarHorizontalScrollController,
                       groupMembers: currentGroupMembers,

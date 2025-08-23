@@ -3,9 +3,13 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/profil_avatar.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart';
+
+import 'package:famka_app/src/data/auth_repository.dart';
 
 class CalendarAvatarScrollRow extends StatelessWidget {
   final DatabaseRepository db;
+  final AuthRepository auth;
   final ScrollController horizontalScrollControllerTop;
   final List<AppUser> groupMembers;
   final Group? currentGroup;
@@ -14,6 +18,7 @@ class CalendarAvatarScrollRow extends StatelessWidget {
 
   const CalendarAvatarScrollRow(
     this.db, {
+    required this.auth,
     super.key,
     required this.horizontalScrollControllerTop,
     required this.groupMembers,
@@ -73,7 +78,20 @@ class CalendarAvatarScrollRow extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ProfilAvatar(user: user),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ProfilPage(
+                          db: db,
+                          auth: auth,
+                          currentUser: user,
+                        ),
+                      ),
+                    );
+                  },
+                  child: ProfilAvatar(user: user),
+                ),
                 const SizedBox(height: 0),
                 Text(
                   user.firstName.isNotEmpty ? user.firstName : 'Unbekannt',
