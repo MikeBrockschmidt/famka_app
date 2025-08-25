@@ -120,7 +120,7 @@ class _Onboarding3ScreenState extends State<Onboarding3Screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           const Positioned(
