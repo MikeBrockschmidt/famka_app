@@ -52,53 +52,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(color: Colors.white),
-        const Align(
-          alignment: Alignment.bottomCenter,
-          child: SizedBox(
-            height: 540,
-            child: ColorRow(),
-          ),
-        ),
-        const Align(
-          alignment: Alignment.topCenter,
-          child: HeadlineK(screenHead: 'famka'),
-        ),
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          resizeToAvoidBottomInset: true,
-          appBar: AppBar(
-            toolbarHeight: 1,
-            backgroundColor: Colors.white,
-            elevation: 0,
-          ),
-          body: SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 80),
-                const Padding(
-                  padding: EdgeInsets.only(left: 28, top: 130),
-                  child: Text(
-                    'Registrieren',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            Container(color: Colors.white),
+            const Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 540,
+                child: ColorRow(),
+              ),
+            ),
+            const Align(
+              alignment: Alignment.topCenter,
+              child: HeadlineK(screenHead: 'famka'),
+            ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              resizeToAvoidBottomInset: true,
+              appBar: AppBar(
+                toolbarHeight: 1,
+                backgroundColor: Colors.white,
+                elevation: 0,
+              ),
+              body: SingleChildScrollView(
+                controller: _scrollController,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 80),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 28, top: 130),
+                          child: Text(
+                            'Registrieren',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 50),
+                        RegisterWindow(widget.db, widget.auth),
+                        const Spacer(),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 50),
-                RegisterWindow(widget.db, widget.auth),
-                const SizedBox(height: 550),
-              ],
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
   // bottomNavigationBar entfernt
