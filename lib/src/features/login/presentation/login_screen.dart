@@ -16,59 +16,66 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        toolbarHeight: 1,
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: Stack(
-        children: [
-          // 1. Der bunte Hintergrund, der am unteren Rand fixiert ist
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: ColorRow(),
-          ),
-
-          // 2. Das gesamte scrollbare UI, das über dem Hintergrund liegt
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const HeadlineK(
-                  screenHead: 'famka',
-                  showLanguageSwitch: true,
-                ),
-                Padding(
-                  // Den oberen Abstand (Padding) reduzieren, um den Text höher zu setzen
-                  padding: const EdgeInsets.only(left: 28, top: 60),
-                  child: Text(
-                    l10n.loginScreenTitle,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            Container(color: Colors.white),
+            const Align(
+              alignment: Alignment.bottomCenter,
+              child: ColorRow(),
+            ),
+            const Align(
+              alignment: Alignment.topCenter,
+              child: HeadlineK(
+                screenHead: 'famka',
+                showLanguageSwitch: true,
+              ),
+            ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              resizeToAvoidBottomInset: true,
+              appBar: AppBar(
+                toolbarHeight: 1,
+                backgroundColor: Colors.white,
+                elevation: 0,
+              ),
+              body: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 80),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 28, top: 130),
+                          child: Text(
+                            l10n.loginScreenTitle,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 50),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 600),
+                          child: LoginWindow(db, auth),
+                        ),
+                        const Spacer(),
+                      ],
                     ),
                   ),
                 ),
-                // Spacer, um das LoginWindow nach unten zu drücken
-                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-
-                // Das LoginWindow mit seiner eigenen Höhenbeschränkung
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: LoginWindow(db, auth),
-                ),
-
-                // Ein Platzhalter, der sicherstellt, dass der Inhalt nicht
-                // hinter der ColorRow verschwindet, wenn gescrollt wird.
-                SizedBox(height: 150),
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }

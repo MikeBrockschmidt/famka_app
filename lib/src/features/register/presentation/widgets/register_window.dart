@@ -40,7 +40,6 @@ class _RegisterWindowState extends State<RegisterWindow> {
     super.dispose();
   }
 
-
   String? _validateEmail(String? input) {
     final l10n = AppLocalizations.of(context)!;
     if (input == null || input.trim().isEmpty) {
@@ -71,7 +70,8 @@ class _RegisterWindowState extends State<RegisterWindow> {
   String? _validatePasswordRepeat(String? input) {
     final l10n = AppLocalizations.of(context)!;
     if (input == null || input.isEmpty) {
-      return l10n.passwordValidationMinLength; // Use a more specific message if available
+      return l10n
+          .passwordValidationMinLength; // Use a more specific message if available
     }
     if (input != _passwordController.text) {
       return "Passwörter stimmen nicht überein";
