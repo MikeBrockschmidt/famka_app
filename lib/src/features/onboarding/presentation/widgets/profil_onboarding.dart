@@ -208,6 +208,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
                 padding: const EdgeInsets.fromLTRB(32, 130, 32, 28),
                 child: Form(
                   key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [

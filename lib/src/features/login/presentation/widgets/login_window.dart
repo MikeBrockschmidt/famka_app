@@ -131,6 +131,7 @@ class _LoginWindowState extends State<LoginWindow> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
               child: Form(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

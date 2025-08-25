@@ -437,6 +437,7 @@ class _AppointmentState extends State<Appointment> {
             Expanded(
               child: Form(
                 key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [

@@ -1,4 +1,5 @@
 import 'package:famka_app/src/features/login/domain/app_user.dart';
+import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
@@ -39,31 +40,38 @@ class _RegisterWindowState extends State<RegisterWindow> {
     super.dispose();
   }
 
+
   String? _validateEmail(String? input) {
+    final l10n = AppLocalizations.of(context)!;
     if (input == null || input.trim().isEmpty) {
-      return "E-Mail-Adresse darf nicht leer sein";
+      return l10n.emailValidationEmpty;
     }
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(input)) {
-      return "Bitte eine gültige E-Mail-Adresse eingeben.";
+      return l10n.emailValidationInvalid;
     }
     return null;
   }
 
   String? _validatePassword(String? input) {
-    if (input == null || input.length < 8) return "Mind. 8 Zeichen";
-    if (input.length > 50) return "Max. 50 Zeichen";
-    if (!RegExp(r'[a-z]').hasMatch(input)) return "Mind. ein Kleinbuchstabe";
-    if (!RegExp(r'[A-Z]').hasMatch(input)) return "Mind. ein Großbuchstabe";
-    if (!RegExp(r'\d').hasMatch(input)) return "Mind. eine Zahl";
+    final l10n = AppLocalizations.of(context)!;
+    if (input == null || input.length < 8)
+      return l10n.passwordValidationMinLength;
+    if (input.length > 50) return l10n.passwordValidationMaxLength;
+    if (!RegExp(r'[a-z]').hasMatch(input))
+      return l10n.passwordValidationLowercase;
+    if (!RegExp(r'[A-Z]').hasMatch(input))
+      return l10n.passwordValidationUppercase;
+    if (!RegExp(r'\d').hasMatch(input)) return l10n.passwordValidationDigit;
     if (!RegExp(r'[!@#\$&*~\-+=_.,;:<>?/|]').hasMatch(input)) {
-      return "Mind. ein Sonderzeichen";
+      return l10n.passwordValidationSpecialChar;
     }
     return null;
   }
 
   String? _validatePasswordRepeat(String? input) {
+    final l10n = AppLocalizations.of(context)!;
     if (input == null || input.isEmpty) {
-      return "Passwortwiederholung darf nicht leer sein";
+      return l10n.passwordValidationMinLength; // Use a more specific message if available
     }
     if (input != _passwordController.text) {
       return "Passwörter stimmen nicht überein";
@@ -213,6 +221,7 @@ class _RegisterWindowState extends State<RegisterWindow> {
                         children: [
                           TextFormField(
                             controller: _firstNameController,
+                            autofillHints: const [AutofillHints.givenName],
                             onTapOutside: (_) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 FocusScope.of(context).unfocus();
@@ -234,6 +243,7 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _lastNameController,
+                            autofillHints: const [AutofillHints.familyName],
                             onTapOutside: (_) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 FocusScope.of(context).unfocus();
@@ -255,6 +265,7 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _emailController,
+                            autofillHints: const [AutofillHints.email],
                             onTapOutside: (_) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 FocusScope.of(context).unfocus();
@@ -276,6 +287,7 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _passwordController,
+                            autofillHints: const [AutofillHints.newPassword],
                             onTapOutside: (_) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 FocusScope.of(context).unfocus();
@@ -310,6 +322,7 @@ class _RegisterWindowState extends State<RegisterWindow> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _passwordRepeatController,
+                            autofillHints: const [AutofillHints.newPassword],
                             onTapOutside: (_) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 FocusScope.of(context).unfocus();
@@ -318,15 +331,7 @@ class _RegisterWindowState extends State<RegisterWindow> {
                             obscureText: _isObscured,
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Bitte Passwort wiederholen.";
-                              }
-                              if (value != _passwordController.text) {
-                                return "Passwörter stimmen nicht überein";
-                              }
-                              return null;
-                            },
+                            validator: _validatePasswordRepeat,
                             decoration: InputDecoration(
                               labelText: "Passwort Wiederholen",
                               hintText: "Passwort Wiederholung",
