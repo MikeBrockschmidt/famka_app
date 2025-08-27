@@ -25,52 +25,67 @@ class LoginScreen extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: ColorRow(),
             ),
-            const Align(
-              alignment: Alignment.topCenter,
-              child: HeadlineK(
-                screenHead: 'famka',
-                showLanguageSwitch: true,
-              ),
-            ),
             Scaffold(
               backgroundColor: Colors.transparent,
               resizeToAvoidBottomInset: true,
               appBar: AppBar(
-                toolbarHeight: 1,
                 backgroundColor: Colors.white,
                 elevation: 0,
+                automaticallyImplyLeading: false,
+                title: const HeadlineK(
+                  screenHead: 'famka',
+                  showLanguageSwitch: true,
+                ),
+                centerTitle: true,
+                toolbarHeight: null,
+                titleSpacing: 0,
               ),
-              body: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
+              body: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  const Divider(
+                    height: 0.5,
+                    thickness: 0.5,
+                    color: Colors.black,
                   ),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 80),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 28, top: 130),
-                          child: Text(
-                            l10n.loginScreenTitle,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 80),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 28, top: 60),
+                                child: Text(
+                                  l10n.loginScreenTitle,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 50),
+                              ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 600),
+                                child: LoginWindow(db, auth),
+                              ),
+                              const SizedBox(height: 100),
+                              const Spacer(),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 50),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 600),
-                          child: LoginWindow(db, auth),
-                        ),
-                        const Spacer(),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
