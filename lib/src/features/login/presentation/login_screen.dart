@@ -34,7 +34,6 @@ class LoginScreen extends StatelessWidget {
                 automaticallyImplyLeading: false,
                 title: const HeadlineK(
                   screenHead: 'famka',
-                  showLanguageSwitch: true,
                 ),
                 centerTitle: true,
                 toolbarHeight: null,

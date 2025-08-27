@@ -40,12 +40,10 @@ class MenuSubContainer1LinesImpressum extends StatelessWidget {
               CircleAvatar(
                 radius: 20,
                 backgroundColor: AppColors.famkaGreen,
-                child: const Text(
-                  '+',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
+                child: const Icon(
+                  Icons.gavel_outlined,
+                  color: Colors.white,
+                  size: 22,
                 ),
               ),
               const SizedBox(width: 18),
@@ -71,7 +69,7 @@ class MenuSubContainer1LinesImpressum extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.edit),
+                icon: const Icon(Icons.gavel_outlined),
                 onPressed: () {},
                 iconSize: 20,
                 color: isIconWhite ? Colors.white : Colors.black,

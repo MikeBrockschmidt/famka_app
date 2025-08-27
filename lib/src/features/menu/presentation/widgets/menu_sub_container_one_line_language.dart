@@ -33,7 +33,7 @@ class MenuSubContainer1LinesLanguage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: AppColors.famkaCyan,
+                    backgroundColor: AppColors.famkaGreen,
                     child: const Icon(
                       Icons.language,
                       color: Colors.white,
@@ -48,31 +48,66 @@ class MenuSubContainer1LinesLanguage extends StatelessWidget {
                       children: [
                         Text(
                           l10n.languageSettingTitle,
-                          style:
-                              Theme.of(context).textTheme.labelMedium?.copyWith(
-                                    fontSize: 18, // Schriftgröße reduziert
-                                    height: 0.9, // Zeilenhöhe reduzieren
-                                  ),
-                          overflow: TextOverflow.ellipsis, // Vermeidet Umbrüche
+                          style: Theme.of(context).textTheme.labelMedium,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(
-                            height: 2), // Reduzierter vertikaler Abstand
+                        const SizedBox(height: 4),
                         Text(
                           localeProvider.isEnglish
                               ? l10n.languageEnglish
                               : l10n.languageGerman,
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.famkaBlack,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                         ),
                       ],
                     ),
                   ),
-                  Switch(
-                    value: localeProvider.isEnglish,
-                    onChanged: (value) => localeProvider.toggleLanguage(),
-                    activeColor: AppColors.famkaCyan,
-                    activeTrackColor: AppColors.famkaCyan.withOpacity(0.5),
-                    inactiveThumbColor: AppColors.famkaWhite,
-                    inactiveTrackColor: AppColors.famkaGrey,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: GestureDetector(
+                      onTap: () => localeProvider.toggleLanguage(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.famkaWhite,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.famkaBlack,
+                            width: 1.2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.famkaBlack.withOpacity(0.08),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              localeProvider.isGerman ? 'DE' : 'EN',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.famkaBlack,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.language,
+                              size: 16,
+                              color: AppColors.famkaBlack,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
