@@ -1,5 +1,6 @@
 {
   "de": [
+    "groupCreatedSuccess",
     "showPasswordTooltip",
     "hidePasswordTooltip",
     "errorCreatingGroup",
@@ -14,6 +15,8 @@
     "manageMembersRemoveConfirmation",
     "manageMembersRemoveCancel",
     "manageMembersRemoveConfirm",
+    "deleteGroup",
+    "confirmDeleteGroup",
     "ungueltigeTelefonnummer"
   ]
 }

@@ -609,6 +609,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageMembersRemoveConfirm => 'Remove';
 
   @override
+  String get deleteGroup => 'Delete Group';
+
+  @override
+  String confirmDeleteGroup(Object eventName) {
+    return 'Do you really want to delete \"$eventName\" permanently?';
+  }
+
+  @override
   String get deleteAppointment => 'Delete Appointment';
 
   @override

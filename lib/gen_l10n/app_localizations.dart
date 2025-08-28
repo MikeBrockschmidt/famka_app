@@ -1173,6 +1173,18 @@ abstract class AppLocalizations {
   /// **'Remove'**
   String get manageMembersRemoveConfirm;
 
+  /// No description provided for @deleteGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Group'**
+  String get deleteGroup;
+
+  /// No description provided for @confirmDeleteGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to delete \"{eventName}\" permanently?'**
+  String confirmDeleteGroup(Object eventName);
+
   /// No description provided for @deleteAppointment.
   ///
   /// In en, this message translates to:

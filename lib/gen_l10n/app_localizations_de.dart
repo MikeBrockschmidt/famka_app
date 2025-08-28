@@ -98,7 +98,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String groupCreatedSuccess(String groupName) {
-    return 'Gruppe \"$groupName\" erfolgreich erstellt!';
+    return 'Group \"$groupName\" successfully created!';
   }
 
   @override
@@ -622,6 +622,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get manageMembersRemoveConfirm => 'Entfernen';
+
+  @override
+  String get deleteGroup => 'Gruppe löschen';
+
+  @override
+  String confirmDeleteGroup(Object eventName) {
+    return 'Möchten Sie \"$eventName\" wirklich dauerhaft löschen?';
+  }
 
   @override
   String get deleteAppointment => 'Termin löschen';

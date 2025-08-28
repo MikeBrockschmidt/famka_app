@@ -14,7 +14,7 @@
   "addPassiveMemberLastNameError": "Please enter a last name.",
   "addPassiveMemberFirstNameError": "Please enter a first name.",
   "addPassiveMemberAddButton": "Add",
-  "addPassiveMemberCancelButton": "Cancel",
+    "addPassiveMemberCancelButton": "Cancel",
   "addPassiveMemberSuccess": "{firstName} has been successfully added.",
   "addPassiveMemberError": "Failed to add member: {error}",
 
@@ -209,6 +209,8 @@
   "manageMembersRemoveCancel": "Cancel",
   "manageMembersRemoveConfirm": "Remove",
 
+  "deleteGroup": "Delete Group",
+  "confirmDeleteGroup": "Do you really want to delete \"{eventName}\" permanently?",
   "deleteAppointment": "Delete Appointment",
   "confirmDeleteAppointment": "Do you really want to delete \"{eventName}\" permanently?",
   "editDescription": "Edit Description",

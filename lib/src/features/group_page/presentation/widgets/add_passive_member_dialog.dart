@@ -227,8 +227,8 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
                   : InkWell(
                       onTap: _addPassiveMember,
                       child: ButtonLinearGradient(
-                        buttonText: AppLocalizations.of(context)!
-                            .addPassiveMemberAddButton,
+            buttonText: AppLocalizations.of(context)!
+              .addPassiveMemberAddButton,
                       ),
                     ),
               const SizedBox(height: 10),

@@ -42,7 +42,7 @@ class ConfirmDeleteGroupDialog extends StatelessWidget {
               GestureDetector(
                 onTap: () => Navigator.of(context).pop(true),
                 child: ButtonLinearGradient(
-                  buttonText: l10n.deleteAppointment,
+                  buttonText: l10n.deleteGroup,
                 ),
               ),
               const SizedBox(height: 10),
