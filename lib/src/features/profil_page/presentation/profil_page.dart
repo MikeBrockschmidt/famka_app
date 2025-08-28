@@ -717,11 +717,13 @@ class _ProfilPageState extends State<ProfilPage> {
                             scrollDirection: Axis.horizontal,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const SizedBox(width: 30),
                                 if (widget.currentUser.canCreateGroups)
                                   Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       InkWell(
                                         onTap: () {
@@ -775,6 +777,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                       );
                                     } else {
                                       return Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: snapshot.data!
                                             .map(
                                               (group) => Padding(
