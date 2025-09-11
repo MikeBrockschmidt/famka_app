@@ -49,7 +49,7 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
+  static final FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC37xVX2xNgYw3vg324cDugBIZu3FKF6VE',
     appId: '1:616611076821:android:4cfe00c2f699c451cfe05c',
     messagingSenderId: '616611076821',
@@ -57,14 +57,16 @@ class DefaultFirebaseOptions {
     storageBucket: 'famka-app-free-storage.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
+  static FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDwQDlQpHl0AGSwLjx6MtuVbKLFHQmE0-8',
     appId: '1:616611076821:ios:9e2e2f16ded0c576cfe05c',
     messagingSenderId: '616611076821',
     projectId: 'famka-app-free-storage',
     storageBucket: 'famka-app-free-storage.firebasestorage.app',
-    androidClientId: '616611076821-h8it5oj56sbklh9pvnivlk9vtuvobpp9.apps.googleusercontent.com',
-    iosClientId: '616611076821-rgu9ga0hejthhce1nbuivlnh6g51c93e.apps.googleusercontent.com',
-    iosBundleId: 'de.brockschmidt.famka',
+    androidClientId:
+        '616611076821-h8it5oj56sbklh9pvnivlk9vtuvobpp9.apps.googleusercontent.com',
+    iosClientId:
+        '616611076821-rgu9ga0hejthhce1nbuivlnh6g51c93e.apps.googleusercontent.com',
+    iosBundleId: 'com.brockschmidt.famka.app',
   );
 }

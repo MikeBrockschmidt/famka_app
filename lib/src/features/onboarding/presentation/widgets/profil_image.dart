@@ -1,6 +1,7 @@
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -430,15 +431,57 @@ class _ProfilImageState extends State<ProfilImage> {
             ? 'assets/grafiken/HI-blau.jpg'
             : _displayImageUrl!;
 
-    ImageProvider imageProvider;
+    Widget avatarWidget;
     if (effectiveDisplayUrl.startsWith('http')) {
-      imageProvider = NetworkImage(effectiveDisplayUrl);
+      // Generischer Blurhash-String (blau-grau)
+      const blurHash = 'LEHV6nWB2yk8pyo0adR*.7kCMdnj';
+      avatarWidget = ClipOval(
+        child: SizedBox(
+          width: 200,
+          height: 200,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              BlurHash(
+                hash: blurHash,
+                imageFit: BoxFit.cover,
+                duration: const Duration(milliseconds: 500),
+              ),
+              Image.network(
+                effectiveDisplayUrl,
+                fit: BoxFit.cover,
+                width: 200,
+                height: 200,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const SizedBox.shrink();
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.error, color: Colors.red, size: 48);
+                },
+              ),
+            ],
+          ),
+        ),
+      );
     } else if (effectiveDisplayUrl.startsWith('assets/')) {
-      imageProvider = AssetImage(effectiveDisplayUrl);
+      avatarWidget = CircleAvatar(
+        radius: 100,
+        backgroundColor: AppColors.famkaGreen,
+        backgroundImage: AssetImage(effectiveDisplayUrl),
+      );
     } else if (File(effectiveDisplayUrl).existsSync()) {
-      imageProvider = FileImage(File(effectiveDisplayUrl));
+      avatarWidget = CircleAvatar(
+        radius: 100,
+        backgroundColor: AppColors.famkaGreen,
+        backgroundImage: FileImage(File(effectiveDisplayUrl)),
+      );
     } else {
-      imageProvider = const AssetImage('assets/grafiken/famka-kreis.png');
+      avatarWidget = const CircleAvatar(
+        radius: 100,
+        backgroundColor: AppColors.famkaGreen,
+        backgroundImage: AssetImage('assets/grafiken/famka-kreis.png'),
+      );
     }
 
     return Transform.translate(
@@ -448,11 +491,7 @@ class _ProfilImageState extends State<ProfilImage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            CircleAvatar(
-              radius: 100,
-              backgroundColor: AppColors.famkaGreen,
-              backgroundImage: imageProvider,
-            ),
+            avatarWidget,
             if (_isPickingImage)
               const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),

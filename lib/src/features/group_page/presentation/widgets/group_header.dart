@@ -4,9 +4,11 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_avatar.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
+import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 class GroupHeader extends StatelessWidget {
+  final String? currentUserId;
   final TextEditingController groupNameController;
   final FocusNode groupNameFocusNode;
   final bool showDeleteButton;
@@ -30,6 +32,7 @@ class GroupHeader extends StatelessWidget {
     required this.onAvatarChanged,
     required this.isUserAdmin,
     required this.currentGroup,
+    required this.currentUserId,
   });
 
   @override
@@ -47,6 +50,8 @@ class GroupHeader extends StatelessWidget {
           groupAvatarUrl: groupAvatarUrl,
           onAvatarChanged: onAvatarChanged,
           isUserAdmin: isUserAdmin,
+          isUserMember: currentUserId != null &&
+              currentGroup.userRoles[currentUserId] == UserRole.member,
           currentGroup: currentGroup,
         ),
         const SizedBox(height: 8),

@@ -246,7 +246,7 @@ class _BottomNavigationThreeCalendarState
           _buildNavItem(
             context,
             icon: Icons.list_outlined,
-            label: l10n.calendarLabel, // fallback to calendarLabel for list
+            label: l10n.calendarLabelList, // fallback to calendarLabel for list
             isActive: _selectedIndex == 1,
             onTap: () => _onItemTapped(1),
             selectedItemColor: widget.selectedItemColor,

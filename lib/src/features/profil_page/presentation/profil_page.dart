@@ -458,18 +458,18 @@ class _ProfilPageState extends State<ProfilPage> {
               HeadlineP(
                 screenHead: 'Profil',
                 rightActionWidgets: [
-                  InkWell(
-                    onTap: _navigateToLegalInfoPage,
-                    child: const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Icon(
-                        Icons.gavel_outlined,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
+                  // InkWell(
+                  //   onTap: _navigateToLegalInfoPage,
+                  //   child: const SizedBox(
+                  //     width: 24,
+                  //     height: 24,
+                  //     child: Icon(
+                  //       Icons.gavel_outlined,
+                  //       color: Colors.black,
+                  //     ),
+                  //   ),
+                  // ),
+                  // const SizedBox(width: 16),
                   InkWell(
                     onTap: _showProfileIdDialog,
                     child: const SizedBox(
@@ -608,8 +608,10 @@ class _ProfilPageState extends State<ProfilPage> {
                                               .requestFocus(_emailFocusNode);
                                         },
                                         onTapOutside: (_) {
-                                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                                            if (mounted) FocusScope.of(context).unfocus();
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            if (mounted)
+                                              FocusScope.of(context).unfocus();
                                           });
                                         },
                                         validator: _validatePhoneNumber,
@@ -648,8 +650,10 @@ class _ProfilPageState extends State<ProfilPage> {
                                               _miscellaneousFocusNode);
                                         },
                                         onTapOutside: (_) {
-                                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                                            if (mounted) FocusScope.of(context).unfocus();
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            if (mounted)
+                                              FocusScope.of(context).unfocus();
                                           });
                                         },
                                         validator: _validateEmail,
@@ -687,8 +691,10 @@ class _ProfilPageState extends State<ProfilPage> {
                                           if (_isOwnProfile) _saveUserData();
                                         },
                                         onTapOutside: (_) {
-                                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                                            if (mounted) FocusScope.of(context).unfocus();
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            if (mounted)
+                                              FocusScope.of(context).unfocus();
                                           });
                                         },
                                         decoration: InputDecoration(
@@ -723,7 +729,8 @@ class _ProfilPageState extends State<ProfilPage> {
                                 if (widget.currentUser.canCreateGroups)
                                   Column(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       InkWell(
                                         onTap: () {
@@ -777,7 +784,8 @@ class _ProfilPageState extends State<ProfilPage> {
                                       );
                                     } else {
                                       return Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: snapshot.data!
                                             .map(
                                               (group) => Padding(

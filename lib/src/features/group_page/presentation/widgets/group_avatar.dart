@@ -11,6 +11,7 @@ class GroupAvatar extends StatelessWidget {
   final String groupAvatarUrl;
   final Function(String newAvatarUrl) onAvatarChanged;
   final bool isUserAdmin;
+  final bool isUserMember;
   final Group currentGroup;
 
   const GroupAvatar({
@@ -19,12 +20,14 @@ class GroupAvatar extends StatelessWidget {
     required this.groupAvatarUrl,
     required this.onAvatarChanged,
     required this.isUserAdmin,
+    required this.isUserMember,
     required this.currentGroup,
   });
 
   Future<void> _changeGroupAvatar(BuildContext context) async {
-    if (!isUserAdmin) {
-      debugPrint('DEBUG: Kein Admin – Avatar-Änderung abgebrochen.');
+    if (!(isUserAdmin || isUserMember)) {
+      debugPrint(
+          'DEBUG: Kein Admin oder Mitglied – Avatar-Änderung abgebrochen.');
       return;
     }
 
@@ -78,7 +81,7 @@ class GroupAvatar extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: () {
           debugPrint('DEBUG: Tap auf Avatar erkannt.');
-          if (isUserAdmin) {
+          if (isUserAdmin || isUserMember) {
             _changeGroupAvatar(context);
           }
         },

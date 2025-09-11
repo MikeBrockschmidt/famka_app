@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>de.brockschmidt.famka</string>
+	<string>com.brockschmidt.famka.app</string>
 	<key>PROJECT_ID</key>
 	<string>famka-app-free-storage</string>
 	<key>STORAGE_BUCKET</key>

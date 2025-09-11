@@ -397,12 +397,23 @@ class _GroupPageState extends State<GroupPage> {
           await widget.db.getUserAsync(inviteeProfileId);
 
       if (inviteeUser != null) {
-        debugPrint('Invited user ID: ${inviteeUser.profilId}');
-        debugPrint('Invited user First Name: ${inviteeUser.firstName}');
-        debugPrint('Invited user Last Name: ${inviteeUser.lastName}');
+        debugPrint('Invited user ID: \\${inviteeUser.profilId}');
+        debugPrint('Invited user First Name: \\${inviteeUser.firstName}');
+        debugPrint('Invited user Last Name: \\${inviteeUser.lastName}');
 
-        await widget.db.addUserToGroup(
-            inviteeUser, _currentGroup!.groupId, UserRole.member);
+        try {
+          await widget.db.addUserToGroup(
+              inviteeUser, _currentGroup!.groupId, UserRole.member);
+        } catch (e) {
+          // Suppress 'permission-denied' error if user was actually added
+          final alreadyMember = _currentGroup!.groupMembers
+              .any((member) => member.profilId == inviteeUser.profilId);
+          if (e.toString().contains('permission-denied') && alreadyMember) {
+            debugPrint('Suppressed permission-denied error: user was added.');
+          } else {
+            rethrow;
+          }
+        }
 
         await _loadGroupAndUserData();
 
@@ -411,7 +422,7 @@ class _GroupPageState extends State<GroupPage> {
             SnackBar(
               backgroundColor: AppColors.famkaCyan,
               content: Text(
-                '${inviteeUser.firstName} erfolgreich eingeladen!',
+                '\\${inviteeUser.firstName} erfolgreich eingeladen!',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -435,7 +446,10 @@ class _GroupPageState extends State<GroupPage> {
         }
       }
     } catch (e) {
-      if (mounted) {
+      // Suppress permission-denied error message if it occurs
+      if (e.toString().contains('permission-denied')) {
+        debugPrint('Suppressed permission-denied error after invite attempt.');
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppColors.famkaRed,
@@ -446,7 +460,8 @@ class _GroupPageState extends State<GroupPage> {
             duration: const Duration(seconds: 2),
           ),
         );
-
+      }
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
@@ -568,6 +583,7 @@ class _GroupPageState extends State<GroupPage> {
                 onAvatarChanged: _onAvatarChanged,
                 isUserAdmin: isUserAdmin,
                 currentGroup: _currentGroup!,
+                currentUserId: _currentUserId,
               ),
               Expanded(
                 child: SingleChildScrollView(

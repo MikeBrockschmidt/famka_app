@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/gen_l10n/app_localizations.dart';
+import 'package:flutter/services.dart';
 
 class InviteUserDialog extends StatefulWidget {
   final Function(String inviteeProfileId) onInvite;
@@ -39,22 +40,38 @@ class _InviteUserDialogState extends State<InviteUserDialog> {
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
-          TextField(
-            controller: _inviteeIdController,
-            onTapOutside: (_) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) FocusScope.of(context).unfocus();
-              });
-            },
-            decoration: InputDecoration(
-              hintText: l10n.userProfileIdHint,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _inviteeIdController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: l10n.userProfileIdHint,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            style: Theme.of(context).textTheme.bodyLarge,
+              const SizedBox(width: 6),
+              SizedBox(
+                height: 40,
+                child: IconButton(
+                  icon: const Icon(Icons.paste, size: 20),
+                  tooltip: 'Einfügen',
+                  onPressed: () async {
+                    final clipboardData = await Clipboard.getData('text/plain');
+                    if (clipboardData != null && clipboardData.text != null) {
+                      _inviteeIdController.text = clipboardData.text!;
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),

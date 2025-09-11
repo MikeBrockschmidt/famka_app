@@ -1221,6 +1221,12 @@ abstract class AppLocalizations {
   /// **'Calendar'**
   String get calendarLabel;
 
+  /// No description provided for @calendarLabelList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get calendarLabelList;
+
   /// No description provided for @appointmentLabel.
   ///
   /// In en, this message translates to:

@@ -639,6 +639,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarLabel => 'Calendar';
 
   @override
+  String get calendarLabelList => 'List';
+
+  @override
   String get appointmentLabel => 'Appointment';
 
   @override

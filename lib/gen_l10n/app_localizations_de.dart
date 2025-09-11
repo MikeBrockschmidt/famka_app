@@ -654,6 +654,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get calendarLabel => 'Kalender';
 
   @override
+  String get calendarLabelList => 'Liste';
+
+  @override
   String get appointmentLabel => 'Termin';
 
   @override

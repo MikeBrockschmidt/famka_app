@@ -8,6 +8,7 @@ import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_im
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter/services.dart';
 import 'package:famka_app/src/common/image_selection_context.dart';
 
 class AddPassiveMemberDialog extends StatefulWidget {
@@ -201,6 +202,11 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
                   }
                   return null;
                 },
+                contextMenuBuilder: (context, editableTextState) {
+                  return AdaptiveTextSelectionToolbar.editableText(
+                    editableTextState: editableTextState,
+                  );
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -220,6 +226,11 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
                   }
                   return null;
                 },
+                contextMenuBuilder: (context, editableTextState) {
+                  return AdaptiveTextSelectionToolbar.editableText(
+                    editableTextState: editableTextState,
+                  );
+                },
               ),
               const SizedBox(height: 24),
               _isLoading
@@ -227,8 +238,8 @@ class _AddPassiveMemberDialogState extends State<AddPassiveMemberDialog> {
                   : InkWell(
                       onTap: _addPassiveMember,
                       child: ButtonLinearGradient(
-            buttonText: AppLocalizations.of(context)!
-              .addPassiveMemberAddButton,
+                        buttonText: AppLocalizations.of(context)!
+                            .addPassiveMemberAddButton,
                       ),
                     ),
               const SizedBox(height: 10),

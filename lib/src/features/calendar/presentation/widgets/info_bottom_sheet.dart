@@ -68,7 +68,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
     if (eventUrl == null || eventUrl.isEmpty) {
       iconWidget = CircleAvatar(
         radius: size / 2,
-        backgroundColor: Colors.grey.shade200,
+        backgroundColor: AppColors.famkaGreen,
         child: Text(
           eventName.isNotEmpty ? eventName[0].toUpperCase() : '?',
           style: TextStyle(
@@ -598,32 +598,63 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                         ],
                                       ),
                                     ),
-                                    Row(
+                                    Column(
                                       mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
-                                        IconButton(
-                                          icon: Icon(isEditing
-                                              ? Icons.check
-                                              : Icons.edit),
-                                          color: isEditing
-                                              ? AppColors.famkaGreen
-                                              : AppColors.famkaGrey,
-                                          onPressed: () async {
-                                            if (isEditing) {
-                                              await _saveDescription(event);
-                                            } else {
-                                              setState(() {
-                                                _isEditingDescription[
-                                                    event.singleEventId] = true;
-                                              });
-                                            }
-                                          },
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              icon: Icon(isEditing
+                                                  ? Icons.check
+                                                  : Icons.edit),
+                                              color: isEditing
+                                                  ? AppColors.famkaGreen
+                                                  : AppColors.famkaGrey,
+                                              onPressed: () async {
+                                                if (isEditing) {
+                                                  await _saveDescription(event);
+                                                } else {
+                                                  setState(() {
+                                                    _isEditingDescription[event
+                                                        .singleEventId] = true;
+                                                  });
+                                                }
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(
+                                                  Icons.delete_forever,
+                                                  color: AppColors.famkaGrey),
+                                              onPressed: () =>
+                                                  _confirmAndDeleteEvent(event),
+                                            ),
+                                          ],
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.delete_forever,
-                                              color: AppColors.famkaGrey),
-                                          onPressed: () =>
-                                              _confirmAndDeleteEvent(event),
+                                          icon: Icon(
+                                            Icons.check,
+                                            color: (_descriptionControllers[event
+                                                                .singleEventId]
+                                                            ?.text ??
+                                                        '') !=
+                                                    event.singleEventDescription
+                                                ? AppColors.famkaGrey
+                                                : AppColors.famkaGrey
+                                                    .withOpacity(0.3),
+                                          ),
+                                          onPressed: (_descriptionControllers[
+                                                              event
+                                                                  .singleEventId]
+                                                          ?.text ??
+                                                      '') !=
+                                                  event.singleEventDescription
+                                              ? () {
+                                                  // TODO: Hier gewünschte Aktion für den Haken-Button einfügen
+                                                }
+                                              : null,
                                         ),
                                       ],
                                     ),

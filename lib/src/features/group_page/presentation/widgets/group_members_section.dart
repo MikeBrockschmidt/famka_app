@@ -45,17 +45,17 @@ class GroupMembersSection extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  InkWell(
-                    onTap: onShowGroupIdDialog,
-                    child: const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Icon(
-                        Icons.info_outline,
-                        color: AppColors.famkaBlack,
-                      ),
-                    ),
-                  ),
+                  // InkWell(
+                  //   onTap: onShowGroupIdDialog,
+                  //   child: const SizedBox(
+                  //     width: 24,
+                  //     height: 24,
+                  //     child: Icon(
+                  //       Icons.info_outline,
+                  //       color: AppColors.famkaBlack,
+                  //     ),
+                  //   ),
+                  // ),
                   const SizedBox(width: 12),
                   InkWell(
                     onTap: onShowAddPassiveMemberDialog,
@@ -75,7 +75,7 @@ class GroupMembersSection extends StatelessWidget {
                       width: 24,
                       height: 24,
                       child: Icon(
-                        Icons.event_available,
+                        Icons.person_search,
                         color: AppColors.famkaBlack,
                       ),
                     ),

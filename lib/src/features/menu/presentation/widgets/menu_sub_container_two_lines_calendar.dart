@@ -88,7 +88,7 @@ class MenuSubContainer2LinesCalendar extends StatelessWidget {
                     icon: const Icon(Icons.arrow_forward),
                     onPressed: () {
                       db.currentGroup = group;
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => CalendarScreen(

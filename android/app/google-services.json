@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:616611076821:android:4cfe00c2f699c451cfe05c",
         "android_client_info": {
-          "package_name": "de.brockschmidt.famka"
+          "package_name": "com.brockschmidt.famka.app"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "616611076821-l3tilgfeg0gq4vusdqcnulc9igpc4akr.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "de.brockschmidt.famka",
+            "package_name": "com.brockschmidt.famka.app",
             "certificate_hash": "b6df925ec1fed22a2dd5d950721f2859bcc604ea"
           }
         },
