@@ -8,9 +8,7 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
 import 'package:famka_app/gen_l10n/app_localizations.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:famka_app/src/common/image_upload_service.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:famka_app/src/features/gallery/presentation/widgets/gallery1.dart';
 
 class InfoBottomSheet extends StatefulWidget {
   final DateTime date;
@@ -37,6 +35,14 @@ class InfoBottomSheet extends StatefulWidget {
 }
 
 class _InfoBottomSheetState extends State<InfoBottomSheet> {
+  void _updateEventInSheet(SingleEvent updatedEvent) {
+    setState(() {
+      final index = _currentEvents.indexWhere((e) => e.singleEventId == updatedEvent.singleEventId);
+      if (index != -1) {
+        _currentEvents[index] = updatedEvent;
+      }
+    });
+  }
   late Map<String, TextEditingController> _descriptionControllers;
   late Map<String, bool> _isEditingDescription;
   List<SingleEvent> _currentEvents = [];
@@ -239,33 +245,30 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                   const Icon(Icons.close, color: Colors.white),
                             ),
                             IconButton(
-                              onPressed: () async {
-                                final user = FirebaseAuth.instance.currentUser;
-                                if (user == null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Du musst angemeldet sein!')),
+                                onPressed: () async {
+                                  // Open gallery selection dialog and get result
+                                  final selected = await Navigator.of(context).push<String>(
+                                    MaterialPageRoute(
+                                      builder: (context) => Gallery(
+                                        widget.db,
+                                        auth: widget.db.auth,
+                                      ),
+                                    ),
                                   );
-                                  return;
-                                }
-                                final uploadService = ImageUploadService();
-                                final newImageUrl = await uploadService.pickAndUploadImage(
-                                  source: ImageSource.gallery,
-                                  userId: user.uid,
-                                  uploadPathPrefix: 'event_gallery_images',
-                                );
-                                if (newImageUrl != null && mounted) {
-                                  // Event aktualisieren und speichern
-                                  final updatedEvent = event.copyWith(singleEventUrl: 'image:$newImageUrl');
-                                  await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
-                                  if (widget.onEventUpdated != null) {
-                                    widget.onEventUpdated!(updatedEvent);
+                                  if (selected != null && selected.isNotEmpty && mounted) {
+                                    // Event aktualisieren und speichern
+                                    final updatedEvent = event.copyWith(singleEventUrl: selected.startsWith('image:') ? selected : 'image:$selected');
+                                    await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+                                    if (widget.onEventUpdated != null) {
+                                      widget.onEventUpdated!(updatedEvent);
+                                    }
+                                    _updateEventInSheet(updatedEvent);
+                                    Navigator.of(dialogContext).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Bild erfolgreich geändert!')),
+                                    );
                                   }
-                                  Navigator.of(dialogContext).pop();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Bild erfolgreich geändert!')),
-                                  );
-                                }
-                              },
+                                },
                               icon: const Icon(Icons.edit, color: Colors.white),
                               tooltip: 'Bild bearbeiten',
                             ),
@@ -288,14 +291,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
       },
     );
   // Hilfsfunktion für Bildauswahl und Upload
-  Future<String?> _pickAndUploadNewImage() async {
-    // Hier kannst du die Logik aus EventImage._pickImageAndUpload übernehmen
-    // und das neue Bild hochladen. Gib die neue Bild-URL zurück.
-    // Für eine vollständige Integration muss die Event-Referenz übergeben werden.
-    // Beispiel: Öffne die Bildauswahl, lade das Bild hoch und gib die URL zurück.
-    // TODO: Implementiere die Logik oder nutze EventImage als Widget.
-    return null;
-  }
   }
 
   Widget _buildEnlargedImageWidget(String eventUrl) {

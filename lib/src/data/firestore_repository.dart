@@ -13,6 +13,9 @@ import 'dart:convert';
 class FirestoreDatabaseRepository implements DatabaseRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Uuid _uuid = const Uuid();
+  final AuthRepository _auth;
+
+  FirestoreDatabaseRepository(this._auth);
 
   @override
   AppUser? currentUser;
@@ -28,8 +31,7 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
   }
 
   @override
-  AuthRepository get auth => throw UnimplementedError(
-      'AuthRepository is not implemented in FirestoreDatabaseRepository. It should be injected separately.');
+  AuthRepository get auth => _auth;
 
   @override
   Future<String> getCurrentUserId() async {
