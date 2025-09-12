@@ -37,12 +37,14 @@ class InfoBottomSheet extends StatefulWidget {
 class _InfoBottomSheetState extends State<InfoBottomSheet> {
   void _updateEventInSheet(SingleEvent updatedEvent) {
     setState(() {
-      final index = _currentEvents.indexWhere((e) => e.singleEventId == updatedEvent.singleEventId);
+      final index = _currentEvents
+          .indexWhere((e) => e.singleEventId == updatedEvent.singleEventId);
       if (index != -1) {
         _currentEvents[index] = updatedEvent;
       }
     });
   }
+
   late Map<String, TextEditingController> _descriptionControllers;
   late Map<String, bool> _isEditingDescription;
   List<SingleEvent> _currentEvents = [];
@@ -178,7 +180,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         (!eventUrl.startsWith('emoji:') && !eventUrl.startsWith('icon:'));
   }
 
-  void _showEnlargedImage(String eventUrl, String eventName, SingleEvent event) {
+  void _showEnlargedImage(
+      String eventUrl, String eventName, SingleEvent event) {
     // Event-Objekt muss als Parameter übergeben werden!
     // Beispiel: void _showEnlargedImage(String eventUrl, String eventName, SingleEvent event)
     showDialog(
@@ -245,30 +248,40 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                   const Icon(Icons.close, color: Colors.white),
                             ),
                             IconButton(
-                                onPressed: () async {
-                                  // Open gallery selection dialog and get result
-                                  final selected = await Navigator.of(context).push<String>(
-                                    MaterialPageRoute(
-                                      builder: (context) => Gallery(
-                                        widget.db,
-                                        auth: widget.db.auth,
-                                      ),
+                              onPressed: () async {
+                                // Open gallery selection dialog and get result
+                                final selected =
+                                    await Navigator.of(context).push<String>(
+                                  MaterialPageRoute(
+                                    builder: (context) => Gallery(
+                                      widget.db,
+                                      auth: widget.db.auth,
                                     ),
-                                  );
-                                  if (selected != null && selected.isNotEmpty && mounted) {
-                                    // Event aktualisieren und speichern
-                                    final updatedEvent = event.copyWith(singleEventUrl: selected.startsWith('image:') ? selected : 'image:$selected');
-                                    await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
-                                    if (widget.onEventUpdated != null) {
-                                      widget.onEventUpdated!(updatedEvent);
-                                    }
-                                    _updateEventInSheet(updatedEvent);
-                                    Navigator.of(dialogContext).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Bild erfolgreich geändert!')),
-                                    );
+                                  ),
+                                );
+                                if (selected != null &&
+                                    selected.isNotEmpty &&
+                                    mounted) {
+                                  // Event aktualisieren und speichern
+                                  final updatedEvent = event.copyWith(
+                                      singleEventUrl:
+                                          selected.startsWith('image:')
+                                              ? selected
+                                              : 'image:$selected');
+                                  await widget.db.updateEvent(
+                                      updatedEvent.groupId, updatedEvent);
+                                  if (widget.onEventUpdated != null) {
+                                    widget.onEventUpdated!(updatedEvent);
                                   }
-                                },
+                                  _updateEventInSheet(updatedEvent);
+                                  Navigator.of(dialogContext).pop();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                            Text('Bild erfolgreich geändert!')),
+                                  );
+                                }
+                              },
                               icon: const Icon(Icons.edit, color: Colors.white),
                               tooltip: 'Bild bearbeiten',
                             ),
@@ -290,7 +303,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         );
       },
     );
-  // Hilfsfunktion für Bildauswahl und Upload
+    // Hilfsfunktion für Bildauswahl und Upload
   }
 
   Widget _buildEnlargedImageWidget(String eventUrl) {

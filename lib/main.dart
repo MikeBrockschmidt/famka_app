@@ -36,8 +36,8 @@ void main() async {
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  final AuthRepository auth = FirebaseAuthRepository();
-  final DatabaseRepository db = FirestoreDatabaseRepository(auth);
+    final AuthRepository auth = FirebaseAuthRepository();
+    final DatabaseRepository db = FirestoreDatabaseRepository(auth);
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     const String userIdKey = 'last_logged_in_user_id';

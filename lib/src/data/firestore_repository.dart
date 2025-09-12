@@ -811,15 +811,16 @@ class FirestoreDatabaseRepository implements DatabaseRepository {
   }
 
   // Methode zum Speichern der Mitglieder-Reihenfolge
-  Future<void> updateGroupMemberOrder(String groupId, List<String> newMemberOrder) async {
+  Future<void> updateGroupMemberOrder(
+      String groupId, List<String> newMemberOrder) async {
     try {
       print('🔄 Aktualisiere Mitgliederreihenfolge für Gruppe $groupId');
       print('Neue Reihenfolge: $newMemberOrder');
-      
+
       await _firestore.collection('groups').doc(groupId).update({
         'groupMemberIds': newMemberOrder,
       });
-      
+
       print('✅ Gruppenmitglieder-Reihenfolge erfolgreich aktualisiert.');
     } catch (e) {
       print('❌ Fehler beim Aktualisieren der Mitgliederreihenfolge: $e');

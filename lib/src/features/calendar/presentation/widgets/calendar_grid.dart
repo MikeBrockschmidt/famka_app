@@ -236,7 +236,8 @@ class _CalendarGridState extends State<CalendarGrid> {
           width: size,
           height: size,
           errorBuilder: (context, error, stackTrace) {
-            return Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
+            return Icon(Icons.broken_image,
+                size: size * 0.7, color: Colors.red);
           },
         );
       } else {
@@ -246,7 +247,8 @@ class _CalendarGridState extends State<CalendarGrid> {
           width: size,
           height: size,
           errorBuilder: (context, error, stackTrace) {
-            return Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
+            return Icon(Icons.broken_image,
+                size: size * 0.7, color: Colors.red);
           },
         );
       }
