@@ -229,15 +229,27 @@ class _CalendarGridState extends State<CalendarGrid> {
       }
     } else if (eventUrl.startsWith('image:')) {
       final imageUrl = eventUrl.substring(6);
-      return Image.asset(
-        imageUrl,
-        fit: BoxFit.contain,
-        width: size,
-        height: size,
-        errorBuilder: (context, error, stackTrace) {
-          return Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
-        },
-      );
+      if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        return Image.network(
+          imageUrl,
+          fit: BoxFit.contain,
+          width: size,
+          height: size,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
+          },
+        );
+      } else {
+        return Image.asset(
+          imageUrl,
+          fit: BoxFit.contain,
+          width: size,
+          height: size,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(Icons.broken_image, size: size * 0.7, color: Colors.red);
+          },
+        );
+      }
     }
 
     return EventImage(

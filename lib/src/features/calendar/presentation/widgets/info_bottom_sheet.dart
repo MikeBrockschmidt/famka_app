@@ -8,6 +8,9 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
 import 'package:famka_app/gen_l10n/app_localizations.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:famka_app/src/common/image_upload_service.dart';
+import 'package:image_picker/image_picker.dart';
 
 class InfoBottomSheet extends StatefulWidget {
   final DateTime date;
@@ -136,9 +139,15 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
       );
     }
 
+    // Event-Objekt als Parameter übergeben
     if (isClickable && _canShowEnlarged(eventUrl)) {
+      // Ermittle das aktuelle Event anhand des Namens und der URL
+      final event = widget.eventsForPerson.firstWhere(
+        (e) => e.singleEventUrl == eventUrl && e.singleEventName == eventName,
+        orElse: () => widget.eventsForPerson.first,
+      );
       return GestureDetector(
-        onTap: () => _showEnlargedImage(eventUrl!, eventName),
+        onTap: () => _showEnlargedImage(eventUrl!, eventName, event),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -163,7 +172,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         (!eventUrl.startsWith('emoji:') && !eventUrl.startsWith('icon:'));
   }
 
-  void _showEnlargedImage(String eventUrl, String eventName) {
+  void _showEnlargedImage(String eventUrl, String eventName, SingleEvent event) {
+    // Event-Objekt muss als Parameter übergeben werden!
+    // Beispiel: void _showEnlargedImage(String eventUrl, String eventName, SingleEvent event)
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -227,6 +238,37 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                               icon:
                                   const Icon(Icons.close, color: Colors.white),
                             ),
+                            IconButton(
+                              onPressed: () async {
+                                final user = FirebaseAuth.instance.currentUser;
+                                if (user == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Du musst angemeldet sein!')),
+                                  );
+                                  return;
+                                }
+                                final uploadService = ImageUploadService();
+                                final newImageUrl = await uploadService.pickAndUploadImage(
+                                  source: ImageSource.gallery,
+                                  userId: user.uid,
+                                  uploadPathPrefix: 'event_gallery_images',
+                                );
+                                if (newImageUrl != null && mounted) {
+                                  // Event aktualisieren und speichern
+                                  final updatedEvent = event.copyWith(singleEventUrl: 'image:$newImageUrl');
+                                  await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+                                  if (widget.onEventUpdated != null) {
+                                    widget.onEventUpdated!(updatedEvent);
+                                  }
+                                  Navigator.of(dialogContext).pop();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Bild erfolgreich geändert!')),
+                                  );
+                                }
+                              },
+                              icon: const Icon(Icons.edit, color: Colors.white),
+                              tooltip: 'Bild bearbeiten',
+                            ),
                           ],
                         ),
                       ),
@@ -245,6 +287,15 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         );
       },
     );
+  // Hilfsfunktion für Bildauswahl und Upload
+  Future<String?> _pickAndUploadNewImage() async {
+    // Hier kannst du die Logik aus EventImage._pickImageAndUpload übernehmen
+    // und das neue Bild hochladen. Gib die neue Bild-URL zurück.
+    // Für eine vollständige Integration muss die Event-Referenz übergeben werden.
+    // Beispiel: Öffne die Bildauswahl, lade das Bild hoch und gib die URL zurück.
+    // TODO: Implementiere die Logik oder nutze EventImage als Widget.
+    return null;
+  }
   }
 
   Widget _buildEnlargedImageWidget(String eventUrl) {

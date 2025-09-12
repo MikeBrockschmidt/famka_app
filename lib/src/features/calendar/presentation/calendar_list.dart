@@ -47,6 +47,8 @@ class _CalendarListState extends State<CalendarList> {
   void _groupEvents() {
     print('CalendarList: _groupEvents Methode gestartet');
     final Map<DateTime, List<SingleEvent>> eventsByDate = {};
+    final today = DateTime.now();
+    final todayDateOnly = DateTime(today.year, today.month, today.day);
 
     for (var event in widget.allEvents) {
       final date = DateTime(
@@ -54,11 +56,13 @@ class _CalendarListState extends State<CalendarList> {
         event.singleEventDate.month,
         event.singleEventDate.day,
       );
-
-      if (!eventsByDate.containsKey(date)) {
-        eventsByDate[date] = [];
+      // Nur Events ab heute (inklusive heute) anzeigen
+      if (!date.isBefore(todayDateOnly)) {
+        if (!eventsByDate.containsKey(date)) {
+          eventsByDate[date] = [];
+        }
+        eventsByDate[date]?.add(event);
       }
-      eventsByDate[date]?.add(event);
     }
 
     _groupedEvents = eventsByDate.entries.toList()

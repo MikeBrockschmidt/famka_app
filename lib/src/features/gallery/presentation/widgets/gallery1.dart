@@ -80,6 +80,9 @@ class _GalleryState extends State<Gallery> {
   }
 
   Future<void> _deleteImage(GalleryItem itemToDelete) async {
+    // Löschen in der Galerie entfernt das Bild nur lokal aus der Galerie-Liste.
+    // Die Datenbank bleibt unverändert. Die endgültige Löschung erfolgt erst,
+    // wenn das Bild auch aus dem Kalender entfernt wurde und bei niemandem mehr in der Galerie ist.
     if (itemToDelete.type != ItemType.image ||
         itemToDelete.imageUrl == null ||
         itemToDelete.imageUrl!.startsWith('assets/')) {
@@ -89,9 +92,6 @@ class _GalleryState extends State<Gallery> {
     final bool confirmDelete = await showDialog(
           context: context,
           builder: (BuildContext context) {
-            final TextTheme textTheme = Theme.of(context).textTheme;
-            final Color famkaBlue = AppColors.famkaBlue;
-
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -467,8 +467,7 @@ class _GalleryState extends State<Gallery> {
             color: AppColors.famkaBlue,
           ),
         );
-      default:
-        return const Center(child: Text('Ungültig'));
+      // default-Klausel entfernt, da alle Fälle abgedeckt sind
     }
   }
 
