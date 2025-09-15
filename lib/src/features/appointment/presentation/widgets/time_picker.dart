@@ -18,7 +18,6 @@ Future<TimeOfDay?> selectAppointmentTime(
 
       return Theme(
         data: theme.copyWith(
-          dialogBackgroundColor: AppColors.famkaWhite,
           dialogTheme: const DialogThemeData(
             backgroundColor: AppColors.famkaWhite,
             shape: RoundedRectangleBorder(

@@ -53,14 +53,21 @@ class _RegisterWindowState extends State<RegisterWindow> {
 
   String? _validatePassword(String? input) {
     final l10n = AppLocalizations.of(context)!;
-    if (input == null || input.length < 8)
+    if (input == null || input.length < 8) {
       return l10n.passwordValidationMinLength;
-    if (input.length > 50) return l10n.passwordValidationMaxLength;
-    if (!RegExp(r'[a-z]').hasMatch(input))
+    }
+    if (input.length > 50) {
+      return l10n.passwordValidationMaxLength;
+    }
+    if (!RegExp(r'[a-z]').hasMatch(input)) {
       return l10n.passwordValidationLowercase;
-    if (!RegExp(r'[A-Z]').hasMatch(input))
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(input)) {
       return l10n.passwordValidationUppercase;
-    if (!RegExp(r'\d').hasMatch(input)) return l10n.passwordValidationDigit;
+    }
+    if (!RegExp(r'\d').hasMatch(input)) {
+      return l10n.passwordValidationDigit;
+    }
     if (!RegExp(r'[!@#\$&*~\-+=_.,;:<>?/|]').hasMatch(input)) {
       return l10n.passwordValidationSpecialChar;
     }
@@ -70,8 +77,7 @@ class _RegisterWindowState extends State<RegisterWindow> {
   String? _validatePasswordRepeat(String? input) {
     final l10n = AppLocalizations.of(context)!;
     if (input == null || input.isEmpty) {
-      return l10n
-          .passwordValidationMinLength; // Use a more specific message if available
+      return l10n.passwordValidationMinLength; // Use a more specific message if available
     }
     if (input != _passwordController.text) {
       return "Passwörter stimmen nicht überein";
@@ -141,8 +147,7 @@ class _RegisterWindowState extends State<RegisterWindow> {
         );
 
         await widget.db.createUser(newUser);
-        print(
-            '✅ Benutzer ${firebaseUser.uid} erfolgreich in Firestore erstellt nach Registrierung.');
+    // Benutzer erfolgreich in Firestore erstellt nach Registrierung.
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

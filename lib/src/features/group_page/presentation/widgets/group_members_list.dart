@@ -55,7 +55,7 @@ class GroupMembersList extends StatelessWidget {
                     onTap: () async {
                       final AppUser? updatedUser =
                           await db.getUserAsync(member.profilId);
-                      final String? realCurrentUserId =
+                      final String realCurrentUserId =
                           await db.getCurrentUserId();
                       if (updatedUser != null) {
                         Navigator.push(
@@ -124,7 +124,7 @@ class GroupMembersList extends StatelessWidget {
                   SizedBox(
                     width: 70,
                     child: Text(
-                      member.firstName ?? '',
+                      member.firstName,
                       style: Theme.of(context)
                           .textTheme
                           .displaySmall

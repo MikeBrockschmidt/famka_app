@@ -51,7 +51,6 @@ class _EventListPageState extends State<EventListPage> {
   Map<String, List<SingleEvent>> groupedEvents = {};
   List<String> orderedHeaders = [];
 
-  int _filteredEventsCount = 0;
 
   @override
   void initState() {
@@ -103,18 +102,14 @@ class _EventListPageState extends State<EventListPage> {
       return;
     }
 
-    print('EventListPage: ${oldEvents.length} alte Events werden gelöscht');
     int deletedCount = 0;
     int failedCount = 0;
 
     for (var event in oldEvents) {
       try {
         await widget.db.deleteEvent(event.groupId, event.singleEventId);
-        print(
-            'EventListPage: Altes Event gelöscht - ${event.singleEventName} vom ${DateFormat('dd.MM.yyyy').format(event.singleEventDate)}');
         deletedCount++;
       } catch (e) {
-        print('EventListPage: Fehler beim Löschen des alten Events - $e');
         failedCount++;
       }
     }
@@ -146,7 +141,6 @@ class _EventListPageState extends State<EventListPage> {
         .toList();
 
     if (oldEvents.isNotEmpty) {
-      print('EventListPage: ${oldEvents.length} alte Events gefunden');
       // Hinweis: Info-Banner für gelöschte alte Events wird über _filteredEventsCount gesteuert
     }
   }
@@ -162,8 +156,6 @@ class _EventListPageState extends State<EventListPage> {
     final todayHeader = localizations.eventListTodayHeader;
     final todayIndex = orderedHeaders.indexOf(todayHeader);
 
-    print('EventListPage: HEUTE-Header-Index: $todayIndex');
-
     if (todayIndex != -1) {
       double scrollPosition = 0;
 
@@ -178,10 +170,8 @@ class _EventListPageState extends State<EventListPage> {
         curve: Curves.easeInOut,
       );
 
-      print('EventListPage: Gescrollt zur Position $scrollPosition');
-    } else {
-      print('EventListPage: Kein HEUTE-Header gefunden');
-    }
+      // ...existing code...
+    } else {}
   }
 
   @override
@@ -203,11 +193,8 @@ class _EventListPageState extends State<EventListPage> {
     try {
       localizations = AppLocalizations.of(context);
     } catch (e) {
-      print('EventListPage: Kontext noch nicht bereit für Lokalisierung');
+      // Fehler beim Laden der Lokalisierung ignorieren
     }
-
-    print(
-        'EventListPage: ${localizations?.eventListLoading ?? "Starte Laden der Events..."}');
 
     // Show loading indicator only after a delay to avoid flashing
     setState(() {
@@ -226,14 +213,6 @@ class _EventListPageState extends State<EventListPage> {
     });
 
     try {
-      String debugMsg =
-          'EventListPage: Lade Events für Gruppe ${_displayGroup.groupId}';
-      if (localizations != null) {
-        debugMsg =
-            'EventListPage: ${localizations.eventListLoadingForGroup(_displayGroup.groupId)}';
-      }
-      print(debugMsg);
-
       final List<SingleEvent> allEvents =
           await widget.db.getEventsForGroup(_displayGroup.groupId);
 
@@ -250,22 +229,8 @@ class _EventListPageState extends State<EventListPage> {
                   _isSameDay(event.singleEventDate, cutoffDate))
               .toList();
 
-          _filteredEventsCount = allEvents.length - _events.length;
-
           _events
               .sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
-
-          String loadedMsg =
-              'EventListPage: ${_events.length} von ${allEvents.length} Events geladen (nur letzte 14 Tage und zukünftige)';
-          if (localizations != null) {
-            loadedMsg =
-                'EventListPage: ${localizations.eventListLoadingCount(_events.length.toString())}';
-          }
-          print(loadedMsg);
-          if (_filteredEventsCount > 0) {
-            print(
-                'EventListPage: $_filteredEventsCount alte Events wurden aus der Ansicht ausgeblendet');
-          }
         });
 
         _cleanupOldEvents(allEvents, cutoffDate);
@@ -277,16 +242,10 @@ class _EventListPageState extends State<EventListPage> {
         }
       }
     } catch (e) {
-      String errorMsg = 'EventListPage: Fehler beim Laden - $e';
       String errorStateMsg = 'Fehler beim Laden der Events: $e';
-
       if (localizations != null) {
-        errorMsg =
-            'EventListPage: ${localizations.eventLoadingError(e.toString())}';
         errorStateMsg = localizations.eventListLoadingError(e.toString());
       }
-
-      print(errorMsg);
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -301,7 +260,9 @@ class _EventListPageState extends State<EventListPage> {
     AppLocalizations? localizations;
     try {
       localizations = AppLocalizations.of(context);
-    } catch (e) {}
+    } catch (e) {
+      // Fehler beim Laden der Lokalisierung ignorieren
+    }
 
     try {
       final SingleEvent deletedEvent = _events.firstWhere(
@@ -481,7 +442,7 @@ class _EventListPageState extends State<EventListPage> {
       });
     }
 
-    void _handleGroupUpdated(Group updatedGroup) {
+    void handleGroupUpdated(Group updatedGroup) {
       if (mounted) {
         setState(() {
           _displayGroup = updatedGroup;
@@ -504,7 +465,7 @@ class _EventListPageState extends State<EventListPage> {
           MenuSubContainerTwoLinesGroupC(
             widget.db,
             currentGroup: _displayGroup,
-            onGroupUpdated: _handleGroupUpdated,
+            onGroupUpdated: handleGroupUpdated,
             currentUser: widget.currentUser,
             auth: widget.auth,
           ),

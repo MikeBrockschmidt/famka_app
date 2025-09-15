@@ -127,25 +127,19 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider groupImageProvider;
     if (_groupAvatarUrl.startsWith('http')) {
-      groupImageProvider = NetworkImage(_groupAvatarUrl);
     } else if (_groupAvatarUrl.startsWith('assets/')) {
-      groupImageProvider = AssetImage(_groupAvatarUrl);
     } else {
       try {
         final file = File(_groupAvatarUrl);
         if (file.existsSync()) {
-          groupImageProvider = FileImage(file);
         } else {
           debugPrint(
               'Warnung: Lokales Bild konnte nicht geladen werden: ${_groupAvatarUrl}. Verwende Default.jpg');
-          groupImageProvider = const AssetImage('assets/fotos/default.jpg');
         }
       } catch (e) {
         debugPrint(
             'Fehler beim Laden des lokalen Bildes: $e. Verwende Default.jpg');
-        groupImageProvider = const AssetImage('assets/fotos/default.jpg');
       }
     }
 

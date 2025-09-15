@@ -62,7 +62,7 @@ class _MainAppState extends State<MainApp> {
   void _setupPushNotifications() async {
     final fcm = FirebaseMessaging.instance;
 
-    final settings = await fcm.requestPermission(
+    await fcm.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
@@ -71,19 +71,13 @@ class _MainAppState extends State<MainApp> {
       provisional: false,
       sound: true,
     );
-    print('User granted permission: ${settings.authorizationStatus}');
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Got a message whilst in the foreground!');
-      print('Message data: ${message.data}');
-
-      if (message.notification != null) {
-        print('Message also contained a notification: ${message.notification}');
-      }
+      // ...existing code...
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
+      // ...existing code...
     });
   }
 
@@ -92,10 +86,9 @@ class _MainAppState extends State<MainApp> {
       final fcmToken = await FirebaseMessaging.instance.getToken();
       if (fcmToken != null) {
         await widget.db.saveUserFCMToken(userId, fcmToken);
-        print('✅ FCM-Token für Benutzer $userId erfolgreich gespeichert.');
       }
     } catch (e) {
-      print('❌ Fehler beim Speichern des FCM-Tokens: $e');
+      // Fehler beim Speichern des FCM-Tokens werden ignoriert (z.B. kein Netzwerk)
     }
   }
 

@@ -1,7 +1,6 @@
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_image.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/onboarding/presentation/widgets/profil_image.dart';
 import 'package:famka_app/src/common/image_selection_context.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'dart:io';

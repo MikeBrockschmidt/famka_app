@@ -1,5 +1,4 @@
 import 'package:famka_app/gen_l10n/app_localizations.dart';
-import 'package:famka_app/src/common/headline_g.dart';
 import 'package:famka_app/src/features/group_page/presentation/manage_group_members_page.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -8,20 +7,15 @@ import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-import 'package:flutter/services.dart';
-
 import 'package:famka_app/src/features/login/domain/user_role.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_id_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/invite_user_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/confirm_delete_group_dialog.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_passive_member_dialog.dart';
-
-import 'package:famka_app/src/features/group_page/presentation/widgets/group_avatar.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_header.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_details.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/group_members_section.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/save_button.dart';
-import 'package:famka_app/src/features/group_page/presentation/widgets/debug_tool.dart';
 
 class GroupPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -209,11 +203,7 @@ class _GroupPageState extends State<GroupPage> {
   }
 
   void _onAvatarChanged(String newAvatarUrl) async {
-    print(
-        'DEBUG: _onAvatarChanged in GroupPage aufgerufen mit newAvatarUrl: $newAvatarUrl');
-
     if (_currentGroup == null) {
-      print('DEBUG: _currentGroup ist null in _onAvatarChanged.');
       return;
     }
 
@@ -240,8 +230,6 @@ class _GroupPageState extends State<GroupPage> {
         });
       }
     } catch (e) {
-      print(
-          'DEBUG: Fehler beim Speichern des Gruppenbilds in _onAvatarChanged: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -335,15 +323,6 @@ class _GroupPageState extends State<GroupPage> {
   }
 
   // Debug-Tool zum direkten Entfernen von Mitgliedern
-  void _showDebugTool() {
-    if (_currentGroup == null) return;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return DebugTool(groupId: _currentGroup!.groupId);
-      },
-    );
-  }
 
   void _showInviteDialog() {
     if (_currentGroup == null) return;

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:famka_app/src/features/login/domain/app_user.dart';
 
 class SingleEvent {
   final String singleEventId;

@@ -194,6 +194,7 @@ class _BottomNavigationThreeCalendarState
         await widget.db.getUserAsync(currentUserId);
     if (realCurrentUser == null) return;
 
+    if (!mounted) return;
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -207,18 +208,12 @@ class _BottomNavigationThreeCalendarState
       ),
     );
 
+    if (!mounted) return;
     if (result == true) {
-      if (!mounted) {
-        return;
-      }
-
       setState(() {
         _selectedIndex = 1;
       });
-      if (!mounted) {
-        return;
-      }
-
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -283,7 +278,7 @@ class _BottomNavigationThreeCalendarState
     }
 
     final bool enableNavigation = _currentActiveGroup != null;
-    final Color disabledColor = widget.unselectedItemColor.withOpacity(0.4);
+    final Color disabledColor = widget.unselectedItemColor.withAlpha(102);
 
     final l10n = AppLocalizations.of(context)!;
 

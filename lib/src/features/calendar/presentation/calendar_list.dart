@@ -27,25 +27,16 @@ class CalendarList extends StatefulWidget {
 }
 
 class _CalendarListState extends State<CalendarList> {
-  late final DateTime _startDate;
-  late final DateTime _endDate;
+  // ...existing code...
   List<MapEntry<DateTime, List<SingleEvent>>> _groupedEvents = [];
 
   @override
   void initState() {
     super.initState();
-    print('CalendarList: initState aufgerufen');
-    print(
-        'CalendarList: allEvents Count im initState: ${widget.allEvents.length}');
-    _startDate = DateTime.now().subtract(const Duration(days: 180));
-    _endDate = DateTime.now().add(const Duration(days: 180));
     _groupEvents();
-    print(
-        'CalendarList: _groupedEvents Count nach Gruppierung: ${_groupedEvents.length}');
   }
 
   void _groupEvents() {
-    print('CalendarList: _groupEvents Methode gestartet');
     final Map<DateTime, List<SingleEvent>> eventsByDate = {};
     final today = DateTime.now();
     final todayDateOnly = DateTime(today.year, today.month, today.day);
@@ -67,15 +58,11 @@ class _CalendarListState extends State<CalendarList> {
 
     _groupedEvents = eventsByDate.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
-    print(
-        'CalendarList: _groupEvents Methode beendet. Gruppierte Events: ${_groupedEvents.length}');
   }
 
   @override
   Widget build(BuildContext context) {
-    print('CalendarList: build aufgerufen');
     if (_groupedEvents.isEmpty) {
-      print('CalendarList: _groupedEvents ist leer, zeige leere Nachricht an.');
       return const Center(child: Text('Keine Ereignisse zum Anzeigen.'));
     }
 
@@ -139,7 +126,7 @@ class _CalendarListState extends State<CalendarList> {
         ? event.singleEventName[0].toUpperCase()
         : '?';
 
-    if (event.singleEventUrl == null || event.singleEventUrl!.isEmpty) {
+    if (event.singleEventUrl.isEmpty) {
       return CircleAvatar(
         backgroundColor: Colors.grey[200],
         child: Text(
@@ -149,9 +136,9 @@ class _CalendarListState extends State<CalendarList> {
       );
     }
 
-    if (event.singleEventUrl!.startsWith('emoji:')) {
+    if (event.singleEventUrl.startsWith('emoji:')) {
       return Text(
-        event.singleEventUrl!.substring(6),
+        event.singleEventUrl.substring(6),
         style: const TextStyle(fontSize: 24),
       );
     }

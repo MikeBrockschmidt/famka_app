@@ -46,7 +46,7 @@ class ProfilImage3 extends StatelessWidget {
                   width: 140,
                   height: 140,
                   errorBuilder: (context, error, stackTrace) {
-                    print('FEHLER beim Laden des Bildes ($avatarUrl): $error');
+                    // ...existing code...
                     return defaultAvatarWidget;
                   },
                 )

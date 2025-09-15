@@ -29,7 +29,6 @@ class ManageGroupMembersPage extends StatefulWidget {
 
 class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
   late List<AppUser> _currentGroupMembersEditable;
-  List<AppUser> _allAvailableUsers = [];
   final List<AppUser> _selectedNewUsers = [];
 
   bool _isLoading = true;
@@ -45,33 +44,17 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
 
   Future<void> _loadUsers() async {
     try {
-      final allUsersInDatabase = await widget.db.getAllUsers();
+      await widget.db.getAllUsers();
       if (!mounted) return;
 
       setState(() {
-        _allAvailableUsers = allUsersInDatabase
-            .where((user) => !widget.group.groupMembers
-                .any((member) => member.profilId == user.profilId))
-            .toList();
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading users: $e');
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  void _toggleNewUserSelection(AppUser user) {
-    setState(() {
-      if (_selectedNewUsers.contains(user)) {
-        _selectedNewUsers.remove(user);
-      } else {
-        _selectedNewUsers.add(user);
-      }
-      _hasChanges = true;
-    });
   }
 
   void _removeMember(AppUser member) {
@@ -99,27 +82,15 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
     });
 
     try {
-      print('🔵 SPEICHERE ÄNDERUNGEN:');
-      print(
-          '🔵 Originale Mitglieder: ${widget.group.groupMembers.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
-      print(
-          '🔵 Bearbeitete Mitglieder: ${_currentGroupMembersEditable.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
-      print(
-          '🔵 Neue Mitglieder: ${_selectedNewUsers.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
-
+      // ...existing code...
       // Mitglieder identifizieren, die entfernt wurden
       final membersToRemove = widget.group.groupMembers.where(
           (originalMember) => !_currentGroupMembersEditable.any(
               (editedMember) =>
                   editedMember.profilId == originalMember.profilId));
 
-      print(
-          '🔵 Zu entfernende Mitglieder: ${membersToRemove.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
-
       // Mitglieder nacheinander entfernen
       for (var member in membersToRemove) {
-        print(
-            '🔵 Entferne Mitglied: ${member.firstName} ${member.lastName} (${member.profilId})');
         await widget.db
             .removeUserFromGroup(member.profilId, widget.group.groupId);
 
@@ -128,24 +99,15 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
       }
 
       // Neue Gruppe abrufen nach dem Entfernen der Mitglieder
-      final updatedGroupAfterRemove =
-          await widget.db.getGroupAsync(widget.group.groupId);
-      if (updatedGroupAfterRemove != null) {
-        print(
-            '🔵 Gruppenmitglieder nach dem Entfernen: ${updatedGroupAfterRemove.groupMembers.map((m) => "${m.firstName} ${m.lastName} (${m.profilId})").toList()}');
-      }
+      await widget.db.getGroupAsync(widget.group.groupId);
 
       // Neue Mitglieder hinzufügen
       for (var user in _selectedNewUsers) {
         UserRole assignedRole;
         if (user.email.isEmpty && (user.phoneNumber?.isEmpty ?? true)) {
           assignedRole = UserRole.passiveMember;
-          print(
-              '🔵 Füge passives Mitglied hinzu: ${user.firstName} ${user.lastName} (${user.profilId})');
         } else {
           assignedRole = UserRole.member;
-          print(
-              '🔵 Füge aktives Mitglied hinzu: ${user.firstName} ${user.lastName} (${user.profilId})');
         }
         await widget.db
             .addUserToGroup(user, widget.group.groupId, assignedRole);
@@ -159,30 +121,11 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
       for (var user in _selectedNewUsers) {
         newMemberOrder.add(user.profilId);
       }
-
-      print('🔵 Speichere neue Mitglieder-Reihenfolge: $newMemberOrder');
       await widget.db
           .updateGroupMemberOrder(widget.group.groupId, newMemberOrder);
 
       // Überprüfen ob wir die Gruppe nochmals aktualisieren müssen
-      final Group? updatedGroupFromDB =
-          await widget.db.getGroupAsync(widget.group.groupId);
-      if (updatedGroupFromDB != null) {
-        print('🔵 GRUPPE NACH ALLEN ÄNDERUNGEN:');
-        print(
-            '🔵 - Mitglieder IDs: ${updatedGroupFromDB.groupMembers.map((m) => m.profilId).toList()}');
-        print(
-            '🔵 - Passive Mitglieder Daten: ${updatedGroupFromDB.passiveMembersData.keys.toList()}');
-
-        // Sicherstellen, dass entfernte Mitglieder nicht mehr in den passiveMembersData sind
-        for (var member in membersToRemove) {
-          if (updatedGroupFromDB.passiveMembersData
-              .containsKey(member.profilId)) {
-            print(
-                '🔵 WARNUNG: Entferntes Mitglied ${member.profilId} ist immer noch in passiveMembersData!');
-          }
-        }
-      }
+      await widget.db.getGroupAsync(widget.group.groupId);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -194,7 +137,6 @@ class _ManageGroupMembersPageState extends State<ManageGroupMembersPage> {
       );
       Navigator.of(context).pop();
     } catch (e) {
-      print('❌ Fehler beim Speichern der Änderungen: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

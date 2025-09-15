@@ -6,7 +6,6 @@ final ThemeData appTheme = ThemeData(
     primary: AppColors.famkaCyan,
     secondary: AppColors.famkaYellow,
     onSecondary: AppColors.famkaBlack,
-    background: AppColors.famkaWhite,
     surface: AppColors.famkaWhite,
     onSurface: AppColors.famkaBlack,
     error: AppColors.famkaRed,
@@ -17,22 +16,24 @@ final ThemeData appTheme = ThemeData(
   ),
   switchTheme: SwitchThemeData(
     thumbColor:
-        MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-      if (states.contains(MaterialState.selected)) {
+        WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+      if (states.contains(WidgetState.selected)) {
         return AppColors.famkaCyan;
       }
       return AppColors.famkaWhite;
     }),
     trackColor:
-        MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-      if (states.contains(MaterialState.selected)) {
-        return AppColors.famkaCyan.withOpacity(0.5);
+        WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+      if (states.contains(WidgetState.selected)) {
+        return AppColors.famkaCyan.withAlpha(127);
       }
       return AppColors.famkaGrey;
     }),
   ),
   scaffoldBackgroundColor: AppColors.famkaWhite,
-  dialogBackgroundColor: AppColors.famkaWhite,
+  dialogTheme: const DialogThemeData(
+    backgroundColor: AppColors.famkaWhite,
+  ),
   textTheme: TextTheme(
     headlineLarge: TextStyle(
       fontFamily: 'SFProDisplayHeavy',

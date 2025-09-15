@@ -1,7 +1,4 @@
 import 'package:famka_app/src/common/color_row.dart';
-import 'package:famka_app/src/common/color_row1.dart';
-import 'package:famka_app/src/common/color_row2.dart';
-import 'package:famka_app/src/common/color_row3.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';

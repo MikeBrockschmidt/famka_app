@@ -267,8 +267,8 @@ class MockDatabaseRepository implements DatabaseRepository {
   @override
   Future<void> sendAppointmentNotification(SingleEvent event) async {
     // In der Mock-Implementierung geben wir nur eine Konsolenausgabe aus
-    print(
-        'Mock: Terminbenachrichtigung für ${event.singleEventName} wäre gesendet worden.');
+    // ...existing code...
+    // Mock: Terminbenachrichtigung für ${event.singleEventName} wäre gesendet worden.
     await Future.delayed(const Duration(milliseconds: 1));
   }
 
@@ -486,7 +486,8 @@ class MockDatabaseRepository implements DatabaseRepository {
   }
 
   @override
-  Future<void> updateGroupMemberOrder(String groupId, List<String> newMemberOrder) async {
+  Future<void> updateGroupMemberOrder(
+      String groupId, List<String> newMemberOrder) async {
     final groupIndex = _groups.indexWhere((g) => g.groupId == groupId);
     if (groupIndex != -1) {
       // Update the member order in the mock group

@@ -56,8 +56,7 @@ class _GalleryState extends State<Gallery> {
             loadedItems.add(GalleryItem(
                 type: ItemType.image, imageUrl: path, content: 'image:$path'));
           } else {
-            print(
-                'Warnung: Gespeicherte Bilddatei nicht gefunden (lokal): $path');
+            // Datei nicht gefunden, wird ignoriert.
           }
         }
       }
@@ -158,10 +157,9 @@ class _GalleryState extends State<Gallery> {
             final ref =
                 FirebaseStorage.instance.refFromURL(itemToDelete.imageUrl!);
             await ref.delete();
-            print(
-                '✅ Bild erfolgreich aus Firebase Storage gelöscht: ${itemToDelete.imageUrl}');
+      // Bild erfolgreich aus Firebase Storage gelöscht.
           } on FirebaseException catch (e) {
-            print('❌ Fehler beim Löschen aus Firebase Storage: $e');
+            // Fehler beim Löschen aus Firebase Storage werden ignoriert.
           }
         } else {
           final file = File(itemToDelete.imageUrl!);
@@ -236,7 +234,7 @@ class _GalleryState extends State<Gallery> {
       // Vergewissern, dass der Benutzer angemeldet ist
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        print('❌ Kein Benutzer angemeldet. Bitte zuerst anmelden.');
+  // Kein Benutzer angemeldet. Bitte zuerst anmelden.
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -252,9 +250,9 @@ class _GalleryState extends State<Gallery> {
       // Manchmal müssen wir das Auth-Token aktualisieren
       try {
         await user.getIdToken(true); // Token aktualisieren
-        print('✅ Auth-Token aktualisiert.');
+  // Auth-Token aktualisiert.
       } catch (e) {
-        print('❌ Fehler beim Aktualisieren des Auth-Tokens: $e');
+        // Fehler beim Aktualisieren des Auth-Tokens werden ignoriert.
       }
 
       final String userId = user.uid;
@@ -296,7 +294,7 @@ class _GalleryState extends State<Gallery> {
           );
         }
       } else {
-        print('Bild-Upload abgebrochen oder fehlgeschlagen.');
+  // Bild-Upload abgebrochen oder fehlgeschlagen.
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -307,7 +305,7 @@ class _GalleryState extends State<Gallery> {
         }
       }
     } catch (e) {
-      print('Fehler beim Bild-Upload oder Benutzer-ID-Abruf: $e');
+  // Fehler beim Bild-Upload oder Benutzer-ID-Abruf.
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

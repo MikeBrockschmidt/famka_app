@@ -15,7 +15,6 @@ class _SingleGroupItem extends StatelessWidget {
 
   const _SingleGroupItem(
     this.db, {
-    super.key,
     required this.group,
     required this.onGroupSelected,
     required this.currentUser,

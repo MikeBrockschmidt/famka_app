@@ -81,7 +81,7 @@ class MenuSubContainer1LinesLanguage extends StatelessWidget {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.famkaBlack.withOpacity(0.08),
+                              color: AppColors.famkaBlack.withAlpha(25),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),

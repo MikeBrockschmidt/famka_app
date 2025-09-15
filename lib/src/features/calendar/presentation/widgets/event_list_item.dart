@@ -189,7 +189,7 @@ class EventListItem extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withAlpha(25),
             spreadRadius: 1,
             blurRadius: 3,
             offset: const Offset(0, 1),
@@ -242,14 +242,13 @@ class EventListItem extends StatelessWidget {
                               password: '',
                             ),
                           );
-                          return user.firstName ?? 'Unbekannt';
+                          return user.firstName;
                         }).toList();
 
-                        final bool isAllDayEvent = false;
-                        String dateDisplay = DateFormat('dd.MM.yyyy')
-                            .format(event.singleEventDate);
-                        dateDisplay +=
-                            ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
+            String dateDisplay = DateFormat('dd.MM.yyyy')
+              .format(event.singleEventDate);
+            dateDisplay +=
+              ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
 
                         showDialog(
                           context: context,

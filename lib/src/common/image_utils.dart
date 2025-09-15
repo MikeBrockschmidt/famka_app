@@ -48,8 +48,8 @@ class DynamicAvatar extends StatelessWidget {
       backgroundColor: backgroundColor ?? AppColors.famkaGrey,
       backgroundImage: imageProvider,
       onBackgroundImageError: (exception, stackTrace) {
-        debugPrint(
-            'Error loading DynamicAvatar image from $avatarUrl: $exception');
+        // ...existing code...
+        // Fehler beim Laden des DynamicAvatar-Bildes
       },
       child: imageProvider == null
           ? Icon(

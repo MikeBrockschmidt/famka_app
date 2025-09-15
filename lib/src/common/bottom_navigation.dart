@@ -104,7 +104,7 @@ class _BottomNavigationThreeCalendarState extends State<BottomNavigation> {
           _selectedIndex = 0;
         });
       }
-      debugPrint('Fehler beim Laden der aktiven Gruppe: $e');
+      // ...existing code...
     } finally {
       if (mounted) {
         setState(() {

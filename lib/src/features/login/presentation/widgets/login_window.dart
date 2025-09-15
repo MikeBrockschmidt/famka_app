@@ -35,30 +35,29 @@ class _LoginWindowState extends State<LoginWindow> {
   }
 
   Future<void> _handleLogin() async {
-    final l10n = AppLocalizations.of(context)!;
     final email = _emailOrPhoneController.text.trim();
     final password = _passwordController.text.trim();
 
     try {
       await widget.auth.signInWithEmailAndPassword(email, password);
 
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+
       final firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.firebaseUserNotFound)),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.firebaseUserNotFound)),
+        );
         return;
       }
 
       final currentUser = await widget.db.getUserAsync(firebaseUser.uid);
+      if (!mounted) return;
       if (currentUser == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.firestoreUserNotFound)),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.firestoreUserNotFound)),
+        );
         await widget.auth.signOut();
         return;
       }
@@ -70,8 +69,10 @@ class _LoginWindowState extends State<LoginWindow> {
         widget.db.currentGroup =
             userGroups.isNotEmpty ? userGroups.first : null;
       } catch (e) {
-        debugPrint(l10n.loadingGroupsError(e.toString()));
-        widget.db.currentGroup = null;
+        if (mounted) {
+          debugPrint(l10n.loadingGroupsError(e.toString()));
+          widget.db.currentGroup = null;
+        }
       }
 
       if (mounted) {
@@ -88,6 +89,8 @@ class _LoginWindowState extends State<LoginWindow> {
         );
       }
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       String message;
       if (e.code == 'user-not-found') {
         message = l10n.loginFailedUserNotFound;
@@ -96,23 +99,21 @@ class _LoginWindowState extends State<LoginWindow> {
       } else {
         message = l10n.loginFailedGeneric(e.message ?? e.code);
       }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: AppColors.famkaRed,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppColors.famkaRed,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.loginFailedGeneric(e.toString())),
-            backgroundColor: AppColors.famkaRed,
-          ),
-        );
-      }
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.loginFailedGeneric(e.toString())),
+          backgroundColor: AppColors.famkaRed,
+        ),
+      );
     }
   }
 
@@ -296,21 +297,21 @@ class _LoginWindowState extends State<LoginWindow> {
                               UserCredential userCredential =
                                   await widget.auth.signInWithGoogle();
 
+                              if (!mounted) return;
                               final firebaseUser = userCredential.user;
                               if (firebaseUser == null) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                            Text(l10n.googleLoginFailedNoUser)),
-                                  );
-                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text(l10n.googleLoginFailedNoUser)),
+                                );
                                 return;
                               }
 
                               AppUser? currentUser = await widget.db
                                   .getUserAsync(firebaseUser.uid);
 
+                              if (!mounted) return;
                               if (currentUser == null) {
                                 debugPrint(
                                     'Neuer Google-Nutzer: Erstelle Firestore-Eintrag für UID: ${firebaseUser.uid}');
@@ -323,34 +324,29 @@ class _LoginWindowState extends State<LoginWindow> {
                                 currentUser = await widget.db
                                     .getUserAsync(firebaseUser.uid);
 
+                                if (!mounted) return;
                                 if (currentUser == null) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(l10n
-                                              .googleLoginFailedFirestoreLoad)),
-                                    );
-                                  }
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(l10n
+                                            .googleLoginFailedFirestoreLoad)),
+                                  );
                                   await widget.auth.signOut();
                                   return;
                                 }
 
-                                if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(
                                             l10n.googleLoginNewUserCreated)),
                                   );
-                                }
                               } else {
                                 debugPrint(
                                     'Bestehender Google-Nutzer gefunden in Firestore: ${firebaseUser.uid}');
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(l10n.googleLoginSuccess)),
-                                  );
-                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(l10n.googleLoginSuccess)),
+                                );
                               }
 
                               widget.db.currentUser = currentUser;
@@ -362,9 +358,11 @@ class _LoginWindowState extends State<LoginWindow> {
                                     ? userGroups.first
                                     : null;
                               } catch (e) {
-                                debugPrint(
-                                    l10n.loadingGroupsError(e.toString()));
-                                widget.db.currentGroup = null;
+                                if (mounted) {
+                                  debugPrint(
+                                      l10n.loadingGroupsError(e.toString()));
+                                  widget.db.currentGroup = null;
+                                }
                               }
 
                               if (mounted) {
@@ -380,6 +378,7 @@ class _LoginWindowState extends State<LoginWindow> {
                                 );
                               }
                             } on FirebaseAuthException catch (e) {
+                              if (!mounted) return;
                               String message;
                               if (e.code ==
                                   'account-exists-with-different-credential') {
@@ -391,25 +390,22 @@ class _LoginWindowState extends State<LoginWindow> {
                                 message = l10n.googleLoginUnexpectedError(
                                     e.message ?? e.code);
                               }
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(message),
-                                    backgroundColor: AppColors.famkaRed,
-                                  ),
-                                );
-                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(message),
+                                  backgroundColor: AppColors.famkaRed,
+                                ),
+                              );
                             } catch (e) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        l10n.googleLoginUnexpectedError(
-                                            e.toString())),
-                                    backgroundColor: AppColors.famkaRed,
-                                  ),
-                                );
-                              }
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      l10n.googleLoginUnexpectedError(
+                                          e.toString())),
+                                  backgroundColor: AppColors.famkaRed,
+                                ),
+                              );
                               debugPrint(l10n
                                   .googleLoginUnexpectedError(e.toString()));
                             }
@@ -431,21 +427,21 @@ class _LoginWindowState extends State<LoginWindow> {
                               UserCredential userCredential =
                                   await widget.auth.signInWithApple();
 
+                              if (!mounted) return;
                               final firebaseUser = userCredential.user;
                               if (firebaseUser == null) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                            Text(l10n.googleLoginFailedNoUser)),
-                                  );
-                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text(l10n.googleLoginFailedNoUser)),
+                                );
                                 return;
                               }
 
                               AppUser? currentUser = await widget.db
                                   .getUserAsync(firebaseUser.uid);
 
+                              if (!mounted) return;
                               if (currentUser == null) {
                                 debugPrint(
                                     'Neuer Apple-Nutzer: Erstelle Firestore-Eintrag für UID: ${firebaseUser.uid}');
@@ -458,25 +454,22 @@ class _LoginWindowState extends State<LoginWindow> {
                                 currentUser = await widget.db
                                     .getUserAsync(firebaseUser.uid);
 
+                                if (!mounted) return;
                                 if (currentUser == null) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(l10n
-                                              .googleLoginFailedFirestoreLoad)),
-                                    );
-                                  }
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(l10n
+                                            .googleLoginFailedFirestoreLoad)),
+                                  );
                                   await widget.auth.signOut();
                                   return;
                                 }
 
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            l10n.appleLoginNewUserCreated)),
-                                  );
-                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          l10n.appleLoginNewUserCreated)),
+                                );
 
                                 // Setze Onboarding als abgeschlossen für neue Apple-Nutzer
                                 final prefs =
@@ -485,12 +478,10 @@ class _LoginWindowState extends State<LoginWindow> {
                               } else {
                                 debugPrint(
                                     'Bestehender Apple-Nutzer gefunden in Firestore: ${firebaseUser.uid}');
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(l10n.appleLoginSuccess)),
-                                  );
-                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(l10n.appleLoginSuccess)),
+                                );
 
                                 // Setze Onboarding als abgeschlossen für bestehende Apple-Nutzer
                                 final prefs =
@@ -507,9 +498,11 @@ class _LoginWindowState extends State<LoginWindow> {
                                     ? userGroups.first
                                     : null;
                               } catch (e) {
-                                debugPrint(
-                                    l10n.loadingGroupsError(e.toString()));
-                                widget.db.currentGroup = null;
+                                if (mounted) {
+                                  debugPrint(
+                                      l10n.loadingGroupsError(e.toString()));
+                                  widget.db.currentGroup = null;
+                                }
                               }
 
                               if (mounted) {
@@ -525,6 +518,7 @@ class _LoginWindowState extends State<LoginWindow> {
                                 );
                               }
                             } on FirebaseAuthException catch (e) {
+                              if (!mounted) return;
                               String message;
                               debugPrint(
                                   'Apple Sign-In FirebaseAuthException: ${e.code} - ${e.message}');
@@ -550,27 +544,24 @@ class _LoginWindowState extends State<LoginWindow> {
                                 message =
                                     'Apple Sign-In Fehler: ${e.message ?? e.code}';
                               }
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(message),
-                                    backgroundColor: AppColors.famkaRed,
-                                    duration: const Duration(seconds: 5),
-                                  ),
-                                );
-                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(message),
+                                  backgroundColor: AppColors.famkaRed,
+                                  duration: const Duration(seconds: 5),
+                                ),
+                              );
                             } catch (e) {
                               debugPrint('Apple Sign-In Unexpected Error: $e');
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'Unerwarteter Fehler bei der Apple-Anmeldung: $e'),
-                                    backgroundColor: AppColors.famkaRed,
-                                    duration: const Duration(seconds: 5),
-                                  ),
-                                );
-                              }
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Unerwarteter Fehler bei der Apple-Anmeldung: $e'),
+                                  backgroundColor: AppColors.famkaRed,
+                                  duration: const Duration(seconds: 5),
+                                ),
+                              );
                             }
                           },
                           tooltip: l10n.signInWithAppleTooltip,
@@ -600,14 +591,21 @@ class _LoginWindowState extends State<LoginWindow> {
 
   String? validatePassword(String? input) {
     final l10n = AppLocalizations.of(context)!;
-    if (input == null || input.length < 8)
+    if (input == null || input.length < 8) {
       return l10n.passwordValidationMinLength;
-    if (input.length > 50) return l10n.passwordValidationMaxLength;
-    if (!RegExp(r'[a-z]').hasMatch(input))
+    }
+    if (input.length > 50) {
+      return l10n.passwordValidationMaxLength;
+    }
+    if (!RegExp(r'[a-z]').hasMatch(input)) {
       return l10n.passwordValidationLowercase;
-    if (!RegExp(r'[A-Z]').hasMatch(input))
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(input)) {
       return l10n.passwordValidationUppercase;
-    if (!RegExp(r'\d').hasMatch(input)) return l10n.passwordValidationDigit;
+    }
+    if (!RegExp(r'\d').hasMatch(input)) {
+      return l10n.passwordValidationDigit;
+    }
     if (!RegExp(r'[!@#\$&*~\-+=_.,;:<>?/|]').hasMatch(input)) {
       return l10n.passwordValidationSpecialChar;
     }

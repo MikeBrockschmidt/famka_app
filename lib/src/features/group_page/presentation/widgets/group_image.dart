@@ -309,20 +309,6 @@ class _GroupImageState extends State<GroupImage> {
           finalImageToUpload = File(croppedFile.path);
         }
 
-        if (finalImageToUpload == null) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content:
-                      Text('Fehler bei der Bildverarbeitung für den Upload.')),
-            );
-          }
-          if (mounted && widget.onAvatarSelected != null) {
-            Navigator.pop(context);
-          }
-          return;
-        }
-
         final User? user = FirebaseAuth.instance.currentUser;
         if (user == null) {
           if (mounted) {

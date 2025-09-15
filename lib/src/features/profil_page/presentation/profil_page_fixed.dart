@@ -163,7 +163,7 @@ class _ProfilPageState extends State<ProfilPage> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: AppColors.famkaCyan.withOpacity(0.9),
+          backgroundColor: AppColors.famkaCyan.withAlpha(229),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(10),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -572,8 +572,10 @@ class _ProfilPageState extends State<ProfilPage> {
                                               .requestFocus(_emailFocusNode);
                                         },
                                         onTapOutside: (_) {
-                                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                                            if (mounted) FocusScope.of(context).unfocus();
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            if (mounted)
+                                              FocusScope.of(context).unfocus();
                                           });
                                         },
                                         validator: _validatePhoneNumber,

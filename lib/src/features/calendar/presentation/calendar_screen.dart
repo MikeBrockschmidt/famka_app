@@ -78,8 +78,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _allEvents
             .sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
       });
-      print(AppLocalizations.of(context)!
-          .calendarEventsLoaded(_displayGroup.groupId, _allEvents.length));
+      // ...existing code...
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -104,7 +103,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   void _onEventsRefreshed() {
-    print('CalendarScreen: _onEventsRefreshed aufgerufen, lade Events neu.');
+    // ...existing code...
     _loadEvents();
   }
 
@@ -126,8 +125,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             _allEvents
                 .sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
           });
-          print(AppLocalizations.of(context)!
-              .calendarEventsLoaded(_displayGroup.groupId, _allEvents.length));
+          // ...existing code...
         } catch (e) {
           if (mounted) {
             setState(() {

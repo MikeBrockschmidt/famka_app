@@ -59,7 +59,6 @@ class ImageUploadService {
       );
 
       if (compressedFile == null) {
-        print('❌ Komprimierung fehlgeschlagen.');
         return null;
       }
 
@@ -72,7 +71,7 @@ class ImageUploadService {
         try {
           await user.getIdToken(true);
         } catch (e) {
-          print('❌ Fehler beim Aktualisieren des Auth-Tokens: $e');
+          // Absichtlich leer: Token-Fehler werden ignoriert, da Upload trotzdem möglich sein soll.
         }
       }
 
@@ -87,26 +86,20 @@ class ImageUploadService {
       );
 
       final uploadTask = ref.putFile(file, metadata);
-      print('Uploading file to $uploadPath');
       final snapshot = await uploadTask.whenComplete(() {});
 
       if (snapshot.state == TaskState.success) {
         final downloadUrl = await snapshot.ref.getDownloadURL();
-        print(
-            '✅ Bild erfolgreich zu Firebase Storage hochgeladen: $downloadUrl');
         if (await file.exists()) {
           await file.delete();
         }
         return downloadUrl;
       } else {
-        print('❌ Fehler beim Hochladen des Bildes: ${snapshot.state}');
         return null;
       }
-    } on FirebaseException catch (e) {
-      print('❌ Firebase Fehler beim Hochladen: $e');
+    } on FirebaseException {
       return null;
-    } catch (e) {
-      print('❌ Allgemeiner Fehler beim Hochladen: $e');
+    } catch (_) {
       return null;
     }
   }

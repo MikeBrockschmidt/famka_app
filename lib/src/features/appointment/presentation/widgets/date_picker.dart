@@ -14,142 +14,130 @@ Future<DateTime?> selectAppointmentDate(
   required DateTime firstDate,
   required DateTime lastDate,
 }) async {
-  // Initialize date formatting for German locale
+  // Capture all context-dependent data before async gap
+  final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+  final themeData = Theme.of(context);
+  final colorScheme = themeData.colorScheme.copyWith(
+    primary: AppColors.famkaCyan,
+    onPrimary: AppColors.famkaWhite,
+    surface: AppColors.famkaWhite,
+    onSurface: AppColors.famkaBlack,
+  );
+  final textTheme = appTheme.textTheme;
+  final locale = localeProvider.locale.languageCode;
+
   await initializeDateFormatting('de_DE');
 
-  final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
-
-  // Variable to track the currently selected date
   DateTime selectedDate = initialDate;
-  // Format für den Header
-  final locale = localeProvider.locale.languageCode;
-  // Reference to the header's StateSetter
   StateSetter? headerSetState;
-
-  // Create a completer to handle custom button actions
   final completer = Completer<DateTime?>();
 
-  // Show the date picker dialog
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: Theme.of(context).colorScheme.copyWith(
-                primary: AppColors.famkaCyan,
-                onPrimary: AppColors.famkaWhite,
-                surface: AppColors.famkaWhite,
-                onSurface: AppColors.famkaBlack,
-              ),
-          dialogBackgroundColor: AppColors.famkaWhite,
-          textTheme: appTheme.textTheme,
-        ),
-        child: Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
+  if (context.mounted) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return Theme(
+          data: themeData.copyWith(
+            colorScheme: colorScheme,
+            dialogTheme: DialogThemeData(
+              backgroundColor: AppColors.famkaWhite,
+            ),
+            textTheme: textTheme,
           ),
-          backgroundColor: AppColors.famkaWhite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Datum-Header
-              StatefulBuilder(
-                builder: (BuildContext context, StateSetter setHeaderState) {
-                  headerSetState = setHeaderState;
-
-                  // Format the date based on the locale
-                  String formattedDate = "";
-                  if (locale == 'de') {
-                    // For German, format day name and day number with dot
-                    String dayName =
-                        DateFormat('EEEE', 'de_DE').format(selectedDate);
-                    // Capitalize first letter
-                    dayName = dayName.substring(0, 1).toUpperCase() +
-                        dayName.substring(1);
-                    formattedDate = "$dayName, ${selectedDate.day}.";
-                  } else {
-                    // For English, format day name and day number
-                    String dayName =
-                        DateFormat('EEEE', 'en_US').format(selectedDate);
-                    formattedDate = "$dayName, ${selectedDate.day}";
-                  }
-
-                  return Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    decoration: BoxDecoration(
-                      color: AppColors.famkaCyan,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20.0),
-                        topRight: Radius.circular(20.0),
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            backgroundColor: AppColors.famkaWhite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                StatefulBuilder(
+                  builder: (BuildContext headerContext, StateSetter setHeaderState) {
+                    headerSetState = setHeaderState;
+                    String formattedDate = "";
+                    if (locale == 'de') {
+                      String dayName = DateFormat('EEEE', 'de_DE').format(selectedDate);
+                      dayName = dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
+                      formattedDate = "$dayName, ${selectedDate.day}.";
+                    } else {
+                      String dayName = DateFormat('EEEE', 'en_US').format(selectedDate);
+                      formattedDate = "$dayName, ${selectedDate.day}";
+                    }
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      decoration: BoxDecoration(
+                        color: AppColors.famkaCyan,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      formattedDate,
-                      textAlign: TextAlign.center,
-                      style: appTheme.textTheme.titleLarge?.copyWith(
-                        color: AppColors.famkaWhite,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'SFProDisplay',
+                      child: Text(
+                        formattedDate,
+                        textAlign: TextAlign.center,
+                        style: appTheme.textTheme.titleLarge?.copyWith(
+                          color: AppColors.famkaWhite,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'SFProDisplay',
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-              CalendarDatePicker(
-                initialDate: initialDate,
-                firstDate: firstDate,
-                lastDate: lastDate,
-                onDateChanged: (DateTime date) {
-                  selectedDate = date;
-                  // Update the header to show the new date
-                  if (headerSetState != null) {
-                    headerSetState!(() {});
-                  }
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          completer.complete(null);
-                        },
-                        child: Text(
-                          'Abbrechen',
-                          style: TextStyle(
-                            color: AppColors.famkaGrey,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                    );
+                  },
+                ),
+                CalendarDatePicker(
+                  initialDate: initialDate,
+                  firstDate: firstDate,
+                  lastDate: lastDate,
+                  onDateChanged: (DateTime date) {
+                    selectedDate = date;
+                    headerSetState?.call(() {});
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(dialogContext);
+                            completer.complete(null);
+                          },
+                          child: Text(
+                            'Abbrechen',
+                            style: TextStyle(
+                              color: AppColors.famkaGrey,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                          completer.complete(selectedDate);
-                        },
-                        child: ButtonLinearGradient(
-                          buttonText: 'OK',
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(dialogContext);
+                            completer.complete(selectedDate);
+                          },
+                          child: ButtonLinearGradient(
+                            buttonText: 'OK',
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-
-  return completer.future;
+        );
+      },
+    );
+    return completer.future;
+  }
+  return Future.value(null);
 }

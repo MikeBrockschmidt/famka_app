@@ -114,7 +114,7 @@ class AppSwitchRow extends StatelessWidget {
             value: value,
             onChanged: onChanged,
             activeColor: AppColors.famkaCyan,
-            activeTrackColor: AppColors.famkaCyan.withOpacity(0.5),
+            activeTrackColor: AppColors.famkaCyan.withAlpha(127),
             inactiveThumbColor: AppColors.famkaWhite,
             inactiveTrackColor: AppColors.famkaGrey,
           ),

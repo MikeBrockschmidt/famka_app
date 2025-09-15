@@ -18,16 +18,12 @@ import 'package:famka_app/gen_l10n/app_localizations.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    // ignore: avoid_print
-    print('FlutterError: ' + details.exceptionAsString());
-    if (details.stack != null) print(details.stack);
   };
   runZonedGuarded(() async {
     await Firebase.initializeApp(
@@ -44,7 +40,6 @@ void main() async {
     final String? storedUserId = prefs.getString(userIdKey);
 
     if (storedUserId != null && storedUserId.isNotEmpty) {
-      print('ℹ️ Gefundene Benutzer-ID in SharedPreferences: $storedUserId');
       bool userStillExists = false;
 
       try {
@@ -56,29 +51,15 @@ void main() async {
               .get();
           if (userDoc.exists) {
             userStillExists = true;
-            print(
-                '✅ Benutzer $storedUserId in Firebase Auth und Firestore gefunden.');
-          } else {
-            print(
-                '⚠️ Benutzer $storedUserId in Firebase Auth gefunden, aber Firestore-Dokument fehlt.');
           }
-        } else {
-          print(
-              '❌ Gespeicherte ID $storedUserId stimmt nicht mit aktuellem Firebase-Benutzer überein oder kein Benutzer angemeldet.');
         }
-      } catch (e, stack) {
-        print('❌ Fehler beim Überprüfen der Benutzer-ID in Firebase: $e');
-        print(stack);
+      } catch (e) {
         userStillExists = false;
       }
 
       if (!userStillExists) {
         await prefs.remove(userIdKey);
-        print(
-            '🗑️ Ungültiger Benutzer $storedUserId aus SharedPreferences entfernt.');
       }
-    } else {
-      print('ℹ️ Keine Benutzer-ID in SharedPreferences gefunden.');
     }
 
     runApp(
@@ -87,14 +68,11 @@ void main() async {
         child: MainApp(db, auth),
       ),
     );
-  }, (error, stack) {
-    print('Uncaught Dart error: $error');
-    print(stack);
-  });
+  }, (error, stack) {});
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

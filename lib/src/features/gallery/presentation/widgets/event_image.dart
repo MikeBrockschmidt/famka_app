@@ -299,17 +299,6 @@ class _EventImageState extends State<EventImage> {
           finalImageToUpload = File(croppedFile.path);
         }
 
-        if (finalImageToUpload == null) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content:
-                      Text('Fehler bei der Bildverarbeitung für den Upload.')),
-            );
-          }
-          return;
-        }
-
         final User? user = FirebaseAuth.instance.currentUser;
         if (user == null) {
           if (mounted) {

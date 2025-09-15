@@ -306,17 +306,6 @@ class _ProfilImageState extends State<ProfilImage> {
           finalImageToUpload = File(croppedFile.path);
         }
 
-        if (finalImageToUpload == null) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(appLocalizations?.processingError ??
-                      'Error in image processing for upload.')),
-            );
-          }
-          return;
-        }
-
         final User? user = FirebaseAuth.instance.currentUser;
         if (user == null) {
           if (mounted) {

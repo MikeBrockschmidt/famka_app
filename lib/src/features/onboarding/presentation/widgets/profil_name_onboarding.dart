@@ -93,8 +93,7 @@ class _ProfilNameOnboardingState extends State<ProfilNameOnboarding> {
         password: widget.user.password,
       );
 
-      if (updatedUser.profilId == null ||
-          FirebaseAuth.instance.currentUser?.uid == null) {
+      if (FirebaseAuth.instance.currentUser?.uid == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

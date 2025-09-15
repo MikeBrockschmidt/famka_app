@@ -16,7 +16,6 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart';
 import 'package:flutter/services.dart';
-import 'package:famka_app/src/common/legal_info_page.dart';
 
 class ProfilPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -172,7 +171,7 @@ class _ProfilPageState extends State<ProfilPage> {
     await Clipboard.setData(ClipboardData(text: phoneNumber));
     if (mounted) {
       final snackBar = SnackBar(
-        backgroundColor: AppColors.famkaCyan.withOpacity(0.9),
+        backgroundColor: AppColors.famkaCyan.withAlpha(229),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -431,13 +430,6 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
-  void _navigateToLegalInfoPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const LegalInfoPage()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -510,7 +502,9 @@ class _ProfilPageState extends State<ProfilPage> {
                       },
                       onTapOutside: (_) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (mounted) FocusScope.of(context).unfocus();
+                          if (mounted) {
+                            FocusScope.of(context).unfocus();
+                          }
                         });
                       },
                       validator: _validateName,
@@ -535,7 +529,9 @@ class _ProfilPageState extends State<ProfilPage> {
                         },
                         onTapOutside: (_) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted) FocusScope.of(context).unfocus();
+                            if (mounted) {
+                              FocusScope.of(context).unfocus();
+                            }
                           });
                         },
                         validator: _validateName,
@@ -559,7 +555,9 @@ class _ProfilPageState extends State<ProfilPage> {
                   padding: const EdgeInsets.only(bottom: 100),
                   child: GestureDetector(
                     onTap: () {
-                      FocusScope.of(context).unfocus();
+                      if (true) {
+                        FocusScope.of(context).unfocus();
+                      }
                     },
                     child: Form(
                       key: _formKey,
@@ -608,11 +606,12 @@ class _ProfilPageState extends State<ProfilPage> {
                                               .requestFocus(_emailFocusNode);
                                         },
                                         onTapOutside: (_) {
-                                          WidgetsBinding.instance
-                                              .addPostFrameCallback((_) {
-                                            if (mounted)
-                                              FocusScope.of(context).unfocus();
-                                          });
+                                            WidgetsBinding.instance
+                                                .addPostFrameCallback((_) {
+                                              if (mounted) {
+                                                FocusScope.of(context).unfocus();
+                                              }
+                                            });
                                         },
                                         validator: _validatePhoneNumber,
                                         decoration: InputDecoration(
@@ -650,11 +649,12 @@ class _ProfilPageState extends State<ProfilPage> {
                                               _miscellaneousFocusNode);
                                         },
                                         onTapOutside: (_) {
-                                          WidgetsBinding.instance
-                                              .addPostFrameCallback((_) {
-                                            if (mounted)
-                                              FocusScope.of(context).unfocus();
-                                          });
+                                            WidgetsBinding.instance
+                                                .addPostFrameCallback((_) {
+                                              if (mounted) {
+                                                FocusScope.of(context).unfocus();
+                                              }
+                                            });
                                         },
                                         validator: _validateEmail,
                                         decoration: InputDecoration(
@@ -693,8 +693,9 @@ class _ProfilPageState extends State<ProfilPage> {
                                         onTapOutside: (_) {
                                           WidgetsBinding.instance
                                               .addPostFrameCallback((_) {
-                                            if (mounted)
+                                            if (mounted) {
                                               FocusScope.of(context).unfocus();
+                                            }
                                           });
                                         },
                                         decoration: InputDecoration(

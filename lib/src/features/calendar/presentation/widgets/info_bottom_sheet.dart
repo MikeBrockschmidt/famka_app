@@ -349,20 +349,12 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
     final String newDescription =
         _descriptionControllers[event.singleEventId]?.text ?? '';
 
-    print('Saving description for event: ${event.singleEventId}');
-    print('Old description: "${event.singleEventDescription}"');
-    print('New description: "$newDescription"');
-
     if (newDescription != event.singleEventDescription) {
       final updatedEvent =
           event.copyWith(singleEventDescription: newDescription);
 
-      print('Calling database update...');
-
       try {
         await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
-
-        print('Database update successful');
 
         if (mounted) {
           setState(() {
@@ -383,7 +375,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
           );
         }
       } catch (e) {
-        print('Database update failed: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -395,7 +386,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
         }
       }
     } else {
-      print('No changes detected');
       if (mounted) {
         setState(() {
           _isEditingDescription[event.singleEventId] = false;
@@ -693,17 +683,16 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                           ],
                                         ),
                                         IconButton(
-                                          icon: Icon(
-                                            Icons.check,
-                                            color: (_descriptionControllers[event
-                                                                .singleEventId]
-                                                            ?.text ??
-                                                        '') !=
-                                                    event.singleEventDescription
-                                                ? AppColors.famkaGrey
-                                                : AppColors.famkaGrey
-                                                    .withOpacity(0.3),
-                                          ),
+                                          icon: Icon(Icons.check,
+                                              color: (_descriptionControllers[event
+                                                                  .singleEventId]
+                                                              ?.text ??
+                                                          '') !=
+                                                      event
+                                                          .singleEventDescription
+                                                  ? AppColors.famkaGrey
+                                                  : AppColors.famkaGrey
+                                                      .withAlpha(76)),
                                           onPressed: (_descriptionControllers[
                                                               event
                                                                   .singleEventId]
