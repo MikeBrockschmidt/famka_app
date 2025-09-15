@@ -135,7 +135,7 @@ class _AddOrJoinGroupScreenState extends State<AddOrJoinGroupScreen> {
         if (file.existsSync()) {
         } else {
           debugPrint(
-              'Warnung: Lokales Bild konnte nicht geladen werden: ${_groupAvatarUrl}. Verwende Default.jpg');
+              'Warnung: Lokales Bild konnte nicht geladen werden: $_groupAvatarUrl. Verwende Default.jpg');
         }
       } catch (e) {
         debugPrint(

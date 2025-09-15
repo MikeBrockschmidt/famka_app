@@ -53,15 +53,19 @@ Future<DateTime?> selectAppointmentDate(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 StatefulBuilder(
-                  builder: (BuildContext headerContext, StateSetter setHeaderState) {
+                  builder:
+                      (BuildContext headerContext, StateSetter setHeaderState) {
                     headerSetState = setHeaderState;
                     String formattedDate = "";
                     if (locale == 'de') {
-                      String dayName = DateFormat('EEEE', 'de_DE').format(selectedDate);
-                      dayName = dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
+                      String dayName =
+                          DateFormat('EEEE', 'de_DE').format(selectedDate);
+                      dayName = dayName.substring(0, 1).toUpperCase() +
+                          dayName.substring(1);
                       formattedDate = "$dayName, ${selectedDate.day}.";
                     } else {
-                      String dayName = DateFormat('EEEE', 'en_US').format(selectedDate);
+                      String dayName =
+                          DateFormat('EEEE', 'en_US').format(selectedDate);
                       formattedDate = "$dayName, ${selectedDate.day}";
                     }
                     return Container(

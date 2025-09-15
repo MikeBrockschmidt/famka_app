@@ -307,7 +307,6 @@ class MockDatabaseRepository implements DatabaseRepository {
     await Future.delayed(const Duration(milliseconds: 1));
   }
 
-  @override
   Future<SingleEvent?> getEvent(String eventId) async {
     await Future.delayed(const Duration(milliseconds: 1));
     return _events.firstWhereOrNull((event) => event.singleEventId == eventId);
@@ -318,7 +317,6 @@ class MockDatabaseRepository implements DatabaseRepository {
     return getEvent(eventId);
   }
 
-  @override
   Future<Group?> getGroup(String groupId) async {
     await Future.delayed(const Duration(milliseconds: 1));
     return _groups.firstWhereOrNull((group) => group.groupId == groupId);
@@ -329,7 +327,6 @@ class MockDatabaseRepository implements DatabaseRepository {
     return getGroup(groupId);
   }
 
-  @override
   Future<AppUser?> getUser(String userId) async {
     await Future.delayed(const Duration(milliseconds: 1));
     return _users.firstWhereOrNull((user) => user.profilId == userId);
@@ -481,7 +478,6 @@ class MockDatabaseRepository implements DatabaseRepository {
 
   @override
   Future<void> saveUserFCMToken(String userId, String? token) {
-    // TODO: implement saveUserFCMToken
     throw UnimplementedError();
   }
 
@@ -489,12 +485,7 @@ class MockDatabaseRepository implements DatabaseRepository {
   Future<void> updateGroupMemberOrder(
       String groupId, List<String> newMemberOrder) async {
     final groupIndex = _groups.indexWhere((g) => g.groupId == groupId);
-    if (groupIndex != -1) {
-      // Update the member order in the mock group
-      // This is a simplified implementation for mock data
-      print('Mock: Updating member order for group $groupId');
-      print('Mock: New order: $newMemberOrder');
-    }
+    if (groupIndex != -1) {}
     await Future.delayed(const Duration(milliseconds: 1));
   }
 }

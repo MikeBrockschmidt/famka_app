@@ -7,8 +7,6 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:uuid/uuid.dart';
 import 'package:famka_app/src/features/login/domain/user_role.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class FirestoreDatabaseRepository implements DatabaseRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

@@ -606,12 +606,12 @@ class _ProfilPageState extends State<ProfilPage> {
                                               .requestFocus(_emailFocusNode);
                                         },
                                         onTapOutside: (_) {
-                                            WidgetsBinding.instance
-                                                .addPostFrameCallback((_) {
-                                              if (mounted) {
-                                                FocusScope.of(context).unfocus();
-                                              }
-                                            });
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            if (mounted) {
+                                              FocusScope.of(context).unfocus();
+                                            }
+                                          });
                                         },
                                         validator: _validatePhoneNumber,
                                         decoration: InputDecoration(
@@ -649,12 +649,12 @@ class _ProfilPageState extends State<ProfilPage> {
                                               _miscellaneousFocusNode);
                                         },
                                         onTapOutside: (_) {
-                                            WidgetsBinding.instance
-                                                .addPostFrameCallback((_) {
-                                              if (mounted) {
-                                                FocusScope.of(context).unfocus();
-                                              }
-                                            });
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            if (mounted) {
+                                              FocusScope.of(context).unfocus();
+                                            }
+                                          });
                                         },
                                         validator: _validateEmail,
                                         decoration: InputDecoration(

@@ -157,8 +157,8 @@ class _GalleryState extends State<Gallery> {
             final ref =
                 FirebaseStorage.instance.refFromURL(itemToDelete.imageUrl!);
             await ref.delete();
-      // Bild erfolgreich aus Firebase Storage gelöscht.
-          } on FirebaseException catch (e) {
+            // Bild erfolgreich aus Firebase Storage gelöscht.
+          } on FirebaseException {
             // Fehler beim Löschen aus Firebase Storage werden ignoriert.
           }
         } else {
@@ -234,7 +234,7 @@ class _GalleryState extends State<Gallery> {
       // Vergewissern, dass der Benutzer angemeldet ist
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-  // Kein Benutzer angemeldet. Bitte zuerst anmelden.
+        // Kein Benutzer angemeldet. Bitte zuerst anmelden.
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -250,7 +250,7 @@ class _GalleryState extends State<Gallery> {
       // Manchmal müssen wir das Auth-Token aktualisieren
       try {
         await user.getIdToken(true); // Token aktualisieren
-  // Auth-Token aktualisiert.
+        // Auth-Token aktualisiert.
       } catch (e) {
         // Fehler beim Aktualisieren des Auth-Tokens werden ignoriert.
       }
@@ -294,7 +294,7 @@ class _GalleryState extends State<Gallery> {
           );
         }
       } else {
-  // Bild-Upload abgebrochen oder fehlgeschlagen.
+        // Bild-Upload abgebrochen oder fehlgeschlagen.
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -305,7 +305,7 @@ class _GalleryState extends State<Gallery> {
         }
       }
     } catch (e) {
-  // Fehler beim Bild-Upload oder Benutzer-ID-Abruf.
+      // Fehler beim Bild-Upload oder Benutzer-ID-Abruf.
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

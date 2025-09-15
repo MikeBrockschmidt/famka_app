@@ -245,10 +245,10 @@ class EventListItem extends StatelessWidget {
                           return user.firstName;
                         }).toList();
 
-            String dateDisplay = DateFormat('dd.MM.yyyy')
-              .format(event.singleEventDate);
-            dateDisplay +=
-              ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
+                        String dateDisplay = DateFormat('dd.MM.yyyy')
+                            .format(event.singleEventDate);
+                        dateDisplay +=
+                            ' ${DateFormat('HH:mm').format(event.singleEventDate)}';
 
                         showDialog(
                           context: context,

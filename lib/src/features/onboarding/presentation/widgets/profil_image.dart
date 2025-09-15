@@ -256,6 +256,7 @@ class _ProfilImageState extends State<ProfilImage> {
           uiSettings: [
             AndroidUiSettings(
               toolbarTitle: _getDialogTitle(),
+              // ignore: use_build_context_synchronously
               toolbarColor: Theme.of(context).primaryColor,
               toolbarWidgetColor: Colors.white,
               lockAspectRatio: true,

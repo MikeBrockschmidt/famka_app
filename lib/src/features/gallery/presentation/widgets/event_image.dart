@@ -14,6 +14,7 @@ import 'package:flutter/foundation.dart';
 import 'package:famka_app/src/common/image_selection_context.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as p;
 
 class EventImage extends StatefulWidget {
@@ -251,6 +252,7 @@ class _EventImageState extends State<EventImage> {
           uiSettings: [
             AndroidUiSettings(
               toolbarTitle: _getDialogTitle(),
+              // ignore: use_build_context_synchronously
               toolbarColor: Theme.of(context).primaryColor,
               toolbarWidgetColor: Colors.white,
               lockAspectRatio: true,
@@ -418,7 +420,7 @@ class _EventImageState extends State<EventImage> {
       onTap: widget.isInteractive
           ? (_isPickingImage ? null : _pickImageAndUpload)
           : null,
-      child: Container(
+      child: SizedBox(
         width: effectiveSideLength,
         height: effectiveSideLength,
         child: ClipRRect(

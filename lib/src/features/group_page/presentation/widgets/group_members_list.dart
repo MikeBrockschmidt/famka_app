@@ -59,6 +59,7 @@ class GroupMembersList extends StatelessWidget {
                           await db.getCurrentUserId();
                       if (updatedUser != null) {
                         Navigator.push(
+                          // ignore: use_build_context_synchronously
                           context,
                           MaterialPageRoute(
                             builder: (context) => ProfilPage(
@@ -71,11 +72,13 @@ class GroupMembersList extends StatelessWidget {
                           ),
                         );
                       } else {
+                        // ignore: use_build_context_synchronously
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             backgroundColor: AppColors.famkaCyan,
                             content: Text(
                               'Benutzerdaten können nicht geladen werden!',
+                              // ignore: use_build_context_synchronously
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             duration: const Duration(seconds: 2),

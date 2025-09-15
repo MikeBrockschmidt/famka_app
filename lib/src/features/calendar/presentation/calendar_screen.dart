@@ -43,7 +43,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   List<SingleEvent> _allEvents = [];
   bool _isLoadingEvents = true;
   String? _eventsErrorMessage;
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -176,7 +176,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _widgetOptions = <Widget>[
+    final List<Widget> widgetOptions = <Widget>[
       _isLoadingEvents
           ? const Center(child: CircularProgressIndicator())
           : _eventsErrorMessage != null
@@ -226,7 +226,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
           const Divider(thickness: 0.4, height: 0.4, color: Colors.grey),
           Expanded(
-            child: _widgetOptions.elementAt(_selectedIndex),
+            child: widgetOptions.elementAt(_selectedIndex),
           ),
           BottomNavigationThreeList(
             widget.db,

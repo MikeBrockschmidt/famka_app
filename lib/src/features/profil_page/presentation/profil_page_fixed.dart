@@ -575,6 +575,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                           WidgetsBinding.instance
                                               .addPostFrameCallback((_) {
                                             if (mounted)
+                                              // ignore: curly_braces_in_flow_control_structures
                                               FocusScope.of(context).unfocus();
                                           });
                                         },

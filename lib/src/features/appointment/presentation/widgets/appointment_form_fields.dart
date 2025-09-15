@@ -113,7 +113,7 @@ class AppSwitchRow extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.famkaCyan,
+            activeThumbColor: AppColors.famkaCyan,
             activeTrackColor: AppColors.famkaCyan.withAlpha(127),
             inactiveThumbColor: AppColors.famkaWhite,
             inactiveTrackColor: AppColors.famkaGrey,
@@ -166,7 +166,7 @@ class AppDropdownRow extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 32),
             child: DropdownButtonFormField<String>(
-              value: value,
+              initialValue: value,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding:

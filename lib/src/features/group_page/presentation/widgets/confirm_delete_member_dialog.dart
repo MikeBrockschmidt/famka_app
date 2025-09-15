@@ -39,7 +39,7 @@ class ConfirmDeleteMemberDialog extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "Möchten Sie ${memberName} wirklich aus der Gruppe entfernen?",
+            "Möchten Sie $memberName wirklich aus der Gruppe entfernen?",
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16),
           ),

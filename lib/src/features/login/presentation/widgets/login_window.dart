@@ -300,6 +300,7 @@ class _LoginWindowState extends State<LoginWindow> {
                               if (!mounted) return;
                               final firebaseUser = userCredential.user;
                               if (firebaseUser == null) {
+                                // ignore: use_build_context_synchronously
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content:
@@ -326,6 +327,7 @@ class _LoginWindowState extends State<LoginWindow> {
 
                                 if (!mounted) return;
                                 if (currentUser == null) {
+                                  // ignore: use_build_context_synchronously
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(l10n
@@ -335,14 +337,16 @@ class _LoginWindowState extends State<LoginWindow> {
                                   return;
                                 }
 
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            l10n.googleLoginNewUserCreated)),
-                                  );
+                                // ignore: use_build_context_synchronously
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text(l10n.googleLoginNewUserCreated)),
+                                );
                               } else {
                                 debugPrint(
                                     'Bestehender Google-Nutzer gefunden in Firestore: ${firebaseUser.uid}');
+                                // ignore: use_build_context_synchronously
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text(l10n.googleLoginSuccess)),
@@ -367,6 +371,7 @@ class _LoginWindowState extends State<LoginWindow> {
 
                               if (mounted) {
                                 Navigator.pushReplacement(
+                                  // ignore: use_build_context_synchronously
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ProfilPage(
@@ -390,6 +395,7 @@ class _LoginWindowState extends State<LoginWindow> {
                                 message = l10n.googleLoginUnexpectedError(
                                     e.message ?? e.code);
                               }
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(message),
@@ -398,11 +404,11 @@ class _LoginWindowState extends State<LoginWindow> {
                               );
                             } catch (e) {
                               if (!mounted) return;
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(
-                                      l10n.googleLoginUnexpectedError(
-                                          e.toString())),
+                                  content: Text(l10n.googleLoginUnexpectedError(
+                                      e.toString())),
                                   backgroundColor: AppColors.famkaRed,
                                 ),
                               );
@@ -430,6 +436,7 @@ class _LoginWindowState extends State<LoginWindow> {
                               if (!mounted) return;
                               final firebaseUser = userCredential.user;
                               if (firebaseUser == null) {
+                                // ignore: use_build_context_synchronously
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content:
@@ -456,6 +463,7 @@ class _LoginWindowState extends State<LoginWindow> {
 
                                 if (!mounted) return;
                                 if (currentUser == null) {
+                                  // ignore: use_build_context_synchronously
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(l10n
@@ -465,10 +473,11 @@ class _LoginWindowState extends State<LoginWindow> {
                                   return;
                                 }
 
+                                // ignore: use_build_context_synchronously
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content: Text(
-                                          l10n.appleLoginNewUserCreated)),
+                                      content:
+                                          Text(l10n.appleLoginNewUserCreated)),
                                 );
 
                                 // Setze Onboarding als abgeschlossen für neue Apple-Nutzer
@@ -478,6 +487,7 @@ class _LoginWindowState extends State<LoginWindow> {
                               } else {
                                 debugPrint(
                                     'Bestehender Apple-Nutzer gefunden in Firestore: ${firebaseUser.uid}');
+                                // ignore: use_build_context_synchronously
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text(l10n.appleLoginSuccess)),
@@ -507,6 +517,7 @@ class _LoginWindowState extends State<LoginWindow> {
 
                               if (mounted) {
                                 Navigator.pushReplacement(
+                                  // ignore: use_build_context_synchronously
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ProfilPage(
@@ -544,6 +555,7 @@ class _LoginWindowState extends State<LoginWindow> {
                                 message =
                                     'Apple Sign-In Fehler: ${e.message ?? e.code}';
                               }
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(message),
@@ -554,6 +566,7 @@ class _LoginWindowState extends State<LoginWindow> {
                             } catch (e) {
                               debugPrint('Apple Sign-In Unexpected Error: $e');
                               if (!mounted) return;
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(

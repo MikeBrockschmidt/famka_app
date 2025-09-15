@@ -264,11 +264,13 @@ class _GroupPageState extends State<GroupPage> {
         _isLoading = true;
       });
       await _loadGroupAndUserData();
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.famkaCyan,
           content: Text(
             'Mitgliederverwaltung abgeschlossen.',
+            // ignore: use_build_context_synchronously
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),

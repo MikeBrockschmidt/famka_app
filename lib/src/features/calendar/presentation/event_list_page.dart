@@ -51,7 +51,6 @@ class _EventListPageState extends State<EventListPage> {
   Map<String, List<SingleEvent>> groupedEvents = {};
   List<String> orderedHeaders = [];
 
-
   @override
   void initState() {
     super.initState();

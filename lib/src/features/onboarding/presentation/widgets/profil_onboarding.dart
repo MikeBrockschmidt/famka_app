@@ -135,6 +135,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
         lastName: '',
         email: email,
         phoneNumber: null,
+        // ignore: use_build_context_synchronously
         avatarUrl: AppLocalizations.of(context)!.defaultAvatarPath,
         miscellaneous: null,
         password: '',
@@ -166,6 +167,7 @@ class _ProfilOnboardingState extends State<ProfilOnboarding> {
         errorMessage = 'Das Passwort ist zu schwach.';
       } else {
         errorMessage =
+            // ignore: use_build_context_synchronously
             AppLocalizations.of(context)!.loginFailedGeneric(e.message ?? '');
       }
       if (mounted) {

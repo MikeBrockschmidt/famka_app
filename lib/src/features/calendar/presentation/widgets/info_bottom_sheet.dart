@@ -274,7 +274,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                     widget.onEventUpdated!(updatedEvent);
                                   }
                                   _updateEventInSheet(updatedEvent);
+                                  // ignore: use_build_context_synchronously
                                   Navigator.of(dialogContext).pop();
+                                  // ignore: use_build_context_synchronously
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                         content:
@@ -417,7 +419,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
     }
 
     if (!hasChanges) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
+        // ignore: use_build_context_synchronously
         SnackBar(content: Text(AppLocalizations.of(context)!.noChangesToSave)),
       );
     }
@@ -630,7 +634,15 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                             event.isAllDay
                                                 ? AppLocalizations.of(context)!
                                                     .timeAllDay
-                                                : '${AppLocalizations.of(context)!.timeAt(DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(event.singleEventDate))}',
+                                                : AppLocalizations.of(context)!
+                                                    .timeAt(DateFormat(
+                                                            'HH:mm',
+                                                            Localizations
+                                                                    .localeOf(
+                                                                        context)
+                                                                .languageCode)
+                                                        .format(event
+                                                            .singleEventDate)),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyLarge,
@@ -759,6 +771,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                           child: GestureDetector(
                             onTap: () async {
                               await _saveAllDescriptions();
+                              // ignore: use_build_context_synchronously
                               Navigator.pop(context);
                             },
                             child: ButtonLinearGradient(
