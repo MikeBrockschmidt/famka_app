@@ -1,6 +1,6 @@
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/data/database_repository.dart';
-import 'package:famka_app/src/features/calendar/presentation/widgets/info_bottom_sheet.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_cell_icon.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_avatar_scroll_row.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
@@ -370,13 +370,16 @@ class _CalendarGridState extends State<CalendarGrid> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(datePart,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium),
-                                Text(weekDayPart,
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall),
+                                Text(
+                                  datePart,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium,
+                                ),
+                                Text(
+                                  weekDayPart,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
                               ],
                             ),
                           );
@@ -443,12 +446,16 @@ class _CalendarGridState extends State<CalendarGrid> {
                                       ),
                                       child: CalendarCellIcon(
                                         date: date,
-                                        personIndex: personIndex,
+                                        user: currentGroupMembers[personIndex],
                                         db: widget.db,
-                                        currentGroupMembers:
-                                            currentGroupMembers,
                                         buildEventContent: _buildEventContent,
                                         allEvents: widget.allEvents,
+                                        currentGroupMembers:
+                                            currentGroupMembers,
+                                        onEventsRefreshed:
+                                            widget.onEventsRefreshed,
+                                        onEventDeletedConfirmed:
+                                            widget.onEventDeletedConfirmed,
                                       ),
                                     ),
                                   );
@@ -470,92 +477,4 @@ class _CalendarGridState extends State<CalendarGrid> {
   }
 }
 
-class CalendarCellIcon extends StatelessWidget {
-  final DateTime date;
-  final int personIndex;
-  final DatabaseRepository db;
-  final List<AppUser> currentGroupMembers;
-  final Widget Function(String?, String, double) buildEventContent;
-  final List<SingleEvent> allEvents;
-
-  const CalendarCellIcon({
-    super.key,
-    required this.date,
-    required this.personIndex,
-    required this.db,
-    required this.currentGroupMembers,
-    required this.buildEventContent,
-    required this.allEvents,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final userId = currentGroupMembers[personIndex].profilId;
-
-    final DateTime cutoffDate =
-        DateTime.now().subtract(const Duration(days: 14));
-    final bool isWithinRange = date.isAfter(cutoffDate) ||
-        date.isAtSameMomentAs(cutoffDate) ||
-        date.isAfter(DateTime.now());
-
-    final eventsForPerson = allEvents.where((event) {
-      final sameDay = event.singleEventDate.year == date.year &&
-          event.singleEventDate.month == date.month &&
-          event.singleEventDate.day == date.day;
-
-      return sameDay &&
-          (event.acceptedMemberIds.contains(userId) ||
-              event.invitedMemberIds.contains(userId) ||
-              event.maybeMemberIds.contains(userId)) &&
-          isWithinRange;
-    }).toList();
-
-    if (eventsForPerson.isEmpty) return const SizedBox.shrink();
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const iconSize = 36.0;
-        const spacing = 3.0;
-
-        final maxIconsPerRow =
-            (constraints.maxWidth / (iconSize + spacing)).floor();
-
-        final displayEvents = eventsForPerson.take(maxIconsPerRow * 2).toList();
-
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
-          alignment: WrapAlignment.center,
-          children: displayEvents.map((event) {
-            return GestureDetector(
-              onTap: () async {
-                await showModalBottomSheet<bool>(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) {
-                    return InfoBottomSheet(
-                      date: date,
-                      userName: currentGroupMembers[personIndex].firstName,
-                      eventsForPerson: eventsForPerson,
-                      currentGroupMembers: currentGroupMembers,
-                      db: db,
-                    );
-                  },
-                );
-              },
-              child: SizedBox(
-                width: iconSize,
-                height: iconSize,
-                child: buildEventContent(
-                  event.singleEventUrl,
-                  event.singleEventName,
-                  iconSize,
-                ),
-              ),
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-}
+// Die neue CalendarCellIcon-Definition ist jetzt in calendar_cell_icon.dart
