@@ -67,8 +67,8 @@ class _EventListPageState extends State<EventListPage> {
   }
 
   void _deleteOldEventsIfNeeded() async {
-    final DateTime cutoffDate =
-        DateTime.now().subtract(const Duration(days: 14));
+  final DateTime cutoffDate =
+    DateTime.now().subtract(const Duration(days: 180));
     final List<SingleEvent> allEvents =
         await widget.db.getEventsForGroup(_displayGroup.groupId);
     await _deleteOldEvents(allEvents, cutoffDate);

@@ -203,11 +203,19 @@ class _CalendarGridState extends State<CalendarGrid> {
       return CircleAvatar(
         radius: size / 2,
         backgroundColor: Colors.grey.shade200,
-        child: Text(
-          eventName.isNotEmpty ? eventName[0].toUpperCase() : '?',
-          style: TextStyle(
-            fontSize: size * 0.5,
-            color: AppColors.famkaBlack,
+        child: Center(
+          child: Text(
+            eventName,
+            textAlign: TextAlign.center,
+            maxLines: 5,
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+            style: TextStyle(
+              fontSize: 12,
+              height: 1.2,
+              color: AppColors.famkaBlack,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       );
