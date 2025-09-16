@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/theme/font_theme.dart';

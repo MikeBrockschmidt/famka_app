@@ -183,29 +183,39 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> widgetOptions = <Widget>[
-    _isLoadingEvents
-      ? const Center(child: CircularProgressIndicator())
-      : _eventsErrorMessage != null
-        ? Center(
-          child: Text(_eventsErrorMessage!,
-            style: TextStyle(color: AppColors.famkaRed)),
-        )
-        : CalendarGrid(
-          widget.db,
-          auth: widget.auth,
-          currentGroup: _displayGroup,
-          currentUser: widget.currentUser,
-          allEvents: _allEvents,
-          onEventDeletedConfirmed: _onEventDeletedConfirmed,
-          onEventsRefreshed: _onEventsRefreshed,
-          // Markierungsdaten aus allen Bereichs-Terminen sammeln
-          selectedDateRange: _allEvents.firstWhereOrNull((e) => e.selectedDateRange != null)?.selectedDateRange,
-          selectedRangeColor: _allEvents.firstWhereOrNull((e) => e.selectedRangeColorValue != null)
-            ?.selectedRangeColorValue != null
-            ? Color(_allEvents.firstWhereOrNull((e) => e.selectedRangeColorValue != null)!.selectedRangeColorValue!)
-            : null,
-          selectedMemberIds: _allEvents.firstWhereOrNull((e) => e.selectedMemberIds != null)?.selectedMemberIds,
-        ),
+      _isLoadingEvents
+          ? const Center(child: CircularProgressIndicator())
+          : _eventsErrorMessage != null
+              ? Center(
+                  child: Text(_eventsErrorMessage!,
+                      style: TextStyle(color: AppColors.famkaRed)),
+                )
+              : CalendarGrid(
+                  widget.db,
+                  auth: widget.auth,
+                  currentGroup: _displayGroup,
+                  currentUser: widget.currentUser,
+                  allEvents: _allEvents,
+                  onEventDeletedConfirmed: _onEventDeletedConfirmed,
+                  onEventsRefreshed: _onEventsRefreshed,
+                  // Markierungsdaten aus allen Bereichs-Terminen sammeln
+                  selectedDateRange: _allEvents
+                      .firstWhereOrNull((e) => e.selectedDateRange != null)
+                      ?.selectedDateRange,
+                  selectedRangeColor: _allEvents
+                              .firstWhereOrNull(
+                                  (e) => e.selectedRangeColorValue != null)
+                              ?.selectedRangeColorValue !=
+                          null
+                      ? Color(_allEvents
+                          .firstWhereOrNull(
+                              (e) => e.selectedRangeColorValue != null)!
+                          .selectedRangeColorValue!)
+                      : null,
+                  selectedMemberIds: _allEvents
+                      .firstWhereOrNull((e) => e.selectedMemberIds != null)
+                      ?.selectedMemberIds,
+                ),
       EventListPage(
         db: widget.db,
         currentGroup: _displayGroup,

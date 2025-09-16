@@ -33,9 +33,9 @@ class CalendarGrid extends StatefulWidget {
     required this.allEvents,
     this.onEventDeletedConfirmed,
     this.onEventsRefreshed,
-  this.selectedDateRange,
-  this.selectedRangeColor,
-  this.selectedMemberIds,
+    this.selectedDateRange,
+    this.selectedRangeColor,
+    this.selectedMemberIds,
   });
 
   @override
@@ -396,17 +396,35 @@ class _CalendarGridState extends State<CalendarGrid> {
                             itemExtent: rowHeight,
                             physics: const ClampingScrollPhysics(),
                             itemBuilder: (context, dayIndex) {
-                              final date = _actualStartDate.add(Duration(days: dayIndex));
-                              final isWeekend = date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+                              final date = _actualStartDate
+                                  .add(Duration(days: dayIndex));
+                              final isWeekend =
+                                  date.weekday == DateTime.saturday ||
+                                      date.weekday == DateTime.sunday;
                               return Row(
-                                children: List.generate(actualNumberOfPersons, (personIndex) {
+                                children: List.generate(actualNumberOfPersons,
+                                    (personIndex) {
                                   final users = currentGroupMembers;
                                   final userId = users[personIndex].profilId;
-                                  final isSelectedMember = widget.selectedMemberIds?.contains(userId) ?? false;
-                                  final isInSelectedRange = widget.selectedDateRange != null && !date.isBefore(widget.selectedDateRange!.start) && !date.isAfter(widget.selectedDateRange!.end);
-                                  final cellColor = (isSelectedMember && isInSelectedRange && widget.selectedRangeColor != null)
-                                      ? widget.selectedRangeColor!.withOpacity(0.1)
-                                      : (isWeekend ? Colors.grey.shade100 : Colors.white);
+                                  final isSelectedMember = widget
+                                          .selectedMemberIds
+                                          ?.contains(userId) ??
+                                      false;
+                                  final isInSelectedRange = widget
+                                              .selectedDateRange !=
+                                          null &&
+                                      !date.isBefore(
+                                          widget.selectedDateRange!.start) &&
+                                      !date.isAfter(
+                                          widget.selectedDateRange!.end);
+                                  final cellColor = (isSelectedMember &&
+                                          isInSelectedRange &&
+                                          widget.selectedRangeColor != null)
+                                      ? widget.selectedRangeColor!
+                                          .withOpacity(0.1)
+                                      : (isWeekend
+                                          ? Colors.grey.shade100
+                                          : Colors.white);
                                   return GestureDetector(
                                     onTap: () async {
                                       // ...existing tap logic...
@@ -417,15 +435,18 @@ class _CalendarGridState extends State<CalendarGrid> {
                                       decoration: BoxDecoration(
                                         color: cellColor,
                                         border: Border(
-                                          right: BorderSide(color: Colors.grey.shade300),
-                                          bottom: BorderSide(color: Colors.grey.shade300),
+                                          right: BorderSide(
+                                              color: Colors.grey.shade300),
+                                          bottom: BorderSide(
+                                              color: Colors.grey.shade300),
                                         ),
                                       ),
                                       child: CalendarCellIcon(
                                         date: date,
                                         personIndex: personIndex,
                                         db: widget.db,
-                                        currentGroupMembers: currentGroupMembers,
+                                        currentGroupMembers:
+                                            currentGroupMembers,
                                         buildEventContent: _buildEventContent,
                                         allEvents: widget.allEvents,
                                       ),

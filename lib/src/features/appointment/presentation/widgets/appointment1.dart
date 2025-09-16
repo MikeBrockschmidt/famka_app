@@ -1,7 +1,5 @@
 import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
 
-
-
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -19,7 +17,8 @@ import 'package:famka_app/src/features/appointment/presentation/widgets/event_pa
 import 'package:famka_app/src/features/appointment/presentation/widgets/gallery_selection_field.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/repeat_reminder_settings.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/save_appointment_button.dart';
-import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart' as time_picker;
+import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart'
+    as time_picker;
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 
@@ -70,7 +69,8 @@ class _AppointmentState extends State<Appointment> {
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               border: Border.all(
-                color: _selectedRangeColor == color ? color : Colors.transparent,
+                color:
+                    _selectedRangeColor == color ? color : Colors.transparent,
                 width: 3,
               ),
               shape: BoxShape.circle,
@@ -80,6 +80,7 @@ class _AppointmentState extends State<Appointment> {
       }).toList(),
     );
   }
+
   DateTimeRange? _selectedDateRange;
   // Auswahlmodus für Datum: Einzelner Tag oder Zeitraum
   DateSelectionMode _dateMode = DateSelectionMode.single;
@@ -327,7 +328,9 @@ class _AppointmentState extends State<Appointment> {
       return;
     }
 
-    if (_dateMode != DateSelectionMode.range && (_selectedGalleryItemContent == null || _selectedGalleryItemContent!.isEmpty)) {
+    if (_dateMode != DateSelectionMode.range &&
+        (_selectedGalleryItemContent == null ||
+            _selectedGalleryItemContent!.isEmpty)) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -419,9 +422,14 @@ class _AppointmentState extends State<Appointment> {
       hasReminder: _reminder,
       reminderOffset: _reminder ? _selectedReminder : null,
       // Markierungsdaten für Bereichs-Termine
-      selectedDateRange: _dateMode == DateSelectionMode.range ? _selectedDateRange : null,
-      selectedRangeColorValue: _dateMode == DateSelectionMode.range ? _selectedRangeColor.value : null,
-      selectedMemberIds: _dateMode == DateSelectionMode.range ? selectedMembers.toList() : null,
+      selectedDateRange:
+          _dateMode == DateSelectionMode.range ? _selectedDateRange : null,
+      selectedRangeColorValue: _dateMode == DateSelectionMode.range
+          ? _selectedRangeColor.value
+          : null,
+      selectedMemberIds: _dateMode == DateSelectionMode.range
+          ? selectedMembers.toList()
+          : null,
     );
     debugPrint('*** DEBUGGING EVENT ERSTELLUNG ***');
     debugPrint('Ersteller ID (creatorId): ${initialEvent.creatorId}');
@@ -466,7 +474,9 @@ class _AppointmentState extends State<Appointment> {
         );
       }
       // Nach erfolgreichem Speichern: Navigiere zum CalendarScreen und übergebe die Markierungs-Parameter
-      if (_dateMode == DateSelectionMode.range && _selectedDateRange != null && selectedMembers.isNotEmpty) {
+      if (_dateMode == DateSelectionMode.range &&
+          _selectedDateRange != null &&
+          selectedMembers.isNotEmpty) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => CalendarScreen(
@@ -575,7 +585,8 @@ class _AppointmentState extends State<Appointment> {
                               title: Text('Einzelner Tag'),
                               value: DateSelectionMode.single,
                               groupValue: _dateMode,
-                              onChanged: (val) => setState(() => _dateMode = val!),
+                              onChanged: (val) =>
+                                  setState(() => _dateMode = val!),
                             ),
                           ),
                           Expanded(
@@ -583,7 +594,8 @@ class _AppointmentState extends State<Appointment> {
                               title: Text('Zeitraum'),
                               value: DateSelectionMode.range,
                               groupValue: _dateMode,
-                              onChanged: (val) => setState(() => _dateMode = val!),
+                              onChanged: (val) =>
+                                  setState(() => _dateMode = val!),
                             ),
                           ),
                         ],
@@ -600,7 +612,8 @@ class _AppointmentState extends State<Appointment> {
                             readOnly: true,
                             onTap: () async {
                               if (_dateMode == DateSelectionMode.single) {
-                                final DateTime? picked = await selectAppointmentDate(
+                                final DateTime? picked =
+                                    await selectAppointmentDate(
                                   context,
                                   initialDate: DateTime.now(),
                                   firstDate: DateTime(2000),
@@ -613,10 +626,12 @@ class _AppointmentState extends State<Appointment> {
                                   });
                                 }
                               } else {
-                                final DateTimeRange? pickedRange = await selectAppointmentDateRange(
+                                final DateTimeRange? pickedRange =
+                                    await selectAppointmentDateRange(
                                   context,
                                   initialStartDate: DateTime.now(),
-                                  initialEndDate: DateTime.now().add(const Duration(days: 1)),
+                                  initialEndDate: DateTime.now()
+                                      .add(const Duration(days: 1)),
                                   firstDate: DateTime(2000),
                                   lastDate: DateTime(2101),
                                 );
@@ -633,7 +648,8 @@ class _AppointmentState extends State<Appointment> {
                           ),
                           if (_dateMode == DateSelectionMode.range)
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
                               child: _buildRangeColorPicker(),
                             ),
                         ],
@@ -642,7 +658,9 @@ class _AppointmentState extends State<Appointment> {
                         leftIcon: Icons.timer_outlined,
                         label: l10n.allDayLabel,
                         value: _allDay,
-                        onChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) => setState(() => _allDay = val),
+                        onChanged: _dateMode == DateSelectionMode.range
+                            ? (val) {}
+                            : (val) => setState(() => _allDay = val),
                       ),
                       if (!_allDay)
                         Column(
@@ -704,11 +722,13 @@ class _AppointmentState extends State<Appointment> {
                       GallerySelectionField(
                         db: widget.db,
                         initialSelectedContent: _selectedGalleryItemContent,
-                        onChanged: _dateMode == DateSelectionMode.range ? (newContent) {} : (newContent) {
-                          setState(() {
-                            _selectedGalleryItemContent = newContent;
-                          });
-                        },
+                        onChanged: _dateMode == DateSelectionMode.range
+                            ? (newContent) {}
+                            : (newContent) {
+                                setState(() {
+                                  _selectedGalleryItemContent = newContent;
+                                });
+                              },
                         auth: widget.auth,
                         enabled: _dateMode != DateSelectionMode.range,
                       ),
@@ -724,36 +744,50 @@ class _AppointmentState extends State<Appointment> {
                       if (_selectedRepeat != null && _selectedReminder != null)
                         RepeatReminderSettings(
                           initialRepeat: _repeat,
-                          onRepeatChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) {
-                            setState(() {
-                              _repeat = val;
-                            });
-                          },
+                          onRepeatChanged: _dateMode == DateSelectionMode.range
+                              ? (val) {}
+                              : (val) {
+                                  setState(() {
+                                    _repeat = val;
+                                  });
+                                },
                           initialSelectedRepeat: _selectedRepeat ?? '',
-                          onSelectedRepeatChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) {
-                            setState(() {
-                              _selectedRepeat = val;
-                            });
-                          },
+                          onSelectedRepeatChanged:
+                              _dateMode == DateSelectionMode.range
+                                  ? (val) {}
+                                  : (val) {
+                                      setState(() {
+                                        _selectedRepeat = val;
+                                      });
+                                    },
                           numberOfRepeatsController: _numberOfRepeatsController,
                           validateNumberOfRepeats: _validateNumberOfRepeats,
-                          onNumberOfRepeatsChanged: _dateMode == DateSelectionMode.range ? (value) {} : (value) {
-                            setState(() {
-                              _numberOfRepeats = int.tryParse(value) ?? 1;
-                            });
-                          },
+                          onNumberOfRepeatsChanged: _dateMode ==
+                                  DateSelectionMode.range
+                              ? (value) {}
+                              : (value) {
+                                  setState(() {
+                                    _numberOfRepeats = int.tryParse(value) ?? 1;
+                                  });
+                                },
                           initialReminder: _reminder,
-                          onReminderChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) {
-                            setState(() {
-                              _reminder = val;
-                            });
-                          },
+                          onReminderChanged:
+                              _dateMode == DateSelectionMode.range
+                                  ? (val) {}
+                                  : (val) {
+                                      setState(() {
+                                        _reminder = val;
+                                      });
+                                    },
                           initialSelectedReminder: _selectedReminder ?? '',
-                          onSelectedReminderChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) {
-                            setState(() {
-                              _selectedReminder = val;
-                            });
-                          },
+                          onSelectedReminderChanged:
+                              _dateMode == DateSelectionMode.range
+                                  ? (val) {}
+                                  : (val) {
+                                      setState(() {
+                                        _selectedReminder = val;
+                                      });
+                                    },
                           enabled: _dateMode != DateSelectionMode.range,
                         ),
                       AppTextField(

@@ -172,8 +172,8 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          border:
-                              Border.all(color: AppColors.famkaYellow, width: 2),
+                          border: Border.all(
+                              color: AppColors.famkaYellow, width: 2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: _buildSelectedGalleryItem(),
