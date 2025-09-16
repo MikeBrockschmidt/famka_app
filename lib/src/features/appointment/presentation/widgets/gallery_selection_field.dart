@@ -36,12 +36,14 @@ class GallerySelectionField extends StatefulWidget {
     this.initialSelectedContent,
     required this.onChanged,
     required this.auth,
+    this.enabled = true,
   });
 
   final DatabaseRepository db;
   final String? initialSelectedContent;
   final ValueChanged<String?> onChanged;
   final AuthRepository auth;
+  final bool enabled;
 
   @override
   State<GallerySelectionField> createState() => _GallerySelectionFieldState();
@@ -119,6 +121,7 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
   }
 
   Future<void> _openGallery() async {
+    if (!widget.enabled) return;
     final selectedContent = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -138,53 +141,56 @@ class _GallerySelectionFieldState extends State<GallerySelectionField> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: _openGallery,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.image, color: Colors.black),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context)!.addImageTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(color: Colors.black),
-                  ),
-                ),
-                if (_selectedGalleryItemContent != null &&
-                    _selectedGalleryItemContent!.isNotEmpty)
-                  GestureDetector(
-                    onTap: _openGallery,
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        border:
-                            Border.all(color: AppColors.famkaYellow, width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildSelectedGalleryItem(),
+    return Opacity(
+      opacity: widget.enabled ? 1.0 : 0.5,
+      child: InkWell(
+        onTap: widget.enabled ? _openGallery : null,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.image, color: Colors.black),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.addImageTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(color: Colors.black),
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: 1),
-            Padding(
-              padding: const EdgeInsets.only(left: 32),
-              child: Text(
-                AppLocalizations.of(context)!.addImageDescription,
-                style: Theme.of(context).textTheme.titleSmall,
+                  if (_selectedGalleryItemContent != null &&
+                      _selectedGalleryItemContent!.isNotEmpty)
+                    GestureDetector(
+                      onTap: widget.enabled ? _openGallery : null,
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: AppColors.famkaYellow, width: 2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: _buildSelectedGalleryItem(),
+                      ),
+                    ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 1),
+              Padding(
+                padding: const EdgeInsets.only(left: 32),
+                child: Text(
+                  AppLocalizations.of(context)!.addImageDescription,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

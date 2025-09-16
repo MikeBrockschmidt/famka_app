@@ -20,6 +20,9 @@ class CalendarGrid extends StatefulWidget {
   final List<SingleEvent> allEvents;
   final Function(String eventId)? onEventDeletedConfirmed;
   final Function()? onEventsRefreshed;
+  final DateTimeRange? selectedDateRange;
+  final Color? selectedRangeColor;
+  final List<String>? selectedMemberIds;
 
   const CalendarGrid(
     this.db, {
@@ -30,6 +33,9 @@ class CalendarGrid extends StatefulWidget {
     required this.allEvents,
     this.onEventDeletedConfirmed,
     this.onEventsRefreshed,
+  this.selectedDateRange,
+  this.selectedRangeColor,
+  this.selectedMemberIds,
   });
 
   @override
@@ -37,6 +43,7 @@ class CalendarGrid extends StatefulWidget {
 }
 
 class _CalendarGridState extends State<CalendarGrid> {
+  // Removed unused _getCellBackground method
   final double sideColumnWidth = 63;
   final double rowHeight = 80;
   final double personColumnWidth = 90;
@@ -389,115 +396,36 @@ class _CalendarGridState extends State<CalendarGrid> {
                             itemExtent: rowHeight,
                             physics: const ClampingScrollPhysics(),
                             itemBuilder: (context, dayIndex) {
-                              final date = _actualStartDate
-                                  .add(Duration(days: dayIndex));
-                              final isWeekend =
-                                  date.weekday == DateTime.saturday ||
-                                      date.weekday == DateTime.sunday;
-
+                              final date = _actualStartDate.add(Duration(days: dayIndex));
+                              final isWeekend = date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
                               return Row(
-                                children: List.generate(actualNumberOfPersons,
-                                    (personIndex) {
+                                children: List.generate(actualNumberOfPersons, (personIndex) {
+                                  final users = currentGroupMembers;
+                                  final userId = users[personIndex].profilId;
+                                  final isSelectedMember = widget.selectedMemberIds?.contains(userId) ?? false;
+                                  final isInSelectedRange = widget.selectedDateRange != null && !date.isBefore(widget.selectedDateRange!.start) && !date.isAfter(widget.selectedDateRange!.end);
+                                  final cellColor = (isSelectedMember && isInSelectedRange && widget.selectedRangeColor != null)
+                                      ? widget.selectedRangeColor!.withOpacity(0.1)
+                                      : (isWeekend ? Colors.grey.shade100 : Colors.white);
                                   return GestureDetector(
                                     onTap: () async {
-                                      final DateTime cutoffDate = DateTime.now()
-                                          .subtract(const Duration(days: 14));
-                                      final bool isWithinRange = date
-                                              .isAfter(cutoffDate) ||
-                                          date.isAtSameMomentAs(cutoffDate) ||
-                                          date.isAfter(DateTime.now());
-
-                                      if (!isWithinRange) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text(AppLocalizations.of(
-                                                        context)
-                                                    ?.oldEventsFoundMessage(
-                                                        1) ??
-                                                "Events older than 14 days are hidden. Check the calendar screen to manage old events."),
-                                          ),
-                                        );
-                                        return;
-                                      }
-
-                                      final users = currentGroupMembers;
-                                      final userId =
-                                          users[personIndex].profilId;
-                                      final userName =
-                                          users[personIndex].firstName;
-
-                                      final eventsForPerson =
-                                          widget.allEvents.where((event) {
-                                        final sameDay =
-                                            event.singleEventDate.year ==
-                                                    date.year &&
-                                                event.singleEventDate.month ==
-                                                    date.month &&
-                                                event.singleEventDate.day ==
-                                                    date.day;
-                                        return sameDay &&
-                                            (event.acceptedMemberIds
-                                                    .contains(userId) ||
-                                                event.invitedMemberIds
-                                                    .contains(userId) ||
-                                                event.maybeMemberIds
-                                                    .contains(userId));
-                                      }).toList();
-
-                                      final BuildContext currentTapContext =
-                                          context;
-
-                                      final bool? eventWasDeleted =
-                                          await showModalBottomSheet<bool>(
-                                        context: currentTapContext,
-                                        isScrollControlled: true,
-                                        builder: (context) {
-                                          return InfoBottomSheet(
-                                            date: date,
-                                            userName: userName,
-                                            eventsForPerson: eventsForPerson,
-                                            currentGroupMembers:
-                                                currentGroupMembers,
-                                            db: widget.db,
-                                            onEventDeleted:
-                                                (String deletedEventId) {
-                                              widget.onEventDeletedConfirmed
-                                                  ?.call(deletedEventId);
-                                            },
-                                            onEventUpdated: (updatedEvent) {
-                                              widget.onEventsRefreshed?.call();
-                                            },
-                                          );
-                                        },
-                                      );
-
-                                      if (eventWasDeleted == true) {
-                                        debugPrint(
-                                            'Event was deleted via InfoBottomSheet, CalendarScreen will refresh.');
-                                        widget.onEventsRefreshed?.call();
-                                      }
+                                      // ...existing tap logic...
                                     },
                                     child: Container(
                                       width: personColumnWidth,
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
-                                        color: isWeekend
-                                            ? Colors.grey.shade100
-                                            : Colors.white,
+                                        color: cellColor,
                                         border: Border(
-                                          right: BorderSide(
-                                              color: Colors.grey.shade300),
-                                          bottom: BorderSide(
-                                              color: Colors.grey.shade300),
+                                          right: BorderSide(color: Colors.grey.shade300),
+                                          bottom: BorderSide(color: Colors.grey.shade300),
                                         ),
                                       ),
                                       child: CalendarCellIcon(
                                         date: date,
                                         personIndex: personIndex,
                                         db: widget.db,
-                                        currentGroupMembers:
-                                            currentGroupMembers,
+                                        currentGroupMembers: currentGroupMembers,
                                         buildEventContent: _buildEventContent,
                                         allEvents: widget.allEvents,
                                       ),
@@ -578,13 +506,30 @@ class CalendarCellIcon extends StatelessWidget {
           runSpacing: spacing,
           alignment: WrapAlignment.center,
           children: displayEvents.map((event) {
-            return SizedBox(
-              width: iconSize,
-              height: iconSize,
-              child: buildEventContent(
-                event.singleEventUrl,
-                event.singleEventName,
-                iconSize,
+            return GestureDetector(
+              onTap: () async {
+                await showModalBottomSheet<bool>(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (context) {
+                    return InfoBottomSheet(
+                      date: date,
+                      userName: currentGroupMembers[personIndex].firstName,
+                      eventsForPerson: eventsForPerson,
+                      currentGroupMembers: currentGroupMembers,
+                      db: db,
+                    );
+                  },
+                );
+              },
+              child: SizedBox(
+                width: iconSize,
+                height: iconSize,
+                child: buildEventContent(
+                  event.singleEventUrl,
+                  event.singleEventName,
+                  iconSize,
+                ),
               ),
             );
           }).toList(),

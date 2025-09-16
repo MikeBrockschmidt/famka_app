@@ -1,3 +1,7 @@
+import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
+
+
+
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/common/headline_k.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -15,10 +19,12 @@ import 'package:famka_app/src/features/appointment/presentation/widgets/event_pa
 import 'package:famka_app/src/features/appointment/presentation/widgets/gallery_selection_field.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/repeat_reminder_settings.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/save_appointment_button.dart';
-import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart'
-    as time_picker;
+import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart' as time_picker;
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
+
+// Auswahlmodus für Datum: Einzelner Tag oder Zeitraum
+enum DateSelectionMode { single, range }
 
 class Appointment extends StatefulWidget {
   final DatabaseRepository db;
@@ -39,6 +45,44 @@ class Appointment extends StatefulWidget {
 }
 
 class _AppointmentState extends State<Appointment> {
+  Color _selectedRangeColor = AppColors.famkaYellow;
+  final List<Color> _rangeColors = [
+    AppColors.famkaYellow,
+    AppColors.famkaGreen,
+    AppColors.famkaCyan,
+    AppColors.famkaRed,
+    AppColors.famkaBlue,
+  ];
+  Widget _buildRangeColorPicker() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: _rangeColors.map((color) {
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _selectedRangeColor = color;
+            });
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              border: Border.all(
+                color: _selectedRangeColor == color ? color : Colors.transparent,
+                width: 3,
+              ),
+              shape: BoxShape.circle,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+  DateTimeRange? _selectedDateRange;
+  // Auswahlmodus für Datum: Einzelner Tag oder Zeitraum
+  DateSelectionMode _dateMode = DateSelectionMode.single;
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _titleController = TextEditingController();
@@ -122,6 +166,9 @@ class _AppointmentState extends State<Appointment> {
 
   String? _validateLocation(String? value) {
     final l10n = AppLocalizations.of(context)!;
+    if (_dateMode == DateSelectionMode.range) {
+      return null;
+    }
     if (value == null || value.isEmpty) {
       return l10n.validatorLocationEmpty;
     }
@@ -280,8 +327,7 @@ class _AppointmentState extends State<Appointment> {
       return;
     }
 
-    if (_selectedGalleryItemContent == null ||
-        _selectedGalleryItemContent!.isEmpty) {
+    if (_dateMode != DateSelectionMode.range && (_selectedGalleryItemContent == null || _selectedGalleryItemContent!.isEmpty)) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -308,20 +354,23 @@ class _AppointmentState extends State<Appointment> {
     DateTime eventDate;
 
     try {
-      final dateParts = _dateController.text.split('-');
-      final year = int.parse(dateParts[0]);
-      final month = int.parse(dateParts[1]);
-      final day = int.parse(dateParts[2]);
-
-      if (_allDay) {
-        eventDate = DateTime(year, month, day);
+      if (_dateMode == DateSelectionMode.range && _selectedDateRange != null) {
+        // Use start of range for eventDate
+        eventDate = _selectedDateRange!.start;
       } else {
-        final timeParts = _timeController.text.split(':');
-        final hour = int.parse(timeParts[0]);
-        final minute = int.parse(timeParts[1]);
-        eventDate = DateTime(year, month, day, hour, minute);
+        final dateParts = _dateController.text.split('-');
+        final year = int.parse(dateParts[0]);
+        final month = int.parse(dateParts[1]);
+        final day = int.parse(dateParts[2]);
 
-        if (_endTimeController.text.isNotEmpty) {}
+        if (_allDay) {
+          eventDate = DateTime(year, month, day);
+        } else {
+          final timeParts = _timeController.text.split(':');
+          final hour = int.parse(timeParts[0]);
+          final minute = int.parse(timeParts[1]);
+          eventDate = DateTime(year, month, day, hour, minute);
+        }
       }
     } catch (e) {
       if (!mounted) return;
@@ -369,6 +418,10 @@ class _AppointmentState extends State<Appointment> {
       isAllDay: _allDay,
       hasReminder: _reminder,
       reminderOffset: _reminder ? _selectedReminder : null,
+      // Markierungsdaten für Bereichs-Termine
+      selectedDateRange: _dateMode == DateSelectionMode.range ? _selectedDateRange : null,
+      selectedRangeColorValue: _dateMode == DateSelectionMode.range ? _selectedRangeColor.value : null,
+      selectedMemberIds: _dateMode == DateSelectionMode.range ? selectedMembers.toList() : null,
     );
     debugPrint('*** DEBUGGING EVENT ERSTELLUNG ***');
     debugPrint('Ersteller ID (creatorId): ${initialEvent.creatorId}');
@@ -412,7 +465,24 @@ class _AppointmentState extends State<Appointment> {
           ),
         );
       }
-      Navigator.of(context).pop(true);
+      // Nach erfolgreichem Speichern: Navigiere zum CalendarScreen und übergebe die Markierungs-Parameter
+      if (_dateMode == DateSelectionMode.range && _selectedDateRange != null && selectedMembers.isNotEmpty) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => CalendarScreen(
+              widget.db,
+              currentGroup: widget.currentGroup!,
+              currentUser: widget.currentUser!,
+              auth: widget.auth,
+              selectedDateRange: _selectedDateRange,
+              selectedRangeColor: _selectedRangeColor,
+              selectedMemberIds: selectedMembers.toList(),
+            ),
+          ),
+        );
+      } else {
+        Navigator.of(context).pop(true);
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -426,6 +496,41 @@ class _AppointmentState extends State<Appointment> {
 
   @override
   Widget build(BuildContext context) {
+    // ...existing code...
+    // Pass selectedMembers to CalendarGrid
+    // Example usage (add where CalendarGrid is instantiated):
+    /*
+    CalendarGrid(
+      widget.db,
+      auth: widget.auth,
+      currentGroup: widget.currentGroup,
+      currentUser: widget.currentUser,
+      allEvents: [], // or your events list
+      selectedDateRange: _selectedDateRange,
+      selectedRangeColor: _selectedRangeColor,
+      selectedMemberIds: selectedMembers.toList(),
+    )
+    */
+    Row(
+      children: [
+        Expanded(
+          child: RadioListTile<DateSelectionMode>(
+            title: Text('Einzelner Tag'),
+            value: DateSelectionMode.single,
+            groupValue: _dateMode,
+            onChanged: (val) => setState(() => _dateMode = val!),
+          ),
+        ),
+        Expanded(
+          child: RadioListTile<DateSelectionMode>(
+            title: Text('Zeitraum'),
+            value: DateSelectionMode.range,
+            groupValue: _dateMode,
+            onChanged: (val) => setState(() => _dateMode = val!),
+          ),
+        ),
+      ],
+    );
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.famkaWhite,
@@ -462,34 +567,82 @@ class _AppointmentState extends State<Appointment> {
                         hint: l10n.appointmentTitleHint,
                         validator: _validateTitle,
                       ),
-                      AppTextField(
-                        leftIcon: Icons.calendar_today,
-                        controller: _dateController,
-                        label: l10n.dateLabel,
-                        hint: l10n.dateHint,
-                        validator: (value) =>
-                            validateAppointmentDate(value, context),
-                        readOnly: true,
-                        onTap: () async {
-                          final DateTime? picked = await selectAppointmentDate(
-                            context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2101),
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              _dateController.text =
-                                  "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-                            });
-                          }
-                        },
+                      // Radio-Button-Row für Datumsauswahl
+                      Row(
+                        children: [
+                          Expanded(
+                            child: RadioListTile<DateSelectionMode>(
+                              title: Text('Einzelner Tag'),
+                              value: DateSelectionMode.single,
+                              groupValue: _dateMode,
+                              onChanged: (val) => setState(() => _dateMode = val!),
+                            ),
+                          ),
+                          Expanded(
+                            child: RadioListTile<DateSelectionMode>(
+                              title: Text('Zeitraum'),
+                              value: DateSelectionMode.range,
+                              groupValue: _dateMode,
+                              onChanged: (val) => setState(() => _dateMode = val!),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          AppTextField(
+                            leftIcon: Icons.calendar_today,
+                            controller: _dateController,
+                            label: l10n.dateLabel,
+                            hint: l10n.dateHint,
+                            validator: (value) =>
+                                validateAppointmentDate(value, context),
+                            readOnly: true,
+                            onTap: () async {
+                              if (_dateMode == DateSelectionMode.single) {
+                                final DateTime? picked = await selectAppointmentDate(
+                                  context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2101),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _dateController.text =
+                                        "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+                                  });
+                                }
+                              } else {
+                                final DateTimeRange? pickedRange = await selectAppointmentDateRange(
+                                  context,
+                                  initialStartDate: DateTime.now(),
+                                  initialEndDate: DateTime.now().add(const Duration(days: 1)),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2101),
+                                );
+                                if (pickedRange != null) {
+                                  setState(() {
+                                    _selectedDateRange = pickedRange;
+                                    _dateController.text =
+                                        "${pickedRange.start.year}-${pickedRange.start.month.toString().padLeft(2, '0')}-${pickedRange.start.day.toString().padLeft(2, '0')} bis "
+                                        "${pickedRange.end.year}-${pickedRange.end.month.toString().padLeft(2, '0')}-${pickedRange.end.day.toString().padLeft(2, '0')}";
+                                  });
+                                }
+                              }
+                            },
+                          ),
+                          if (_dateMode == DateSelectionMode.range)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: _buildRangeColorPicker(),
+                            ),
+                        ],
                       ),
                       AppSwitchRow(
                         leftIcon: Icons.timer_outlined,
                         label: l10n.allDayLabel,
                         value: _allDay,
-                        onChanged: (val) => setState(() => _allDay = val),
+                        onChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) => setState(() => _allDay = val),
                       ),
                       if (!_allDay)
                         Column(
@@ -546,16 +699,18 @@ class _AppointmentState extends State<Appointment> {
                         label: l10n.locationLabel,
                         hint: l10n.locationHint,
                         validator: _validateLocation,
+                        enabled: _dateMode != DateSelectionMode.range,
                       ),
                       GallerySelectionField(
                         db: widget.db,
                         initialSelectedContent: _selectedGalleryItemContent,
-                        onChanged: (newContent) {
+                        onChanged: _dateMode == DateSelectionMode.range ? (newContent) {} : (newContent) {
                           setState(() {
                             _selectedGalleryItemContent = newContent;
                           });
                         },
                         auth: widget.auth,
+                        enabled: _dateMode != DateSelectionMode.range,
                       ),
                       EventParticipantsSelector(
                         groupMembersFuture: _groupMembersFuture,
@@ -569,36 +724,37 @@ class _AppointmentState extends State<Appointment> {
                       if (_selectedRepeat != null && _selectedReminder != null)
                         RepeatReminderSettings(
                           initialRepeat: _repeat,
-                          onRepeatChanged: (val) {
+                          onRepeatChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) {
                             setState(() {
                               _repeat = val;
                             });
                           },
                           initialSelectedRepeat: _selectedRepeat ?? '',
-                          onSelectedRepeatChanged: (val) {
+                          onSelectedRepeatChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) {
                             setState(() {
                               _selectedRepeat = val;
                             });
                           },
                           numberOfRepeatsController: _numberOfRepeatsController,
                           validateNumberOfRepeats: _validateNumberOfRepeats,
-                          onNumberOfRepeatsChanged: (value) {
+                          onNumberOfRepeatsChanged: _dateMode == DateSelectionMode.range ? (value) {} : (value) {
                             setState(() {
                               _numberOfRepeats = int.tryParse(value) ?? 1;
                             });
                           },
                           initialReminder: _reminder,
-                          onReminderChanged: (val) {
+                          onReminderChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) {
                             setState(() {
                               _reminder = val;
                             });
                           },
                           initialSelectedReminder: _selectedReminder ?? '',
-                          onSelectedReminderChanged: (val) {
+                          onSelectedReminderChanged: _dateMode == DateSelectionMode.range ? (val) {} : (val) {
                             setState(() {
                               _selectedReminder = val;
                             });
                           },
+                          enabled: _dateMode != DateSelectionMode.range,
                         ),
                       AppTextField(
                         leftIcon: Icons.description,

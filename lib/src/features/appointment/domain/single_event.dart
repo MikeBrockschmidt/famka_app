@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SingleEvent {
@@ -16,6 +17,10 @@ class SingleEvent {
   final bool isAllDay;
   final bool? hasReminder;
   final String? reminderOffset;
+  // Markierungsdaten für Bereichs-Termine
+  final DateTimeRange? selectedDateRange;
+  final int? selectedRangeColorValue;
+  final List<String>? selectedMemberIds;
 
   SingleEvent({
     required this.singleEventId,
@@ -33,6 +38,9 @@ class SingleEvent {
     required this.isAllDay,
     this.hasReminder,
     this.reminderOffset,
+  this.selectedDateRange,
+  this.selectedRangeColorValue,
+  this.selectedMemberIds,
   });
 
   SingleEvent copyWith({
@@ -51,13 +59,15 @@ class SingleEvent {
     bool? isAllDay,
     bool? hasReminder,
     String? reminderOffset,
+  DateTimeRange? selectedDateRange,
+  int? selectedRangeColorValue,
+  List<String>? selectedMemberIds,
   }) {
     return SingleEvent(
       singleEventId: singleEventId ?? this.singleEventId,
       groupId: groupId ?? this.groupId,
       singleEventName: singleEventName ?? this.singleEventName,
-      singleEventDescription:
-          singleEventDescription ?? this.singleEventDescription,
+      singleEventDescription: singleEventDescription ?? this.singleEventDescription,
       singleEventLocation: singleEventLocation ?? this.singleEventLocation,
       singleEventDate: singleEventDate ?? this.singleEventDate,
       singleEventUrl: singleEventUrl ?? this.singleEventUrl,
@@ -69,6 +79,9 @@ class SingleEvent {
       isAllDay: isAllDay ?? this.isAllDay,
       hasReminder: hasReminder ?? this.hasReminder,
       reminderOffset: reminderOffset ?? this.reminderOffset,
+      selectedDateRange: selectedDateRange ?? this.selectedDateRange,
+      selectedRangeColorValue: selectedRangeColorValue ?? this.selectedRangeColorValue,
+      selectedMemberIds: selectedMemberIds ?? this.selectedMemberIds,
     );
   }
 
@@ -89,10 +102,26 @@ class SingleEvent {
       'isAllDay': isAllDay,
       'hasReminder': hasReminder,
       'reminderOffset': reminderOffset,
+      // Markierungsdaten
+      'selectedDateRange': selectedDateRange != null
+          ? {
+              'start': Timestamp.fromDate(selectedDateRange!.start),
+              'end': Timestamp.fromDate(selectedDateRange!.end),
+            }
+          : null,
+      'selectedRangeColorValue': selectedRangeColorValue,
+      'selectedMemberIds': selectedMemberIds,
     };
   }
 
   factory SingleEvent.fromMap(Map<String, dynamic> map) {
+    DateTimeRange? range;
+    if (map['selectedDateRange'] != null && map['selectedDateRange']['start'] != null && map['selectedDateRange']['end'] != null) {
+      range = DateTimeRange(
+        start: (map['selectedDateRange']['start'] as Timestamp).toDate(),
+        end: (map['selectedDateRange']['end'] as Timestamp).toDate(),
+      );
+    }
     return SingleEvent(
       singleEventId: map['singleEventId'] as String,
       groupId: map['groupId'] as String,
@@ -109,6 +138,9 @@ class SingleEvent {
       isAllDay: map['isAllDay'] as bool? ?? false,
       hasReminder: map['hasReminder'] as bool?,
       reminderOffset: map['reminderOffset'] as String?,
+      selectedDateRange: range,
+      selectedRangeColorValue: map['selectedRangeColorValue'] as int?,
+      selectedMemberIds: map['selectedMemberIds'] != null ? List<String>.from(map['selectedMemberIds']) : null,
     );
   }
 }

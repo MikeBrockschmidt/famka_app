@@ -14,6 +14,7 @@ class AppTextField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.maxLines = 1,
+    this.enabled = true,
   });
 
   final IconData leftIcon;
@@ -26,6 +27,7 @@ class AppTextField extends StatelessWidget {
   final bool readOnly;
   final GestureTapCallback? onTap;
   final int? maxLines;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +73,7 @@ class AppTextField extends StatelessWidget {
               readOnly: readOnly || onTap != null,
               onTap: onTap,
               maxLines: maxLines,
+              enabled: enabled,
             ),
           ),
         ],

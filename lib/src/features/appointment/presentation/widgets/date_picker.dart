@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/theme/font_theme.dart';
@@ -7,6 +8,56 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+/// Bereichsauswahl für Ganztag-Termine: Wähle mehrere aufeinanderfolgende Tage
+Future<DateTimeRange?> selectAppointmentDateRange(
+  BuildContext context, {
+  required DateTime initialStartDate,
+  required DateTime initialEndDate,
+  required DateTime firstDate,
+  required DateTime lastDate,
+}) async {
+  // Kontextabhängige Daten vor async gap erfassen
+  final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+  final themeData = Theme.of(context);
+  final colorScheme = themeData.colorScheme.copyWith(
+    primary: AppColors.famkaCyan,
+    onPrimary: AppColors.famkaWhite,
+    surface: AppColors.famkaWhite,
+    onSurface: AppColors.famkaBlack,
+  );
+  final textTheme = appTheme.textTheme;
+  final locale = localeProvider.locale.languageCode;
+
+  await initializeDateFormatting('de_DE');
+
+  if (context.mounted) {
+    final pickedRange = await showDateRangePicker(
+      context: context,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      initialDateRange: DateTimeRange(
+        start: initialStartDate,
+        end: initialEndDate,
+      ),
+      builder: (BuildContext dialogContext, Widget? child) {
+        return Theme(
+          data: themeData.copyWith(
+            colorScheme: colorScheme,
+            dialogTheme: DialogThemeData(
+              backgroundColor: AppColors.famkaWhite,
+            ),
+            textTheme: textTheme,
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+      locale: Locale(locale),
+    );
+    return pickedRange;
+  }
+  return Future.value(null);
+}
 
 Future<DateTime?> selectAppointmentDate(
   BuildContext context, {

@@ -16,6 +16,7 @@ class RepeatReminderSettings extends StatefulWidget {
     required this.onReminderChanged,
     required this.initialSelectedReminder,
     required this.onSelectedReminderChanged,
+    this.enabled = true,
   });
 
   final bool initialRepeat;
@@ -30,6 +31,7 @@ class RepeatReminderSettings extends StatefulWidget {
   final ValueChanged<bool> onReminderChanged;
   final String initialSelectedReminder;
   final ValueChanged<String> onSelectedReminderChanged;
+  final bool enabled;
 
   @override
   State<RepeatReminderSettings> createState() => _RepeatReminderSettingsState();
@@ -70,85 +72,91 @@ class _RepeatReminderSettingsState extends State<RepeatReminderSettings> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Column(
-      children: [
-        AppSwitchRow(
-          leftIcon: Icons.repeat,
-          label: l10n.repeatLabel,
-          value: _repeat,
-          onChanged: (val) {
-            setState(() {
-              _repeat = val;
-            });
-            widget.onRepeatChanged(val);
-          },
-        ),
-        if (_repeat)
-          Column(
-            children: [
+    return Opacity(
+      opacity: widget.enabled ? 1.0 : 0.5,
+      child: AbsorbPointer(
+        absorbing: !widget.enabled,
+        child: Column(
+          children: [
+            AppSwitchRow(
+              leftIcon: Icons.repeat,
+              label: l10n.repeatLabel,
+              value: _repeat,
+              onChanged: (val) {
+                setState(() {
+                  _repeat = val;
+                });
+                widget.onRepeatChanged(val);
+              },
+            ),
+            if (_repeat)
+              Column(
+                children: [
+                  AppDropdownRow(
+                    leftIcon: Icons.repeat_one,
+                    label: l10n.repeatDropdownLabel,
+                    value: _selectedRepeat,
+                    items: [
+                      l10n.repeatDaily,
+                      l10n.repeatWeekly,
+                      l10n.repeatMonthly,
+                      l10n.repeatYearly
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          _selectedRepeat = val;
+                        });
+                        widget.onSelectedRepeatChanged(val);
+                      }
+                    },
+                  ),
+                  AppTextField(
+                    leftIcon: Icons.exposure_plus_1,
+                    controller: widget.numberOfRepeatsController,
+                    label: l10n.numberOfRepeatsLabel,
+                    hint: l10n.numberOfRepeatsHint,
+                    keyboardType: TextInputType.number,
+                    validator: widget.validateNumberOfRepeats,
+                    onChanged: (value) {
+                      widget.onNumberOfRepeatsChanged(value);
+                    },
+                  ),
+                ],
+              ),
+            AppSwitchRow(
+              leftIcon: Icons.notifications,
+              label: l10n.reminderLabel,
+              value: _reminder,
+              onChanged: (val) {
+                setState(() {
+                  _reminder = val;
+                });
+                widget.onReminderChanged(val);
+              },
+            ),
+            if (_reminder)
               AppDropdownRow(
-                leftIcon: Icons.repeat_one,
-                label: l10n.repeatDropdownLabel,
-                value: _selectedRepeat,
+                leftIcon: Icons.notifications_active,
+                label: l10n.reminderBeforeLabel,
+                value: _selectedReminder,
                 items: [
-                  l10n.repeatDaily,
-                  l10n.repeatWeekly,
-                  l10n.repeatMonthly,
-                  l10n.repeatYearly
+                  l10n.reminder30Minutes,
+                  l10n.reminderOneHour,
+                  l10n.reminderOneDay
                 ],
                 onChanged: (val) {
                   if (val != null) {
                     setState(() {
-                      _selectedRepeat = val;
+                      _selectedReminder = val;
                     });
-                    widget.onSelectedRepeatChanged(val);
+                    widget.onSelectedReminderChanged(val);
                   }
                 },
               ),
-              AppTextField(
-                leftIcon: Icons.exposure_plus_1,
-                controller: widget.numberOfRepeatsController,
-                label: l10n.numberOfRepeatsLabel,
-                hint: l10n.numberOfRepeatsHint,
-                keyboardType: TextInputType.number,
-                validator: widget.validateNumberOfRepeats,
-                onChanged: (value) {
-                  widget.onNumberOfRepeatsChanged(value);
-                },
-              ),
-            ],
-          ),
-        AppSwitchRow(
-          leftIcon: Icons.notifications,
-          label: l10n.reminderLabel,
-          value: _reminder,
-          onChanged: (val) {
-            setState(() {
-              _reminder = val;
-            });
-            widget.onReminderChanged(val);
-          },
+          ],
         ),
-        if (_reminder)
-          AppDropdownRow(
-            leftIcon: Icons.notifications_active,
-            label: l10n.reminderBeforeLabel,
-            value: _selectedReminder,
-            items: [
-              l10n.reminder30Minutes,
-              l10n.reminderOneHour,
-              l10n.reminderOneDay
-            ],
-            onChanged: (val) {
-              if (val != null) {
-                setState(() {
-                  _selectedReminder = val;
-                });
-                widget.onSelectedReminderChanged(val);
-              }
-            },
-          ),
-      ],
+      ),
     );
   }
 }

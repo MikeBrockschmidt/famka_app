@@ -3,6 +3,10 @@ import 'package:famka_app/gen_l10n/app_localizations.dart';
 
 String? validateAppointmentDate(String? value, BuildContext context) {
   final l10n = AppLocalizations.of(context)!;
+  // If value contains a range (e.g. '2025-09-15 bis 2025-09-17'), skip validation
+  if (value != null && value.contains('bis')) {
+    return null;
+  }
   if (value == null || value.isEmpty) {
     return l10n.validateDateEmpty;
   }
