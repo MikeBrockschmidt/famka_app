@@ -1,9 +1,11 @@
+import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/event_list_item.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 
 class CalendarList extends StatefulWidget {
@@ -104,13 +106,11 @@ class _CalendarListState extends State<CalendarList> {
               itemCount: eventsForDay.length,
               itemBuilder: (context, eventIndex) {
                 final event = eventsForDay[eventIndex];
-                return ListTile(
-                  leading: _buildEventIcon(event),
-                  title: Text(event.singleEventName),
-                  subtitle: Text(
-                    'Teilnehmer: ${event.acceptedMemberIds.length}',
-                  ),
-                  onTap: () {},
+                // Hier wird das zentrale EventListItem-Widget verwendet
+                return EventListItem(
+                  event: event,
+                  groupMembers: widget.currentGroup?.groupMembers ?? [],
+                  onDeleteEvent: null,
                 );
               },
             ),
@@ -122,33 +122,12 @@ class _CalendarListState extends State<CalendarList> {
   }
 
   Widget _buildEventIcon(SingleEvent event) {
-    final String initial = event.singleEventName.isNotEmpty
-        ? event.singleEventName[0].toUpperCase()
-        : '?';
-
-    if (event.singleEventUrl.isEmpty) {
-      return CircleAvatar(
-        backgroundColor: Colors.grey[200],
-        child: Text(
-          initial,
-          style: TextStyle(color: AppColors.famkaBlack),
-        ),
-      );
-    }
-
-    if (event.singleEventUrl.startsWith('emoji:')) {
-      return Text(
-        event.singleEventUrl.substring(6),
-        style: const TextStyle(fontSize: 24),
-      );
-    }
-
-    return CircleAvatar(
-      backgroundColor: Colors.grey[200],
-      child: Text(
-        initial,
-        style: TextStyle(color: AppColors.famkaBlack),
-      ),
+    // Einheitliches Event-Icon (Text) für die Kalenderlistenansicht
+    return EventIconWidget(
+      eventUrl: event.singleEventUrl,
+      eventName: event.singleEventName,
+      size: 40,
+      db: null,
     );
   }
 }

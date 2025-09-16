@@ -3,6 +3,7 @@ import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_cell_icon.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_avatar_scroll_row.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -199,82 +200,11 @@ class _CalendarGridState extends State<CalendarGrid> {
   }
 
   Widget _buildEventContent(String? eventUrl, String eventName, double size) {
-    if (eventUrl == null || eventUrl.isEmpty) {
-      return CircleAvatar(
-        radius: size / 2,
-        backgroundColor: Colors.grey.shade200,
-        child: Center(
-          child: Text(
-            eventName,
-            textAlign: TextAlign.center,
-            maxLines: 5,
-            overflow: TextOverflow.ellipsis,
-            softWrap: true,
-            style: TextStyle(
-              fontSize: 12,
-              height: 1.2,
-              color: AppColors.famkaBlack,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (eventUrl.startsWith('emoji:')) {
-      final emoji = eventUrl.substring(6);
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          emoji,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: size,
-          ),
-        ),
-      );
-    } else if (eventUrl.startsWith('icon:')) {
-      final iconCodePoint = int.tryParse(eventUrl.substring(5));
-      if (iconCodePoint != null) {
-        return Icon(
-          Icons.category, // Use constant icon
-          size: size * 0.9,
-          color: AppColors.famkaBlack,
-        );
-      }
-    } else if (eventUrl.startsWith('image:')) {
-      final imageUrl = eventUrl.substring(6);
-      if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-        return Image.network(
-          imageUrl,
-          fit: BoxFit.contain,
-          width: size,
-          height: size,
-          errorBuilder: (context, error, stackTrace) {
-            return Icon(Icons.broken_image,
-                size: size * 0.7, color: Colors.red);
-          },
-        );
-      } else {
-        return Image.asset(
-          imageUrl,
-          fit: BoxFit.contain,
-          width: size,
-          height: size,
-          errorBuilder: (context, error, stackTrace) {
-            return Icon(Icons.broken_image,
-                size: size * 0.7, color: Colors.red);
-          },
-        );
-      }
-    }
-
-    return EventImage(
-      widget.db,
-      currentAvatarUrl: eventUrl,
-      displayRadius: size / 2,
-      applyTransformOffset: false,
-      isInteractive: false,
+    return EventIconWidget(
+      eventUrl: eventUrl,
+      eventName: eventName,
+      size: size,
+      db: widget.db,
     );
   }
 
@@ -323,15 +253,24 @@ class _CalendarGridState extends State<CalendarGrid> {
             width: double.infinity,
             height: 40,
             color: Colors.blueAccent,
-            alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              monthName,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  monthName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  tooltip: 'Aktualisieren',
+                  onPressed: widget.onEventsRefreshed,
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -417,25 +356,30 @@ class _CalendarGridState extends State<CalendarGrid> {
                                     (personIndex) {
                                   final users = currentGroupMembers;
                                   final userId = users[personIndex].profilId;
-                                  final isSelectedMember = widget
-                                          .selectedMemberIds
-                                          ?.contains(userId) ??
-                                      false;
-                                  final isInSelectedRange = widget
-                                              .selectedDateRange !=
-                                          null &&
-                                      !date.isBefore(
-                                          widget.selectedDateRange!.start) &&
-                                      !date.isAfter(
-                                          widget.selectedDateRange!.end);
-                                  final cellColor = (isSelectedMember &&
-                                          isInSelectedRange &&
-                                          widget.selectedRangeColor != null)
-                                      ? widget.selectedRangeColor!
-                                          .withOpacity(0.1)
-                                      : (isWeekend
-                                          ? Colors.grey.shade100
-                                          : Colors.white);
+                                  // Bereichs-Termine aus Events prüfen
+                                  Color? rangeColor;
+                                  for (final event in widget.allEvents) {
+                                    if (event.selectedDateRange != null &&
+                                        event.selectedMemberIds != null &&
+                                        event.selectedMemberIds!.contains(userId) &&
+                                        !date.isBefore(event.selectedDateRange!.start) &&
+                                        !date.isAfter(event.selectedDateRange!.end)) {
+                                      if (event.selectedRangeColorValue != null) {
+                                        rangeColor = Color(event.selectedRangeColorValue!).withOpacity(0.1);
+                                      } else {
+                                        rangeColor = Colors.blueAccent.withOpacity(0.1);
+                                      }
+                                      break;
+                                    }
+                                  }
+                                  final isSelectedMember = widget.selectedMemberIds?.contains(userId) ?? false;
+                                  final isInSelectedRange = widget.selectedDateRange != null &&
+                                      !date.isBefore(widget.selectedDateRange!.start) &&
+                                      !date.isAfter(widget.selectedDateRange!.end);
+                                  final cellColor = rangeColor ??
+                                      ((isSelectedMember && isInSelectedRange && widget.selectedRangeColor != null)
+                                          ? widget.selectedRangeColor!.withOpacity(0.1)
+                                          : (isWeekend ? Colors.grey.shade100 : Colors.white));
                                   return GestureDetector(
                                     onTap: () async {
                                       // ...existing tap logic...

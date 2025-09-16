@@ -7,6 +7,8 @@ import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_grid.dart' show _buildEventContent;
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/gallery1.dart';
 
@@ -74,102 +76,25 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
 
   Widget _buildEventLeadingIcon(String? eventUrl, String eventName, double size,
       {bool isClickable = true}) {
-    Widget iconWidget;
-
-    if (eventUrl == null || eventUrl.isEmpty) {
-      iconWidget = CircleAvatar(
-        radius: size / 2,
-        backgroundColor: AppColors.famkaGreen,
-        child: Text(
-          eventName.isNotEmpty ? eventName[0].toUpperCase() : '?',
-          style: TextStyle(
-            fontSize: size * 0.5,
-            color: AppColors.famkaBlack,
-          ),
-        ),
-      );
-    } else if (eventUrl.startsWith('emoji:')) {
-      final emoji = eventUrl.substring(6);
-      iconWidget = SizedBox(
-        width: size,
-        height: size,
-        child: FittedBox(
-          fit: BoxFit.contain,
-          child: Text(
-            emoji,
-            style: const TextStyle(
-              fontFamilyFallback: [
-                'Apple Color Emoji',
-                'Segoe UI Emoji',
-                'Segoe UI Symbol'
-              ],
-            ),
-          ),
-        ),
-      );
-    } else if (eventUrl.startsWith('icon:')) {
-      // Use a constant icon for all 'icon:' entries
-      iconWidget = Icon(
-        Icons.category,
-        size: size * 0.9,
-        color: AppColors.famkaGreen,
-      );
-    } else if (eventUrl.startsWith('image:')) {
-      final actualImageUrl = eventUrl.substring(6);
-      if (actualImageUrl.startsWith('http://') ||
-          actualImageUrl.startsWith('https://')) {
-        iconWidget = EventImage(
-          widget.db,
-          currentAvatarUrl: actualImageUrl,
-          displayRadius: size / 2,
-          applyTransformOffset: false,
-          isInteractive: false,
-        );
-      } else {
-        iconWidget = Image.asset(
-          actualImageUrl,
-          fit: BoxFit.contain,
-          width: size,
-          height: size,
-          errorBuilder: (context, error, stackTrace) {
-            return Icon(Icons.broken_image,
-                size: size * 0.7, color: Colors.red);
-          },
-        );
-      }
-    } else {
-      iconWidget = EventImage(
-        widget.db,
-        currentAvatarUrl: eventUrl,
-        displayRadius: size / 2,
-        applyTransformOffset: false,
-        isInteractive: false,
-      );
-    }
-
-    // Event-Objekt als Parameter übergeben
-    if (isClickable && _canShowEnlarged(eventUrl)) {
-      // Ermittle das aktuelle Event anhand des Namens und der URL
-      final event = widget.eventsForPerson.firstWhere(
-        (e) => e.singleEventUrl == eventUrl && e.singleEventName == eventName,
-        orElse: () => widget.eventsForPerson.first,
-      );
-      return GestureDetector(
-        onTap: () => _showEnlargedImage(eventUrl!, eventName, event),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300, width: 1),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(7),
-            child: iconWidget,
-          ),
-        ),
-      );
-    }
-
-    return iconWidget;
+    // Einheitliche Event-Icon-Darstellung (Text statt nur erster Buchstabe)
+    // Finde das passende Event-Objekt für den Enlarged-Image-Dialog
+    final eventObj = widget.eventsForPerson.isNotEmpty
+        ? widget.eventsForPerson.firstWhere(
+            (e) => e.singleEventUrl == eventUrl && e.singleEventName == eventName,
+            orElse: () => widget.eventsForPerson.first,
+          )
+        : null;
+    return GestureDetector(
+      onTap: isClickable && eventUrl != null && eventObj != null
+          ? () => _showEnlargedImage(eventUrl, eventName, eventObj)
+          : null,
+      child: EventIconWidget(
+        eventUrl: eventUrl,
+        eventName: eventName,
+        size: size,
+        db: widget.db,
+      ),
+    );
   }
 
   bool _canShowEnlarged(String? eventUrl) {

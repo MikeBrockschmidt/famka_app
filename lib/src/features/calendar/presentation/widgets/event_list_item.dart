@@ -4,7 +4,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
-import 'dart:io';
+import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
 
 class EventListItem extends StatelessWidget {
   final SingleEvent event;
@@ -23,154 +23,12 @@ class EventListItem extends StatelessWidget {
     debugPrint(
         'Debug: _buildEventLeadingIcon aufgerufen mit eventUrl: $eventUrl, eventName: $eventName');
 
-    if (eventUrl == null || eventUrl.isEmpty) {
-      debugPrint(
-          'Debug: eventUrl ist null oder leer. Zeige Standard-CircleAvatar.');
-      return CircleAvatar(
-        radius: size / 2,
-        backgroundColor: Colors.grey.shade200,
-        child: Text(
-          eventName.isNotEmpty ? eventName[0].toUpperCase() : '?',
-          style: TextStyle(
-            fontSize: size * 0.5,
-            color: AppColors.famkaBlack,
-          ),
-        ),
-      );
-    }
-
-    if (eventUrl.startsWith('emoji:')) {
-      final emoji = eventUrl.substring(6);
-      debugPrint('Debug: eventUrl ist emoji: $emoji');
-      return Text(
-        emoji,
-        style: TextStyle(
-          fontSize: size * 0.9,
-          fontFamilyFallback: const [
-            'Apple Color Emoji',
-            'Noto Color Emoji',
-            'Segoe UI Emoji',
-          ],
-        ),
-      );
-    } else if (eventUrl.startsWith('icon:')) {
-      final iconCodePointString = eventUrl.substring(5);
-      final iconCodePoint = int.tryParse(iconCodePointString);
-      debugPrint(
-          'Debug: eventUrl ist icon:. Code-Punkt-String: "$iconCodePointString", geparsed: $iconCodePoint');
-      if (iconCodePoint != null) {
-        return Icon(
-          Icons.category, // Use constant icon
-          size: size,
-          color: Colors.black,
-        );
-      } else {
-        debugPrint(
-            'Fehler: Konnte Icon-Code-Punkt nicht von "$iconCodePointString" parsen. Zeige Fehler-Icon.');
-        return Icon(
-          Icons.error_outline,
-          size: size,
-          color: AppColors.famkaRed,
-        );
-      }
-    } else if (eventUrl.startsWith('image:')) {
-      final imageUrl = eventUrl.substring(6);
-      debugPrint('Debug: eventUrl ist image:. Bild-URL: "$imageUrl"');
-      if (imageUrl.isNotEmpty) {
-        Widget imageWidget;
-        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-          final Uri uri = Uri.parse(imageUrl);
-          final Map<String, String> params = Map.from(uri.queryParameters);
-          params['_t'] = DateTime.now().millisecondsSinceEpoch.toString();
-          final String newImageUrl =
-              uri.replace(queryParameters: params).toString();
-          debugPrint('Debug: Cache-busted URL: $newImageUrl');
-
-          imageWidget = Image.network(
-            newImageUrl,
-            fit: BoxFit.contain,
-            width: size,
-            height: size,
-            errorBuilder: (context, error, stackTrace) {
-              debugPrint(
-                  'Fehler: Laden des Netzwerkbildes fehlgeschlagen: $imageUrl, Fehler: $error');
-              return Icon(
-                Icons.broken_image,
-                size: size,
-                color: AppColors.famkaRed,
-              );
-            },
-          );
-        } else if (imageUrl.startsWith('assets/')) {
-          imageWidget = Image.asset(
-            imageUrl,
-            fit: BoxFit.contain,
-            width: size,
-            height: size,
-            errorBuilder: (context, error, stackTrace) {
-              debugPrint(
-                  'Fehler: Laden des Asset-Bildes fehlgeschlagen: $imageUrl, Fehler: $error');
-              return Icon(
-                Icons.broken_image,
-                size: size,
-                color: AppColors.famkaRed,
-              );
-            },
-          );
-        } else if (File(imageUrl).existsSync()) {
-          imageWidget = Image.file(
-            File(imageUrl),
-            fit: BoxFit.contain,
-            width: size,
-            height: size,
-            errorBuilder: (context, error, stackTrace) {
-              debugPrint(
-                  'Fehler: Laden des Datei-Bildes fehlgeschlagen: $imageUrl, Fehler: $error');
-              return Icon(
-                Icons.broken_image,
-                size: size,
-                color: AppColors.famkaRed,
-              );
-            },
-          );
-        } else {
-          debugPrint(
-              'Fehler: Bild-URL "$imageUrl" ist kein gültiger Netzwerk-, Asset- oder Dateipfad. Zeige Fehler-Icon.');
-          return Icon(
-            Icons.broken_image,
-            size: size,
-            color: AppColors.famkaRed,
-          );
-        }
-
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(0.0),
-          child: SizedBox(
-            width: size,
-            height: size,
-            child: imageWidget,
-          ),
-        );
-      } else {
-        debugPrint(
-            'Fehler: Bild-URL ist nach dem "image:" Präfix leer. Zeige Fehler-Icon.');
-        return Icon(
-          Icons.broken_image,
-          size: size,
-          color: AppColors.famkaRed,
-        );
-      }
-    }
-
-    debugPrint(
-        'Debug: eventUrl "$eventUrl" stimmte mit keinem bekannten Typ überein. Zeige generischen Fallback.');
-    return CircleAvatar(
-      radius: size / 2,
-      backgroundColor: Colors.red.shade100,
-      child: Text(
-        '!',
-        style: TextStyle(fontSize: size * 0.5, color: AppColors.famkaRed),
-      ),
+    // Einheitliches Event-Icon (Text) für die Kalender Listenansicht
+    return EventIconWidget(
+      eventUrl: eventUrl,
+      eventName: eventName,
+      size: 40,
+      db: null,
     );
   }
 
@@ -343,14 +201,14 @@ class EventListItem extends StatelessWidget {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      right: 8.0, top: 4.0),
-                                  child: _buildEventLeadingIcon(
-                                      event.singleEventUrl,
-                                      event.singleEventName,
-                                      size: 28),
-                                ),
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: _buildEventLeadingIcon(
+                    event.singleEventUrl,
+                    event.singleEventName,
+                    size: 40),
+                ),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:

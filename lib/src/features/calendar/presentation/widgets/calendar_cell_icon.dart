@@ -27,17 +27,16 @@ class CalendarCellIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = user.profilId;
-    final eventsForPerson = allEvents.where((event) {
-      final sameDay = event.singleEventDate.year == date.year &&
-          event.singleEventDate.month == date.month &&
-          event.singleEventDate.day == date.day;
-      final attending = event.acceptedMemberIds.contains(userId) ||
-          event.invitedMemberIds.contains(userId) ||
-          event.maybeMemberIds.contains(userId) ||
-          event.creatorId == userId;
-      return sameDay && attending;
-    }).toList();
+  final userId = user.profilId;
+  final eventsForPerson = allEvents.where((event) {
+    final sameDay = event.singleEventDate.year == date.year &&
+      event.singleEventDate.month == date.month &&
+      event.singleEventDate.day == date.day;
+    final attending = event.acceptedMemberIds.contains(userId) ||
+      event.invitedMemberIds.contains(userId) ||
+      event.maybeMemberIds.contains(userId);
+    return sameDay && attending;
+  }).toList();
 
     if (eventsForPerson.isEmpty) {
       return const SizedBox.shrink();

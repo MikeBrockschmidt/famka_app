@@ -5,6 +5,7 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/common/image_utils.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
 
 class MenuSubContainerTwoLinesGroupC extends StatelessWidget {
   final DatabaseRepository db;
@@ -46,10 +47,11 @@ class MenuSubContainerTwoLinesGroupC extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundImage:
-                      getDynamicImageProvider(currentGroup.groupAvatarUrl),
+                EventIconWidget(
+                  eventUrl: currentGroup.groupAvatarUrl,
+                  eventName: currentGroup.groupName,
+                  size: 56,
+                  db: db,
                 ),
                 const SizedBox(width: 18),
                 Expanded(
