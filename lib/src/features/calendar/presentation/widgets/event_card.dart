@@ -5,6 +5,7 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/event_title_editor.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/enlarged_image_dialog.dart';
 
 class EventCard extends StatelessWidget {
   final SingleEvent event;
@@ -12,6 +13,7 @@ class EventCard extends StatelessWidget {
   final bool isEditing;
   final TextEditingController descriptionController;
   final TextEditingController titleController;
+  final dynamic db;
   final VoidCallback? onEditPressed;
   final VoidCallback? onDeletePressed;
   final VoidCallback? onSavePressed;
@@ -25,6 +27,7 @@ class EventCard extends StatelessWidget {
     required this.isEditing,
     required this.descriptionController,
     required this.titleController,
+    required this.db,
     this.onEditPressed,
     this.onDeletePressed,
     this.onSavePressed,
@@ -75,11 +78,29 @@ class EventCard extends StatelessWidget {
                   SizedBox(
                     width: 50,
                     height: 50,
-                    child: EventIconWidget(
-                      eventUrl: event.singleEventUrl,
-                      eventName: event.singleEventName,
-                      size: 50,
-                      db: null,
+                    child: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (dialogContext) => EnlargedImageDialog(
+                            eventUrl: event.singleEventUrl,
+                            eventName: event.singleEventName,
+                            event: event,
+                            db: db,
+                            onEventUpdated: (updatedEvent) {
+                              if (onSavePressed != null) {
+                                onSavePressed!();
+                              }
+                            },
+                          ),
+                        );
+                      },
+                      child: EventIconWidget(
+                        eventUrl: event.singleEventUrl,
+                        eventName: event.singleEventName,
+                        size: 50,
+                        db: db,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),

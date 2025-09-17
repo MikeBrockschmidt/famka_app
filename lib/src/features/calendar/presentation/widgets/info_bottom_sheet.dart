@@ -6,11 +6,8 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
-import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
-import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
-import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_grid.dart' show _buildEventContent;
 import 'package:famka_app/gen_l10n/app_localizations.dart';
-import 'package:famka_app/src/features/gallery/presentation/widgets/gallery1.dart';
+import 'package:famka_app/src/features/calendar/presentation/widgets/event_card.dart';
 
 class InfoBottomSheet extends StatefulWidget {
   final DateTime date;
@@ -48,6 +45,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
   }
 
   late Map<String, TextEditingController> _descriptionControllers;
+  late Map<String, TextEditingController> _titleControllers;
   late Map<String, bool> _isEditingDescription;
   List<SingleEvent> _currentEvents = [];
 
@@ -59,364 +57,28 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
 
     _currentEvents = List.from(widget.eventsForPerson);
     _descriptionControllers = {};
+    _titleControllers = {};
     _isEditingDescription = {};
 
     for (var event in _currentEvents) {
       _descriptionControllers[event.singleEventId] =
           TextEditingController(text: event.singleEventDescription);
+      _titleControllers[event.singleEventId] =
+          TextEditingController(text: event.singleEventName);
       _isEditingDescription[event.singleEventId] = false;
     }
   }
 
   @override
   void dispose() {
-    _descriptionControllers.forEach((key, controller) => controller.dispose());
+  _descriptionControllers.forEach((key, controller) => controller.dispose());
+  _titleControllers.forEach((key, controller) => controller.dispose());
     super.dispose();
   }
 
-  Widget _buildEventLeadingIcon(String? eventUrl, String eventName, double size,
-      {bool isClickable = true}) {
-    // Einheitliche Event-Icon-Darstellung (Text statt nur erster Buchstabe)
-    // Finde das passende Event-Objekt für den Enlarged-Image-Dialog
-    final eventObj = widget.eventsForPerson.isNotEmpty
-        ? widget.eventsForPerson.firstWhere(
-            (e) => e.singleEventUrl == eventUrl && e.singleEventName == eventName,
-            orElse: () => widget.eventsForPerson.first,
-          )
-        : null;
-    return GestureDetector(
-      onTap: isClickable && eventUrl != null && eventObj != null
-          ? () => _showEnlargedImage(eventUrl, eventName, eventObj)
-          : null,
-      child: EventIconWidget(
-        eventUrl: eventUrl,
-        eventName: eventName,
-        size: size,
-        db: widget.db,
-      ),
-    );
-  }
-
-  bool _canShowEnlarged(String? eventUrl) {
-    if (eventUrl == null || eventUrl.isEmpty) return false;
-    return eventUrl.startsWith('image:') ||
-        eventUrl.startsWith('http://') ||
-        eventUrl.startsWith('https://') ||
-        (!eventUrl.startsWith('emoji:') && !eventUrl.startsWith('icon:'));
-  }
-
-  void _showEnlargedImage(
-      String eventUrl, String eventName, SingleEvent event) {
-    // Event-Objekt muss als Parameter übergeben werden!
-    // Beispiel: void _showEnlargedImage(String eventUrl, String eventName, SingleEvent event)
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Stack(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.of(dialogContext).pop(),
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.black54,
-                ),
-              ),
-              Center(
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.9,
-                    maxHeight: MediaQuery.of(context).size.height * 0.8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppColors.famkaBlue,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            topRight: Radius.circular(12),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                eventName,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(),
-                              icon:
-                                  const Icon(Icons.close, color: Colors.white),
-                            ),
-                            IconButton(
-                              onPressed: () async {
-                                // Open gallery selection dialog and get result
-                                final selected =
-                                    await Navigator.of(context).push<String>(
-                                  MaterialPageRoute(
-                                    builder: (context) => Gallery(
-                                      widget.db,
-                                      auth: widget.db.auth,
-                                    ),
-                                  ),
-                                );
-                                if (selected != null &&
-                                    selected.isNotEmpty &&
-                                    mounted) {
-                                  // Event aktualisieren und speichern
-                                  final updatedEvent = event.copyWith(
-                                      singleEventUrl:
-                                          selected.startsWith('image:')
-                                              ? selected
-                                              : 'image:$selected');
-                                  await widget.db.updateEvent(
-                                      updatedEvent.groupId, updatedEvent);
-                                  if (widget.onEventUpdated != null) {
-                                    widget.onEventUpdated!(updatedEvent);
-                                  }
-                                  _updateEventInSheet(updatedEvent);
-                                  // ignore: use_build_context_synchronously
-                                  Navigator.of(dialogContext).pop();
-                                  // ignore: use_build_context_synchronously
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content:
-                                            Text('Bild erfolgreich geändert!')),
-                                  );
-                                }
-                              },
-                              icon: const Icon(Icons.edit, color: Colors.white),
-                              tooltip: 'Bild bearbeiten',
-                            ),
-                          ],
-                        ),
-                      ),
-                      Flexible(
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          child: _buildEnlargedImageWidget(eventUrl),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-    // Hilfsfunktion für Bildauswahl und Upload
-  }
-
-  Widget _buildEnlargedImageWidget(String eventUrl) {
-    if (eventUrl.startsWith('image:')) {
-      final actualImageUrl = eventUrl.substring(6);
-      if (actualImageUrl.startsWith('http://') ||
-          actualImageUrl.startsWith('https://')) {
-        return EventImage(
-          widget.db,
-          currentAvatarUrl: actualImageUrl,
-          displayRadius: 150,
-          applyTransformOffset: false,
-          isInteractive: false,
-        );
-      } else {
-        return Image.asset(
-          actualImageUrl,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.broken_image, size: 64, color: Colors.red),
-                SizedBox(height: 8),
-                Text("Image could not be loaded"),
-              ],
-            );
-          },
-        );
-      }
-    } else {
-      return EventImage(
-        widget.db,
-        currentAvatarUrl: eventUrl,
-        displayRadius: 150,
-        applyTransformOffset: false,
-        isInteractive: false,
-      );
-    }
-  }
-
-  Future<void> _saveDescription(SingleEvent event) async {
-    final String newDescription =
-        _descriptionControllers[event.singleEventId]?.text ?? '';
-
-    if (newDescription != event.singleEventDescription) {
-      final updatedEvent =
-          event.copyWith(singleEventDescription: newDescription);
-
-      try {
-        await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
-
-        if (mounted) {
-          setState(() {
-            final index = _currentEvents
-                .indexWhere((e) => e.singleEventId == event.singleEventId);
-            if (index != -1) {
-              _currentEvents[index] = updatedEvent;
-            }
-            _isEditingDescription[event.singleEventId] = false;
-          });
-
-          widget.onEventUpdated?.call(updatedEvent);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(
-                    AppLocalizations.of(context)!.descriptionUpdateSuccess)),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .descriptionUpdateError(e.toString())),
-              backgroundColor: AppColors.famkaRed,
-            ),
-          );
-        }
-      }
-    } else {
-      if (mounted) {
-        setState(() {
-          _isEditingDescription[event.singleEventId] = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!.noChangesToSave)),
-        );
-      }
-    }
-  }
-
-  Future<void> _saveAllDescriptions() async {
-    bool hasChanges = false;
-
-    for (var event in _currentEvents) {
-      if (_isEditingDescription[event.singleEventId] == true) {
-        final newDescription =
-            _descriptionControllers[event.singleEventId]?.text ?? '';
-        if (newDescription != event.singleEventDescription) {
-          hasChanges = true;
-          await _saveDescription(event);
-        } else {
-          setState(() {
-            _isEditingDescription[event.singleEventId] = false;
-          });
-        }
-      }
-    }
-
-    if (!hasChanges) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        // ignore: use_build_context_synchronously
-        SnackBar(content: Text(AppLocalizations.of(context)!.noChangesToSave)),
-      );
-    }
-  }
-
-  Future<void> _confirmAndDeleteEvent(SingleEvent event) async {
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Text(
-            AppLocalizations.of(context)!.deleteAppointment,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Text(
-            AppLocalizations.of(context)!
-                .confirmDeleteAppointment(event.singleEventName),
-            style: TextStyle(color: Colors.black87),
-          ),
-          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          actions: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(dialogContext).pop(false);
-                  },
-                  child: ButtonLinearGradient(
-                    buttonText: AppLocalizations.of(context)!.cancelButton,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop(true);
-                  },
-                  child: Text(
-                    AppLocalizations.of(context)!.deleteImageButton,
-                    style: TextStyle(
-                      color: AppColors.famkaGrey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirm == true) {
-      widget.onEventDeleted?.call(event.singleEventId);
-      if (mounted) {
-        setState(() {
-          _currentEvents
-              .removeWhere((e) => e.singleEventId == event.singleEventId);
-        });
-        if (_currentEvents.isEmpty) {
-          Navigator.of(context).pop(true);
-        }
-      }
-    }
-  }
+  // ...existing code...
+  // Die Methoden und Widgets für EventCard, EnlargedImageDialog, EventDescriptionEditor, EventParticipants wurden ausgelagert.
+  // Die Logik für die Nutzung der neuen Widgets wird im nächsten Schritt eingefügt.
 
   @override
   Widget build(BuildContext context) {
@@ -488,202 +150,181 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                       final event = _currentEvents[index];
                       final isEditing =
                           _isEditingDescription[event.singleEventId] ?? false;
-
-                      final Set<String> allParticipantIds = {};
-                      allParticipantIds.addAll(event.acceptedMemberIds);
-                      allParticipantIds.addAll(event.invitedMemberIds);
-                      allParticipantIds.addAll(event.maybeMemberIds);
-
-                      final List<String> participantNames =
-                          allParticipantIds.map((id) {
-                        final AppUser user =
-                            widget.currentGroupMembers.firstWhere(
-                          (u) => u.profilId == id,
-                          orElse: () => AppUser(
-                            profilId: id,
-                            firstName: 'Unbekannt ($id)',
-                            lastName: '',
-                            email: '',
-                            phoneNumber: '',
-                            avatarUrl: '',
-                            miscellaneous: '',
-                            password: '',
-                          ),
-                        );
-                        return user.firstName;
-                      }).toList();
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
-                        child: Card(
-                          elevation: 2,
-                          color: AppColors.famkaWhite,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: 50,
-                                      height: 50,
-                                      child: _buildEventLeadingIcon(
-                                        event.singleEventUrl,
-                                        event.singleEventName,
-                                        50,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            event.singleEventName,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleLarge
-                                                ?.copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: AppColors.famkaBlue),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            event.isAllDay
-                                                ? AppLocalizations.of(context)!
-                                                    .timeAllDay
-                                                : AppLocalizations.of(context)!
-                                                    .timeAt(DateFormat(
-                                                            'HH:mm',
-                                                            Localizations
-                                                                    .localeOf(
-                                                                        context)
-                                                                .languageCode)
-                                                        .format(event
-                                                            .singleEventDate)),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge,
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            AppLocalizations.of(context)!
-                                                .location(
-                                                    event.singleEventLocation),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            IconButton(
-                                              icon: Icon(isEditing
-                                                  ? Icons.check
-                                                  : Icons.edit),
-                                              color: isEditing
-                                                  ? AppColors.famkaGreen
-                                                  : AppColors.famkaGrey,
-                                              onPressed: () async {
-                                                if (isEditing) {
-                                                  await _saveDescription(event);
-                                                } else {
-                                                  setState(() {
-                                                    _isEditingDescription[event
-                                                        .singleEventId] = true;
-                                                  });
-                                                }
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(
-                                                  Icons.delete_forever,
-                                                  color: AppColors.famkaGrey),
-                                              onPressed: () =>
-                                                  _confirmAndDeleteEvent(event),
-                                            ),
-                                          ],
-                                        ),
-                                        IconButton(
-                                          icon: Icon(Icons.check,
-                                              color: (_descriptionControllers[event
-                                                                  .singleEventId]
-                                                              ?.text ??
-                                                          '') !=
-                                                      event
-                                                          .singleEventDescription
-                                                  ? AppColors.famkaGrey
-                                                  : AppColors.famkaGrey
-                                                      .withAlpha(76)),
-                                          onPressed: (_descriptionControllers[
-                                                              event
-                                                                  .singleEventId]
-                                                          ?.text ??
-                                                      '') !=
-                                                  event.singleEventDescription
-                                              ? () {
-                                                  // TODO: Hier gewünschte Aktion für den Haken-Button einfügen
-                                                }
-                                              : null,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                      return EventCard(
+                        event: event,
+                        currentGroupMembers: widget.currentGroupMembers,
+                        isEditing: isEditing,
+                        descriptionController: _descriptionControllers[event.singleEventId]!,
+                        titleController: _titleControllers[event.singleEventId]!,
+                        db: widget.db,
+                        onEditPressed: () {
+                          debugPrint('info_bottom_sheet: onEditPressed ausgeführt. isEditing: $isEditing, Titel: ${_titleControllers[event.singleEventId]?.text}, Beschreibung: ${_descriptionControllers[event.singleEventId]?.text}');
+                          setState(() {
+                            _isEditingDescription[event.singleEventId] = !isEditing;
+                          });
+                        },
+                        onDeletePressed: () async {
+                          final bool? confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (BuildContext dialogContext) {
+                              return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                                const SizedBox(height: 8),
-                                isEditing
-                                    ? TextField(
-                                        controller: _descriptionControllers[
-                                            event.singleEventId],
-                                        decoration: InputDecoration(
-                                          labelText:
-                                              AppLocalizations.of(context)!
-                                                  .editDescription,
-                                          border: const OutlineInputBorder(),
-                                        ),
-                                        maxLines: null,
-                                        keyboardType: TextInputType.multiline,
-                                        onSubmitted: (_) async {
-                                          await _saveDescription(event);
+                                title: Text(AppLocalizations.of(context)!.deleteAppointment,
+                                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                                content: Text(AppLocalizations.of(context)!.confirmDeleteAppointment(event.singleEventName),
+                                    style: const TextStyle(color: Colors.black87)),
+                                contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                                actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                                actions: <Widget>[
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(dialogContext).pop(false);
                                         },
-                                      )
-                                    : Text(
-                                        AppLocalizations.of(context)!
-                                            .description(event
-                                                    .singleEventDescription
-                                                    .isNotEmpty
-                                                ? event.singleEventDescription
-                                                : AppLocalizations.of(context)!
-                                                    .noDescription),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium,
+                                        child: ButtonLinearGradient(
+                                          buttonText: AppLocalizations.of(context)!.cancelButton,
+                                        ),
                                       ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  AppLocalizations.of(context)!.participants(
-                                      participantNames.join(', ')),
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                                      const SizedBox(height: 12),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(dialogContext).pop(true);
+                                        },
+                                        child: Text(AppLocalizations.of(context)!.deleteImageButton,
+                                            style: const TextStyle(
+                                              color: AppColors.famkaGrey,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            )),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          if (confirm == true) {
+                            widget.onEventDeleted?.call(event.singleEventId);
+                            setState(() {
+                              _currentEvents.removeWhere((e) => e.singleEventId == event.singleEventId);
+                            });
+                            if (_currentEvents.isEmpty) {
+                              Navigator.of(context).pop(true);
+                            }
+                          }
+                        },
+                        onSavePressed: () async {
+                          final String newDescription = _descriptionControllers[event.singleEventId]?.text ?? '';
+                          final String newTitle = _titleControllers[event.singleEventId]?.text ?? '';
+                          debugPrint('info_bottom_sheet: onSavePressed ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
+                          bool changed = false;
+                          SingleEvent updatedEvent = event;
+                          if (newDescription != event.singleEventDescription) {
+                            updatedEvent = updatedEvent.copyWith(singleEventDescription: newDescription);
+                            changed = true;
+                          }
+                          if (newTitle != event.singleEventName) {
+                            updatedEvent = updatedEvent.copyWith(singleEventName: newTitle);
+                            changed = true;
+                          }
+                          if (changed) {
+                            await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+                            setState(() {
+                              final index = _currentEvents.indexWhere((e) => e.singleEventId == event.singleEventId);
+                              if (index != -1) {
+                                _currentEvents[index] = updatedEvent;
+                              }
+                              _isEditingDescription[event.singleEventId] = false;
+                            });
+                            widget.onEventUpdated?.call(updatedEvent);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(AppLocalizations.of(context)!.descriptionUpdateSuccess)),
+                            );
+                          } else {
+                            setState(() {
+                              _isEditingDescription[event.singleEventId] = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(AppLocalizations.of(context)!.noChangesToSave)),
+                            );
+                          }
+                        },
+                        onDescriptionSubmitted: (value) async {
+                          final String newDescription = value;
+                          final String newTitle = _titleControllers[event.singleEventId]?.text ?? '';
+                          debugPrint('info_bottom_sheet: onDescriptionSubmitted ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
+                          bool changed = false;
+                          SingleEvent updatedEvent = event;
+                          if (newDescription != event.singleEventDescription) {
+                            updatedEvent = updatedEvent.copyWith(singleEventDescription: newDescription);
+                            changed = true;
+                          }
+                          if (newTitle != event.singleEventName) {
+                            updatedEvent = updatedEvent.copyWith(singleEventName: newTitle);
+                            changed = true;
+                          }
+                          if (changed) {
+                            await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+                            setState(() {
+                              final index = _currentEvents.indexWhere((e) => e.singleEventId == event.singleEventId);
+                              if (index != -1) {
+                                _currentEvents[index] = updatedEvent;
+                              }
+                              _isEditingDescription[event.singleEventId] = false;
+                            });
+                            widget.onEventUpdated?.call(updatedEvent);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(AppLocalizations.of(context)!.descriptionUpdateSuccess)),
+                            );
+                          } else {
+                            setState(() {
+                              _isEditingDescription[event.singleEventId] = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(AppLocalizations.of(context)!.noChangesToSave)),
+                            );
+                          }
+                        },
+                        onTitleSubmitted: (value) async {
+                          final String newTitle = value;
+                          final String newDescription = _descriptionControllers[event.singleEventId]?.text ?? '';
+                          debugPrint('info_bottom_sheet: onTitleSubmitted ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
+                          bool changed = false;
+                          SingleEvent updatedEvent = event;
+                          if (newTitle != event.singleEventName) {
+                            updatedEvent = updatedEvent.copyWith(singleEventName: newTitle);
+                            changed = true;
+                          }
+                          if (newDescription != event.singleEventDescription) {
+                            updatedEvent = updatedEvent.copyWith(singleEventDescription: newDescription);
+                            changed = true;
+                          }
+                          if (changed) {
+                            await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+                            setState(() {
+                              final index = _currentEvents.indexWhere((e) => e.singleEventId == event.singleEventId);
+                              if (index != -1) {
+                                _currentEvents[index] = updatedEvent;
+                              }
+                              _isEditingDescription[event.singleEventId] = false;
+                            });
+                            widget.onEventUpdated?.call(updatedEvent);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(AppLocalizations.of(context)!.descriptionUpdateSuccess)),
+                            );
+                          } else {
+                            setState(() {
+                              _isEditingDescription[event.singleEventId] = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(AppLocalizations.of(context)!.noChangesToSave)),
+                            );
+                          }
+                        },
                       );
                     },
                   ),
@@ -695,7 +336,51 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () async {
-                              await _saveAllDescriptions();
+                              bool hasChanges = false;
+                              for (var event in _currentEvents) {
+                                if (_isEditingDescription[
+                                        event.singleEventId] ==
+                                    true) {
+                                  final newDescription =
+                                      _descriptionControllers[
+                                                  event.singleEventId]
+                                              ?.text ??
+                                          '';
+                                  if (newDescription !=
+                                      event.singleEventDescription) {
+                                    final updatedEvent = event.copyWith(
+                                        singleEventDescription: newDescription);
+                                    await widget.db.updateEvent(
+                                        updatedEvent.groupId, updatedEvent);
+                                    setState(() {
+                                      final index = _currentEvents.indexWhere(
+                                          (e) =>
+                                              e.singleEventId ==
+                                              event.singleEventId);
+                                      if (index != -1) {
+                                        _currentEvents[index] = updatedEvent;
+                                      }
+                                      _isEditingDescription[
+                                          event.singleEventId] = false;
+                                    });
+                                    widget.onEventUpdated?.call(updatedEvent);
+                                    hasChanges = true;
+                                  } else {
+                                    setState(() {
+                                      _isEditingDescription[
+                                          event.singleEventId] = false;
+                                    });
+                                  }
+                                }
+                              }
+                              if (!hasChanges) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          AppLocalizations.of(context)!
+                                              .noChangesToSave)),
+                                );
+                              }
                               // ignore: use_build_context_synchronously
                               Navigator.pop(context);
                             },

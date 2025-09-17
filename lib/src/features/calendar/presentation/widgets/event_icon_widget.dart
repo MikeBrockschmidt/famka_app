@@ -19,12 +19,13 @@ class EventIconWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (eventUrl == null || eventUrl!.isEmpty) {
+      final displayName = (eventName.isNotEmpty) ? eventName : '?';
       return CircleAvatar(
         radius: size / 2,
         backgroundColor: Colors.grey.shade200,
         child: Center(
           child: Text(
-            eventName,
+            displayName,
             textAlign: TextAlign.center,
             maxLines: 6,
             overflow: TextOverflow.clip,

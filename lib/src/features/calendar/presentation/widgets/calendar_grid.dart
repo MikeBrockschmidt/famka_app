@@ -2,7 +2,6 @@ import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_cell_icon.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/calendar_avatar_scroll_row.dart';
-import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:flutter/material.dart';
@@ -361,25 +360,44 @@ class _CalendarGridState extends State<CalendarGrid> {
                                   for (final event in widget.allEvents) {
                                     if (event.selectedDateRange != null &&
                                         event.selectedMemberIds != null &&
-                                        event.selectedMemberIds!.contains(userId) &&
-                                        !date.isBefore(event.selectedDateRange!.start) &&
-                                        !date.isAfter(event.selectedDateRange!.end)) {
-                                      if (event.selectedRangeColorValue != null) {
-                                        rangeColor = Color(event.selectedRangeColorValue!).withOpacity(0.1);
+                                        event.selectedMemberIds!
+                                            .contains(userId) &&
+                                        !date.isBefore(
+                                            event.selectedDateRange!.start) &&
+                                        !date.isAfter(
+                                            event.selectedDateRange!.end)) {
+                                      if (event.selectedRangeColorValue !=
+                                          null) {
+                                        rangeColor = Color(
+                                                event.selectedRangeColorValue!)
+                                            .withOpacity(0.1);
                                       } else {
-                                        rangeColor = Colors.blueAccent.withOpacity(0.1);
+                                        rangeColor =
+                                            Colors.blueAccent.withOpacity(0.1);
                                       }
                                       break;
                                     }
                                   }
-                                  final isSelectedMember = widget.selectedMemberIds?.contains(userId) ?? false;
-                                  final isInSelectedRange = widget.selectedDateRange != null &&
-                                      !date.isBefore(widget.selectedDateRange!.start) &&
-                                      !date.isAfter(widget.selectedDateRange!.end);
+                                  final isSelectedMember = widget
+                                          .selectedMemberIds
+                                          ?.contains(userId) ??
+                                      false;
+                                  final isInSelectedRange = widget
+                                              .selectedDateRange !=
+                                          null &&
+                                      !date.isBefore(
+                                          widget.selectedDateRange!.start) &&
+                                      !date.isAfter(
+                                          widget.selectedDateRange!.end);
                                   final cellColor = rangeColor ??
-                                      ((isSelectedMember && isInSelectedRange && widget.selectedRangeColor != null)
-                                          ? widget.selectedRangeColor!.withOpacity(0.1)
-                                          : (isWeekend ? Colors.grey.shade100 : Colors.white));
+                                      ((isSelectedMember &&
+                                              isInSelectedRange &&
+                                              widget.selectedRangeColor != null)
+                                          ? widget.selectedRangeColor!
+                                              .withOpacity(0.1)
+                                          : (isWeekend
+                                              ? Colors.grey.shade100
+                                              : Colors.white));
                                   return GestureDetector(
                                     onTap: () async {
                                       // ...existing tap logic...
