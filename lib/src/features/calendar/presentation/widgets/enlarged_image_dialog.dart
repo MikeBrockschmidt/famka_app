@@ -90,8 +90,16 @@ class EnlargedImageDialog extends StatelessWidget {
                               ),
                             );
                             if (selected != null && selected.isNotEmpty) {
+                              String newUrl;
+                              if (selected.startsWith('icon:') || selected.startsWith('emoji:')) {
+                                newUrl = selected;
+                              } else if (selected.startsWith('image:')) {
+                                newUrl = selected;
+                              } else {
+                                newUrl = 'image:$selected';
+                              }
                               final updatedEvent = event.copyWith(
-                                singleEventUrl: selected.startsWith('image:') ? selected : 'image:$selected',
+                                singleEventUrl: newUrl,
                               );
                               await db.updateEvent(updatedEvent.groupId, updatedEvent);
                               if (onEventUpdated != null) {
@@ -125,7 +133,38 @@ class EnlargedImageDialog extends StatelessWidget {
   }
 
   Widget _buildEnlargedImageWidget(String eventUrl, dynamic db) {
-    if (eventUrl.startsWith('image:')) {
+    if (eventUrl.startsWith('icon:')) {
+      final codePoint = int.tryParse(eventUrl.substring(5));
+      if (codePoint != null) {
+        return Center(
+          child: CircleAvatar(
+            radius: 75,
+            backgroundColor: Colors.grey[200],
+            child: Icon(
+              IconData(codePoint, fontFamily: 'MaterialIcons'),
+              size: 120,
+              color: Colors.blueAccent,
+            ),
+          ),
+        );
+      }
+      // Fallback falls CodePoint nicht geparst werden kann
+      return const Center(
+        child: Icon(Icons.broken_image, size: 64, color: Colors.red),
+      );
+    } else if (eventUrl.startsWith('emoji:')) {
+      final emoji = eventUrl.substring(6);
+      return Center(
+        child: CircleAvatar(
+          radius: 75,
+          backgroundColor: Colors.grey[200],
+          child: Text(
+            emoji,
+            style: const TextStyle(fontSize: 100),
+          ),
+        ),
+      );
+    } else if (eventUrl.startsWith('image:')) {
       final actualImageUrl = eventUrl.substring(6);
       if (actualImageUrl.startsWith('http://') || actualImageUrl.startsWith('https://')) {
         return EventImage(
