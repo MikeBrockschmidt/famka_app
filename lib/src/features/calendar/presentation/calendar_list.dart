@@ -1,4 +1,4 @@
-import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
+// import entfernt: 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:famka_app/src/data/database_repository.dart';
@@ -6,7 +6,7 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
 import 'package:famka_app/src/features/appointment/domain/single_event.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/event_list_item.dart';
-import 'package:famka_app/src/theme/color_theme.dart';
+// import entfernt: 'package:famka_app/src/theme/color_theme.dart';
 
 class CalendarList extends StatefulWidget {
   final DatabaseRepository db;
@@ -41,23 +41,21 @@ class _CalendarListState extends State<CalendarList> {
   void _groupEvents() {
     final Map<DateTime, List<SingleEvent>> eventsByDate = {};
     final today = DateTime.now();
-    final todayDateOnly = DateTime(today.year, today.month, today.day);
-
+    final cutoffDate = today.subtract(const Duration(days: 180));
     for (var event in widget.allEvents) {
       final date = DateTime(
         event.singleEventDate.year,
         event.singleEventDate.month,
         event.singleEventDate.day,
       );
-      // Nur Events ab heute (inklusive heute) anzeigen
-      if (!date.isBefore(todayDateOnly)) {
+      // Nur Events ab cutoffDate (inklusive cutoffDate) anzeigen
+      if (!date.isBefore(cutoffDate)) {
         if (!eventsByDate.containsKey(date)) {
           eventsByDate[date] = [];
         }
         eventsByDate[date]?.add(event);
       }
     }
-
     _groupedEvents = eventsByDate.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
   }
@@ -121,13 +119,5 @@ class _CalendarListState extends State<CalendarList> {
     );
   }
 
-  Widget _buildEventIcon(SingleEvent event) {
-    // Einheitliches Event-Icon (Text) für die Kalenderlistenansicht
-    return EventIconWidget(
-      eventUrl: event.singleEventUrl,
-      eventName: event.singleEventName,
-      size: 40,
-      db: null,
-    );
-  }
+  // _buildEventIcon entfernt, da ungenutzt
 }

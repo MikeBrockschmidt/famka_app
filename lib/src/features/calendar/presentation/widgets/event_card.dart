@@ -113,7 +113,8 @@ class EventCard extends StatelessWidget {
                           isEditing: isEditing,
                           controller: titleController,
                           onSubmitted: (value) {
-                            debugPrint('EventCard: onTitleSubmitted ausgelöst mit Wert: $value');
+                            debugPrint(
+                                'EventCard: onTitleSubmitted ausgelöst mit Wert: $value');
                             if (onTitleSubmitted != null) {
                               onTitleSubmitted!(value);
                             }
@@ -160,12 +161,14 @@ class EventCard extends StatelessWidget {
                                 : AppColors.famkaGrey,
                             onPressed: () {
                               if (isEditing) {
-                                debugPrint('EventCard: Check-Icon (Speichern) wurde geklickt. Titel: ${titleController.text}, Beschreibung: ${descriptionController.text}');
+                                debugPrint(
+                                    'EventCard: Check-Icon (Speichern) wurde geklickt. Titel: ${titleController.text}, Beschreibung: ${descriptionController.text}');
                                 if (onSavePressed != null) {
                                   onSavePressed!();
                                 }
                               } else {
-                                debugPrint('EventCard: Edit-Icon wurde geklickt.');
+                                debugPrint(
+                                    'EventCard: Edit-Icon wurde geklickt.');
                               }
                               if (onEditPressed != null) {
                                 onEditPressed!();
@@ -195,7 +198,8 @@ class EventCard extends StatelessWidget {
                       maxLines: null,
                       keyboardType: TextInputType.multiline,
                       onSubmitted: (value) {
-                        debugPrint('EventCard: onDescriptionSubmitted ausgelöst mit Wert: $value');
+                        debugPrint(
+                            'EventCard: onDescriptionSubmitted ausgelöst mit Wert: $value');
                         if (onDescriptionSubmitted != null) {
                           onDescriptionSubmitted!(value);
                         }

@@ -50,9 +50,9 @@ class _CalendarGridState extends State<CalendarGrid> {
 
   final DateTime currentDate = DateTime.now();
 
-  // Limit backward viewing to approximately 14 days instead of 6 months
-  static const int _daysBack = 14;
-  static const int _monthsForward = 14;
+  // Limit backward viewing to 180 days (6 months) instead of 14 days
+  static const int _daysBack = 180;
+  static const int _monthsForward = 6;
 
   late final DateTime _actualStartDate;
   late int _totalDisplayDays;
@@ -73,11 +73,7 @@ class _CalendarGridState extends State<CalendarGrid> {
     super.initState();
     initializeDateFormatting('de_DE', null);
 
-    _actualStartDate = DateTime(
-      currentDate.year,
-      currentDate.month,
-      currentDate.day - _daysBack,
-    );
+    _actualStartDate = currentDate.subtract(const Duration(days: _daysBack));
 
     final DateTime actualEndDate = DateTime(
       currentDate.year,

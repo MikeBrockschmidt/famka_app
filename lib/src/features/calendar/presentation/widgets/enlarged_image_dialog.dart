@@ -81,7 +81,8 @@ class EnlargedImageDialog extends StatelessWidget {
                         ),
                         IconButton(
                           onPressed: () async {
-                            final selected = await Navigator.of(context).push<String>(
+                            final selected =
+                                await Navigator.of(context).push<String>(
                               MaterialPageRoute(
                                 builder: (context) => Gallery(
                                   db,
@@ -91,7 +92,8 @@ class EnlargedImageDialog extends StatelessWidget {
                             );
                             if (selected != null && selected.isNotEmpty) {
                               String newUrl;
-                              if (selected.startsWith('icon:') || selected.startsWith('emoji:')) {
+                              if (selected.startsWith('icon:') ||
+                                  selected.startsWith('emoji:')) {
                                 newUrl = selected;
                               } else if (selected.startsWith('image:')) {
                                 newUrl = selected;
@@ -101,13 +103,16 @@ class EnlargedImageDialog extends StatelessWidget {
                               final updatedEvent = event.copyWith(
                                 singleEventUrl: newUrl,
                               );
-                              await db.updateEvent(updatedEvent.groupId, updatedEvent);
+                              await db.updateEvent(
+                                  updatedEvent.groupId, updatedEvent);
                               if (onEventUpdated != null) {
                                 onEventUpdated!(updatedEvent);
                               }
                               Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Bild erfolgreich geändert!')),
+                                const SnackBar(
+                                    content:
+                                        Text('Bild erfolgreich geändert!')),
                               );
                             }
                           },
@@ -166,7 +171,8 @@ class EnlargedImageDialog extends StatelessWidget {
       );
     } else if (eventUrl.startsWith('image:')) {
       final actualImageUrl = eventUrl.substring(6);
-      if (actualImageUrl.startsWith('http://') || actualImageUrl.startsWith('https://')) {
+      if (actualImageUrl.startsWith('http://') ||
+          actualImageUrl.startsWith('https://')) {
         return EventImage(
           db,
           currentAvatarUrl: actualImageUrl,

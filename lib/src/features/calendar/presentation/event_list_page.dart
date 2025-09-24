@@ -67,8 +67,8 @@ class _EventListPageState extends State<EventListPage> {
   }
 
   void _deleteOldEventsIfNeeded() async {
-  final DateTime cutoffDate =
-    DateTime.now().subtract(const Duration(days: 180));
+    final DateTime cutoffDate =
+        DateTime.now().subtract(const Duration(days: 180));
     final List<SingleEvent> allEvents =
         await widget.db.getEventsForGroup(_displayGroup.groupId);
     await _deleteOldEvents(allEvents, cutoffDate);
@@ -94,6 +94,7 @@ class _EventListPageState extends State<EventListPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
+            backgroundColor: AppColors.famkaGreen,
             content: Text('Keine alten Ereignisse zum Löschen gefunden'),
           ),
         );
@@ -126,7 +127,10 @@ class _EventListPageState extends State<EventListPage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
+        SnackBar(
+          backgroundColor: AppColors.famkaGreen,
+          content: Text(message),
+        ),
       );
     }
   }
@@ -217,7 +221,7 @@ class _EventListPageState extends State<EventListPage> {
 
       if (mounted) {
         final DateTime cutoffDate =
-            DateTime.now().subtract(const Duration(days: 14));
+            DateTime.now().subtract(const Duration(days: 180));
 
         setState(() {
           _isLoading = false;
@@ -279,8 +283,10 @@ class _EventListPageState extends State<EventListPage> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(localizations?.eventListDeletedSuccess ??
-                  "Termin erfolgreich gelöscht.")),
+            backgroundColor: AppColors.famkaGreen,
+            content: Text(localizations?.eventListDeletedSuccess ??
+                "Termin erfolgreich gelöscht."),
+          ),
         );
         widget.onEventsRefreshed?.call();
       }

@@ -71,8 +71,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
 
   @override
   void dispose() {
-  _descriptionControllers.forEach((key, controller) => controller.dispose());
-  _titleControllers.forEach((key, controller) => controller.dispose());
+    _descriptionControllers.forEach((key, controller) => controller.dispose());
+    _titleControllers.forEach((key, controller) => controller.dispose());
     super.dispose();
   }
 
@@ -154,13 +154,17 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                         event: event,
                         currentGroupMembers: widget.currentGroupMembers,
                         isEditing: isEditing,
-                        descriptionController: _descriptionControllers[event.singleEventId]!,
-                        titleController: _titleControllers[event.singleEventId]!,
+                        descriptionController:
+                            _descriptionControllers[event.singleEventId]!,
+                        titleController:
+                            _titleControllers[event.singleEventId]!,
                         db: widget.db,
                         onEditPressed: () {
-                          debugPrint('info_bottom_sheet: onEditPressed ausgeführt. isEditing: $isEditing, Titel: ${_titleControllers[event.singleEventId]?.text}, Beschreibung: ${_descriptionControllers[event.singleEventId]?.text}');
+                          debugPrint(
+                              'info_bottom_sheet: onEditPressed ausgeführt. isEditing: $isEditing, Titel: ${_titleControllers[event.singleEventId]?.text}, Beschreibung: ${_descriptionControllers[event.singleEventId]?.text}');
                           setState(() {
-                            _isEditingDescription[event.singleEventId] = !isEditing;
+                            _isEditingDescription[event.singleEventId] =
+                                !isEditing;
                           });
                         },
                         onDeletePressed: () async {
@@ -171,22 +175,35 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                title: Text(AppLocalizations.of(context)!.deleteAppointment,
-                                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                                content: Text(AppLocalizations.of(context)!.confirmDeleteAppointment(event.singleEventName),
-                                    style: const TextStyle(color: Colors.black87)),
-                                contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                                actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                                title: Text(
+                                    AppLocalizations.of(context)!
+                                        .deleteAppointment,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
+                                content: Text(
+                                    AppLocalizations.of(context)!
+                                        .confirmDeleteAppointment(
+                                            event.singleEventName),
+                                    style:
+                                        const TextStyle(color: Colors.black87)),
+                                contentPadding:
+                                    const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                                actionsPadding:
+                                    const EdgeInsets.fromLTRB(16, 8, 16, 16),
                                 actions: <Widget>[
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
                                     children: [
                                       GestureDetector(
                                         onTap: () {
-                                          Navigator.of(dialogContext).pop(false);
+                                          Navigator.of(dialogContext)
+                                              .pop(false);
                                         },
                                         child: ButtonLinearGradient(
-                                          buttonText: AppLocalizations.of(context)!.cancelButton,
+                                          buttonText:
+                                              AppLocalizations.of(context)!
+                                                  .cancelButton,
                                         ),
                                       ),
                                       const SizedBox(height: 12),
@@ -194,7 +211,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                         onPressed: () {
                                           Navigator.of(dialogContext).pop(true);
                                         },
-                                        child: Text(AppLocalizations.of(context)!.deleteImageButton,
+                                        child: Text(
+                                            AppLocalizations.of(context)!
+                                                .deleteImageButton,
                                             style: const TextStyle(
                                               color: AppColors.famkaGrey,
                                               fontSize: 16,
@@ -210,7 +229,8 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                           if (confirm == true) {
                             widget.onEventDeleted?.call(event.singleEventId);
                             setState(() {
-                              _currentEvents.removeWhere((e) => e.singleEventId == event.singleEventId);
+                              _currentEvents.removeWhere((e) =>
+                                  e.singleEventId == event.singleEventId);
                             });
                             if (_currentEvents.isEmpty) {
                               Navigator.of(context).pop(true);
@@ -218,110 +238,153 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                           }
                         },
                         onSavePressed: () async {
-                          final String newDescription = _descriptionControllers[event.singleEventId]?.text ?? '';
-                          final String newTitle = _titleControllers[event.singleEventId]?.text ?? '';
-                          debugPrint('info_bottom_sheet: onSavePressed ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
+                          final String newDescription =
+                              _descriptionControllers[event.singleEventId]
+                                      ?.text ??
+                                  '';
+                          final String newTitle =
+                              _titleControllers[event.singleEventId]?.text ??
+                                  '';
+                          debugPrint(
+                              'info_bottom_sheet: onSavePressed ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
                           bool changed = false;
                           SingleEvent updatedEvent = event;
                           if (newDescription != event.singleEventDescription) {
-                            updatedEvent = updatedEvent.copyWith(singleEventDescription: newDescription);
+                            updatedEvent = updatedEvent.copyWith(
+                                singleEventDescription: newDescription);
                             changed = true;
                           }
                           if (newTitle != event.singleEventName) {
-                            updatedEvent = updatedEvent.copyWith(singleEventName: newTitle);
+                            updatedEvent = updatedEvent.copyWith(
+                                singleEventName: newTitle);
                             changed = true;
                           }
                           if (changed) {
-                            await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+                            await widget.db.updateEvent(
+                                updatedEvent.groupId, updatedEvent);
                             setState(() {
-                              final index = _currentEvents.indexWhere((e) => e.singleEventId == event.singleEventId);
+                              final index = _currentEvents.indexWhere((e) =>
+                                  e.singleEventId == event.singleEventId);
                               if (index != -1) {
                                 _currentEvents[index] = updatedEvent;
                               }
-                              _isEditingDescription[event.singleEventId] = false;
+                              _isEditingDescription[event.singleEventId] =
+                                  false;
                             });
                             widget.onEventUpdated?.call(updatedEvent);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(AppLocalizations.of(context)!.descriptionUpdateSuccess)),
+                              SnackBar(
+                                  content: Text(AppLocalizations.of(context)!
+                                      .descriptionUpdateSuccess)),
                             );
                           } else {
                             setState(() {
-                              _isEditingDescription[event.singleEventId] = false;
+                              _isEditingDescription[event.singleEventId] =
+                                  false;
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(AppLocalizations.of(context)!.noChangesToSave)),
+                              SnackBar(
+                                  content: Text(AppLocalizations.of(context)!
+                                      .noChangesToSave)),
                             );
                           }
                         },
                         onDescriptionSubmitted: (value) async {
                           final String newDescription = value;
-                          final String newTitle = _titleControllers[event.singleEventId]?.text ?? '';
-                          debugPrint('info_bottom_sheet: onDescriptionSubmitted ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
+                          final String newTitle =
+                              _titleControllers[event.singleEventId]?.text ??
+                                  '';
+                          debugPrint(
+                              'info_bottom_sheet: onDescriptionSubmitted ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
                           bool changed = false;
                           SingleEvent updatedEvent = event;
                           if (newDescription != event.singleEventDescription) {
-                            updatedEvent = updatedEvent.copyWith(singleEventDescription: newDescription);
+                            updatedEvent = updatedEvent.copyWith(
+                                singleEventDescription: newDescription);
                             changed = true;
                           }
                           if (newTitle != event.singleEventName) {
-                            updatedEvent = updatedEvent.copyWith(singleEventName: newTitle);
+                            updatedEvent = updatedEvent.copyWith(
+                                singleEventName: newTitle);
                             changed = true;
                           }
                           if (changed) {
-                            await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+                            await widget.db.updateEvent(
+                                updatedEvent.groupId, updatedEvent);
                             setState(() {
-                              final index = _currentEvents.indexWhere((e) => e.singleEventId == event.singleEventId);
+                              final index = _currentEvents.indexWhere((e) =>
+                                  e.singleEventId == event.singleEventId);
                               if (index != -1) {
                                 _currentEvents[index] = updatedEvent;
                               }
-                              _isEditingDescription[event.singleEventId] = false;
+                              _isEditingDescription[event.singleEventId] =
+                                  false;
                             });
                             widget.onEventUpdated?.call(updatedEvent);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(AppLocalizations.of(context)!.descriptionUpdateSuccess)),
+                              SnackBar(
+                                  content: Text(AppLocalizations.of(context)!
+                                      .descriptionUpdateSuccess)),
                             );
                           } else {
                             setState(() {
-                              _isEditingDescription[event.singleEventId] = false;
+                              _isEditingDescription[event.singleEventId] =
+                                  false;
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(AppLocalizations.of(context)!.noChangesToSave)),
+                              SnackBar(
+                                  content: Text(AppLocalizations.of(context)!
+                                      .noChangesToSave)),
                             );
                           }
                         },
                         onTitleSubmitted: (value) async {
                           final String newTitle = value;
-                          final String newDescription = _descriptionControllers[event.singleEventId]?.text ?? '';
-                          debugPrint('info_bottom_sheet: onTitleSubmitted ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
+                          final String newDescription =
+                              _descriptionControllers[event.singleEventId]
+                                      ?.text ??
+                                  '';
+                          debugPrint(
+                              'info_bottom_sheet: onTitleSubmitted ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
                           bool changed = false;
                           SingleEvent updatedEvent = event;
                           if (newTitle != event.singleEventName) {
-                            updatedEvent = updatedEvent.copyWith(singleEventName: newTitle);
+                            updatedEvent = updatedEvent.copyWith(
+                                singleEventName: newTitle);
                             changed = true;
                           }
                           if (newDescription != event.singleEventDescription) {
-                            updatedEvent = updatedEvent.copyWith(singleEventDescription: newDescription);
+                            updatedEvent = updatedEvent.copyWith(
+                                singleEventDescription: newDescription);
                             changed = true;
                           }
                           if (changed) {
-                            await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+                            await widget.db.updateEvent(
+                                updatedEvent.groupId, updatedEvent);
                             setState(() {
-                              final index = _currentEvents.indexWhere((e) => e.singleEventId == event.singleEventId);
+                              final index = _currentEvents.indexWhere((e) =>
+                                  e.singleEventId == event.singleEventId);
                               if (index != -1) {
                                 _currentEvents[index] = updatedEvent;
                               }
-                              _isEditingDescription[event.singleEventId] = false;
+                              _isEditingDescription[event.singleEventId] =
+                                  false;
                             });
                             widget.onEventUpdated?.call(updatedEvent);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(AppLocalizations.of(context)!.descriptionUpdateSuccess)),
+                              SnackBar(
+                                  content: Text(AppLocalizations.of(context)!
+                                      .descriptionUpdateSuccess)),
                             );
                           } else {
                             setState(() {
-                              _isEditingDescription[event.singleEventId] = false;
+                              _isEditingDescription[event.singleEventId] =
+                                  false;
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(AppLocalizations.of(context)!.noChangesToSave)),
+                              SnackBar(
+                                  content: Text(AppLocalizations.of(context)!
+                                      .noChangesToSave)),
                             );
                           }
                         },

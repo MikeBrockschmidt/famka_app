@@ -201,14 +201,14 @@ class EventListItem extends StatelessWidget {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: _buildEventLeadingIcon(
-                    event.singleEventUrl,
-                    event.singleEventName,
-                    size: 40),
-                ),
+                                SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: _buildEventLeadingIcon(
+                                      event.singleEventUrl,
+                                      event.singleEventName,
+                                      size: 40),
+                                ),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:

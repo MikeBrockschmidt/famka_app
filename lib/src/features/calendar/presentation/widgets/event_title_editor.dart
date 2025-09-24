@@ -25,16 +25,13 @@ class EventTitleEditor extends StatelessWidget {
               border: OutlineInputBorder(),
             ),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.famkaBlue),
+                fontWeight: FontWeight.bold, color: AppColors.famkaBlue),
             onSubmitted: onSubmitted,
           )
         : Text(
             title,
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(fontWeight: FontWeight.bold, color: AppColors.famkaBlue),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold, color: AppColors.famkaBlue),
           );
   }
 }
