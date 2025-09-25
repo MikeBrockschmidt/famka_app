@@ -214,7 +214,10 @@ class _GroupImageState extends State<GroupImage> {
         }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Bildauswahl abgebrochen.')),
+            const SnackBar(
+              content: Text('Bildauswahl abgebrochen.'),
+              backgroundColor: AppColors.famkaGreen,
+            ),
           );
         }
         return;
@@ -237,7 +240,9 @@ class _GroupImageState extends State<GroupImage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-                content: Text('Bild erfolgreich als Standardbild gesetzt.')),
+              content: Text('Bild erfolgreich als Standardbild gesetzt.'),
+              backgroundColor: AppColors.famkaGreen,
+            ),
           );
         }
         if (mounted && widget.onAvatarSelected != null) {
@@ -274,7 +279,10 @@ class _GroupImageState extends State<GroupImage> {
         if (croppedFile == null) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Zuschneiden abgebrochen.')),
+              const SnackBar(
+                content: Text('Zuschneiden abgebrochen.'),
+                backgroundColor: AppColors.famkaGreen,
+              ),
             );
           }
           if (mounted && widget.onAvatarSelected != null) {

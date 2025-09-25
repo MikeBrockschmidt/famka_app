@@ -210,7 +210,10 @@ class _EventImageState extends State<EventImage> {
       if (selectedSourceOrAssetPath == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Bildauswahl abgebrochen.')),
+            const SnackBar(
+              content: Text('Bildauswahl abgebrochen.'),
+              backgroundColor: AppColors.famkaGreen,
+            ),
           );
         }
         return;
@@ -233,7 +236,9 @@ class _EventImageState extends State<EventImage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-                content: Text('Bild erfolgreich als Standardbild gesetzt.')),
+              content: Text('Bild erfolgreich als Standardbild gesetzt.'),
+              backgroundColor: AppColors.famkaGreen,
+            ),
           );
         }
         return;
@@ -267,7 +272,10 @@ class _EventImageState extends State<EventImage> {
         if (croppedFile == null) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Zuschneiden abgebrochen.')),
+              const SnackBar(
+                content: Text('Zuschneiden abgebrochen.'),
+                backgroundColor: AppColors.famkaGreen,
+              ),
             );
           }
           return;

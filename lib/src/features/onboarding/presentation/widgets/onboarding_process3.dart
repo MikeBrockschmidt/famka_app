@@ -2,6 +2,7 @@ import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
+import 'package:famka_app/src/theme/color_theme.dart';
 
 class OnboardingProgress3 extends StatelessWidget {
   // Atribute
@@ -44,7 +45,10 @@ class OnboardingProgress3 extends StatelessWidget {
           } catch (e) {
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Fehler beim Abmelden: $e')),
+                SnackBar(
+                  content: Text('Fehler beim Abmelden: $e'),
+                  backgroundColor: AppColors.famkaGreen,
+                ),
               );
             }
           }

@@ -111,8 +111,9 @@ class EnlargedImageDialog extends StatelessWidget {
                               Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content:
-                                        Text('Bild erfolgreich geändert!')),
+                                  content: Text('Bild erfolgreich geändert!'),
+                                  backgroundColor: AppColors.famkaGreen,
+                                ),
                               );
                             }
                           },

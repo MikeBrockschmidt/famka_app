@@ -29,12 +29,12 @@ class EventCard extends StatelessWidget {
     required this.descriptionController,
     required this.titleController,
     required this.db,
-  this.onEditPressed,
-  this.onDeletePressed,
-  this.onSavePressed,
-  this.onDescriptionSubmitted,
-  this.onTitleSubmitted,
-  this.onEventUpdated,
+    this.onEditPressed,
+    this.onDeletePressed,
+    this.onSavePressed,
+    this.onDescriptionSubmitted,
+    this.onTitleSubmitted,
+    this.onEventUpdated,
   });
 
   @override
