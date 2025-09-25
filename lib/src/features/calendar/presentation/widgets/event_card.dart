@@ -19,6 +19,7 @@ class EventCard extends StatelessWidget {
   final VoidCallback? onSavePressed;
   final ValueChanged<String>? onDescriptionSubmitted;
   final ValueChanged<String>? onTitleSubmitted;
+  final ValueChanged<SingleEvent>? onEventUpdated;
 
   const EventCard({
     super.key,
@@ -28,11 +29,12 @@ class EventCard extends StatelessWidget {
     required this.descriptionController,
     required this.titleController,
     required this.db,
-    this.onEditPressed,
-    this.onDeletePressed,
-    this.onSavePressed,
-    this.onDescriptionSubmitted,
-    this.onTitleSubmitted,
+  this.onEditPressed,
+  this.onDeletePressed,
+  this.onSavePressed,
+  this.onDescriptionSubmitted,
+  this.onTitleSubmitted,
+  this.onEventUpdated,
   });
 
   @override
@@ -88,8 +90,8 @@ class EventCard extends StatelessWidget {
                             event: event,
                             db: db,
                             onEventUpdated: (updatedEvent) {
-                              if (onSavePressed != null) {
-                                onSavePressed!();
+                              if (onEventUpdated != null) {
+                                onEventUpdated!(updatedEvent);
                               }
                             },
                           ),
