@@ -124,36 +124,36 @@ class _RepeatReminderSettingsState extends State<RepeatReminderSettings> {
                   ),
                 ],
               ),
-            AppSwitchRow(
-              leftIcon: Icons.notifications,
-              label: l10n.reminderLabel,
-              value: _reminder,
-              onChanged: (val) {
-                setState(() {
-                  _reminder = val;
-                });
-                widget.onReminderChanged(val);
-              },
-            ),
-            if (_reminder)
-              AppDropdownRow(
-                leftIcon: Icons.notifications_active,
-                label: l10n.reminderBeforeLabel,
-                value: _selectedReminder,
-                items: [
-                  l10n.reminder30Minutes,
-                  l10n.reminderOneHour,
-                  l10n.reminderOneDay
-                ],
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _selectedReminder = val;
-                    });
-                    widget.onSelectedReminderChanged(val);
-                  }
-                },
-              ),
+            // AppSwitchRow(
+            //   leftIcon: Icons.notifications,
+            //   label: l10n.reminderLabel,
+            //   value: _reminder,
+            //   onChanged: (val) {
+            //     setState(() {
+            //       _reminder = val;
+            //     });
+            //     widget.onReminderChanged(val);
+            //   },
+            // ),
+            // if (_reminder)
+            //   AppDropdownRow(
+            //     leftIcon: Icons.notifications_active,
+            //     label: l10n.reminderBeforeLabel,
+            //     value: _selectedReminder,
+            //     items: [
+            //       l10n.reminder30Minutes,
+            //       l10n.reminderOneHour,
+            //       l10n.reminderOneDay
+            //     ],
+            //     onChanged: (val) {
+            //       if (val != null) {
+            //         setState(() {
+            //           _selectedReminder = val;
+            //         });
+            //         widget.onSelectedReminderChanged(val);
+            //       }
+            //     },
+            //   ),
           ],
         ),
       ),
