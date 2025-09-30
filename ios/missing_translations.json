@@ -1,0 +1,23 @@
+{
+  "de": [
+    "groupCreatedSuccess",
+    "showPasswordTooltip",
+    "hidePasswordTooltip",
+    "errorCreatingGroup",
+    "ungueltigeTelefonnummer"
+  ],
+
+  "de_Temp": [
+    "showPasswordTooltip",
+    "hidePasswordTooltip",
+    "errorCreatingGroup",
+    "manageMembersRemoveTitle",
+    "manageMembersRemoveConfirmation",
+    "manageMembersRemoveCancel",
+    "manageMembersRemoveConfirm",
+    "deleteGroup",
+    "confirmDeleteGroup",
+    "calendarLabelList",
+    "ungueltigeTelefonnummer"
+  ]
+}
