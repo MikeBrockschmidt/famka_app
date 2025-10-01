@@ -140,23 +140,17 @@ class EnlargedImageDialog extends StatelessWidget {
 
   Widget _buildEnlargedImageWidget(String eventUrl, dynamic db) {
     if (eventUrl.startsWith('icon:')) {
-      final codePoint = int.tryParse(eventUrl.substring(5));
-      if (codePoint != null) {
-        return Center(
-          child: CircleAvatar(
-            radius: 75,
-            backgroundColor: Colors.grey[200],
-            child: Icon(
-              IconData(codePoint, fontFamily: 'MaterialIcons'),
-              size: 120,
-              color: Colors.blueAccent,
-            ),
+      // Tree-shakable: Zeige ein festes Icon statt dynamisch
+      return Center(
+        child: CircleAvatar(
+          radius: 75,
+          backgroundColor: Colors.grey[200],
+          child: Icon(
+            Icons.category,
+            size: 120,
+            color: Colors.blueAccent,
           ),
-        );
-      }
-      // Fallback falls CodePoint nicht geparst werden kann
-      return const Center(
-        child: Icon(Icons.broken_image, size: 64, color: Colors.red),
+        ),
       );
     } else if (eventUrl.startsWith('emoji:')) {
       final emoji = eventUrl.substring(6);
