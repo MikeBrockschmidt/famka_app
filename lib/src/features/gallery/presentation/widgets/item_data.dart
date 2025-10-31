@@ -19,25 +19,10 @@ class GalleryItem {
 }
 
 class GalleryData {
-  static const List<GalleryItem> fixedThumbnails = [
-    GalleryItem(
-      type: ItemType.image,
-      imageUrl: 'assets/hintergruende/thumbnail1.jpg',
-      content: 'image:assets/hintergruende/thumbnail1.jpg',
-    ),
-    GalleryItem(
-      type: ItemType.image,
-      imageUrl: 'assets/hintergruende/thumbnail2.jpg',
-      content: 'image:assets/hintergruende/thumbnail2.jpg',
-    ),
-  ];
+  static const List<GalleryItem> fixedThumbnails = [];
 
   static List<GalleryItem> getDynamicImagesGalleryItems() {
     final imagePaths = [
-      'assets/fotos/Mike.jpg',
-      'assets/fotos/Martha.jpg',
-      'assets/fotos/Max.jpg',
-      'assets/fotos/boyd.jpg',
       'assets/grafiken/famka-kreis.png',
     ];
 
