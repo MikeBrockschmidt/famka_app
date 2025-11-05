@@ -46,7 +46,10 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
 
   late Map<String, TextEditingController> _descriptionControllers;
   late Map<String, TextEditingController> _titleControllers;
+  late Map<String, TextEditingController> _locationControllers;
   late Map<String, bool> _isEditingDescription;
+  late Map<String, DateTime> _selectedDates;
+  late Map<String, bool> _isAllDay;
   List<SingleEvent> _currentEvents = [];
 
   @override
@@ -58,14 +61,21 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
     _currentEvents = List.from(widget.eventsForPerson);
     _descriptionControllers = {};
     _titleControllers = {};
+    _locationControllers = {};
     _isEditingDescription = {};
+    _selectedDates = {};
+    _isAllDay = {};
 
     for (var event in _currentEvents) {
       _descriptionControllers[event.singleEventId] =
           TextEditingController(text: event.singleEventDescription);
       _titleControllers[event.singleEventId] =
           TextEditingController(text: event.singleEventName);
+      _locationControllers[event.singleEventId] =
+          TextEditingController(text: event.singleEventLocation);
       _isEditingDescription[event.singleEventId] = false;
+      _selectedDates[event.singleEventId] = event.singleEventDate;
+      _isAllDay[event.singleEventId] = event.isAllDay;
     }
   }
 
@@ -73,6 +83,7 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
   void dispose() {
     _descriptionControllers.forEach((key, controller) => controller.dispose());
     _titleControllers.forEach((key, controller) => controller.dispose());
+    _locationControllers.forEach((key, controller) => controller.dispose());
     super.dispose();
   }
 
@@ -158,6 +169,10 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                             _descriptionControllers[event.singleEventId]!,
                         titleController:
                             _titleControllers[event.singleEventId]!,
+                        locationController:
+                            _locationControllers[event.singleEventId]!,
+                        selectedDate: _selectedDates[event.singleEventId]!,
+                        isAllDay: _isAllDay[event.singleEventId]!,
                         db: widget.db,
                         onEditPressed: () {
                           debugPrint(
@@ -244,10 +259,19 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                           final String newTitle =
                               _titleControllers[event.singleEventId]?.text ??
                                   '';
+                          final String newLocation =
+                              _locationControllers[event.singleEventId]?.text ??
+                                  '';
+                          final DateTime newDate =
+                              _selectedDates[event.singleEventId]!;
+                          final bool newAllDay =
+                              _isAllDay[event.singleEventId]!;
+
                           debugPrint(
-                              'info_bottom_sheet: onSavePressed ausgeführt. Titel: $newTitle, Beschreibung: $newDescription');
+                              'info_bottom_sheet: onSavePressed ausgeführt. Titel: $newTitle, Beschreibung: $newDescription, Ort: $newLocation');
                           bool changed = false;
                           SingleEvent updatedEvent = event;
+
                           if (newDescription != event.singleEventDescription) {
                             updatedEvent = updatedEvent.copyWith(
                                 singleEventDescription: newDescription);
@@ -258,6 +282,22 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                 singleEventName: newTitle);
                             changed = true;
                           }
+                          if (newLocation != event.singleEventLocation) {
+                            updatedEvent = updatedEvent.copyWith(
+                                singleEventLocation: newLocation);
+                            changed = true;
+                          }
+                          if (newDate != event.singleEventDate) {
+                            updatedEvent =
+                                updatedEvent.copyWith(singleEventDate: newDate);
+                            changed = true;
+                          }
+                          if (newAllDay != event.isAllDay) {
+                            updatedEvent =
+                                updatedEvent.copyWith(isAllDay: newAllDay);
+                            changed = true;
+                          }
+
                           if (changed) {
                             await widget.db.updateEvent(
                                 updatedEvent.groupId, updatedEvent);
@@ -388,6 +428,66 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                                       .noChangesToSave)),
                             );
                           }
+                        },
+                        onLocationSubmitted: (value) async {
+                          final String newLocation = value;
+                          SingleEvent updatedEvent =
+                              event.copyWith(singleEventLocation: newLocation);
+                          await widget.db
+                              .updateEvent(updatedEvent.groupId, updatedEvent);
+                          setState(() {
+                            final index = _currentEvents.indexWhere(
+                                (e) => e.singleEventId == event.singleEventId);
+                            if (index != -1) {
+                              _currentEvents[index] = updatedEvent;
+                            }
+                          });
+                          widget.onEventUpdated?.call(updatedEvent);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(AppLocalizations.of(context)!
+                                    .descriptionUpdateSuccess)),
+                          );
+                        },
+                        onDateChanged: (DateTime newDate) async {
+                          SingleEvent updatedEvent =
+                              event.copyWith(singleEventDate: newDate);
+                          await widget.db
+                              .updateEvent(updatedEvent.groupId, updatedEvent);
+                          setState(() {
+                            final index = _currentEvents.indexWhere(
+                                (e) => e.singleEventId == event.singleEventId);
+                            if (index != -1) {
+                              _currentEvents[index] = updatedEvent;
+                            }
+                            _selectedDates[event.singleEventId] = newDate;
+                          });
+                          widget.onEventUpdated?.call(updatedEvent);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(AppLocalizations.of(context)!
+                                    .descriptionUpdateSuccess)),
+                          );
+                        },
+                        onAllDayChanged: (bool newAllDay) async {
+                          SingleEvent updatedEvent =
+                              event.copyWith(isAllDay: newAllDay);
+                          await widget.db
+                              .updateEvent(updatedEvent.groupId, updatedEvent);
+                          setState(() {
+                            final index = _currentEvents.indexWhere(
+                                (e) => e.singleEventId == event.singleEventId);
+                            if (index != -1) {
+                              _currentEvents[index] = updatedEvent;
+                            }
+                            _isAllDay[event.singleEventId] = newAllDay;
+                          });
+                          widget.onEventUpdated?.call(updatedEvent);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(AppLocalizations.of(context)!
+                                    .descriptionUpdateSuccess)),
+                          );
                         },
                         onEventUpdated: _updateEventInSheet,
                       );

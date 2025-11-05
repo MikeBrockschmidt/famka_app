@@ -6,6 +6,8 @@ import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/event_icon_widget.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/event_title_editor.dart';
 import 'package:famka_app/src/features/calendar/presentation/widgets/enlarged_image_dialog.dart';
+import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
+import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart';
 
 class EventCard extends StatelessWidget {
   final SingleEvent event;
@@ -13,12 +15,18 @@ class EventCard extends StatelessWidget {
   final bool isEditing;
   final TextEditingController descriptionController;
   final TextEditingController titleController;
+  final TextEditingController locationController;
+  final DateTime selectedDate;
+  final bool isAllDay;
   final dynamic db;
   final VoidCallback? onEditPressed;
   final VoidCallback? onDeletePressed;
   final VoidCallback? onSavePressed;
   final ValueChanged<String>? onDescriptionSubmitted;
   final ValueChanged<String>? onTitleSubmitted;
+  final ValueChanged<String>? onLocationSubmitted;
+  final ValueChanged<DateTime>? onDateChanged;
+  final ValueChanged<bool>? onAllDayChanged;
   final ValueChanged<SingleEvent>? onEventUpdated;
 
   const EventCard({
@@ -28,12 +36,18 @@ class EventCard extends StatelessWidget {
     required this.isEditing,
     required this.descriptionController,
     required this.titleController,
+    required this.locationController,
+    required this.selectedDate,
+    required this.isAllDay,
     required this.db,
     this.onEditPressed,
     this.onDeletePressed,
     this.onSavePressed,
     this.onDescriptionSubmitted,
     this.onTitleSubmitted,
+    this.onLocationSubmitted,
+    this.onDateChanged,
+    this.onAllDayChanged,
     this.onEventUpdated,
   });
 
@@ -123,29 +137,101 @@ class EventCard extends StatelessWidget {
                           },
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          event.isAllDay
-                              ? AppLocalizations.of(context)!.timeAllDay
-                              : AppLocalizations.of(context)!.timeAt(event
-                                      .singleEventDate
-                                      .toLocal()
-                                      .hour
-                                      .toString()
-                                      .padLeft(2, '0') +
-                                  ':' +
-                                  event.singleEventDate
-                                      .toLocal()
-                                      .minute
-                                      .toString()
-                                      .padLeft(2, '0')),
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
+                        // Datum/Zeit Bereich
+                        isEditing
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(context)!.timeAllDay,
+                                        style: Theme.of(context).textTheme.bodyMedium,
+                                      ),
+                                      Switch(
+                                        value: isAllDay,
+                                        onChanged: onAllDayChanged,
+                                        activeColor: AppColors.famkaGreen,
+                                      ),
+                                    ],
+                                  ),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final date = await selectAppointmentDate(
+                                        context,
+                                        initialDate: selectedDate,
+                                        firstDate: DateTime(2000),
+                                        lastDate: DateTime(2100),
+                                      );
+                                      if (date != null) {
+                                        if (!isAllDay) {
+                                          final time = await selectAppointmentTime(
+                                            context,
+                                            initialTime: TimeOfDay.fromDateTime(selectedDate),
+                                          );
+                                          if (time != null) {
+                                            final newDateTime = DateTime(
+                                              date.year,
+                                              date.month,
+                                              date.day,
+                                              time.hour,
+                                              time.minute,
+                                            );
+                                            onDateChanged?.call(newDateTime);
+                                          }
+                                        } else {
+                                          onDateChanged?.call(date);
+                                        }
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        isAllDay
+                                            ? '${selectedDate.day}.${selectedDate.month}.${selectedDate.year} (${AppLocalizations.of(context)!.timeAllDay})'
+                                            : '${selectedDate.day}.${selectedDate.month}.${selectedDate.year} ${selectedDate.hour.toString().padLeft(2, '0')}:${selectedDate.minute.toString().padLeft(2, '0')}',
+                                        style: Theme.of(context).textTheme.bodyLarge,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Text(
+                                isAllDay
+                                    ? AppLocalizations.of(context)!.timeAllDay
+                                    : AppLocalizations.of(context)!.timeAt(selectedDate
+                                            .toLocal()
+                                            .hour
+                                            .toString()
+                                            .padLeft(2, '0') +
+                                        ':' +
+                                        selectedDate
+                                            .toLocal()
+                                            .minute
+                                            .toString()
+                                            .padLeft(2, '0')),
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
                         const SizedBox(height: 4),
-                        Text(
-                          AppLocalizations.of(context)!
-                              .location(event.singleEventLocation),
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
+                        // Ort Bereich
+                        isEditing
+                            ? TextField(
+                                controller: locationController,
+                                decoration: InputDecoration(
+                                  labelText: AppLocalizations.of(context)!.locationLabel,
+                                  border: const OutlineInputBorder(),
+                                ),
+                                onSubmitted: onLocationSubmitted,
+                              )
+                            : Text(
+                                AppLocalizations.of(context)!
+                                    .location(locationController.text),
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
                       ],
                     ),
                   ),
