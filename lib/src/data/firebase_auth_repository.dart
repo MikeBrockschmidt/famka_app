@@ -6,6 +6,7 @@ import 'dart:io' show Platform;
 import 'dart:math' show Random;
 import 'dart:convert' show utf8;
 import 'package:crypto/crypto.dart' show sha256;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class FirebaseAuthRepository implements AuthRepository {
   @override
@@ -39,14 +40,42 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<UserCredential> signInWithGoogle() async {
-    await GoogleSignIn.instance.initialize();
-    final GoogleSignInAccount googleUser =
-        await GoogleSignIn.instance.authenticate();
+    try {
+      if (kIsWeb) {
+        // Web-spezifische Implementierung mit Firebase Auth direkt
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+        
+        return await FirebaseAuth.instance.signInWithPopup(googleProvider);
+      } else {
+        // Mobile Implementierung
+        await GoogleSignIn.instance.initialize();
+        final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
 
-    final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-    final credential =
-        GoogleAuthProvider.credential(idToken: googleAuth.idToken);
-    return FirebaseAuth.instance.signInWithCredential(credential);
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        
+        if (googleAuth.idToken == null) {
+          throw FirebaseAuthException(
+            code: 'missing-id-token',
+            message: 'Failed to get ID token from Google',
+          );
+        }
+        
+        final credential = GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+        );
+        return FirebaseAuth.instance.signInWithCredential(credential);
+      }
+    } catch (e) {
+      if (e is FirebaseAuthException) {
+        rethrow;
+      }
+      throw FirebaseAuthException(
+        code: 'google-signin-failed',
+        message: 'Google Sign-In failed: ${e.toString()}',
+      );
+    }
   }
 
   @override

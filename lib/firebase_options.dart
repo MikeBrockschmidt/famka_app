@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -49,24 +46,32 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static final FirebaseOptions android = FirebaseOptions(
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBpes3s1Hixdf6x2NSu_KAZzQvPb48WRi4',
+    appId: '1:616611076821:web:c8f9989fb8323abfcfe05c',
+    messagingSenderId: '616611076821',
+    projectId: 'famka-app-free-storage',
+    authDomain: 'famka-app-free-storage.firebaseapp.com',
+    storageBucket: 'famka-app-free-storage.firebasestorage.app',
+    measurementId: 'G-YBWY18JQXE',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC37xVX2xNgYw3vg324cDugBIZu3FKF6VE',
-    appId: '1:616611076821:android:4cfe00c2f699c451cfe05c',
+    appId: '1:616611076821:android:571c7e93c5521283cfe05c',
     messagingSenderId: '616611076821',
     projectId: 'famka-app-free-storage',
     storageBucket: 'famka-app-free-storage.firebasestorage.app',
   );
 
-  static FirebaseOptions ios = FirebaseOptions(
+  static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDwQDlQpHl0AGSwLjx6MtuVbKLFHQmE0-8',
-    appId: '1:616611076821:ios:9e2e2f16ded0c576cfe05c',
+    appId: '1:616611076821:ios:e194df4a677cb3c1cfe05c',
     messagingSenderId: '616611076821',
     projectId: 'famka-app-free-storage',
     storageBucket: 'famka-app-free-storage.firebasestorage.app',
-    androidClientId:
-        '616611076821-h8it5oj56sbklh9pvnivlk9vtuvobpp9.apps.googleusercontent.com',
-    iosClientId:
-        '616611076821-rgu9ga0hejthhce1nbuivlnh6g51c93e.apps.googleusercontent.com',
+    androidClientId: '616611076821-h8it5oj56sbklh9pvnivlk9vtuvobpp9.apps.googleusercontent.com',
+    iosClientId: '616611076821-9s0tfieipr85qc9cll6s54euuf7o1j5m.apps.googleusercontent.com',
     iosBundleId: 'com.brockschmidt.famka.app',
   );
 }
