@@ -8,6 +8,7 @@ import 'package:famka_app/src/features/calendar/presentation/widgets/event_title
 import 'package:famka_app/src/features/calendar/presentation/widgets/enlarged_image_dialog.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart';
+import 'package:famka_app/src/common/image_utils.dart';
 
 class EventCard extends StatelessWidget {
   final SingleEvent event;
@@ -28,6 +29,7 @@ class EventCard extends StatelessWidget {
   final ValueChanged<DateTime>? onDateChanged;
   final ValueChanged<bool>? onAllDayChanged;
   final ValueChanged<SingleEvent>? onEventUpdated;
+  final ValueChanged<List<String>>? onParticipantsChanged;
 
   const EventCard({
     super.key,
@@ -49,6 +51,7 @@ class EventCard extends StatelessWidget {
     this.onDateChanged,
     this.onAllDayChanged,
     this.onEventUpdated,
+    this.onParticipantsChanged,
   });
 
   @override
@@ -301,15 +304,90 @@ class EventCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
               const SizedBox(height: 8),
-              Text(
-                AppLocalizations.of(context)!
-                    .participants(participantNames.join(', ')),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              isEditing
+                  ? _buildParticipantsEditor(context)
+                  : Text(
+                      AppLocalizations.of(context)!
+                          .participants(participantNames.join(', ')),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildParticipantsEditor(BuildContext context) {
+    final Set<String> allParticipantIds = {};
+    allParticipantIds.addAll(event.acceptedMemberIds);
+    allParticipantIds.addAll(event.invitedMemberIds);
+    allParticipantIds.addAll(event.maybeMemberIds);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.group, size: 16, color: Colors.grey),
+            const SizedBox(width: 4),
+            Text(
+              'Teilnehmer:',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: currentGroupMembers.map((member) {
+              final isSelected = allParticipantIds.contains(member.profilId);
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  onTap: () {
+                    Set<String> updatedParticipants = Set.from(allParticipantIds);
+                    if (isSelected) {
+                      updatedParticipants.remove(member.profilId);
+                    } else {
+                      updatedParticipants.add(member.profilId);
+                    }
+                    onParticipantsChanged?.call(updatedParticipants.toList());
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected ? AppColors.famkaRed : Colors.grey,
+                        width: 2,
+                      ),
+                    ),
+                    child: DynamicAvatar(
+                      avatarUrl: member.avatarUrl,
+                      radius: 20,
+                      backgroundColor: Colors.grey[200],
+                      fallbackIcon: Icons.person,
+                      iconSize: 20,
+                      iconColor: isSelected ? AppColors.famkaRed : Colors.grey[600],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${allParticipantIds.length} von ${currentGroupMembers.length} ausgewählt',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -174,6 +174,30 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                         selectedDate: _selectedDates[event.singleEventId]!,
                         isAllDay: _isAllDay[event.singleEventId]!,
                         db: widget.db,
+                        onParticipantsChanged: (acceptedMemberIds) async {
+                          // Update the event with new participants
+                          final updatedEvent = event.copyWith(
+                            acceptedMemberIds: acceptedMemberIds,
+                          );
+                          
+                          await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
+                          
+                          setState(() {
+                            final index = _currentEvents.indexWhere((e) =>
+                                e.singleEventId == event.singleEventId);
+                            if (index != -1) {
+                              _currentEvents[index] = updatedEvent;
+                            }
+                          });
+                          
+                          widget.onEventUpdated?.call(updatedEvent);
+                          
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Teilnehmer erfolgreich aktualisiert'),
+                            ),
+                          );
+                        },
                         onEditPressed: () {
                           debugPrint(
                               'info_bottom_sheet: onEditPressed ausgeführt. isEditing: $isEditing, Titel: ${_titleControllers[event.singleEventId]?.text}, Beschreibung: ${_descriptionControllers[event.singleEventId]?.text}');
