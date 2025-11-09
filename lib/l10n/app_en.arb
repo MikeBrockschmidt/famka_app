@@ -603,5 +603,9 @@
     "placeholders": {
       "time": {}
     }
-  }
+  },
+  "socialLoginWebNotAvailable": "is only available in the mobile app",
+  "socialLoginWebTooltip": "Only available in mobile app",
+  "googleSignInWebMessage": "Google Sign-In is only available in the mobile app",
+  "appleSignInWebMessage": "Apple Sign-In is only available in the mobile app"
 }

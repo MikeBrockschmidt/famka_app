@@ -1982,6 +1982,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error in image selection or cropping: {error}'**
   String imagePickError(Object error);
+
+  /// No description provided for @socialLoginWebNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'is only available in the mobile app'**
+  String get socialLoginWebNotAvailable;
+
+  /// No description provided for @socialLoginWebTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Only available in mobile app'**
+  String get socialLoginWebTooltip;
+
+  /// No description provided for @googleSignInWebMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Sign-In is only available in the mobile app'**
+  String get googleSignInWebMessage;
+
+  /// No description provided for @appleSignInWebMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Sign-In is only available in the mobile app'**
+  String get appleSignInWebMessage;
 }
 
 class _AppLocalizationsDelegate

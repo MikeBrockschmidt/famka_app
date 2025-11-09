@@ -31,10 +31,10 @@
               "client_type": 3
             },
             {
-              "client_id": "616611076821-grrmj9qjjffu01f6duju7fo43jpnb1si.apps.googleusercontent.com",
+              "client_id": "616611076821-9s0tfieipr85qc9cll6s54euuf7o1j5m.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.famkaApp"
+                "bundle_id": "com.brockschmidt.famka.app"
               }
             }
           ]
@@ -75,10 +75,10 @@
               "client_type": 3
             },
             {
-              "client_id": "616611076821-grrmj9qjjffu01f6duju7fo43jpnb1si.apps.googleusercontent.com",
+              "client_id": "616611076821-9s0tfieipr85qc9cll6s54euuf7o1j5m.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.famkaApp"
+                "bundle_id": "com.brockschmidt.famka.app"
               }
             }
           ]

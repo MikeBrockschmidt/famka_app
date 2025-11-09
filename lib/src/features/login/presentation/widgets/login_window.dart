@@ -4,6 +4,7 @@ import 'package:famka_app/src/features/register/presentation/register_screen.dar
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
@@ -344,14 +345,25 @@ class _LoginWindowState extends State<LoginWindow> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/grafiken/google.png',
-                            height: 24,
-                            width: 24,
-                          ),
-                          onPressed: () async {
-                            try {
+                        // Google Sign-In Button
+                        Opacity(
+                          opacity: kIsWeb ? 0.3 : 1.0, // Ausgegraut für Web
+                          child: IconButton(
+                            icon: Image.asset(
+                              'assets/grafiken/google.png',
+                              height: 24,
+                              width: 24,
+                            ),
+                            onPressed: kIsWeb ? () {
+                              // Zeige Info für Web-Nutzer
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(l10n.googleSignInWebMessage),
+                                  backgroundColor: AppColors.famkaBlue,
+                                ),
+                              );
+                            } : () async {
+                              try {
                               UserCredential userCredential =
                                   await widget.auth.signInWithGoogle();
 
@@ -473,8 +485,9 @@ class _LoginWindowState extends State<LoginWindow> {
                               debugPrint(l10n
                                   .googleLoginUnexpectedError(e.toString()));
                             }
-                          },
-                          tooltip: l10n.signInWithGoogleTooltip,
+                            },
+                            tooltip: kIsWeb ? l10n.socialLoginWebTooltip : l10n.signInWithGoogleTooltip,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Image.asset(
@@ -483,10 +496,21 @@ class _LoginWindowState extends State<LoginWindow> {
                           width: 24,
                         ),
                         const SizedBox(width: 12),
-                        IconButton(
-                          icon: Icon(Icons.apple,
-                              size: 32, color: AppColors.famkaWhite),
-                          onPressed: () async {
+                        // Apple Sign-In Button  
+                        Opacity(
+                          opacity: kIsWeb ? 0.3 : 1.0, // Ausgegraut für Web
+                          child: IconButton(
+                            icon: Icon(Icons.apple,
+                                size: 32, color: AppColors.famkaWhite),
+                            onPressed: kIsWeb ? () {
+                              // Zeige Info für Web-Nutzer
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(l10n.appleSignInWebMessage),
+                                  backgroundColor: AppColors.famkaBlue,
+                                ),
+                              );
+                            } : () async {
                             try {
                               UserCredential userCredential =
                                   await widget.auth.signInWithApple();
@@ -634,8 +658,9 @@ class _LoginWindowState extends State<LoginWindow> {
                                 ),
                               );
                             }
-                          },
-                          tooltip: l10n.signInWithAppleTooltip,
+                            },
+                            tooltip: kIsWeb ? l10n.socialLoginWebTooltip : l10n.signInWithAppleTooltip,
+                          ),
                         ),
                       ],
                     ),

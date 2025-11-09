@@ -40,47 +40,123 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<UserCredential> signInWithGoogle() async {
-    try {
-      if (kIsWeb) {
-        // Web-spezifische Implementierung mit Firebase Auth direkt
+    if (kIsWeb) {
+      // Vereinfachte Web-Implementierung
+      try {
+        print('🔥 Starting Google Sign-In for web...');
+        
+        // Erstelle Google Auth Provider ohne zusätzliche Konfiguration
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        
+        print('🔥 Attempting signInWithPopup...');
+        final result = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+        
+        print('🔥 Google Sign-In successful: ${result.user?.email}');
+        return result;
+        
+      } on FirebaseAuthException catch (e) {
+        print('🔥 Firebase Auth Error: ${e.code} - ${e.message}');
+        print('🔥 Full error: $e');
+        
+        // Spezifische Fehlermeldungen
+        switch (e.code) {
+          case 'auth/unauthorized-domain':
+            throw FirebaseAuthException(
+              code: 'unauthorized_domain',
+              message: 'Die Domain famka.web.app ist nicht autorisiert.\n\n'
+                  'Lösung:\n'
+                  '1. Gehe zu Firebase Console\n'
+                  '2. Authentication → Settings → Authorized domains\n'
+                  '3. Füge "famka.web.app" hinzu',
+            );
+          case 'auth/operation-not-allowed':
+            throw FirebaseAuthException(
+              code: 'google_not_enabled',
+              message: 'Google Sign-In ist nicht aktiviert.\n\n'
+                  'Lösung:\n'
+                  '1. Gehe zu Firebase Console\n'
+                  '2. Authentication → Sign-in method\n'
+                  '3. Aktiviere Google Provider',
+            );
+          case 'auth/popup-blocked':
+          case 'auth/popup-closed-by-user':
+            throw FirebaseAuthException(
+              code: 'popup_issue',
+              message: 'Popup-Problem. Bitte erlauben Sie Popups oder versuchen Sie es erneut.',
+            );
+          default:
+            // Gebe den ursprünglichen Fehler mit mehr Details weiter
+            throw FirebaseAuthException(
+              code: e.code,
+              message: 'Google Sign-In Fehler: ${e.message}\n\n'
+                  'Fehler-Code: ${e.code}\n'
+                  'Details: $e',
+            );
+        }
+      } catch (e) {
+        print('🔥 Unexpected error: $e');
+        throw FirebaseAuthException(
+          code: 'unknown_error',
+          message: 'Unerwarteter Fehler beim Google Sign-In: $e',
+        );
+      }
+    } else {
+      // Mobile Implementierung - Firebase Auth mit Google Provider  
+      try {
+        print('🔥 Starting Google Sign-In for mobile...');
+        
+        // Verwende Firebase Auth direkt mit Google Provider für Mobile
         final GoogleAuthProvider googleProvider = GoogleAuthProvider();
         googleProvider.addScope('email');
         googleProvider.addScope('profile');
         
-        return await FirebaseAuth.instance.signInWithPopup(googleProvider);
-      } else {
-        // Mobile Implementierung
-        await GoogleSignIn.instance.initialize();
-        final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
-
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        print('🔥 Attempting mobile Google Sign-In...');
         
-        if (googleAuth.idToken == null) {
-          throw FirebaseAuthException(
-            code: 'missing-id-token',
-            message: 'Failed to get ID token from Google',
-          );
+        // Für iOS/Android verwende signInWithProvider
+        final result = await FirebaseAuth.instance.signInWithProvider(googleProvider);
+        
+        print('🔥 Mobile Google Sign-In successful: ${result.user?.email}');
+        return result;
+        
+      } on FirebaseAuthException catch (e) {
+        print('🔥 Firebase Auth Error (mobile): ${e.code} - ${e.message}');
+        
+        // Behandle spezifische Mobile-Fehler
+        switch (e.code) {
+          case 'sign_in_canceled':
+            throw FirebaseAuthException(
+              code: 'sign_in_canceled',
+              message: 'Google Sign-In wurde abgebrochen',
+            );
+          case 'network-request-failed':
+            throw FirebaseAuthException(
+              code: 'network_error',
+              message: 'Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.',
+            );
+          default:
+            rethrow;
         }
-        
-        final credential = GoogleAuthProvider.credential(
-          idToken: googleAuth.idToken,
+      } catch (e) {
+        print('🔥 Unexpected error (mobile): $e');
+        throw FirebaseAuthException(
+          code: 'google-signin-failed',
+          message: 'Google Sign-In fehlgeschlagen: ${e.toString()}',
         );
-        return FirebaseAuth.instance.signInWithCredential(credential);
       }
-    } catch (e) {
-      if (e is FirebaseAuthException) {
-        rethrow;
-      }
-      throw FirebaseAuthException(
-        code: 'google-signin-failed',
-        message: 'Google Sign-In failed: ${e.toString()}',
-      );
     }
   }
 
   @override
   Future<UserCredential> signInWithApple() async {
-    // Für nicht-iOS Plattformen eine Fehlermeldung werfen
+    // Für Web und nicht-iOS Plattformen eine Fehlermeldung werfen
+    if (kIsWeb) {
+      throw FirebaseAuthException(
+        code: 'unsupported_platform',
+        message: 'Apple Sign-In is not supported on web platforms.',
+      );
+    }
+    
+    // Check for iOS only on non-web platforms
     if (!Platform.isIOS) {
       throw FirebaseAuthException(
         code: 'unsupported_platform',

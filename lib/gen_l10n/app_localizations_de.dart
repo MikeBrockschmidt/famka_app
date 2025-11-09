@@ -1111,6 +1111,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String imagePickError(Object error) {
     return 'Fehler bei der Bildauswahl oder Zuschneiden: $error';
   }
+
+  @override
+  String get socialLoginWebNotAvailable =>
+      'ist nur in der mobilen App verfügbar';
+
+  @override
+  String get socialLoginWebTooltip => 'Nur in mobiler App verfügbar';
+
+  @override
+  String get googleSignInWebMessage =>
+      'Google Sign-In ist nur in der mobilen App verfügbar';
+
+  @override
+  String get appleSignInWebMessage =>
+      'Apple Sign-In ist nur in der mobilen App verfügbar';
 }
 
 /// The translations for German (`de_Temp`).

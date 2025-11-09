@@ -1089,4 +1089,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String imagePickError(Object error) {
     return 'Error in image selection or cropping: $error';
   }
+
+  @override
+  String get socialLoginWebNotAvailable =>
+      'is only available in the mobile app';
+
+  @override
+  String get socialLoginWebTooltip => 'Only available in mobile app';
+
+  @override
+  String get googleSignInWebMessage =>
+      'Google Sign-In is only available in the mobile app';
+
+  @override
+  String get appleSignInWebMessage =>
+      'Apple Sign-In is only available in the mobile app';
 }

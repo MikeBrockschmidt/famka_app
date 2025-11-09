@@ -74,4 +74,5 @@ class DefaultFirebaseOptions {
     iosClientId: '616611076821-9s0tfieipr85qc9cll6s54euuf7o1j5m.apps.googleusercontent.com',
     iosBundleId: 'com.brockschmidt.famka.app',
   );
+
 }
