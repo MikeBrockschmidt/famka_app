@@ -52,7 +52,7 @@ class _CalendarGridState extends State<CalendarGrid> {
 
   // Limit backward viewing to 180 days (6 months) instead of 14 days
   static const int _daysBack = 180;
-  static const int _monthsForward = 6;
+  static const int _monthsForward = 18; // Erweitert auf 18 Monate für Dropdown-Kompatibilität
 
   late final DateTime _actualStartDate;
   late int _totalDisplayDays;
