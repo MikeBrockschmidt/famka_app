@@ -79,12 +79,28 @@ flutter:
         - asset: assets/fonts/SF-Compact-Display-Heavy.otf
 
 flutter_launcher_icons:
-  android: true
+  android: "launcher_icon"
   ios: true
   image_path: "assets/grafiken/famka-icon2.png"
+  min_sdk_android: 21
   remove_alpha_ios: true
-  # adaptive_icon_foreground: "assets/grafiken/famka-icon2.png"
-  adaptive_icon_background: '#FFFFFF'
+  
+  # Web Icons
+  web:
+    generate: true
+    image_path: "assets/grafiken/famka-icon2.png"
+    background_color: "#4A90E2"
+    theme_color: "#4A90E2"
+  
+  # Adaptive Icons für Android 8+
+  adaptive_icon_foreground: "assets/grafiken/famka-icon2.png"
+  adaptive_icon_background: "#FFFFFF"
+  
+  # Windows (falls später gewünscht)
+  windows:
+    generate: true
+    image_path: "assets/grafiken/famka-icon2.png"
+    icon_size: 48
 
 flutter_native_splash:
  # color: '#FFFFFF'
