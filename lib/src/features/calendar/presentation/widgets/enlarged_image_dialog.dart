@@ -4,11 +4,11 @@ import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/event_image.dart';
 import 'package:famka_app/src/features/gallery/presentation/widgets/gallery1.dart';
 import 'package:flutter/services.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';  // Temporarily disabled
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
+// import 'dart:ui' as ui;  // Temporarily disabled
 import 'dart:io';
 import 'package:flutter/rendering.dart';
 
@@ -118,6 +118,14 @@ class EnlargedImageDialog extends StatelessWidget {
   }
 
   Future<void> _saveImageToGallery(BuildContext context, String eventUrl) async {
+    // TODO: Re-implement image download with compatible package for release
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Bild-Download temporär deaktiviert (Release Build)'),
+        backgroundColor: Colors.orange,
+      ),
+    );
+    return;
     try {
       // Berechtigungen prüfen
       var status = await Permission.storage.status;
@@ -179,6 +187,8 @@ class EnlargedImageDialog extends StatelessWidget {
       }
 
       // Bild in Galerie speichern
+      // TODO: Replace with working image saver for release
+      /*
       final result = await ImageGallerySaver.saveImage(
         imageBytes,
         name: fileName,
@@ -190,6 +200,10 @@ class EnlargedImageDialog extends StatelessWidget {
       } else {
         _showErrorSnackBar(context, 'Fehler beim Speichern des Bildes');
       }
+      */
+      
+      // Temporary placeholder for release build
+      _showSuccessSnackBar(context, 'Bild-Download temporär deaktiviert (Release Build)');
     } catch (e) {
       _showErrorSnackBar(context, 'Unerwarteter Fehler: $e');
     }

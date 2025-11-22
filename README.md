@@ -4,7 +4,7 @@
 [![Firebase](https://img.shields.io/badge/Firebase-Integrated-orange.svg)](https://firebase.google.com/)
 [![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey.svg)](https://flutter.dev/multi-platform)
 
-Eine moderne, plattformübergreifende Familien-App, die Kalender, Chat und Fotogalerie in einer benutzerfreundlichen Oberfläche vereint.
+**PREMIUM FAMILIENAPP** - Eine werbefreie, sichere Familien-App, die Kalender, Chat und Fotogalerie in einer professionellen Oberfläche vereint. Entwickelt exklusiv für Familien, die Wert auf Privatsphäre und Qualität legen.
 
 ## 🌟 Features
 
@@ -29,6 +29,14 @@ Eine moderne, plattformübergreifende Familien-App, die Kalender, Chat und Fotog
 ### 🔐 Sicherheit & Datenschutz
 - Ende-zu-Ende-Verschlüsselung
 - DSGVO-konforme Datenspeicherung
+- **100% werbefrei** - keine Tracking-Partner
+- **Premium-Qualität** ohne versteckte Kosten
+
+### 💎 Premium-Features
+- **Unbegrenzte Familienmitglieder** in Gruppen
+- **Vollständige Kalenderfunktionen** mit Zeitraum-Bearbeitung
+- **Hochauflösende Fotogalerie** ohne Speicherlimits
+- **Priority Support** bei Fragen und Problemen
 - Keine Werbung, kein Datenverkauf
 - Sichere Authentifizierung (Google, Apple, E-Mail)
 

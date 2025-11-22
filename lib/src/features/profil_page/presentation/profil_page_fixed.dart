@@ -63,6 +63,8 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
+    
+    // Initialize form data synchronously
     _firstNameController.text = widget.currentUser.firstName;
     _lastNameController.text = widget.currentUser.lastName;
     _phoneNumberController.text = widget.currentUser.phoneNumber ?? '';
@@ -78,7 +80,8 @@ class _ProfilPageState extends State<ProfilPage> {
     _initialMiscellaneous = widget.currentUser.miscellaneous;
     _initialAvatarUrl = widget.currentUser.avatarUrl;
 
-    _loadUserGroups();
+    // Load groups asynchronously after UI is built
+    _userGroupsFuture = widget.db.getGroupsOfUser();
 
     _firstNameController.addListener(_checkIfHasChanges);
     _lastNameController.addListener(_checkIfHasChanges);
@@ -185,6 +188,9 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   void _loadUserGroups() {
+    // Don't setState if widget is not mounted
+    if (!mounted) return;
+    
     setState(() {
       _userGroupsFuture = widget.db.getGroupsOfUser();
     });
@@ -709,8 +715,35 @@ class _ProfilPageState extends State<ProfilPage> {
                                   builder: (context, snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.waiting) {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
+                                      // Show skeleton loading instead of spinner
+                                      return Row(
+                                        children: List.generate(3, (index) => 
+                                          Padding(
+                                            padding: const EdgeInsets.only(right: 20),
+                                            child: Column(
+                                              children: [
+                                                Container(
+                                                  width: 69,
+                                                  height: 69,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey.shade300,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 5),
+                                                Container(
+                                                  height: 14,
+                                                  width: 60,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey.shade300,
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
                                     } else if (snapshot.hasError) {
                                       return Center(
                                           child: Text(
@@ -797,16 +830,14 @@ class _ProfilPageState extends State<ProfilPage> {
         bottomNavigationBar: FutureBuilder<List<Group>>(
           future: _userGroupsFuture,
           builder: (context, snapshot) {
+            // Show navigation immediately with fallback
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Container(
-                height: 90,
-                color: AppColors.famkaYellow,
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.famkaCyan,
-                    strokeWidth: 2,
-                  ),
-                ),
+              return BottomNavigation(
+                widget.db,
+                auth: widget.auth,
+                currentUser: widget.currentUser,
+                initialGroup: null,
+                initialIndex: 0,
               );
             } else if (snapshot.hasError ||
                 !snapshot.hasData ||

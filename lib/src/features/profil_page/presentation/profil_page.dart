@@ -1,5 +1,4 @@
 import 'package:famka_app/gen_l10n/app_localizations.dart';
-import 'package:famka_app/src/common/bottom_navigation_three_calendar.dart';
 import 'package:famka_app/src/features/calendar/presentation/calendar_screen.dart';
 import 'package:famka_app/src/common/bottom_navigation.dart';
 import 'package:famka_app/src/common/headline_p.dart';
@@ -51,7 +50,8 @@ class _ProfilPageState extends State<ProfilPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  late Future<List<Group>> _userGroupsFuture;
+  List<Group> _userGroups = [];
+  bool _isLoadingGroups = false;
   late String _currentProfileAvatarUrl;
 
   bool _hasChanges = false;
@@ -69,6 +69,8 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
+    
+    // Initialize form data synchronously
     _firstNameController.text = _profileUser.firstName;
     _lastNameController.text = _profileUser.lastName;
     _phoneNumberController.text = _profileUser.phoneNumber ?? '';
@@ -84,7 +86,8 @@ class _ProfilPageState extends State<ProfilPage> {
     _initialMiscellaneous = _profileUser.miscellaneous;
     _initialAvatarUrl = _profileUser.avatarUrl;
 
-    _loadUserGroups();
+    // Try to use cached groups first, then load if needed
+    _initializeGroups();
 
     if (_isOwnProfile) {
       _firstNameController.addListener(_checkIfHasChanges);
@@ -93,6 +96,38 @@ class _ProfilPageState extends State<ProfilPage> {
       _emailController.addListener(_checkIfHasChanges);
       _miscellaneousController.addListener(_checkIfHasChanges);
       _checkIfHasChanges();
+    }
+  }
+
+  void _initializeGroups() {
+    // First try to get groups synchronously if they're already cached
+    if (widget.db.currentGroup != null) {
+      // We have at least one group cached, use it immediately
+      setState(() {
+        _userGroups = [widget.db.currentGroup!];
+        _isLoadingGroups = false;
+      });
+      // Then update with fresh data in background
+      widget.db.getGroupsOfUser().then((freshGroups) {
+        if (mounted && freshGroups.isNotEmpty) {
+          setState(() {
+            _userGroups = freshGroups;
+          });
+        }
+      });
+    } else {
+      // No cache available, load normally but set loading state
+      setState(() {
+        _isLoadingGroups = true;
+      });
+      widget.db.getGroupsOfUser().then((groups) {
+        if (mounted) {
+          setState(() {
+            _userGroups = groups;
+            _isLoadingGroups = false;
+          });
+        }
+      });
     }
   }
 
@@ -194,9 +229,10 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   void _loadUserGroups() {
-    setState(() {
-      _userGroupsFuture = widget.db.getGroupsOfUser();
-    });
+    // Don't setState if widget is not mounted
+    if (!mounted) return;
+    
+    _initializeGroups();
   }
 
   void _handleProfileAvatarSelected(String newUrl) async {
@@ -763,31 +799,47 @@ class _ProfilPageState extends State<ProfilPage> {
                                     ],
                                   ),
                                 const SizedBox(width: 20),
-                                FutureBuilder<List<Group>>(
-                                  future: _userGroupsFuture,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    } else if (snapshot.hasError) {
-                                      return Center(
-                                          child: Text(
-                                              'Fehler: ${snapshot.error}'));
-                                    } else if (!snapshot.hasData ||
-                                        snapshot.data!.isEmpty) {
-                                      return Center(
+                                _isLoadingGroups 
+                                  ? Row(
+                                      children: List.generate(3, (index) => 
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 20),
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                width: 69,
+                                                height: 69,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey.shade300,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Container(
+                                                height: 14,
+                                                width: 60,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey.shade300,
+                                                  borderRadius: BorderRadius.circular(4),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : _userGroups.isEmpty
+                                    ? Center(
                                         child: Text(
                                           AppLocalizations.of(context)
                                                   ?.keineGruppenGefunden ??
                                               'Keine Gruppen gefunden.',
                                         ),
-                                      );
-                                    } else {
-                                      return Row(
+                                      )
+                                    : Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        children: snapshot.data!
+                                        children: _userGroups
                                             .map(
                                               (group) => Padding(
                                                 padding: const EdgeInsets.only(
@@ -804,10 +856,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                               ),
                                             )
                                             .toList(),
-                                      );
-                                    }
-                                  },
-                                ),
+                                      ),
                               ],
                             ),
                           ),
@@ -857,40 +906,12 @@ class _ProfilPageState extends State<ProfilPage> {
             ],
           ),
         ),
-        bottomNavigationBar: FutureBuilder<List<Group>>(
-          future: _userGroupsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Container(
-                height: 90,
-                color: AppColors.famkaYellow,
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.famkaCyan,
-                    strokeWidth: 2,
-                  ),
-                ),
-              );
-            } else if (snapshot.hasError ||
-                !snapshot.hasData ||
-                snapshot.data!.isEmpty) {
-              return BottomNavigation(
-                widget.db,
-                auth: widget.auth,
-                currentUser: widget.currentUser,
-                initialGroup: null,
-                initialIndex: 0,
-              );
-            } else {
-              return BottomNavigationThreeCalendar(
-                widget.db,
-                auth: widget.auth,
-                currentUser: widget.currentUser,
-                initialGroup: widget.db.currentGroup ?? snapshot.data!.first,
-                initialIndex: 0,
-              );
-            }
-          },
+        bottomNavigationBar: BottomNavigation(
+          widget.db,
+          auth: widget.auth,
+          currentUser: widget.currentUser,
+          initialGroup: null,
+          initialIndex: 0,
         ),
       ),
     );

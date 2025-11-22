@@ -30,6 +30,7 @@ class EventCard extends StatelessWidget {
   final ValueChanged<bool>? onAllDayChanged;
   final ValueChanged<SingleEvent>? onEventUpdated;
   final ValueChanged<List<String>>? onParticipantsChanged;
+  final VoidCallback? onTimeRangeEditPressed; // Neuer Callback für Zeitraum-Bearbeitung
 
   const EventCard({
     super.key,
@@ -52,6 +53,7 @@ class EventCard extends StatelessWidget {
     this.onAllDayChanged,
     this.onEventUpdated,
     this.onParticipantsChanged,
+    this.onTimeRangeEditPressed, // Neuer Parameter hinzufügen
   });
 
   @override
@@ -203,21 +205,41 @@ class EventCard extends StatelessWidget {
                                   ),
                                 ],
                               )
-                            : Text(
-                                isAllDay
-                                    ? AppLocalizations.of(context)!.timeAllDay
-                                    : AppLocalizations.of(context)!.timeAt(selectedDate
-                                            .toLocal()
-                                            .hour
-                                            .toString()
-                                            .padLeft(2, '0') +
-                                        ':' +
-                                        selectedDate
-                                            .toLocal()
-                                            .minute
-                                            .toString()
-                                            .padLeft(2, '0')),
-                                style: Theme.of(context).textTheme.bodyLarge,
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Zeitanzeige mit Startzeit und optionaler Endzeit
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: isAllDay
+                                            ? Text(
+                                                AppLocalizations.of(context)!.timeAllDay,
+                                                style: Theme.of(context).textTheme.bodyLarge,
+                                              )
+                                            : event.selectedDateRange != null
+                                                ? Text(
+                                                    '${AppLocalizations.of(context)!.timeAt(selectedDate.toLocal().hour.toString().padLeft(2, '0') + ':' + selectedDate.toLocal().minute.toString().padLeft(2, '0'))} - ${event.selectedDateRange!.end.hour.toString().padLeft(2, '0')}:${event.selectedDateRange!.end.minute.toString().padLeft(2, '0')}',
+                                                    style: Theme.of(context).textTheme.bodyLarge,
+                                                  )
+                                                : Text(
+                                                    AppLocalizations.of(context)!.timeAt(selectedDate.toLocal().hour.toString().padLeft(2, '0') + ':' + selectedDate.toLocal().minute.toString().padLeft(2, '0')),
+                                                    style: Theme.of(context).textTheme.bodyLarge,
+                                                  ),
+                                      ),
+                                      if (!isAllDay && isEditing)
+                                        IconButton(
+                                          icon: const Icon(Icons.access_time),
+                                          color: AppColors.famkaBlue,
+                                          onPressed: () async {
+                                            // Callback für Zeit-Bearbeitung
+                                            onTimeRangeEditPressed?.call();
+                                          },
+                                          tooltip: 'Zeitraum bearbeiten',
+                                        ),
+                                    ],
+                                  ),
+                                ],
                               ),
                         const SizedBox(height: 4),
                         // Ort Bereich
