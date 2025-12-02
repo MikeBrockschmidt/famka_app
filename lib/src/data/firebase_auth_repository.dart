@@ -165,9 +165,20 @@ class FirebaseAuthRepository implements AuthRepository {
     }
 
     try {
+      // Apple Sign-In Verfügbarkeit prüfen (wichtig für iOS 18+)
+      final isAvailable = await SignInWithApple.isAvailable();
+      if (!isAvailable) {
+        throw FirebaseAuthException(
+          code: 'apple-signin-unavailable',
+          message: 'Apple Sign-In is not available on this device.',
+        );
+      }
+
       // Apple Sign-In Prozess starten
       final rawNonce = generateNonce();
       final nonce = sha256ofString(rawNonce);
+
+      print('🍎 Starting Apple Sign-In with nonce: ${nonce.substring(0, 8)}...');
 
       // Apple Sign-In anfordern
       final appleCredential = await SignInWithApple.getAppleIDCredential(
@@ -177,6 +188,8 @@ class FirebaseAuthRepository implements AuthRepository {
         ],
         nonce: nonce,
       );
+
+      print('🍎 Apple credential received: ${appleCredential.userIdentifier?.substring(0, 8)}...');
 
       // Validierung der Apple Credentials
       if (appleCredential.identityToken == null) {
@@ -190,7 +203,6 @@ class FirebaseAuthRepository implements AuthRepository {
       final oauthCredential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
         rawNonce: rawNonce,
-        accessToken: appleCredential.authorizationCode,
       );
 
       // Mit Firebase authentifizieren
@@ -213,11 +225,39 @@ class FirebaseAuthRepository implements AuthRepository {
 
       return userCredential;
     } on SignInWithAppleAuthorizationException catch (e) {
-      throw FirebaseAuthException(
-        code: e.code.toString(),
-        message: 'Apple Sign-In authorization failed: ${e.message}',
-      );
-    } on FirebaseAuthException {
+      print('🍎 Apple Sign-In Authorization Exception: ${e.code} - ${e.message}');
+      
+      // Handle spezifische Apple Sign-In Fehler
+      switch (e.code) {
+        case AuthorizationErrorCode.canceled:
+          throw FirebaseAuthException(
+            code: 'sign_in_canceled',
+            message: 'Apple Sign-In wurde vom Benutzer abgebrochen.',
+          );
+        case AuthorizationErrorCode.failed:
+          throw FirebaseAuthException(
+            code: 'authorization_failed',
+            message: 'Apple Sign-In Autorisierung fehlgeschlagen.',
+          );
+        case AuthorizationErrorCode.invalidResponse:
+          throw FirebaseAuthException(
+            code: 'invalid_response',
+            message: 'Ungültige Apple Sign-In Antwort.',
+          );
+        case AuthorizationErrorCode.notHandled:
+          throw FirebaseAuthException(
+            code: 'not_handled',
+            message: 'Apple Sign-In Anfrage wurde nicht bearbeitet.',
+          );
+        case AuthorizationErrorCode.unknown:
+        default:
+          throw FirebaseAuthException(
+            code: 'apple-signin-error',
+            message: 'Apple Sign-In Fehler: ${e.message}',
+          );
+      }
+    } on FirebaseAuthException catch (e) {
+      print('🍎 Firebase Auth Exception: ${e.code} - ${e.message}');
       rethrow;
     } catch (e) {
       throw FirebaseAuthException(
