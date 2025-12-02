@@ -16,7 +16,7 @@ Deutschland
 ## App-Details
 **App-Name**: FAMKA Familienkalender  
 **Version**: 2.0.0 (Premium)  
-**Plattformen**: iOS, Android, Web  
+**Plattformen**: iOS  
 **Kategorie**: Lifestyle / Produktivität
 
 ## Rechtliche Hinweise
@@ -39,7 +39,5 @@ Unsere E-Mail-Adresse finden Sie oben im Impressum.
 
 **Gültig für**:
 - FAMKA iOS App (App Store)
-- FAMKA Android App (Google Play)
-- FAMKA Web App (famka.web.app)
 
 *Stand: November 2025*

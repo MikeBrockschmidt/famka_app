@@ -12,10 +12,9 @@ Diese AGB gelten für die Nutzung der FAMKA Familienkalender App (Premium-Versio
 **Version**: Premium (kostenpflichtig)
 
 ## 2. Vertragsschluss
-- Der Vertrag kommt durch den Kauf der App über App Store/Google Play zustande
+- Der Vertrag kommt durch den Kauf der App über den App Store zustande
 - **iOS**: Preis €3.99 (einmalig)
-- **Android**: Preis €2.99 (einmalig)
-- Zahlung erfolgt über Apple/Google - keine separaten Zahlungsdaten erforderlich
+- Zahlung erfolgt über Apple - keine separaten Zahlungsdaten erforderlich
 
 ## 3. Leistungsumfang FAMKA Premium
 
