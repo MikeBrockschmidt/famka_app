@@ -180,7 +180,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
       print('🍎 Starting Apple Sign-In with nonce: ${nonce.substring(0, 8)}...');
 
-      // Apple Sign-In anfordern
+      // Apple Sign-In anfordern (native iOS)
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
@@ -190,6 +190,7 @@ class FirebaseAuthRepository implements AuthRepository {
       );
 
       print('🍎 Apple credential received: ${appleCredential.userIdentifier?.substring(0, 8)}...');
+      print('🍎 Identity token length: ${appleCredential.identityToken?.length ?? 0}');
 
       // Validierung der Apple Credentials
       if (appleCredential.identityToken == null) {
@@ -237,12 +238,12 @@ class FirebaseAuthRepository implements AuthRepository {
         case AuthorizationErrorCode.failed:
           throw FirebaseAuthException(
             code: 'authorization_failed',
-            message: 'Apple Sign-In Autorisierung fehlgeschlagen.',
+            message: 'Apple Sign-In Autorisierung fehlgeschlagen. Überprüfen Sie die Apple Developer Console Konfiguration:\n\n1. App ID (com.brockschmidt.famka.app) muss Apple Sign-In aktiviert haben\n2. Team ID: NT849NJASZ muss korrekt sein\n3. Bundle ID muss genau übereinstimmen',
           );
         case AuthorizationErrorCode.invalidResponse:
           throw FirebaseAuthException(
             code: 'invalid_response',
-            message: 'Ungültige Apple Sign-In Antwort.',
+            message: 'Ungültige Apple Sign-In Antwort. Dies deutet auf ein Konfigurationsproblem hin.',
           );
         case AuthorizationErrorCode.notHandled:
           throw FirebaseAuthException(
