@@ -4,7 +4,6 @@ import 'package:famka_app/src/features/register/presentation/register_screen.dar
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
@@ -12,7 +11,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famka_app/src/features/login/domain/app_user.dart';
-import 'dart:async';
 
 class LoginWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -29,6 +27,11 @@ class _LoginWindowState extends State<LoginWindow> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscured = true;
 
+  Future<void> _persistLastLoggedInUserId(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_logged_in_user_id', userId);
+  }
+
   @override
   void dispose() {
     _emailOrPhoneController.dispose();
@@ -40,87 +43,46 @@ class _LoginWindowState extends State<LoginWindow> {
     final email = _emailOrPhoneController.text.trim();
     final password = _passwordController.text.trim();
 
-    print('DEBUG: Starting login for email: $email');
-
     try {
-      // Zeige Loading Indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-
-      print('DEBUG: Attempting Firebase Auth signIn');
       await widget.auth.signInWithEmailAndPassword(email, password);
-      print('DEBUG: Firebase Auth successful');
 
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
 
-      print('DEBUG: Getting current user from Firebase Auth');
       final firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser == null) {
-        print('DEBUG: Firebase user is null');
-        if (mounted) Navigator.pop(context); // Schließe Loading
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.firebaseUserNotFound)),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.firebaseUserNotFound)),
+        );
         return;
       }
 
-      print('DEBUG: Firebase user ID: ${firebaseUser.uid}');
-      print('DEBUG: Starting Firestore getUserAsync');
+      await _persistLastLoggedInUserId(firebaseUser.uid);
 
-      // Timeout für Firestore-Abfragen
-      final currentUser = await widget.db.getUserAsync(firebaseUser.uid)
-          .timeout(Duration(seconds: 5), onTimeout: () {
-        print('DEBUG: Firestore getUserAsync TIMEOUT after 5 seconds');
-        throw TimeoutException('Firestore getUserAsync timeout', Duration(seconds: 5));
-      });
-      
-      print('DEBUG: Firestore getUserAsync completed, user: $currentUser');
-      
+      final currentUser = await widget.db.getUserAsync(firebaseUser.uid);
       if (!mounted) return;
       if (currentUser == null) {
-        print('DEBUG: Current user from Firestore is null');
-        if (mounted) Navigator.pop(context); // Schließe Loading
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.firestoreUserNotFound)),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.firestoreUserNotFound)),
+        );
         await widget.auth.signOut();
         return;
       }
 
-      print('DEBUG: Setting current user in db');
       widget.db.currentUser = currentUser;
       try {
-        print('DEBUG: Starting getGroupsForUser');
-        List<Group> userGroups = await widget.db.getGroupsForUser(firebaseUser.uid)
-            .timeout(Duration(seconds: 5), onTimeout: () {
-          print('DEBUG: getGroupsForUser TIMEOUT after 5 seconds');
-          throw TimeoutException('Groups timeout', Duration(seconds: 5));
-        });
-        print('DEBUG: getGroupsForUser completed, found ${userGroups.length} groups');
+        List<Group> userGroups =
+            await widget.db.getGroupsForUser(firebaseUser.uid);
         widget.db.currentGroup =
             userGroups.isNotEmpty ? userGroups.first : null;
       } catch (e) {
-        print('DEBUG: Error loading groups: $e');
         if (mounted) {
-          final l10n = AppLocalizations.of(context)!;
           debugPrint(l10n.loadingGroupsError(e.toString()));
           widget.db.currentGroup = null;
         }
       }
 
-      print('DEBUG: Navigating to ProfilPage');
       if (mounted) {
-        Navigator.pop(context); // Schließe Loading Dialog
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -133,19 +95,7 @@ class _LoginWindowState extends State<LoginWindow> {
           ),
         );
       }
-    } on TimeoutException catch (e) {
-      print('DEBUG: TimeoutException caught: ${e.message}');
-      if (mounted) Navigator.pop(context); // Schließe Loading
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Timeout: ${e.message}. Bitte versuchen Sie es erneut.'),
-          backgroundColor: AppColors.famkaRed,
-        ),
-      );
     } on FirebaseAuthException catch (e) {
-      print('DEBUG: FirebaseAuthException caught: ${e.code} - ${e.message}');
-      if (mounted) Navigator.pop(context); // Schließe Loading
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
       String message;
@@ -163,8 +113,6 @@ class _LoginWindowState extends State<LoginWindow> {
         ),
       );
     } catch (e) {
-      print('DEBUG: General exception caught: $e');
-      if (mounted) Navigator.pop(context); // Schließe Loading
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -345,25 +293,14 @@ class _LoginWindowState extends State<LoginWindow> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Google Sign-In Button
-                        Opacity(
-                          opacity: kIsWeb ? 0.3 : 1.0, // Ausgegraut für Web
-                          child: IconButton(
-                            icon: Image.asset(
-                              'assets/grafiken/google.png',
-                              height: 24,
-                              width: 24,
-                            ),
-                            onPressed: kIsWeb ? () {
-                              // Zeige Info für Web-Nutzer
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.googleSignInWebMessage),
-                                  backgroundColor: AppColors.famkaBlue,
-                                ),
-                              );
-                            } : () async {
-                              try {
+                        IconButton(
+                          icon: Image.asset(
+                            'assets/grafiken/google.png',
+                            height: 24,
+                            width: 24,
+                          ),
+                          onPressed: () async {
+                            try {
                               UserCredential userCredential =
                                   await widget.auth.signInWithGoogle();
 
@@ -439,6 +376,9 @@ class _LoginWindowState extends State<LoginWindow> {
                                 }
                               }
 
+                              await _persistLastLoggedInUserId(
+                                  firebaseUser.uid);
+
                               if (mounted) {
                                 Navigator.pushReplacement(
                                   // ignore: use_build_context_synchronously
@@ -485,9 +425,8 @@ class _LoginWindowState extends State<LoginWindow> {
                               debugPrint(l10n
                                   .googleLoginUnexpectedError(e.toString()));
                             }
-                            },
-                            tooltip: kIsWeb ? l10n.socialLoginWebTooltip : l10n.signInWithGoogleTooltip,
-                          ),
+                          },
+                          tooltip: l10n.signInWithGoogleTooltip,
                         ),
                         const SizedBox(width: 12),
                         Image.asset(
@@ -496,21 +435,10 @@ class _LoginWindowState extends State<LoginWindow> {
                           width: 24,
                         ),
                         const SizedBox(width: 12),
-                        // Apple Sign-In Button  
-                        Opacity(
-                          opacity: kIsWeb ? 0.3 : 1.0, // Ausgegraut für Web
-                          child: IconButton(
-                            icon: Icon(Icons.apple,
-                                size: 32, color: AppColors.famkaWhite),
-                            onPressed: kIsWeb ? () {
-                              // Zeige Info für Web-Nutzer
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.appleSignInWebMessage),
-                                  backgroundColor: AppColors.famkaBlue,
-                                ),
-                              );
-                            } : () async {
+                        IconButton(
+                          icon: Icon(Icons.apple,
+                              size: 32, color: AppColors.famkaWhite),
+                          onPressed: () async {
                             try {
                               UserCredential userCredential =
                                   await widget.auth.signInWithApple();
@@ -658,9 +586,8 @@ class _LoginWindowState extends State<LoginWindow> {
                                 ),
                               );
                             }
-                            },
-                            tooltip: kIsWeb ? l10n.socialLoginWebTooltip : l10n.signInWithAppleTooltip,
-                          ),
+                          },
+                          tooltip: l10n.signInWithAppleTooltip,
                         ),
                       ],
                     ),

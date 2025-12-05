@@ -52,7 +52,7 @@ class _CalendarGridState extends State<CalendarGrid> {
 
   // Limit backward viewing to 180 days (6 months) instead of 14 days
   static const int _daysBack = 180;
-  static const int _monthsForward = 18; // Erweitert auf 18 Monate für Dropdown-Kompatibilität
+  static const int _monthsForward = 6;
 
   late final DateTime _actualStartDate;
   late int _totalDisplayDays;
@@ -185,126 +185,6 @@ class _CalendarGridState extends State<CalendarGrid> {
     );
   }
 
-  // Interaktive Monatsauswahl
-  void _showMonthPicker(BuildContext context) async {
-    final locale = Localizations.localeOf(context).toString();
-    
-    // Erstelle eine Liste von Monaten (3 Monate zurück bis 18 Monate voraus)
-    final List<DateTime> months = [];
-    final DateTime startMonth = DateTime(currentDate.year, currentDate.month - 3, 1);
-    
-    for (int i = 0; i < 22; i++) { // 3 + 1 + 18 = 22 Monate total
-      final month = DateTime(startMonth.year, startMonth.month + i, 1);
-      months.add(month);
-    }
-
-    final DateTime? selectedMonth = await showModalBottomSheet<DateTime>(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return Container(
-          height: 400,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // Handle bar
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              // Titel
-              Text(
-                AppLocalizations.of(context)?.calendarTitle ?? 'Monat wählen',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Monatsliste
-              Expanded(
-                child: ListView.builder(
-                  itemCount: months.length,
-                  itemBuilder: (context, index) {
-                    final month = months[index];
-                    final monthText = DateFormat('MMMM yyyy', locale).format(month);
-                    final isCurrentMonth = month.month == currentTopDate.month && 
-                                         month.year == currentTopDate.year;
-                    
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isCurrentMonth ? Colors.blueAccent.withOpacity(0.1) : null,
-                        borderRadius: BorderRadius.circular(12),
-                        border: isCurrentMonth ? Border.all(color: Colors.blueAccent, width: 2) : null,
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          monthText,
-                          style: TextStyle(
-                            fontWeight: isCurrentMonth ? FontWeight.bold : FontWeight.normal,
-                            color: isCurrentMonth ? Colors.blueAccent : Colors.black,
-                            fontSize: 16,
-                          ),
-                        ),
-                        leading: Icon(
-                          Icons.calendar_month,
-                          color: isCurrentMonth ? Colors.blueAccent : Colors.grey,
-                        ),
-                        trailing: isCurrentMonth 
-                          ? const Icon(Icons.check, color: Colors.blueAccent)
-                          : null,
-                        onTap: () {
-                          Navigator.pop(context, month);
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-              // Abbrechen Button
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[200],
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text('Abbrechen', style: TextStyle(fontSize: 16)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    // Wenn ein Monat ausgewählt wurde, scrolle zu diesem Monat
-    if (selectedMonth != null && mounted) {
-      setState(() {
-        currentTopDate = selectedMonth;
-      });
-      scrollToMonth(selectedMonth);
-    }
-  }
-
   @override
   void dispose() {
     _leftColumnVerticalScrollController.dispose();
@@ -372,36 +252,18 @@ class _CalendarGridState extends State<CalendarGrid> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Interaktive Monatsauswahl
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _showMonthPicker(context),
-                    child: Row(
-                      children: [
-                        Text(
-                          monthName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ],
-                    ),
+                Text(
+                  monthName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.refresh, color: Colors.white),
                   tooltip: 'Aktualisieren',
                   onPressed: widget.onEventsRefreshed,
-                  color: Colors.white,
-                  iconSize: 20,
                 ),
               ],
             ),

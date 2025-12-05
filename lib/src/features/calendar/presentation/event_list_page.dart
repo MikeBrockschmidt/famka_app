@@ -391,61 +391,54 @@ class _EventListPageState extends State<EventListPage> {
     List<String> orderedHeaders = [];
 
     final today = DateTime.now();
+    final tomorrow = today.add(const Duration(days: 1));
     final todayHeader = localizations.eventListTodayHeader;
     final tomorrowHeader = localizations.eventListTomorrowHeader;
     bool hasTodayHeader = false;
 
-    // Erstelle eine chronologische Liste aller Tage für die nächsten 60 Tage
-    final int daysToShow = 60;
-    for (int i = 0; i < daysToShow; i++) {
-      final currentDay = today.add(Duration(days: i));
+    for (var event in _events) {
+      final date = event.singleEventDate;
       String header;
-      
-      if (i == 0) {
+
+      if (date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day) {
         header = todayHeader;
         hasTodayHeader = true;
-      } else if (i == 1) {
+      } else if (date.year == tomorrow.year &&
+          date.month == tomorrow.month &&
+          date.day == tomorrow.day) {
         header = tomorrowHeader;
       } else {
         header = DateFormat('EEEE, d. MMMM y', currentLocale)
-            .format(currentDay)
+            .format(date)
             .toUpperCase();
       }
-      
-      // Initialisiere jeden Tag mit einer leeren Liste
-      groupedEvents[header] = [];
-      orderedHeaders.add(header);
-    }
 
-    // Füge Events zu den entsprechenden Tagen hinzu
-    for (var event in _events) {
-      final eventDate = event.singleEventDate;
-      final daysDifference = eventDate.difference(today).inDays;
-      
-      // Nur Events für die nächsten 60 Tage berücksichtigen
-      if (daysDifference >= 0 && daysDifference < daysToShow) {
-        String header;
-        
-        if (daysDifference == 0) {
-          header = todayHeader;
-        } else if (daysDifference == 1) {
-          header = tomorrowHeader;
-        } else {
-          final targetDay = today.add(Duration(days: daysDifference));
-          header = DateFormat('EEEE, d. MMMM y', currentLocale)
-              .format(targetDay)
-              .toUpperCase();
-        }
-        
-        if (groupedEvents.containsKey(header)) {
-          groupedEvents[header]!.add(event);
-        }
+      if (!groupedEvents.containsKey(header)) {
+        groupedEvents[header] = [];
+        orderedHeaders.add(header);
       }
+      groupedEvents[header]!.add(event);
     }
 
-    // Sortiere Events innerhalb jedes Tages
     groupedEvents.forEach((header, events) {
       events.sort((a, b) => a.singleEventDate.compareTo(b.singleEventDate));
+    });
+
+    orderedHeaders.sort((a, b) {
+      if (a == todayHeader) return -1;
+      if (b == todayHeader) return 1;
+      if (a == tomorrowHeader) return -1;
+      if (b == tomorrowHeader) return 1;
+
+      final aEvents = groupedEvents[a]!;
+      final bEvents = groupedEvents[b]!;
+      if (aEvents.isNotEmpty && bEvents.isNotEmpty) {
+        return aEvents.first.singleEventDate
+            .compareTo(bEvents.first.singleEventDate);
+      }
+      return 0;
     });
 
     if (!_initialScrollComplete && hasTodayHeader && !_isLoading && mounted) {
@@ -490,7 +483,7 @@ class _EventListPageState extends State<EventListPage> {
                         child: Text(_errorMessage!,
                             style: TextStyle(color: AppColors.famkaRed)),
                       )
-                    : _events.isEmpty
+                    : groupedEvents.isEmpty
                         ? Center(
                             child: Text(
                               localizations.eventListNoEvents,
@@ -526,47 +519,30 @@ class _EventListPageState extends State<EventListPage> {
                                   );
                                 },
                                 content: Column(
-                                  children: events.isEmpty
-                                      ? [
-                                          Padding(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: Text(
-                                              'Keine Termine',
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 14,
-                                                fontStyle: FontStyle.italic,
-                                              ),
-                                            ),
-                                          ),
-                                        ]
-                                      : events.map((event) {
-                                          return GestureDetector(
-                                            onTap: () async {
-                                              await showModalBottomSheet<bool>(
-                                                context: context,
-                                                isScrollControlled: true,
-                                                builder: (context) {
-                                                  return InfoBottomSheet(
-                                                    date: event.singleEventDate,
-                                                    userName: widget
-                                                        .currentUser.firstName,
-                                                    eventsForPerson: [event],
-                                                    currentGroupMembers:
-                                                        _displayGroup
-                                                            .groupMembers,
-                                                    db: widget.db,
-                                                    onEventDeleted:
-                                                        _onEventDeleted,
-                                                    onEventUpdated:
-                                                        (updatedEvent) {
-                                                      _loadEvents();
-                                                    },
-                                                  );
-                                                },
-                                              );
-                                              await _loadEvents();
-                                            },
+                                  children: events.map((event) {
+                                    return GestureDetector(
+                                      onTap: () async {
+                                        await showModalBottomSheet<bool>(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          builder: (context) {
+                                            return InfoBottomSheet(
+                                              date: event.singleEventDate,
+                                              userName:
+                                                  widget.currentUser.firstName,
+                                              eventsForPerson: [event],
+                                              currentGroupMembers:
+                                                  _displayGroup.groupMembers,
+                                              db: widget.db,
+                                              onEventDeleted: _onEventDeleted,
+                                              onEventUpdated: (updatedEvent) {
+                                                _loadEvents();
+                                              },
+                                            );
+                                          },
+                                        );
+                                        await _loadEvents();
+                                      },
                                       child: Container(
                                         decoration: BoxDecoration(
                                           border: Border(
@@ -654,7 +630,7 @@ class _EventListPageState extends State<EventListPage> {
                                         ),
                                       ),
                                     );
-                                        }).toList(),
+                                  }).toList(),
                                 ),
                               );
                             },

@@ -8,7 +8,6 @@ import 'package:famka_app/src/features/calendar/presentation/widgets/event_title
 import 'package:famka_app/src/features/calendar/presentation/widgets/enlarged_image_dialog.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/date_picker.dart';
 import 'package:famka_app/src/features/appointment/presentation/widgets/time_picker.dart';
-import 'package:famka_app/src/common/image_utils.dart';
 
 class EventCard extends StatelessWidget {
   final SingleEvent event;
@@ -29,8 +28,6 @@ class EventCard extends StatelessWidget {
   final ValueChanged<DateTime>? onDateChanged;
   final ValueChanged<bool>? onAllDayChanged;
   final ValueChanged<SingleEvent>? onEventUpdated;
-  final ValueChanged<List<String>>? onParticipantsChanged;
-  final VoidCallback? onTimeRangeEditPressed; // Neuer Callback für Zeitraum-Bearbeitung
 
   const EventCard({
     super.key,
@@ -52,8 +49,6 @@ class EventCard extends StatelessWidget {
     this.onDateChanged,
     this.onAllDayChanged,
     this.onEventUpdated,
-    this.onParticipantsChanged,
-    this.onTimeRangeEditPressed, // Neuer Parameter hinzufügen
   });
 
   @override
@@ -205,41 +200,21 @@ class EventCard extends StatelessWidget {
                                   ),
                                 ],
                               )
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Zeitanzeige mit Startzeit und optionaler Endzeit
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: isAllDay
-                                            ? Text(
-                                                AppLocalizations.of(context)!.timeAllDay,
-                                                style: Theme.of(context).textTheme.bodyLarge,
-                                              )
-                                            : event.selectedDateRange != null
-                                                ? Text(
-                                                    '${AppLocalizations.of(context)!.timeAt(selectedDate.toLocal().hour.toString().padLeft(2, '0') + ':' + selectedDate.toLocal().minute.toString().padLeft(2, '0'))} - ${event.selectedDateRange!.end.hour.toString().padLeft(2, '0')}:${event.selectedDateRange!.end.minute.toString().padLeft(2, '0')}',
-                                                    style: Theme.of(context).textTheme.bodyLarge,
-                                                  )
-                                                : Text(
-                                                    AppLocalizations.of(context)!.timeAt(selectedDate.toLocal().hour.toString().padLeft(2, '0') + ':' + selectedDate.toLocal().minute.toString().padLeft(2, '0')),
-                                                    style: Theme.of(context).textTheme.bodyLarge,
-                                                  ),
-                                      ),
-                                      if (!isAllDay && isEditing)
-                                        IconButton(
-                                          icon: const Icon(Icons.access_time),
-                                          color: AppColors.famkaBlue,
-                                          onPressed: () async {
-                                            // Callback für Zeit-Bearbeitung
-                                            onTimeRangeEditPressed?.call();
-                                          },
-                                          tooltip: 'Zeitraum bearbeiten',
-                                        ),
-                                    ],
-                                  ),
-                                ],
+                            : Text(
+                                isAllDay
+                                    ? AppLocalizations.of(context)!.timeAllDay
+                                    : AppLocalizations.of(context)!.timeAt(selectedDate
+                                            .toLocal()
+                                            .hour
+                                            .toString()
+                                            .padLeft(2, '0') +
+                                        ':' +
+                                        selectedDate
+                                            .toLocal()
+                                            .minute
+                                            .toString()
+                                            .padLeft(2, '0')),
+                                style: Theme.of(context).textTheme.bodyLarge,
                               ),
                         const SizedBox(height: 4),
                         // Ort Bereich
@@ -326,90 +301,15 @@ class EventCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
               const SizedBox(height: 8),
-              isEditing
-                  ? _buildParticipantsEditor(context)
-                  : Text(
-                      AppLocalizations.of(context)!
-                          .participants(participantNames.join(', ')),
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+              Text(
+                AppLocalizations.of(context)!
+                    .participants(participantNames.join(', ')),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildParticipantsEditor(BuildContext context) {
-    final Set<String> allParticipantIds = {};
-    allParticipantIds.addAll(event.acceptedMemberIds);
-    allParticipantIds.addAll(event.invitedMemberIds);
-    allParticipantIds.addAll(event.maybeMemberIds);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.group, size: 16, color: Colors.grey),
-            const SizedBox(width: 4),
-            Text(
-              'Teilnehmer:',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: currentGroupMembers.map((member) {
-              final isSelected = allParticipantIds.contains(member.profilId);
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: GestureDetector(
-                  onTap: () {
-                    Set<String> updatedParticipants = Set.from(allParticipantIds);
-                    if (isSelected) {
-                      updatedParticipants.remove(member.profilId);
-                    } else {
-                      updatedParticipants.add(member.profilId);
-                    }
-                    onParticipantsChanged?.call(updatedParticipants.toList());
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected ? AppColors.famkaRed : Colors.grey,
-                        width: 2,
-                      ),
-                    ),
-                    child: DynamicAvatar(
-                      avatarUrl: member.avatarUrl,
-                      radius: 20,
-                      backgroundColor: Colors.grey[200],
-                      fallbackIcon: Icons.person,
-                      iconSize: 20,
-                      iconColor: isSelected ? AppColors.famkaRed : Colors.grey[600],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '${allParticipantIds.length} von ${currentGroupMembers.length} ausgewählt',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
     );
   }
 }

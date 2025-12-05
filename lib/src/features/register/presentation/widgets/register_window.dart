@@ -8,6 +8,7 @@ import 'package:famka_app/src/features/profil_page/presentation/profil_page.dart
 import 'package:famka_app/src/common/button_linear_gradient.dart';
 import 'package:famka_app/src/features/login/presentation/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterWindow extends StatefulWidget {
   final DatabaseRepository db;
@@ -29,6 +30,11 @@ class _RegisterWindowState extends State<RegisterWindow> {
 
   bool _isObscured = true;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  Future<void> _persistLastLoggedInUserId(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_logged_in_user_id', userId);
+  }
 
   @override
   void dispose() {
@@ -149,6 +155,8 @@ class _RegisterWindowState extends State<RegisterWindow> {
 
         await widget.db.createUser(newUser);
         // Benutzer erfolgreich in Firestore erstellt nach Registrierung.
+
+        await _persistLastLoggedInUserId(firebaseUser.uid);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

@@ -28,7 +28,12 @@ class _GalleryState extends State<Gallery> {
   final List<GalleryItem> _uploadedImages = [];
   bool _isPickingImage = false;
 
-  static const String _imagePathsKey = 'uploadedImagePaths';
+  static const String _imagePathsKeyBase = 'uploadedImagePaths';
+
+  String _prefsKeyForUser(String? userId) {
+    if (userId == null || userId.isEmpty) return _imagePathsKeyBase;
+    return '${_imagePathsKeyBase}_$userId';
+  }
 
   List<GalleryItem> galleryData = [];
 
@@ -41,8 +46,13 @@ class _GalleryState extends State<Gallery> {
   }
 
   Future<void> _loadUploadedImages() async {
+    final user = FirebaseAuth.instance.currentUser;
     final prefs = await SharedPreferences.getInstance();
-    final List<String>? storedPaths = prefs.getStringList(_imagePathsKey);
+    final String key = _prefsKeyForUser(user?.uid);
+
+    // Try user-specific key first; fall back to legacy key for migration.
+    List<String>? storedPaths = prefs.getStringList(key);
+    storedPaths ??= prefs.getStringList(_imagePathsKeyBase);
 
     if (storedPaths != null) {
       final List<GalleryItem> loadedItems = [];
@@ -69,13 +79,15 @@ class _GalleryState extends State<Gallery> {
   }
 
   Future<void> _saveUploadedImages() async {
+    final user = FirebaseAuth.instance.currentUser;
     final prefs = await SharedPreferences.getInstance();
+    final String key = _prefsKeyForUser(user?.uid);
     final List<String> pathsToSave = _uploadedImages
         .where((item) =>
             item.imageUrl != null && !item.imageUrl!.startsWith('assets/'))
         .map((item) => item.imageUrl!)
         .toList();
-    await prefs.setStringList(_imagePathsKey, pathsToSave);
+    await prefs.setStringList(key, pathsToSave);
   }
 
   Future<void> _deleteImage(GalleryItem itemToDelete) async {

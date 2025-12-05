@@ -42,8 +42,61 @@ class _MainAppState extends State<MainApp> {
       if (firebaseUser != null) {
         await _saveFCMToken(firebaseUser.uid);
 
-        final userFromFirestore =
-            await widget.db.getUserAsync(firebaseUser.uid);
+        // Persist last logged in user so the device keeps the session across restarts.
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('last_logged_in_user_id', firebaseUser.uid);
+        } catch (_) {
+          // Persist failure is non-fatal.
+        }
+
+        AppUser? userFromFirestore =
+          await widget.db.getUserAsync(firebaseUser.uid);
+
+        // Fallback: Wenn kein Benutzer-Dokument existiert (z.B. neuer Apple-Login), lege einen minimalen Datensatz an,
+        // damit die UI nicht im Ladezustand hängen bleibt.
+        if (userFromFirestore == null) {
+          final displayName = firebaseUser.displayName?.trim() ?? '';
+          final nameParts = displayName.isNotEmpty ? displayName.split(' ') : <String>[];
+
+          final fallbackFirstName = nameParts.isNotEmpty
+              ? nameParts.first
+              : (firebaseUser.email != null && firebaseUser.email!.isNotEmpty)
+                  ? firebaseUser.email!.split('@').first
+                  : 'User';
+
+          final fallbackLastName = nameParts.length > 1
+              ? nameParts.skip(1).join(' ')
+              : '';
+
+          final newUser = AppUser(
+            profilId: firebaseUser.uid,
+            email: firebaseUser.email ?? '',
+            firstName: fallbackFirstName,
+            lastName: fallbackLastName,
+            avatarUrl: firebaseUser.photoURL ?? 'assets/grafiken/famka-kreis.png',
+            phoneNumber: null,
+            miscellaneous: null,
+            password: '',
+            canCreateGroups: true,
+          );
+
+          try {
+            await widget.db.createUser(newUser);
+            userFromFirestore = newUser;
+          } catch (_) {
+            // Wenn das Anlegen fehlschlägt, bleibt userFromFirestore null.
+          }
+        }
+
+        // Gruppe für Nutzer laden, damit currentGroup nicht null bleibt (wichtig für Profil/Calendar).
+        try {
+          final groups = await widget.db.getGroupsForUser(firebaseUser.uid);
+          widget.db.currentGroup = groups.isNotEmpty ? groups.first : null;
+        } catch (_) {
+          widget.db.currentGroup = null;
+        }
+
         setState(() {
           _currentUserData = userFromFirestore;
           widget.db.currentUser = _currentUserData;

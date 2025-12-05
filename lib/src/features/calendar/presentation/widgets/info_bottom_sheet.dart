@@ -48,7 +48,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
   late Map<String, TextEditingController> _titleControllers;
   late Map<String, TextEditingController> _locationControllers;
   late Map<String, bool> _isEditingDescription;
-  late Map<String, bool> _isEditingTime; // Neue Variable für Zeitbearbeitung
   late Map<String, DateTime> _selectedDates;
   late Map<String, bool> _isAllDay;
   List<SingleEvent> _currentEvents = [];
@@ -64,7 +63,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
     _titleControllers = {};
     _locationControllers = {};
     _isEditingDescription = {};
-    _isEditingTime = {}; // Initialisierung hinzufügen
     _selectedDates = {};
     _isAllDay = {};
 
@@ -76,135 +74,9 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
       _locationControllers[event.singleEventId] =
           TextEditingController(text: event.singleEventLocation);
       _isEditingDescription[event.singleEventId] = false;
-      _isEditingTime[event.singleEventId] = false; // Initialisierung für jedes Event
       _selectedDates[event.singleEventId] = event.singleEventDate;
       _isAllDay[event.singleEventId] = event.isAllDay;
     }
-  }
-
-  // Zeitraum-Bearbeitung Dialog
-  void _showTimeRangeDialog(BuildContext context, SingleEvent event) async {
-    TimeOfDay? startTime;
-    TimeOfDay? endTime;
-    
-    // Aktuelle Zeiten laden
-    if (event.selectedDateRange != null) {
-      startTime = TimeOfDay.fromDateTime(event.selectedDateRange!.start);
-      endTime = TimeOfDay.fromDateTime(event.selectedDateRange!.end);
-    } else {
-      startTime = TimeOfDay.fromDateTime(event.singleEventDate);
-      endTime = TimeOfDay.fromDateTime(event.singleEventDate.add(const Duration(hours: 1)));
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Text('Zeitraum bearbeiten', style: TextStyle(fontWeight: FontWeight.bold)),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Startzeit
-                  ListTile(
-                    leading: const Icon(Icons.access_time),
-                    title: const Text('Startzeit'),
-                    subtitle: Text(startTime!.format(context)),
-                    onTap: () async {
-                      final TimeOfDay? picked = await showTimePicker(
-                        context: context,
-                        initialTime: startTime!,
-                      );
-                      if (picked != null) {
-                        setDialogState(() {
-                          startTime = picked;
-                        });
-                      }
-                    },
-                  ),
-                  const Divider(),
-                  // Endzeit
-                  ListTile(
-                    leading: const Icon(Icons.access_time_filled),
-                    title: const Text('Endzeit'),
-                    subtitle: Text(endTime!.format(context)),
-                    onTap: () async {
-                      final TimeOfDay? picked = await showTimePicker(
-                        context: context,
-                        initialTime: endTime!,
-                      );
-                      if (picked != null) {
-                        setDialogState(() {
-                          endTime = picked;
-                        });
-                      }
-                    },
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Abbrechen'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    // Zeitraum speichern
-                    final DateTime eventDate = event.singleEventDate;
-                    final DateTime startDateTime = DateTime(
-                      eventDate.year,
-                      eventDate.month,
-                      eventDate.day,
-                      startTime!.hour,
-                      startTime!.minute,
-                    );
-                    final DateTime endDateTime = DateTime(
-                      eventDate.year,
-                      eventDate.month,
-                      eventDate.day,
-                      endTime!.hour,
-                      endTime!.minute,
-                    );
-                    
-                    final DateTimeRange newRange = DateTimeRange(
-                      start: startDateTime,
-                      end: endDateTime,
-                    );
-                    
-                    final updatedEvent = event.copyWith(
-                      selectedDateRange: newRange,
-                      singleEventDate: startDateTime,
-                    );
-                    
-                    await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
-                    
-                    setState(() {
-                      final index = _currentEvents.indexWhere(
-                        (e) => e.singleEventId == event.singleEventId,
-                      );
-                      if (index != -1) {
-                        _currentEvents[index] = updatedEvent;
-                      }
-                      _selectedDates[event.singleEventId] = startDateTime;
-                    });
-                    
-                    widget.onEventUpdated?.call(updatedEvent);
-                    Navigator.of(dialogContext).pop();
-                    
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Zeitraum erfolgreich aktualisiert')),
-                    );
-                  },
-                  child: const Text('Speichern'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
   }
 
   @override
@@ -302,30 +174,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                         selectedDate: _selectedDates[event.singleEventId]!,
                         isAllDay: _isAllDay[event.singleEventId]!,
                         db: widget.db,
-                        onParticipantsChanged: (acceptedMemberIds) async {
-                          // Update the event with new participants
-                          final updatedEvent = event.copyWith(
-                            acceptedMemberIds: acceptedMemberIds,
-                          );
-                          
-                          await widget.db.updateEvent(updatedEvent.groupId, updatedEvent);
-                          
-                          setState(() {
-                            final index = _currentEvents.indexWhere((e) =>
-                                e.singleEventId == event.singleEventId);
-                            if (index != -1) {
-                              _currentEvents[index] = updatedEvent;
-                            }
-                          });
-                          
-                          widget.onEventUpdated?.call(updatedEvent);
-                          
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Teilnehmer erfolgreich aktualisiert'),
-                            ),
-                          );
-                        },
                         onEditPressed: () {
                           debugPrint(
                               'info_bottom_sheet: onEditPressed ausgeführt. isEditing: $isEditing, Titel: ${_titleControllers[event.singleEventId]?.text}, Beschreibung: ${_descriptionControllers[event.singleEventId]?.text}');
@@ -642,7 +490,6 @@ class _InfoBottomSheetState extends State<InfoBottomSheet> {
                           );
                         },
                         onEventUpdated: _updateEventInSheet,
-                        onTimeRangeEditPressed: () => _showTimeRangeDialog(context, event), // Neuer Callback
                       );
                     },
                   ),

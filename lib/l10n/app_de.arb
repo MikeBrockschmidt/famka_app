@@ -609,9 +609,5 @@
     "placeholders": {
       "time": {}
     }
-  },
-  "socialLoginWebNotAvailable": "ist nur in der mobilen App verfügbar",
-  "socialLoginWebTooltip": "Nur in mobiler App verfügbar",
-  "googleSignInWebMessage": "Google Sign-In ist nur in der mobilen App verfügbar",
-  "appleSignInWebMessage": "Apple Sign-In ist nur in der mobilen App verfügbar"
+  }
 }

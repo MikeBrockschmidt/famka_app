@@ -18,10 +18,6 @@
     "deleteGroup",
     "confirmDeleteGroup",
     "calendarLabelList",
-    "ungueltigeTelefonnummer",
-    "socialLoginWebNotAvailable",
-    "socialLoginWebTooltip",
-    "googleSignInWebMessage",
-    "appleSignInWebMessage"
+    "ungueltigeTelefonnummer"
   ]
 }
