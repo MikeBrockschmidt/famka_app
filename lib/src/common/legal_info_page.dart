@@ -191,7 +191,7 @@ class _LegalInfoPageState extends State<LegalInfoPage> with SingleTickerProvider
 
           _buildSection(
             '🛒 Premium-Kauf',
-            'iOS: €3.99 (einmalig über App Store)\nAndroid: €2.99 (einmalig über Google Play)\nWeb: Kostenlos (Bonus für App-Käufer)\n\nZahlung über Apple/Google - keine separaten Zahlungsdaten nötig.',
+            'iOS: €3.99 (einmalig über App Store)\nWeb: Kostenlos (Bonus für App-Käufer)\n\nZahlung über Apple – keine separaten Zahlungsdaten nötig.',
           ),
 
           // Premium Features Highlight
@@ -227,7 +227,7 @@ class _LegalInfoPageState extends State<LegalInfoPage> with SingleTickerProvider
 
           _buildSection(
             '↩️ EU-Widerrufsrecht',
-            '14-Tage-Widerrufsrecht für digitale Inhalte.\n\nDas Widerrufsrecht erlischt bei Beginn der Nutzung nach Ihrer Zustimmung.\n\nWiderruf über: Apple App Store oder Google Play Store',
+            '14-Tage-Widerrufsrecht für digitale Inhalte.\n\nDas Widerrufsrecht erlischt bei Beginn der Nutzung nach Ihrer Zustimmung.\n\nWiderruf über: Apple App Store',
           ),
 
           _buildSection(

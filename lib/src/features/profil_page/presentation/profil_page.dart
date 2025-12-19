@@ -16,6 +16,7 @@ import 'package:famka_app/src/features/group_page/domain/group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famka_app/src/features/group_page/presentation/widgets/add_or_join_group_screen.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilPage extends StatefulWidget {
   final DatabaseRepository db;
@@ -338,6 +339,7 @@ class _ProfilPageState extends State<ProfilPage> {
       await prefs.remove('last_logged_in_user_id');
 
       if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
         Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
           MaterialPageRoute(
               builder: (context) => LoginScreen(widget.db, widget.auth)),
@@ -355,6 +357,79 @@ class _ProfilPageState extends State<ProfilPage> {
         );
       }
     }
+  }
+
+  Future<void> _deleteAccount() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Account löschen / Delete account'),
+        content: const Text(
+            'Möchtest du deinen Account dauerhaft löschen? Dies entfernt dein Profil und trennt dich aus deinen Gruppen.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Abbrechen'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Löschen'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: AppColors.famkaCyan),
+      ),
+    );
+
+    try {
+      final userId = widget.currentUser.profilId;
+
+      // Entferne Benutzer aus Gruppen
+      final groups = await widget.db.getGroupsForUser(userId);
+      for (final group in groups) {
+        await widget.db.removeUserFromGroup(userId, group.groupId);
+      }
+
+      // Lösche Firestore-Datensatz
+      await widget.db.deleteUser(userId);
+
+      // Lösche Auth-User
+      final user = FirebaseAuth.instance.currentUser;
+      await user?.delete();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('onboardingComplete');
+      await prefs.remove('last_logged_in_user_id');
+
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+          MaterialPageRoute(
+              builder: (context) => LoginScreen(widget.db, widget.auth)),
+          (Route<dynamic> route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Account-Löschung fehlgeschlagen: $e'),
+            backgroundColor: AppColors.famkaRed,
+          ),
+        );
+      }
+      return;
+    }
+
   }
 
   void _navigateToAddGroupScreen(BuildContext context) async {
@@ -861,6 +936,25 @@ class _ProfilPageState extends State<ProfilPage> {
                                       ?.copyWith(
                                         color: AppColors.famkaGrey,
                                         decoration: TextDecoration.none,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 100),
+                          if (_isOwnProfile)
+                            Center(
+                              child: InkWell(
+                                onTap: _deleteAccount,
+                                child: Text(
+                                  AppLocalizations.of(context)?.deleteAccountButton ??
+                                      'Account löschen',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                        color: AppColors.famkaRed,
+                                        decoration: TextDecoration.none,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                 ),
                               ),

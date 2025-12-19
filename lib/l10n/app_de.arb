@@ -382,6 +382,7 @@
   "appointmentScreenRoute": "/appointmentScreen",
   "saveButton": "Speichern",
   "logoutButton": "Ausloggen",
+  "deleteAccountButton": "Account löschen",
   "addGroupButton": "Gruppe hinzufügen",
   "invalidEmailError": "Ungültige E-Mail Adresse",
   "invalidPhoneNumberError": "Ungültige Telefonnummer (min. 8 Ziffern, nur Zahlen)",

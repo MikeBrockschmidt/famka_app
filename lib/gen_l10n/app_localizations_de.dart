@@ -808,6 +808,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get logoutButton => 'Ausloggen';
 
   @override
+  String get deleteAccountButton => 'Account löschen';
+
+  @override
   String get addGroupButton => 'Gruppe hinzufügen';
 
   @override

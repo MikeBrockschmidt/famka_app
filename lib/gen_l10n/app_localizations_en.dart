@@ -792,6 +792,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoutButton => 'Logout';
 
   @override
+  String get deleteAccountButton => 'Delete account';
+
+  @override
   String get addGroupButton => 'Add Group';
 
   @override

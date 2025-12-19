@@ -1479,6 +1479,12 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logoutButton;
 
+  /// No description provided for @deleteAccountButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccountButton;
+
   /// No description provided for @addGroupButton.
   ///
   /// In en, this message translates to:

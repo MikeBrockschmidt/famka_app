@@ -4,6 +4,7 @@ import 'package:famka_app/src/features/register/presentation/register_screen.dar
 import 'package:famka_app/src/theme/color_theme.dart';
 import 'package:famka_app/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:famka_app/src/data/database_repository.dart';
 import 'package:famka_app/src/features/onboarding/presentation/widgets/onboarding1_screen.dart';
 import 'package:famka_app/src/common/button_linear_gradient.dart';
@@ -71,10 +72,8 @@ class _LoginWindowState extends State<LoginWindow> {
 
       widget.db.currentUser = currentUser;
       try {
-        List<Group> userGroups =
-            await widget.db.getGroupsForUser(firebaseUser.uid);
-        widget.db.currentGroup =
-            userGroups.isNotEmpty ? userGroups.first : null;
+        List<Group> userGroups = await widget.db.getGroupsForUser(firebaseUser.uid);
+        widget.db.currentGroup = userGroups.isNotEmpty ? userGroups.first : null;
       } catch (e) {
         if (mounted) {
           debugPrint(l10n.loadingGroupsError(e.toString()));
@@ -90,28 +89,10 @@ class _LoginWindowState extends State<LoginWindow> {
               db: widget.db,
               currentUser: currentUser,
               auth: widget.auth,
-              isOwnProfile: true,
             ),
           ),
         );
       }
-    } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-      final l10n = AppLocalizations.of(context)!;
-      String message;
-      if (e.code == 'user-not-found') {
-        message = l10n.loginFailedUserNotFound;
-      } else if (e.code == 'wrong-password') {
-        message = l10n.loginFailedWrongPassword;
-      } else {
-        message = l10n.loginFailedGeneric(e.message ?? e.code);
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: AppColors.famkaRed,
-        ),
-      );
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
@@ -121,6 +102,146 @@ class _LoginWindowState extends State<LoginWindow> {
           backgroundColor: AppColors.famkaRed,
         ),
       );
+    }
+  }
+
+  Future<void> _completeLoginAfterSocial(User firebaseUser,
+      {bool markOnboardingComplete = true}) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    await _persistLastLoggedInUserId(firebaseUser.uid);
+
+    AppUser? currentUser = await widget.db.getUserAsync(firebaseUser.uid);
+    if (!mounted) return;
+    if (currentUser == null) {
+      await widget.db.createUserFromGoogleSignIn(
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName,
+        photoUrl: firebaseUser.photoURL,
+      );
+      currentUser = await widget.db.getUserAsync(firebaseUser.uid);
+      if (currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.googleLoginFailedFirestoreLoad)),
+        );
+        await widget.auth.signOut();
+        return;
+      }
+    }
+
+    if (markOnboardingComplete) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('onboardingComplete', true);
+    }
+
+    widget.db.currentUser = currentUser;
+    try {
+      List<Group> userGroups = await widget.db.getGroupsForUser(firebaseUser.uid);
+      widget.db.currentGroup = userGroups.isNotEmpty ? userGroups.first : null;
+    } catch (e) {
+      debugPrint(l10n.loadingGroupsError(e.toString()));
+      widget.db.currentGroup = null;
+    }
+
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfilPage(
+          db: widget.db,
+          currentUser: currentUser!,
+          auth: widget.auth,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final userCredential = await widget.auth.signInWithGoogle();
+      final firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.googleLoginFailedNoUser)),
+        );
+        return;
+      }
+      await _completeLoginAfterSocial(firebaseUser);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.appleLoginSuccess)),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      String message;
+      if (e.code == 'account-exists-with-different-credential') {
+        message = l10n.googleLoginFailedDifferentCredential;
+      } else if (e.code == 'ABORTED_BY_USER' || e.code == 'canceled') {
+        message = l10n.googleLoginAborted;
+      } else {
+        message = l10n.googleLoginUnexpectedError(e.message ?? e.code);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: AppColors.famkaRed),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(l10n.googleLoginUnexpectedError(e.toString())),
+            backgroundColor: AppColors.famkaRed),
+      );
+      debugPrint(l10n.googleLoginUnexpectedError(e.toString()));
+    }
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final userCredential = await widget.auth.signInWithApple();
+      final firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.googleLoginFailedNoUser)),
+        );
+        return;
+      }
+      await _completeLoginAfterSocial(firebaseUser);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.appleLoginSuccess)),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      String message;
+      if (e.code == 'account-exists-with-different-credential') {
+        message = l10n.googleLoginFailedDifferentCredential;
+      } else if (e.code == 'unsupported_platform') {
+        message = l10n.appleLoginUnsupportedPlatform;
+      } else if (e.code == 'canceled' || e.code == 'ABORTED_BY_USER') {
+        message = l10n.appleLoginAborted;
+      } else if (e.code == 'missing-identity-token') {
+        message = 'Apple Sign-In Fehler: Kein Identity Token empfangen. Bitte versuchen Sie es erneut.';
+      } else if (e.code == 'apple-signin-error') {
+        message = 'Apple Sign-In Fehler: ${e.message}';
+      } else if (e.code == 'invalid-credential') {
+        message = 'Apple Sign-In Fehler: Ungültige Anmeldedaten.';
+      } else {
+        message = 'Apple Sign-In Fehler: ${e.message ?? e.code}';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: AppColors.famkaRed),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Unerwarteter Fehler bei der Apple-Anmeldung: $e'),
+            backgroundColor: AppColors.famkaRed),
+      );
+      debugPrint('Apple Sign-In Unexpected Error: $e');
     }
   }
 
@@ -181,8 +302,7 @@ class _LoginWindowState extends State<LoginWindow> {
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _isObscured,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             validator: (value) => validatePassword(value),
                             onTapOutside: (_) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -197,9 +317,7 @@ class _LoginWindowState extends State<LoginWindow> {
                                   });
                                 },
                                 icon: Icon(
-                                  _isObscured
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
+                                  _isObscured ? Icons.visibility : Icons.visibility_off,
                                 ),
                                 tooltip: _isObscured
                                     ? l10n.passwordShowTooltip
@@ -232,8 +350,7 @@ class _LoginWindowState extends State<LoginWindow> {
                                 duration: const Duration(seconds: 3),
                                 backgroundColor: AppColors.famkaCyan,
                                 content: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(l10n.checkInputsError),
                                     const SizedBox(
@@ -293,301 +410,78 @@ class _LoginWindowState extends State<LoginWindow> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/grafiken/google.png',
-                            height: 24,
-                            width: 24,
+                        // Google Sign-In Button
+                        Opacity(
+                          opacity: kIsWeb ? 0.3 : 1.0,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: kIsWeb
+                                  ? () {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Google Sign-In is not available on web.'),
+                                          backgroundColor: AppColors.famkaBlue,
+                                        ),
+                                      );
+                                    }
+                                  : _handleGoogleSignIn,
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: AppColors.famkaWhite.withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Image.asset(
+                                  'assets/grafiken/google.png',
+                                  height: 24,
+                                  width: 24,
+                                ),
+                              ),
+                            ),
                           ),
-                          onPressed: () async {
-                            try {
-                              UserCredential userCredential =
-                                  await widget.auth.signInWithGoogle();
-
-                              if (!mounted) return;
-                              final firebaseUser = userCredential.user;
-                              if (firebaseUser == null) {
-                                // ignore: use_build_context_synchronously
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text(l10n.googleLoginFailedNoUser)),
-                                );
-                                return;
-                              }
-
-                              AppUser? currentUser = await widget.db
-                                  .getUserAsync(firebaseUser.uid);
-
-                              if (!mounted) return;
-                              if (currentUser == null) {
-                                debugPrint(
-                                    'Neuer Google-Nutzer: Erstelle Firestore-Eintrag für UID: ${firebaseUser.uid}');
-                                await widget.db.createUserFromGoogleSignIn(
-                                  uid: firebaseUser.uid,
-                                  email: firebaseUser.email,
-                                  displayName: firebaseUser.displayName,
-                                  photoUrl: firebaseUser.photoURL,
-                                );
-                                currentUser = await widget.db
-                                    .getUserAsync(firebaseUser.uid);
-
-                                if (!mounted) return;
-                                if (currentUser == null) {
-                                  // ignore: use_build_context_synchronously
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(l10n
-                                            .googleLoginFailedFirestoreLoad)),
-                                  );
-                                  await widget.auth.signOut();
-                                  return;
-                                }
-
-                                // ignore: use_build_context_synchronously
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text(l10n.googleLoginNewUserCreated)),
-                                );
-                              } else {
-                                debugPrint(
-                                    'Bestehender Google-Nutzer gefunden in Firestore: ${firebaseUser.uid}');
-                                // ignore: use_build_context_synchronously
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(l10n.googleLoginSuccess)),
-                                );
-                              }
-
-                              widget.db.currentUser = currentUser;
-
-                              try {
-                                List<Group> userGroups = await widget.db
-                                    .getGroupsForUser(firebaseUser.uid);
-                                widget.db.currentGroup = userGroups.isNotEmpty
-                                    ? userGroups.first
-                                    : null;
-                              } catch (e) {
-                                if (mounted) {
-                                  debugPrint(
-                                      l10n.loadingGroupsError(e.toString()));
-                                  widget.db.currentGroup = null;
-                                }
-                              }
-
-                              await _persistLastLoggedInUserId(
-                                  firebaseUser.uid);
-
-                              if (mounted) {
-                                Navigator.pushReplacement(
-                                  // ignore: use_build_context_synchronously
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProfilPage(
-                                      db: widget.db,
-                                      currentUser: currentUser!,
-                                      auth: widget.auth,
-                                    ),
-                                  ),
-                                );
-                              }
-                            } on FirebaseAuthException catch (e) {
-                              if (!mounted) return;
-                              String message;
-                              if (e.code ==
-                                  'account-exists-with-different-credential') {
-                                message =
-                                    l10n.googleLoginFailedDifferentCredential;
-                              } else if (e.code == 'ABORTED_BY_USER') {
-                                message = l10n.googleLoginAborted;
-                              } else {
-                                message = l10n.googleLoginUnexpectedError(
-                                    e.message ?? e.code);
-                              }
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(message),
-                                  backgroundColor: AppColors.famkaRed,
-                                ),
-                              );
-                            } catch (e) {
-                              if (!mounted) return;
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.googleLoginUnexpectedError(
-                                      e.toString())),
-                                  backgroundColor: AppColors.famkaRed,
-                                ),
-                              );
-                              debugPrint(l10n
-                                  .googleLoginUnexpectedError(e.toString()));
-                            }
-                          },
-                          tooltip: l10n.signInWithGoogleTooltip,
                         ),
-                        const SizedBox(width: 12),
-                        Image.asset(
-                          'assets/grafiken/strich.png',
-                          height: 24,
-                          width: 24,
-                        ),
-                        const SizedBox(width: 12),
-                        IconButton(
-                          icon: Icon(Icons.apple,
-                              size: 32, color: AppColors.famkaWhite),
-                          onPressed: () async {
-                            try {
-                              UserCredential userCredential =
-                                  await widget.auth.signInWithApple();
-
-                              if (!mounted) return;
-                              final firebaseUser = userCredential.user;
-                              if (firebaseUser == null) {
-                                // ignore: use_build_context_synchronously
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text(l10n.googleLoginFailedNoUser)),
-                                );
-                                return;
-                              }
-
-                              AppUser? currentUser = await widget.db
-                                  .getUserAsync(firebaseUser.uid);
-
-                              if (!mounted) return;
-                              if (currentUser == null) {
-                                debugPrint(
-                                    'Neuer Apple-Nutzer: Erstelle Firestore-Eintrag für UID: ${firebaseUser.uid}');
-                                await widget.db.createUserFromGoogleSignIn(
-                                  uid: firebaseUser.uid,
-                                  email: firebaseUser.email,
-                                  displayName: firebaseUser.displayName,
-                                  photoUrl: firebaseUser.photoURL,
-                                );
-                                currentUser = await widget.db
-                                    .getUserAsync(firebaseUser.uid);
-
-                                if (!mounted) return;
-                                if (currentUser == null) {
-                                  // ignore: use_build_context_synchronously
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(l10n
-                                            .googleLoginFailedFirestoreLoad)),
-                                  );
-                                  await widget.auth.signOut();
-                                  return;
-                                }
-
-                                // ignore: use_build_context_synchronously
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text(l10n.appleLoginNewUserCreated)),
-                                );
-
-                                // Setze Onboarding als abgeschlossen für neue Apple-Nutzer
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                await prefs.setBool('onboardingComplete', true);
-                              } else {
-                                debugPrint(
-                                    'Bestehender Apple-Nutzer gefunden in Firestore: ${firebaseUser.uid}');
-                                // ignore: use_build_context_synchronously
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(l10n.appleLoginSuccess)),
-                                );
-
-                                // Setze Onboarding als abgeschlossen für bestehende Apple-Nutzer
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                await prefs.setBool('onboardingComplete', true);
-                              }
-
-                              widget.db.currentUser = currentUser;
-
-                              try {
-                                List<Group> userGroups = await widget.db
-                                    .getGroupsForUser(firebaseUser.uid);
-                                widget.db.currentGroup = userGroups.isNotEmpty
-                                    ? userGroups.first
-                                    : null;
-                              } catch (e) {
-                                if (mounted) {
-                                  debugPrint(
-                                      l10n.loadingGroupsError(e.toString()));
-                                  widget.db.currentGroup = null;
-                                }
-                              }
-
-                              if (mounted) {
-                                Navigator.pushReplacement(
-                                  // ignore: use_build_context_synchronously
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProfilPage(
-                                      db: widget.db,
-                                      currentUser: currentUser!,
-                                      auth: widget.auth,
-                                    ),
+                        const SizedBox(width: 16),
+                        // Apple Sign-In Button
+                        Opacity(
+                          opacity: kIsWeb ? 0.3 : 1.0,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: kIsWeb
+                                  ? () {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Apple Sign-In is not available on web.'),
+                                          backgroundColor: AppColors.famkaBlue,
+                                        ),
+                                      );
+                                    }
+                                  : _handleAppleSignIn,
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: AppColors.famkaWhite.withOpacity(0.3),
+                                    width: 1.5,
                                   ),
-                                );
-                              }
-                            } on FirebaseAuthException catch (e) {
-                              if (!mounted) return;
-                              String message;
-                              debugPrint(
-                                  'Apple Sign-In FirebaseAuthException: ${e.code} - ${e.message}');
-
-                              if (e.code ==
-                                  'account-exists-with-different-credential') {
-                                message =
-                                    l10n.googleLoginFailedDifferentCredential;
-                              } else if (e.code == 'unsupported_platform') {
-                                message = l10n.appleLoginUnsupportedPlatform;
-                              } else if (e.code == 'canceled' ||
-                                  e.code == 'ABORTED_BY_USER') {
-                                message = l10n.appleLoginAborted;
-                              } else if (e.code == 'missing-identity-token') {
-                                message =
-                                    'Apple Sign-In Fehler: Kein Identity Token empfangen. Bitte versuchen Sie es erneut.';
-                              } else if (e.code == 'apple-signin-error') {
-                                message = 'Apple Sign-In Fehler: ${e.message}';
-                              } else if (e.code == 'invalid-credential') {
-                                message =
-                                    'Apple Sign-In Fehler: Ungültige Anmeldedaten. Möglicherweise ein Konfigurationsproblem.';
-                              } else {
-                                message =
-                                    'Apple Sign-In Fehler: ${e.message ?? e.code}';
-                              }
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(message),
-                                  backgroundColor: AppColors.famkaRed,
-                                  duration: const Duration(seconds: 5),
                                 ),
-                              );
-                            } catch (e) {
-                              debugPrint('Apple Sign-In Unexpected Error: $e');
-                              if (!mounted) return;
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      'Unerwarteter Fehler bei der Apple-Anmeldung: $e'),
-                                  backgroundColor: AppColors.famkaRed,
-                                  duration: const Duration(seconds: 5),
+                                child: Icon(
+                                  Icons.apple,
+                                  size: 28,
+                                  color: AppColors.famkaWhite,
                                 ),
-                              );
-                            }
-                          },
-                          tooltip: l10n.signInWithAppleTooltip,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),

@@ -18,6 +18,7 @@
     "deleteGroup",
     "confirmDeleteGroup",
     "calendarLabelList",
+    "deleteAccountButton",
     "ungueltigeTelefonnummer"
   ]
 }

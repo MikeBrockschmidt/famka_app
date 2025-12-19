@@ -473,6 +473,7 @@
 
   "saveButton": "Save",
   "logoutButton": "Logout",
+  "deleteAccountButton": "Delete account",
   "addGroupButton": "Add Group",
   "invalidEmailError": "Invalid email address",
   "invalidPhoneNumberError": "Invalid phone number (min. 8 digits, numbers only)",

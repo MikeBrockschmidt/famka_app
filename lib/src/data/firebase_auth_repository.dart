@@ -1,12 +1,11 @@
+import 'package:crypto/crypto.dart' show sha256;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'dart:convert' show utf8;
 import 'dart:io' show Platform;
 import 'dart:math' show Random;
-import 'dart:convert' show utf8;
-import 'package:crypto/crypto.dart' show sha256;
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class FirebaseAuthRepository implements AuthRepository {
   @override
@@ -100,49 +99,43 @@ class FirebaseAuthRepository implements AuthRepository {
           message: 'Unerwarteter Fehler beim Google Sign-In: $e',
         );
       }
-    } else {
-      // Mobile Implementierung - Firebase Auth mit Google Provider  
-      try {
-        print('🔥 Starting Google Sign-In for mobile...');
-        
-        // Verwende Firebase Auth direkt mit Google Provider für Mobile
-        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        googleProvider.addScope('email');
-        googleProvider.addScope('profile');
-        
-        print('🔥 Attempting mobile Google Sign-In...');
-        
-        // Für iOS/Android verwende signInWithProvider
-        final result = await FirebaseAuth.instance.signInWithProvider(googleProvider);
-        
-        print('🔥 Mobile Google Sign-In successful: ${result.user?.email}');
-        return result;
-        
-      } on FirebaseAuthException catch (e) {
-        print('🔥 Firebase Auth Error (mobile): ${e.code} - ${e.message}');
-        
-        // Behandle spezifische Mobile-Fehler
-        switch (e.code) {
-          case 'sign_in_canceled':
-            throw FirebaseAuthException(
-              code: 'sign_in_canceled',
-              message: 'Google Sign-In wurde abgebrochen',
-            );
-          case 'network-request-failed':
-            throw FirebaseAuthException(
-              code: 'network_error',
-              message: 'Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.',
-            );
-          default:
-            rethrow;
-        }
-      } catch (e) {
-        print('🔥 Unexpected error (mobile): $e');
-        throw FirebaseAuthException(
-          code: 'google-signin-failed',
-          message: 'Google Sign-In fehlgeschlagen: ${e.toString()}',
-        );
+    }
+
+    // Mobile Implementierung – FirebaseAuth mit Google Provider
+    try {
+      print('🔥 Starting Google Sign-In for mobile (provider)...');
+
+      final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+      googleProvider.addScope('email');
+      googleProvider.addScope('profile');
+
+      final result =
+          await FirebaseAuth.instance.signInWithProvider(googleProvider);
+
+      print('🔥 Mobile Google Sign-In successful: ${result.user?.email}');
+      return result;
+    } on FirebaseAuthException catch (e) {
+      print('🔥 Firebase Auth Error (mobile): ${e.code} - ${e.message}');
+      switch (e.code) {
+        case 'sign_in_canceled':
+          throw FirebaseAuthException(
+            code: 'sign_in_canceled',
+            message: 'Google Sign-In wurde abgebrochen',
+          );
+        case 'network-request-failed':
+          throw FirebaseAuthException(
+            code: 'network_error',
+            message: 'Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.',
+          );
+        default:
+          rethrow;
       }
+    } catch (e) {
+      print('🔥 Unexpected error (mobile): $e');
+      throw FirebaseAuthException(
+        code: 'google-signin-failed',
+        message: 'Google Sign-In fehlgeschlagen: ${e.toString()}',
+      );
     }
   }
 
