@@ -151,6 +151,7 @@ class _LoginWindowState extends State<LoginWindow> {
         builder: (context) => ProfilPage(
           db: widget.db,
           currentUser: currentUser!,
+                    isOwnProfile: true,
           auth: widget.auth,
         ),
       ),
@@ -171,7 +172,7 @@ class _LoginWindowState extends State<LoginWindow> {
       await _completeLoginAfterSocial(firebaseUser);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.appleLoginSuccess)),
+        SnackBar(content: Text(l10n.googleLoginSuccess)),
       );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;

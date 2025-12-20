@@ -2,6 +2,7 @@ import 'package:crypto/crypto.dart' show sha256;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famka_app/src/data/auth_repository.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'dart:convert' show utf8;
 import 'dart:io' show Platform;
@@ -101,7 +102,60 @@ class FirebaseAuthRepository implements AuthRepository {
       }
     }
 
-    // Mobile Implementierung – FirebaseAuth mit Google Provider
+    // iOS: Stabiler Flow über google_sign_in Plugin
+    if (Platform.isIOS) {
+      try {
+        print('🔥 Starting Google Sign-In on iOS via google_sign_in...');
+
+        final googleSignIn = GoogleSignIn.instance;
+        await googleSignIn.initialize();
+
+        // New API uses authenticate() instead of signIn()
+        final account = await googleSignIn.authenticate();
+
+        final auth = account.authentication;
+        if (auth.idToken == null) {
+          throw FirebaseAuthException(
+            code: 'missing-tokens',
+            message: 'Google Sign-In fehlgeschlagen: Keine Tokens erhalten.',
+          );
+        }
+
+        final credential = GoogleAuthProvider.credential(
+          idToken: auth.idToken,
+        );
+
+        final result =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+        print('🔥 iOS Google Sign-In successful: ${result.user?.email}');
+        return result;
+      } on FirebaseAuthException catch (e) {
+        print('🔥 Firebase Auth Error (iOS): ${e.code} - ${e.message}');
+        switch (e.code) {
+          case 'sign_in_canceled':
+            throw FirebaseAuthException(
+              code: 'sign_in_canceled',
+              message: 'Google Sign-In wurde abgebrochen',
+            );
+          case 'network-request-failed':
+            throw FirebaseAuthException(
+              code: 'network_error',
+              message:
+                  'Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.',
+            );
+          default:
+            rethrow;
+        }
+      } catch (e) {
+        print('🔥 Unexpected error (iOS): $e');
+        throw FirebaseAuthException(
+          code: 'google-signin-failed',
+          message: 'Google Sign-In fehlgeschlagen: ${e.toString()}',
+        );
+      }
+    }
+
+    // Android & andere mobile Plattformen: FirebaseAuth Provider Flow
     try {
       print('🔥 Starting Google Sign-In for mobile (provider)...');
 

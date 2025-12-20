@@ -59,14 +59,14 @@ class DefaultFirebaseOptions {
 
   static FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDwQDlQpHl0AGSwLjx6MtuVbKLFHQmE0-8',
-    appId: '1:616611076821:ios:9e2e2f16ded0c576cfe05c',
+    appId: '1:616611076821:ios:e194df4a677cb3c1cfe05c',
     messagingSenderId: '616611076821',
     projectId: 'famka-app-free-storage',
     storageBucket: 'famka-app-free-storage.firebasestorage.app',
     androidClientId:
         '616611076821-h8it5oj56sbklh9pvnivlk9vtuvobpp9.apps.googleusercontent.com',
     iosClientId:
-        '616611076821-rgu9ga0hejthhce1nbuivlnh6g51c93e.apps.googleusercontent.com',
+        '616611076821-9s0tfieipr85qc9cll6s54euuf7o1j5m.apps.googleusercontent.com',
     iosBundleId: 'com.brockschmidt.famka.app',
   );
 }
